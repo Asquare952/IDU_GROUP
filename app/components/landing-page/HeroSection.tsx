@@ -11,10 +11,6 @@ interface SearchDropdownProps {
   dropdownContent: React.ReactNode;
   isLast: boolean;
 }
-
-// =================================================================
-// 2. SearchDropdown Component
-// =================================================================
 const SearchDropdown = ({
   iconPath,
   title,
@@ -50,7 +46,6 @@ const SearchDropdown = ({
         </div>
       </div>
 
-      {/* Dropdown Menu (The white card that appears below, conditional render) */}
       {isOpen && (
         <div
           className="absolute top-full mt-4 left-1/2 transform -translate-x-1/2 min-w-max bg-white rounded-xl shadow-2xl z-20 border border-gray-100 p-4"

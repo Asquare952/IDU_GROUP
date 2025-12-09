@@ -2,7 +2,7 @@ import React from "react";
 
 const Users = () => {
   return (
-    <div className="pt-32 pb-16 bg-white mt-25">
+    <div className="pt-32 pb-16 bg-white mt-25 mb-20">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 md:grid-cols-4 justify-around text-center gap-8">
           <div>
