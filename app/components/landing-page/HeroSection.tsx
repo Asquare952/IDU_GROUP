@@ -98,10 +98,10 @@ const HeroSection = () => {
           landlords, verified and location-based
         </p>
         <div className="flex space-x-4 mb-40">
-          <button className="bg-green-600 hover:bg-green-600 text-black font-semibold py-3 px-8 rounded-full transition duration-300 text-sm">
+          <button className="bg-green-600 hover:bg-green-600 text-black font-semibold py-3 px-8 rounded-full transition duration-300 text-sm cursor-pointer">
             Find a house
           </button>
-          <button className="bg-transparent border border-white hover:bg-white text-white hover:text-black font-semibold py-3 px-6 rounded-full transition duration-300 text-sm">
+          <button className="bg-transparent border border-white hover:bg-white text-white hover:text-black font-semibold py-3 px-6 rounded-full transition duration-300 text-sm cursor-pointer">
             List a property
           </button>
         </div>
