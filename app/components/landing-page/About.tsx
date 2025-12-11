@@ -4,7 +4,7 @@ import Image from "next/image";
 const About = () => {
   const primaryGreen = "#43A047";
   return (
-    <div className="flex justify-around">
+    <div className="flex justify-around mb-25">
       <div className="font-Inter flex-wrap">
         <div className="inline-block mb-3">
           <h1 className="text-5xl text-green-600 mb-0 font-bold">
@@ -36,7 +36,7 @@ const About = () => {
           verified landlords in four easy steps
         </p>
 
-        <button className="bg-green-600 hover:bg-green-600 text-white font-semibold py-3 px-8 rounded-full transition duration-300 text-sm mt-10 mb-5 cursor-pointer">
+        <button className="bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-8 rounded-full transition duration-300 text-sm mt-10 mb-5 cursor-pointer">
           Get started now
         </button>
       </div>
@@ -93,7 +93,7 @@ const About = () => {
           <div className="flex items-center space-x-2">
             <Image
               src="/searchbar for IDU (1).png"
-              alt="Person icon"
+              alt="searchbar"
               width={26}
               height={26}
               className="mt-7"
@@ -125,7 +125,7 @@ const About = () => {
           <div className="flex items-center space-x-2">
             <Image
               src="/chat for IDU (2).png"
-              alt="Person icon"
+              alt="char icon"
               width={26}
               height={26}
             />
@@ -140,7 +140,7 @@ const About = () => {
           <div className="mb-4 h-24 flex items-center justify-center">
             <Image
               src="/House.png"
-              alt="SIGN UP"
+              alt="house"
               width={50}
               height={50}
               className="mb-8"

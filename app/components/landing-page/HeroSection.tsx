@@ -25,17 +25,15 @@ const SearchDropdown = ({
   };
 
   return (
-    // Container for the whole item, set to relative for the absolute dropdown
     <div
       className={`relative cursor-pointer ${
         !isLast ? "border-r border-white" : ""
       }`}
       onClick={toggleDropdown}
     >
-      {/* Search Input Display (The GREEN Box) */}
       <div
         className="flex items-center space-x-2 py-3 px-4 rounded-xl"
-        style={{ backgroundColor: "#43A047" }} // Using the exact green color from Figma
+        style={{ backgroundColor: "#43A047" }}
       >
         {iconPath && (
           <Image src={iconPath} alt={`${title} icon`} width={20} height={20} />
@@ -62,6 +60,7 @@ const SearchDropdown = ({
 const HeroSection = () => {
   const locationDropdown = (
     <div className="space-y-2 w-48">
+      <p className="font-semibold text-gray-800">New York City</p>
       <p className="font-semibold text-gray-800">New York City</p>
       <p className="text-sm text-gray-500">Select another city</p>
     </div>
@@ -137,8 +136,6 @@ const HeroSection = () => {
                 isLast={true}
                 dropdownContent={priceDropdown}
               />
-
-              {/* Search Button (Final search icon) */}
               <button
                 className="bg-green-400 text-white p-3 rounded-xl hover:bg-green-700 transition duration-300 ml-2"
                 style={{ backgroundColor: "#43A047" }}
