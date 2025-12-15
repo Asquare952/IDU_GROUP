@@ -4,7 +4,7 @@ import Image from "next/image";
 const Listing = () => {
   const primaryGreen = "#43A047";
   return (
-    <div className="mb-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div className="mb-20 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <div className="mb-3 mx-auto max-w-fit">
         <h1 className="text-5xl text-green-600 mb-0 font-bold text-center">
           Feature listings
