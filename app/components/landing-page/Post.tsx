@@ -4,7 +4,7 @@ import Image from "next/image";
 const Post = () => {
   return (
     <div
-      className="mt-40 mb-20 py-20 relative"
+      className="mt-40 mb-20 py-20 relative flex-wrap"
       style={{
         background:
           "linear-gradient(94.1deg, #F9F9F9 0.39%, rgba(236, 245, 237, 0.62) 102.86%)",
