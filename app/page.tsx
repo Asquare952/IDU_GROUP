@@ -5,6 +5,7 @@ import Users from "./components/landing-page/Users";
 import About from "./components/landing-page/About";
 import Listing from "./components/landing-page/Listing";
 import Why from "./components/landing-page/Why";
+import Post from "./components/landing-page/Post";
 
 export default function Home() {
   return (
@@ -17,6 +18,7 @@ export default function Home() {
           <About />
           <Listing />
           <Why />
+          <Post />
         </section>
       </main>
     </div>

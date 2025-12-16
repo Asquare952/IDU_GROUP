@@ -106,25 +106,23 @@ const Why = () => {
               alt='Chat bubble "You say?" background'
               width={110}
               height={110}
-              className="absolute top-[-10px] left-10 z-0"
+              className="absolute top-[-10px] left-23 z-0"
             />
-            <span className="absolute top-[28px] left-[78px] text-sm font-semibold z-10 text-gray-800">
-            </span>
+            <span className="absolute top-[28px] left-[78px] text-sm font-semibold z-10 text-gray-800"></span>
             <Image
               src="/comment2.png"
               alt='Chat bubble "Sealed!" background'
               width={110}
               height={110}
-              className="absolute top-1 right-10 z-10"
+              className="absolute top-1 right-23 z-0"
             />
-            <span className="absolute top-[38px] right-[58px] text-sm font-semibold z-20 text-gray-800">
-            </span>
+            <span className="absolute top-[48px] right-[58px] text-sm font-semibold z-20 text-gray-800"></span>
             <Image
               src="/peoples.png"
               alt="Two people icon"
               width={40}
               height={40}
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+              className="absolute top-1/2 left-1/2 -translate-x-3/5 -translate-y-1/12"
             />
           </div>
           <div className="flex items-center space-x-2">
