@@ -87,17 +87,17 @@ const HeroSection = () => {
     >
       <Navbar />
       <div className="flex flex-col items-center justify-center h-full pt-20">
-        <h1 className="text-5xl md:text-6xl font-extrabold text-white text-center leading-tight mb-4 max-w-4xl">
-          Find Verified Homes.
+        <h1 className="text-5xl md:text-5xl font-extrabold text-white text-center leading-tight mb-4 max-w-4xl">
+          No Agents Or Third Party.
           <br />
-          <span className="text-white-400">No Agents. No Scams.</span>
+          <span className="text-white-400">No Commission. No Agent Fee.</span>
         </h1>
         <p className="text-lg md:text-xl text-white text-center max-w-2xl mb-10">
           Discover trusted houses for rents near you. <br /> Directly from
           landlords, verified and location-based
         </p>
         <div className="flex space-x-4 mb-40">
-          <button className="bg-green-600 hover:bg-green-600 text-black font-semibold py-3 px-8 rounded-full transition duration-300 text-sm cursor-pointer">
+          <button className="bg-green-500 hover:bg-green-600 text-black font-semibold py-3 px-8 rounded-full transition duration-300 text-sm cursor-pointer">
             Find a house
           </button>
           <button className="bg-transparent border border-white hover:bg-white text-white hover:text-black font-semibold py-3 px-6 rounded-full transition duration-300 text-sm cursor-pointer">
