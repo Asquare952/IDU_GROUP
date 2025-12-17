@@ -6,6 +6,7 @@ import About from "./components/landing-page/About";
 import Listing from "./components/landing-page/Listing";
 import Why from "./components/landing-page/Why";
 import Post from "./components/landing-page/Post";
+import Transparency from "./components/landing-page/Transparency";
 
 export default function Home() {
   return (
@@ -19,6 +20,7 @@ export default function Home() {
           <Listing />
           <Why />
           <Post />
+          <Transparency />
         </section>
       </main>
     </div>

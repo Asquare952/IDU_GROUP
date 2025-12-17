@@ -3,17 +3,17 @@ import Image from "next/image";
 
 const Post = () => {
   return (
-    <div
-      className="mt-40 mb-20 py-20 relative flex-wrap"
-      style={{
-        background:
-          "linear-gradient(94.1deg, #F9F9F9 0.39%, rgba(236, 245, 237, 0.62) 102.86%)",
-      }}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div>
+      <div
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-40 mb-20 py-15 relative flex-wrap rounded-[40px]"
+        style={{
+          background:
+            "linear-gradient(94.1deg, #F9F9F9 0.39%, rgba(236, 245, 237, 0.62) 102.86%)",
+        }}
+      >
         <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
           <div className="lg:w-5/12">
-            <h1 className="font-semibold text-xl sm:text-4xl leading-tight">
+            <h1 className="font-semibold text-xl sm:text-2xl leading-tight">
               List your Properties. <br className="hidden sm:inline" /> Get Real
               Tenants Fast
             </h1>
