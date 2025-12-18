@@ -18,7 +18,7 @@ const Transparency = () => {
         </div>
         <div className="lg:w-1/2">
           <div className="mb-6">
-            <Image src="/peoples.png" alt="Icon" width={45} height={45} />
+            <Image src="/3people.png" alt="Icon" width={45} height={45} />
           </div>
           <h2 className="font-semibold text-2xl sm:text-2xl lg:text-2xl leading-[1.2] text-gray-900">
             Built by Innovators. <br />
