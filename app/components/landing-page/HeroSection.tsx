@@ -1,157 +1,93 @@
 "use client";
 import React from "react";
-import Navbar from "../Header";
-import { useState } from "react";
 import Image from "next/image";
-
-interface SearchDropdownProps {
-  iconPath: string;
+interface SearchItemProps {
+  icon: string;
   title: string;
   placeholder: string;
-  dropdownContent: React.ReactNode;
-  isLast: boolean;
+  isLast?: boolean;
 }
-const SearchDropdown = ({
-  iconPath,
-  title,
-  placeholder,
-  dropdownContent,
-  isLast,
-}: SearchDropdownProps) => {
-  const [isOpen, setIsOpen] = useState(false);
 
-  const toggleDropdown = () => {
-    setIsOpen(!isOpen);
-  };
-
-  return (
-    <div
-      className={`relative cursor-pointer ${
-        !isLast ? "border-r border-white" : ""
-      }`}
-      onClick={toggleDropdown}
-    >
-      <div
-        className="flex items-center space-x-2 py-3 px-4 rounded-xl"
-        style={{ backgroundColor: "#43A047" }}
-      >
-        {iconPath && (
-          <Image src={iconPath} alt={`${title} icon`} width={20} height={20} />
-        )}
-        <div>
-          <p className="text-sm font-semibold text-white">{title}</p>
-          <p className="text-xs text-white opacity-80">{placeholder}</p>
-        </div>
-      </div>
-
-      {isOpen && (
-        <div
-          className="absolute top-full mt-4 left-1/2 transform -translate-x-1/2 min-w-max bg-white rounded-xl shadow-2xl z-20 border border-gray-100 p-4"
-          style={{ marginTop: "10px" }}
-        >
-          {dropdownContent}
-        </div>
-      )}
+const SearchItem = ({ icon, title, placeholder, isLast }: SearchItemProps) => (
+  <div
+    className={`flex-1 flex flex-col px-8 py-2 ${!isLast ? "border-r border-gray-100" : ""}`}
+  >
+    <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-1">
+      {title}
+    </span>
+    <div className="flex items-center gap-2">
+      <input
+        type="text"
+        placeholder={placeholder}
+        className="bg-transparent text-sm font-semibold text-gray-800 outline-none placeholder:text-gray-300 w-full"
+      />
     </div>
-  );
-};
-
+  </div>
+);
 
 const HeroSection = () => {
-  const locationDropdown = (
-    <div className="space-y-2 w-48">
-      <p className="font-semibold text-gray-800">New York City</p>
-      <p className="font-semibold text-gray-800">New York City</p>
-      <p className="text-sm text-gray-500">Select another city</p>
-    </div>
-  );
-
-  const categoryDropdown = (
-    <div className="space-y-2 w-48">
-      <p className="font-semibold text-gray-800">House Category</p>
-      <p className="text-sm text-gray-500">Apartment, Condo, etc.</p>
-    </div>
-  );
-
-  const priceDropdown = (
-    <div className="space-y-2 w-48">
-      <p className="font-semibold text-gray-800">Apartment $3</p>
-      <p className="text-sm text-gray-500">Select range</p>
-    </div>
-  );
-
   return (
-    <header
-      className="relative h-screen bg-cover bg-center"
-      style={{ backgroundImage: "url('/IDU GROUP HOME.png')" }}
-    >
-      <Navbar />
-      <div className="flex flex-col items-center justify-center h-full pt-20">
-        <h1 className="text-5xl md:text-5xl font-extrabold text-white text-center leading-tight mb-4 max-w-4xl">
-          No Agents Or Third Party.
-          <br />
-          <span className="text-white-400">No Commission. No Agent Fee.</span>
-        </h1>
-        <p className="text-lg md:text-xl text-white text-center max-w-2xl mb-10">
-          Discover trusted houses for rents near you. <br /> Directly from
-          landlords, verified and location-based
-        </p>
-        <div className="flex space-x-4 mb-40">
-          <button className="bg-green-500 hover:bg-green-600 text-black font-semibold py-3 px-8 rounded-full transition duration-300 text-sm cursor-pointer">
-            Find a house
-          </button>
-          <button className="bg-transparent border border-white hover:bg-white text-white hover:text-black font-semibold py-3 px-6 rounded-full transition duration-300 text-sm cursor-pointer">
-            List a property
-          </button>
-        </div>
-      </div>
+    <div className="relative w-full bg-white">
+      <section className="relative h-[85vh] w-full px-4 pt-4">
+        <div className="relative w-full h-full rounded-[40px] overflow-hidden">
+          <Image
+            src="/IDU GROUP HOME.png"
+            alt="Hero Background"
+            fill
+            className="object-cover brightness-[0.8]"
+            priority
+          />
+          <div className="absolute inset-0 flex flex-col">
+            <div className="flex-1 flex flex-col items-center justify-center text-center px-4 pb-20">
+              <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-[1.1]">
+                Find Verified Homes <br />
+                No Agents. <span className="text-[#4CAF50]">No Scams.</span>
+              </h1>
 
-      <div className="relative">
-        <div
-          className="absolute inset-x-0 bottom-0 flex justify-center z-30"
-          style={{ bottom: "-100px" }}
-        >
-          <div className="flex space-x-4 bg-white-900 p-4 rounded-xl shadow-xl">
-            <SearchDropdown
-              iconPath="/location.png"
-              title="Location"
-              placeholder="Select your city"
-              isLast={false}
-              dropdownContent={locationDropdown}
-            />
+              <p className="text-gray-100 text-sm md:text-lg max-w-xl mb-10 opacity-90">
+                Discover trusted houses for rents near you. Directly from
+                landlords, verified and location-based.
+              </p>
 
-            <SearchDropdown
-              iconPath="/property.png"
-              title="Property Category"
-              placeholder="Select property type"
-              isLast={false}
-              dropdownContent={categoryDropdown}
-            />
-
-            <div className="flex items-center space-x-4">
-              <SearchDropdown
-                iconPath="/price.png"
-                title="Price range"
-                placeholder="Select price range"
-                isLast={true}
-                dropdownContent={priceDropdown}
-              />
-              <button
-                className="bg-green-400 text-white p-3 rounded-xl hover:bg-green-700 transition duration-300 ml-2"
-                style={{ backgroundColor: "#43A047" }}
-              >
-                <Image
-                  src="/search.png"
-                  alt="Search"
-                  width={18}
-                  height={18} 
-                />
-              </button>
+              <div className="flex items-center gap-4">
+                <button className="bg-[#4CAF50] hover:bg-green-600 text-white font-semibold py-3.5 px-10 rounded-full transition shadow-lg cursor-pointer">
+                  Find a house
+                </button>
+                <button className="bg-white/10 backdrop-blur-md border border-white/30 hover:bg-white/20 text-white font-semibold py-3.5 px-10 rounded-full transition cursor-pointer">
+                  List a property
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </header>
+        <div className="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-1/2 w-full max-w-5xl px-6 z-30">
+          <div className="bg-white rounded-[24px] shadow-2xl p-3 flex flex-col md:flex-row items-center">
+            <SearchItem
+              icon="/location.png"
+              title="Enter Keyword"
+              placeholder="Lagos, Nigeria"
+            />
+            <SearchItem
+              icon="/location.png"
+              title="Location"
+              placeholder="Select location"
+            />
+            <SearchItem
+              icon="/property.png"
+              title="Property Type"
+              placeholder="Select type"
+              isLast={true}
+            />
+
+            <button className="w-full md:w-auto bg-[#5BBF6B] hover:bg-green-600 text-white px-8 py-4 rounded-[18px] font-bold text-sm transition ml-2 cursor-pointer">
+              Search Properties
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <div className="h-32"></div>
+    </div>
   );
 };
 

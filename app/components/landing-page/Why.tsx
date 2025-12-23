@@ -3,144 +3,126 @@ import Image from "next/image";
 
 const Why = () => {
   return (
-    <div className="mb-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
-      <div>
-        <h1 className="text-3xl mb-16 mt-12 text-center">
-          Why Rent With{" "}
-          <span className="text-green-600 font-semibold">IDU</span>?
-        </h1>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-7">
-        <div className="bg-white p-2 rounded-xl shadow-md border-none border-[background: linear-gradient(94.1deg, #F9F9F9 0.39%, rgba(236, 245, 237, 0.62) 102.86%);]">
-          <div className="mb-4 h-24 flex items-center justify-center">
-            <Image
-              src="/verify.png"
-              alt="verify icon"
-              width={170}
-              height={150}
-            />
-          </div>
-          <div className="flex items-center space-x-2">
-            <Image
-              src="/verify listing.png"
-              alt="verify icon"
-              width={26}
-              height={26}
-              className="mt-7"
-            />
-            <h2 className="font-semibold text-xl mt-7">Verify listing</h2>
-          </div>
-          <p className="mt-3 text-[#807979] font-semibold text-xl">
-            Every house is verified before going <br />
-            live. No scams. No fake landlords.
+    <div className="w-full bg-[#E8F0E9] py-20 mt-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div>
+          <h1 className="text-2xl text-green-500 font-bold mb-4 text-center">
+            Why Rent <span className="font-mono">ULO</span>?
+          </h1>
+          <p className="text-4xl text-center font-bold mb-5 text-gray-900">
+            Why Rent with US?
+          </p>
+          <p className="text-xl text-center text-gray-500 mb-16 max-w-2xl mx-auto">
+            Explore top-rated rentals and properties from trusted landlords in
+            your area
           </p>
         </div>
-        <div className="bg-white p-2 rounded-xl shadow-md border-none border-[background: linear-gradient(94.1deg, #F9F9F9 0.39%, rgba(236, 245, 237, 0.62) 102.86%);]">
-          <div className="mb-4 h-24 relative flex items-center justify-center">
-            <Image
-              src="/smart charge .png"
-              alt="Property details card 1"
-              width={140}
-              height={90}
-              className="absolute top-0 left-4 z-10"
-            />
-            <Image
-              src="/smart charge2.png"
-              alt="Property details card 2"
-              width={140}
-              height={90}
-              className="absolute top-4 right-4 z-0"
-            />
-            <Image
-              src="/green search.png"
-              alt="Green search icon"
-              width={40}
-              height={40}
-              className="absolute bottom-0"
-            />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+            <div className="mb-6 h-24 flex items-center justify-center">
+              <Image src="/verify.png" alt="verify" width={140} height={120} />
+            </div>
+            <div className="flex items-center space-x-2 mb-3">
+              <Image
+                src="/verify listing.png"
+                alt="icon"
+                width={24}
+                height={24}
+              />
+              <h2 className="font-bold text-xl">Verify listing</h2>
+            </div>
+            <p className="text-[#807979] font-medium text-base leading-relaxed">
+              Every house is verified before going live. No scams. No fake
+              landlords.
+            </p>
           </div>
-          <div className="flex items-center space-x-2">
-            <Image
-              src="/filter.png"
-              alt="verify icon"
-              width={26}
-              height={26}
-              className="mt-7"
-            />
-            <h2 className="font-semibold text-xl mt-7">Quick, Smart Search</h2>
+
+          <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+            <div className="mb-6 h-24 relative flex items-center justify-center">
+              <Image
+                src="/smart charge .png"
+                alt="card1"
+                width={100}
+                height={70}
+                className="absolute top-0 left-2 z-10"
+              />
+              <Image
+                src="/smart charge2.png"
+                alt="card2"
+                width={100}
+                height={70}
+                className="absolute top-2 right-2 z-0"
+              />
+              <Image
+                src="/green search.png"
+                alt="search"
+                width={35}
+                height={35}
+                className="absolute bottom-0"
+              />
+            </div>
+            <div className="flex items-center space-x-2 mb-3">
+              <Image src="/filter.png" alt="icon" width={24} height={24} />
+              <h2 className="font-bold text-xl">Quick, Smart Search</h2>
+            </div>
+            <p className="text-[#807979] font-medium text-base leading-relaxed">
+              Find your dream home faster with filters for price, location, and
+              amenities.
+            </p>
           </div>
-          <p className="mt-3 text-[#807979] font-semibold text-xl">
-            Find your dream home faster with filters <br />
-            for price location, and amenities.
-          </p>
-        </div>
-        <div className="bg-white p-2 rounded-xl shadow-md border-none border-[background: linear-gradient(94.1deg, #F9F9F9 0.39%, rgba(236, 245, 237, 0.62) 102.86%);]">
-          <div className="mb-4 h-24 flex items-center justify-center">
-            <Image
-              src="/google .png"
-              alt="verify icon"
-              width={200}
-              height={160}
-              className="mt-24"
-            />
+
+          <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+            <div className="mb-6 h-24 flex items-center justify-center overflow-hidden">
+              <Image
+                src="/google .png"
+                alt="map"
+                width={180}
+                height={140}
+                className="mt-4"
+              />
+            </div>
+            <div className="flex items-center space-x-2 mb-3">
+              <Image src="/mapping.png" alt="icon" width={24} height={24} />
+              <h2 className="font-bold text-xl">Map-based discovery</h2>
+            </div>
+            <p className="text-[#807979] font-medium text-base leading-relaxed">
+              Find available houses around your preferred area instantly.
+            </p>
           </div>
-          <div className="flex items-center space-x-2">
-            <Image
-              src="/mapping.png"
-              alt="verify icon"
-              width={26}
-              height={26}
-              className="mt-7"
-            />
-            <h2 className="font-semibold text-xl mt-7">Map-based discovery</h2>
+
+          <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+            <div className="mb-6 h-24 relative flex items-center justify-center">
+              <Image
+                src="/comment.png"
+                alt="chat1"
+                width={80}
+                height={80}
+                className="absolute top-0 left-4"
+              />
+              <Image
+                src="/comment2.png"
+                alt="chat2"
+                width={80}
+                height={80}
+                className="absolute top-2 right-4"
+              />
+              <Image
+                src="/peoples.png"
+                alt="people"
+                width={35}
+                height={35}
+                className="absolute bottom-2"
+              />
+            </div>
+            <div className="flex items-center space-x-2 mb-3">
+              <Image src="/peoples.png" alt="icon" width={24} height={24} />
+              <h2 className="font-bold text-xl">Direct with landlords</h2>
+            </div>
+            <p className="text-[#807979] font-medium text-base leading-relaxed">
+              Chat directly with verified owners. Skip agents and hidden fees.
+            </p>
           </div>
-          <p className="mt-3 text-[#807979] font-semibold text-xl">
-            Find available houses around <br />
-            your preferred area instantly
-          </p>
-        </div>
-        <div className="bg-white p-2 rounded-xl shadow-md border-none border-[background: linear-gradient(94.1deg, #F9F9F9 0.39%, rgba(236, 245, 237, 0.62) 102.86%);]">
-          <div className="mb-4 h-24 relative flex items-center justify-center">
-            <Image
-              src="/comment.png"
-              alt='Chat bubble "You say?" background'
-              width={110}
-              height={110}
-              className="absolute top-[-10px] left-23 z-0"
-            />
-            <span className="absolute top-[28px] left-[78px] text-sm font-semibold z-10 text-gray-800"></span>
-            <Image
-              src="/comment2.png"
-              alt='Chat bubble "Sealed!" background'
-              width={110}
-              height={110}
-              className="absolute top-1 right-23 z-0"
-            />
-            <span className="absolute top-[48px] right-[58px] text-sm font-semibold z-20 text-gray-800"></span>
-            <Image
-              src="/peoples.png"
-              alt="Two people icon"
-              width={40}
-              height={40}
-              className="absolute top-1/2 left-1/2 -translate-x-3/5 -translate-y-1/12"
-            />
-          </div>
-          <div className="flex items-center space-x-2">
-            <Image
-              src="/peoples.png"
-              alt="verify icon"
-              width={26}
-              height={26}
-              className="mt-7"
-            />
-            <h2 className="font-semibold text-xl mt-7">
-              Direct with landlords
-            </h2>
-          </div>
-          <p className="mt-3 text-[#807979] font-semibold text-xl">
-            Chat directly with verified owners. <br /> Skip agents and hidden
-            fees.
-          </p>
         </div>
       </div>
     </div>

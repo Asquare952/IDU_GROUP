@@ -4,66 +4,43 @@ import Image from "next/image";
 
 const Navbar = () => {
   return (
-    <div>
-      <nav className="absolute top-0 left-0 w-full z-10 bg-transparent flex items-center">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center gap-45">
-          <div className="flex items-center text-2xl font-bold text-black-500 tracking-wider">
-            <Image
-              src="/IDU GROUP LOGO.png"
-              alt="Rentulo Logo Icon"
-              width={28}
-              height={28} 
-              className="mr-2" 
-            />
-            RENT
-            <span className="text-green-500 font-family: ui-monospace, SFMono-Regular, ...">
-              ULO
-            </span>
-          </div>
-          <div className="hidden md:flex space-x-8 text-black text-lg">
-            <Link
-              href="/"
-              className="hover:text-gray-300 transition duration-150 "
-            >
-              Home
-            </Link>
-            <Link
-              href="/house"
-              className="hover:text-gray-300 transition duration-150"
-            >
-              House
-            </Link>
-            <Link
-              href="/property"
-              className="hover:text-gray-300 transition duration-150"
-            >
-              Property
-            </Link>
-            <Link
-              href="/about"
-              className="hover:text-gray-300 transition duration-150"
-            >
-              About Us
-            </Link>
-            <Link
-              href="/join"
-              className="hover:text-gray-300 transition duration-150"
-            >
-              Join Us
-            </Link>
-          </div>
-
-          <div className="hidden md:flex items-center">
-            <button
-              className="px-6 py-2 rounded-lg text-black font-semibold hover:text-gray-300 transition duration-150 cursor-pointer"
-              style={{ backgroundColor: "#84D8B5" }}
-            >
-              Log in
-            </button>
-          </div>
-        </div>
-      </nav>
-    </div>
+    <nav className="w-full bg-transparent flex items-center justify-between py-6 px-6 md:px-12 relative z-50">
+      <div className="flex items-center text-xl font-bold text-gray-900 tracking-tight">
+        <Image
+          src="/IDU GROUP LOGO.png"
+          alt="RentULO Logo"
+          width={28}
+          height={28}
+          className="mr-2"
+        />
+        Rent<span className="text-[#4CAF50]">ULO</span>
+      </div>
+      <div className="hidden md:flex items-center space-x-10">
+        {[
+          { name: "Home", href: "/" },
+          { name: "House", href: "/house" },
+          { name: "Property", href: "/property" },
+          { name: "About Us", href: "/about" },
+          { name: "Join Us", href: "/join" },
+        ].map((link) => (
+          <Link
+            key={link.name}
+            href={link.href}
+            className="text-[15px] font-medium text-gray-700 hover:text-[#4CAF50] transition duration-200"
+          >
+            {link.name}
+          </Link>
+        ))}
+      </div>
+      <div className="flex items-center">
+        <button
+          className="px-8 py-2.5 rounded-xl text-gray-900 font-semibold text-sm transition duration-150 active:scale-95 shadow-sm cursor-pointer"
+          style={{ backgroundColor: "#43A047"}}
+        >
+          Log in
+        </button>
+      </div>
+    </nav>
   );
 };
 

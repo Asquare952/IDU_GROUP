@@ -8,6 +8,7 @@ import Why from "./components/landing-page/Why";
 import Post from "./components/landing-page/Post";
 import Transparency from "./components/landing-page/Transparency";
 import CallToAction from "./components/landing-page/CallToAction";
+import Footer from "./components/Footer";
 
 export default function Home() {
   return (
@@ -23,6 +24,7 @@ export default function Home() {
           <Post />
           <Transparency />
           <CallToAction />
+          <Footer />
         </section>
       </main>
     </div>
