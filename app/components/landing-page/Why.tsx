@@ -6,7 +6,7 @@ const Why = () => {
     <div className="w-full bg-[#E8F0E9] py-20 mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div>
-          <h1 className="text-2xl text-green-500 font-bold mb-4 text-center">
+          <h1 className="text-2xl text-[#4CAF50] font-bold mb-4 text-center">
             Why Rent <span className="font-mono">ULO</span>?
           </h1>
           <p className="text-4xl text-center font-bold mb-5 text-gray-900">

@@ -2,165 +2,141 @@ import React from "react";
 import Image from "next/image";
 
 const About = () => {
-  const primaryGreen = "#43A047";
   return (
-    <div className="flex justify-around mb-25">
-      <div className="font-Inter flex-wrap">
-        <div className="inline-block mb-3">
-          <h1 className="text-5xl text-green-600 mb-0 font-bold">
+    <section className="bg-[#E8F0E9] py-24 px-4 mb-5">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-16">
+          <span className="text-[#4CAF50] font-bold text-2xl uppercase tracking-wider">
             How it works
-          </h1>
-          <div className="w-full h-4 relative">
-            <svg
-              className="absolute top-0 left-0 w-full h-full"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 100 10"
-              preserveAspectRatio="none"
-            >
-              <path
-                fill="none"
-                stroke={primaryGreen}
-                strokeWidth="1.5"
-                d="M 0 5 C 25 2, 75 8, 100 5"
-              ></path>
-            </svg>
-          </div>
+          </span>
+          <h2 className="text-4xl md:text-5xl font-bold text-[#1A2B49] mt-4 mb-6">
+            Simple. Transparent. Stress-free
+          </h2>
+          <p className="text-gray-500 text-lg max-w-2xl mx-auto font-medium">
+            Renting a house shouldn't be complicated. We connect you directly to
+            verified landlords in four easy steps
+          </p>
         </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col h-full">
+            <div className="h-32 flex items-center justify-center mb-6">
+              <Image src="/sign up.png" alt="SIGN UP" width={90} height={90} />
+            </div>
+            <div className="mt-auto">
+              <div className="flex items-center gap-2 mb-3">
+                <Image
+                  src="/personal for IDU.png"
+                  alt="icon"
+                  width={22}
+                  height={22}
+                />
+                <h3 className="font-bold text-lg text-[#1A2B49]">
+                  Sign up or log in
+                </h3>
+              </div>
+              <p className="text-[#807979] text-sm font-medium leading-relaxed">
+                Create a free account as a House Seeker or Landlord
+              </p>
+            </div>
+          </div>
 
-        <p className="font-semibold mt-3 text-2xl">
-          Simple. Transparent. <br /> Stress-free
-        </p>
-        <p className="mt-3 text-[#807979] font-semibold text-xl">
-          Renting a house shouldn’t be <br /> complicated. We connect you
-          directly to <br />
-          verified landlords in four easy steps
-        </p>
+          {/* Card 2: Search */}
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col h-full">
+            <div className="h-32 flex items-center justify-center mb-6 relative w-full">
+              <Image
+                src="/map.png"
+                alt="World Map"
+                width={180}
+                height={100}
+                className="absolute opacity-40"
+              />
+              <Image
+                src="/map2.png"
+                alt="Location Bubble"
+                width={150}
+                height={80}
+                className="relative z-10"
+              />
+            </div>
+            <div className="mt-auto">
+              <div className="flex items-center gap-2 mb-3">
+                <Image
+                  src="/searchbar for IDU (1).png"
+                  alt="icon"
+                  width={22}
+                  height={22}
+                />
+                <h3 className="font-bold text-lg text-[#1A2B49]">
+                  Search by location
+                </h3>
+              </div>
+              <p className="text-[#807979] text-sm font-medium leading-relaxed">
+                Find available houses around your preferred area instantly
+              </p>
+            </div>
+          </div>
 
-        <button className="bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-8 rounded-full transition duration-300 text-sm mt-10 mb-5 cursor-pointer">
-          Get started now
-        </button>
-      </div>
-      <div className="grid grid-cols-2 gap-6 flex-wrap mb-7">
-        <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
-          <div className="mb-4 h-24 flex items-center justify-center">
-            <Image
-              src="/sign up.png"
-              alt="SIGN UP"
-              width={90}
-              height={90}
-              className="mb-7"
-            />
+          {/* Card 3: Connect */}
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col h-full">
+            <div className="h-32 relative w-full mb-6">
+              <Image
+                src="/connect image1.png"
+                alt="Chat 1"
+                width={150}
+                height={50}
+                className="absolute top-0 left-0"
+              />
+              <Image
+                src="/connect image2.png"
+                alt="Chat 2"
+                width={120}
+                height={40}
+                className="absolute bottom-0 right-0"
+              />
+            </div>
+            <div className="mt-auto">
+              <div className="flex items-center gap-2 mb-3">
+                <Image
+                  src="/chat for IDU (2).png"
+                  alt="icon"
+                  width={22}
+                  height={22}
+                />
+                <h3 className="font-bold text-lg text-[#1A2B49]">
+                  Connect directly
+                </h3>
+              </div>
+              <p className="text-[#807979] text-sm font-medium leading-relaxed">
+                Message verified landlords or tenants. No agents. No hidden fees
+              </p>
+            </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <Image
-              src="/personal for IDU.png"
-              alt="Person icon"
-              width={26}
-              height={26}
-              className="mt-7"
-            />
-            <h2 className="font-semibold text-xl mt-7">Sign up or log in</h2>
+
+          {/* Card 4: Rent */}
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col h-full">
+            <div className="h-32 flex items-center justify-center mb-6">
+              <Image src="/House.png" alt="house" width={60} height={60} />
+            </div>
+            <div className="mt-auto">
+              <div className="flex items-center gap-2 mb-3">
+                <Image
+                  src="/home for IDU (3).png"
+                  alt="icon"
+                  width={22}
+                  height={22}
+                />
+                <h3 className="font-bold text-lg text-[#1A2B49]">
+                  Rent with confidence
+                </h3>
+              </div>
+              <p className="text-[#807979] text-sm font-medium leading-relaxed">
+                Visit, confirm and finalize the deal with peace of mind.
+              </p>
+            </div>
           </div>
-          <p className="mt-3 text-[#807979] font-semibold text-xl">
-            Create a free account as a House <br />
-            Seeker or Landlord
-          </p>
-        </div>
-        <div className="bg-white p-9 rounded-xl shadow-md border border-gray-100">
-          <div className="mb-4 h-24 flex items-center justify-end relative w-full">
-            <Image
-              src="/map.png"
-              alt="World Map"
-              width={180}
-              height={120}
-              className="absolute top-0 right-0 z-0 opacity-75"
-            />
-            <Image
-              src="/map2.png"
-              alt="Location Bubble"
-              width={200}
-              height={100}
-              className="absolute top-10 left-0 z-10"
-            />
-            <Image
-              src="/dot.png"
-              alt="Location Dot"
-              width={15}
-              height={15}
-              className="absolute top-10 right-10 z-20"
-            />
-          </div>
-          <div className="flex items-center space-x-2">
-            <Image
-              src="/searchbar for IDU (1).png"
-              alt="searchbar"
-              width={26}
-              height={26}
-              className="mt-7"
-            />
-            <h2 className="font-semibold text-xl mt-7">Search by location</h2>
-          </div>
-          <p className="mt-3 text-[#807979] font-semibold text-xl">
-            Find available houses around your <br />
-            preferred area instantly
-          </p>
-        </div>
-        <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
-          <div className="mb-4 h-24 relative w-full">
-            <Image
-              src="/connect image2.png"
-              alt="Chat bubble 2"
-              width={160}
-              height={50}
-              className="absolute bottom-0 right-0 z-10"
-            />
-            <Image
-              src="/connect image1.png"
-              alt="Chat bubble 1"
-              width={190}
-              height={60}
-              className="absolute top-0 left-0"
-            />
-          </div>
-          <div className="flex items-center space-x-2">
-            <Image
-              src="/chat for IDU (2).png"
-              alt="char icon"
-              width={26}
-              height={26}
-            />
-            <h2 className="font-semibold text-xl">Connect directly</h2>
-          </div>
-          <p className="mt-3 text-[#807979] font-semibold text-xl">
-            Message verified landlords or <br />
-            tenants. No agents. No hidden fees
-          </p>
-        </div>
-        <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
-          <div className="mb-4 h-24 flex items-center justify-center">
-            <Image
-              src="/House.png"
-              alt="house"
-              width={50}
-              height={50}
-              className="mb-8"
-            />
-          </div>
-          <div className="flex items-center space-x-2">
-            <Image
-              src="/home for IDU (3).png"
-              alt="Person icon"
-              width={26}
-              height={26}
-            />
-            <h2 className="font-semibold text-xl">Rent with confidence</h2>
-          </div>
-          <p className="mt-3 text-[#807979] font-semibold text-xl">
-            Visit, confirm and finalize the deal <br /> with peace of mind.
-          </p>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 
