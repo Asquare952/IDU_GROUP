@@ -32,8 +32,8 @@ const Post = () => {
           <p className="text-xl md:text-2xl text-gray-500 mt-6 max-w-2xl mx-auto">
             Post your house once, and reach verified tenants in your location
           </p>
-          <button className="bg-[#34A853] hover:bg-green-700 text-white font-bold py-4 px-10 rounded-full transition-all mt-10 shadow-lg flex items-center gap-2 mx-auto cursor-pointer">
-            Start Listing <span className="text-xl">&rarr;</span>
+          <button className="bg-[#34A853] hover:bg-green-700 text-white font-bold py-2 px-8 rounded-full transition-all mt-10 shadow-lg flex items-center gap-2 mx-auto cursor-pointer">
+            Start Listing <span className="text-sm">&rarr;</span>
           </button>
         </div>
         <div className="flex justify-center mt-16">

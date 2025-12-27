@@ -3,419 +3,144 @@ import Image from "next/image";
 
 const Listing = () => {
   const primaryGreen = "#43A047";
+  const textColor = "#1A1C1F"; // Darker color for titles to match Figma
+
+  const properties = [
+    {
+      id: 1,
+      title: "Modern Bungalow",
+      price: "$4,500",
+      img: "/flat1.jpg",
+    },
+    {
+      id: 2,
+      title: "Modern Bungalow",
+      price: "$4,500",
+      img: "/flat2.jpg",
+    },
+    {
+      id: 3,
+      title: "Modern Bungalow",
+      price: "$4,500",
+      img: "/flat3.jpg",
+    },
+    {
+      id: 4,
+      title: "Modern Bungalow",
+      price: "$4,500",
+      img: "/flat4.jpg",
+    },
+    {
+      id: 5,
+      title: "Modern Bungalow",
+      price: "$4,500",
+      img: "/flat5.jpg",
+    },
+    {
+      id: 6,
+      title: "Modern Bungalow",
+      price: "$4,500",
+      img: "/flat6.jpg",
+    },
+    {
+      id: 7,
+      title: "Modern Bungalow",
+      price: "$4,500",
+      img: "/flat7.jpg",
+    },
+    {
+      id: 8,
+      title: "Modern Bungalow",
+      price: "$4,500",
+      img: "/flat8.jpg",
+    },
+    {
+      id: 9,
+      title: "Modern Bungalow",
+      price: "$4,500",
+      img: "/flat9.jpg",
+    },
+  ];
+
   return (
-    <div className="mb-20 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-      <div className="mb-3 mx-auto max-w-fit">
-        <h1 className="text-5xl text-green-600 mb-0 font-bold text-center">
-          Feature listings
-        </h1>
-        <div className="w-full h-4 relative mt-2">
-          <svg
-            className="absolute top-0 left-0 w-full h-full"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 100 10"
-            preserveAspectRatio="none"
-          >
-            <path
-              fill="none"
-              stroke={primaryGreen}
-              strokeWidth="1.5"
-              d="M 0 5 C 25 2, 75 8, 100 5"
-            ></path>
-          </svg>
-        </div>
-        <p className="mt-3 text-[#807979] font-semibold text-xl mb-7 text-center">
-          Explore top-rated rentals and properties <br /> from trusted landlords
-          in your area
+    <div className="mb-20 mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 py-12">
+      <div className="mb-12 mx-auto text-center">
+        <span className="text-green-600 font-bold text-sm text-xl tracking-wide">
+          Featured listings
+        </span>
+        <h2
+          className={`text-4xl md:text-5xl font-bold mt-2 mb-4 text-[${textColor}]`}
+        >
+          Simple. Transparent. Stress-free
+        </h2>
+        <p className="text-gray-500 max-w-2xl mx-auto text-lg">
+          Explore top-rated rentals and properties from trusted landlords in
+          your area
         </p>
       </div>
-      <div className="flex justify-between items-center mt-6 mb-8">
-        <h3 className="text-2xl font-semibold text-gray-900">
-          Verified Homes Near You
-        </h3>
-        <button className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-5 rounded-full transition duration-300 text-sm cursor-pointer">
-          View all rentals
-        </button>
+
+      {/* Grid Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {properties.map((item) => (
+          <div
+            key={item.id}
+            className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+          >
+            <div className="relative h-64 w-full">
+              <Image
+                src={item.img}
+                alt={item.title}
+                fill
+                className="object-cover rounded-3xl p-2"
+              />
+            </div>
+
+            <div className="p-5">
+              <div className="flex justify-between items-start mb-2">
+                <div>
+                  <p className="text-gray-900 font-bold text-xl">
+                    {item.price}
+                    <span className="text-sm font-normal text-gray-400">
+                      / 2 days ago
+                    </span>
+                  </p>
+                  <h3 className="text-gray-800 font-semibold text-lg">
+                    {item.title}
+                  </h3>
+                </div>
+                <button className="bg-[#E8F5E9] text-[#43A047] text-xs font-bold px-4 py-1.5 rounded-full cursor-pointer">
+                  View
+                </button>
+              </div>
+
+              <p className="text-gray-400 text-sm mb-4 leading-relaxed">
+                Cozy rooms, large jacuzzi, spacious kitchen. Convenient
+                lifestyle living.
+              </p>
+
+              {/* Badges */}
+              <div className="flex flex-wrap gap-4 border-t border-gray-50 pt-4">
+                <div className="flex items-center gap-2">
+                  <Image src="/shawer.png" alt="bath" width={16} height={16} />
+                  <span className="text-xs text-gray-500 font-medium">
+                    2 bathrooms
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Image src="/bed.png" alt="bed" width={16} height={16} />
+                  <span className="text-xs text-gray-500 font-medium">
+                    5 bedrooms
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
-      <div className="grid grid-cols-3 gap-8 mx-auto">
-        <div className="mb-5 p-2 bg-white shadow-lg rounded-xl">
-          <Image
-            src="/mini flat 1.png"
-            alt="flats"
-            width={330}
-            height={330}
-            className="mb-7 w-full h-auto rounded-xl"
-          />
-          <h2 className="mt-3 text-[#807979] font-semibold text-xl mb-2">
-            Compact mini flat
-          </h2>
-
-          <div className="flex flex-wrap gap-y-3 gap-x-6">
-            <div className="flex items-center space-x-2">
-              <Image
-                src="/icons for IDU.png"
-                alt="location icon"
-                width={15}
-                height={15}
-                className="mb-0"
-              />
-              <p className="text-[#807979]">Yaba, Lagos</p>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Image
-                src="/verified.png"
-                alt="verified icon"
-                width={15}
-                height={15}
-                className="mb-0"
-              />
-              <p className="text-[#807979] text-sm">verified Landlords</p>
-            </div>
-
-            <div className="flex items-center space-x-2  bg-gray-200 py-1 px-3 rounded-full text-sm">
-              <Image
-                src="/bed.png"
-                alt="bed icon"
-                width={15}
-                height={15}
-                className="mb-0"
-              />
-              <p className="text-[#807979] text-sm">5, bedroom</p>
-            </div>
-            <div className="flex items-center space-x-2  bg-gray-200 py-1 px-3 rounded-full">
-              <Image
-                src="/shawer.png"
-                alt="shower icon"
-                width={15}
-                height={15}
-                className="mb-0"
-              />
-              <p className="text-[#807979] text-sm">5, bathrooms</p>
-            </div>
-          </div>
-          <div className="flex gap-30 mx-auto items-center mt-6 mb-8">
-            <p className="font-bold text-2xl text-[#3D3F42]">$230.000</p>
-            <button className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-full transition duration-300 text-sm cursor-pointer">
-              View details
-            </button>
-          </div>
-        </div>
-        <div className="mb-5 p-2 bg-white shadow-lg rounded-xl">
-          <Image
-            src="/mini flat 2.png"
-            alt="flats"
-            width={330}
-            height={330}
-            className="mb-7 w-full h-auto rounded-xl"
-          />
-          <h2 className="mt-3 text-[#807979] font-semibold text-xl mb-2">
-            Compact mini flat
-          </h2>
-
-          <div className="flex flex-wrap gap-y-3 gap-x-6">
-            <div className="flex items-center space-x-2">
-              <Image
-                src="/icons for IDU.png"
-                alt="location icon"
-                width={15}
-                height={15}
-                className="mb-0"
-              />
-              <p className="text-[#807979]">Yaba, Lagos</p>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Image
-                src="/verified.png"
-                alt="verified icon"
-                width={15}
-                height={15}
-                className="mb-0"
-              />
-              <p className="text-[#807979] text-sm">verified Landlords</p>
-            </div>
-
-            <div className="flex items-center space-x-2  bg-gray-200 py-1 px-3 rounded-full text-sm">
-              <Image
-                src="/bed.png"
-                alt="bed icon"
-                width={15}
-                height={15}
-                className="mb-0"
-              />
-              <p className="text-[#807979] text-sm">5, bedroom</p>
-            </div>
-            <div className="flex items-center space-x-2  bg-gray-200 py-1 px-3 rounded-full">
-              <Image
-                src="/shawer.png"
-                alt="shower icon"
-                width={15}
-                height={15}
-                className="mb-0"
-              />
-              <p className="text-[#807979] text-sm">5, bathrooms</p>
-            </div>
-          </div>
-          <div className="flex gap-30 mx-auto items-center mt-6 mb-8">
-            <p className="font-bold text-2xl text-[#3D3F42]">$160.000</p>
-            <button className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-full transition duration-300 text-sm cursor-pointer">
-              View details
-            </button>
-          </div>
-        </div>
-        <div className="mb-5 p-2 bg-white shadow-lg rounded-xl">
-          <Image
-            src="/mini flat 3.png"
-            alt="flats"
-            width={330}
-            height={330}
-            className="mb-7 w-full h-auto rounded-xl"
-          />
-          <h2 className="mt-3 text-[#807979] font-semibold text-xl mb-2">
-            Compact mini flat
-          </h2>
-
-          <div className="flex flex-wrap gap-y-3 gap-x-6">
-            <div className="flex items-center space-x-2">
-              <Image
-                src="/icons for IDU.png"
-                alt="location icon"
-                width={15}
-                height={15}
-                className="mb-0"
-              />
-              <p className="text-[#807979]">Yaba, Lagos</p>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Image
-                src="/verified.png"
-                alt="verified icon"
-                width={15}
-                height={15}
-                className="mb-0"
-              />
-              <p className="text-[#807979] text-sm">verified Landlords</p>
-            </div>
-
-            <div className="flex items-center space-x-2  bg-gray-200 py-1 px-3 rounded-full text-sm">
-              <Image
-                src="/bed.png"
-                alt="bed icon"
-                width={15}
-                height={15}
-                className="mb-0"
-              />
-              <p className="text-[#807979] text-sm">5, bedroom</p>
-            </div>
-            <div className="flex items-center space-x-2  bg-gray-200 py-1 px-3 rounded-full">
-              <Image
-                src="/shawer.png"
-                alt="shower icon"
-                width={15}
-                height={15}
-                className="mb-0"
-              />
-              <p className="text-[#807979] text-sm">5, bathrooms</p>
-            </div>
-          </div>
-          <div className="flex gap-30 mx-auto items-center mt-6 mb-8">
-            <p className="font-bold text-2xl text-[#3D3F42]">$165.000</p>
-            <button className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-full transition duration-300 text-sm cursor-pointer">
-              View details
-            </button>
-          </div>
-        </div>
-        <div className="mb-5 p-2 bg-white shadow-lg rounded-xl">
-          <Image
-            src="/mini flat 4.png"
-            alt="flats"
-            width={330}
-            height={330}
-            className="mb-7 w-full h-auto rounded-xl"
-          />
-          <h2 className="mt-3 text-[#807979] font-semibold text-xl mb-2">
-            Compact mini flat
-          </h2>
-
-          <div className="flex flex-wrap gap-y-3 gap-x-6">
-            <div className="flex items-center space-x-2">
-              <Image
-                src="/icons for IDU.png"
-                alt="location icon"
-                width={15}
-                height={15}
-                className="mb-0"
-              />
-              <p className="text-[#807979]">Yaba, Lagos</p>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Image
-                src="/verified.png"
-                alt="verified icon"
-                width={15}
-                height={15}
-                className="mb-0"
-              />
-              <p className="text-[#807979] text-sm">verified Landlords</p>
-            </div>
-
-            <div className="flex items-center space-x-2  bg-gray-200 py-1 px-3 rounded-full text-sm">
-              <Image
-                src="/bed.png"
-                alt="bed icon"
-                width={15}
-                height={15}
-                className="mb-0"
-              />
-              <p className="text-[#807979] text-sm">5, bedroom</p>
-            </div>
-            <div className="flex items-center space-x-2  bg-gray-200 py-1 px-3 rounded-full">
-              <Image
-                src="/shawer.png"
-                alt="shower icon"
-                width={15}
-                height={15}
-                className="mb-0"
-              />
-              <p className="text-[#807979] text-sm">5, bathrooms</p>
-            </div>
-          </div>
-          <div className="flex gap-30 mx-auto items-center mt-6 mb-8">
-            <p className="font-bold text-2xl text-[#3D3F42]">$120.000</p>
-            <button className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-full transition duration-300 text-sm cursor-pointer">
-              View details
-            </button>
-          </div>
-        </div>
-        <div className="mb-5 p-2 bg-white shadow-lg rounded-xl">
-          <Image
-            src="/mini flat 5.png"
-            alt="flats"
-            width={330}
-            height={330}
-            className="mb-7 w-full h-auto rounded-xl"
-          />
-          <h2 className="mt-3 text-[#807979] font-semibold text-xl mb-2">
-            Compact mini flat
-          </h2>
-
-          <div className="flex flex-wrap gap-y-3 gap-x-6">
-            <div className="flex items-center space-x-2">
-              <Image
-                src="/icons for IDU.png"
-                alt="location icon"
-                width={15}
-                height={15}
-                className="mb-0"
-              />
-              <p className="text-[#807979]">Yaba, Lagos</p>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Image
-                src="/verified.png"
-                alt="verified icon"
-                width={15}
-                height={15}
-                className="mb-0"
-              />
-              <p className="text-[#807979] text-sm">verified Landlords</p>
-            </div>
-
-            <div className="flex items-center space-x-2  bg-gray-200 py-1 px-3 rounded-full text-sm">
-              <Image
-                src="/bed.png"
-                alt="bed icon"
-                width={15}
-                height={15}
-                className="mb-0"
-              />
-              <p className="text-[#807979] text-sm">5, bedroom</p>
-            </div>
-            <div className="flex items-center space-x-2  bg-gray-200 py-1 px-3 rounded-full">
-              <Image
-                src="/shawer.png"
-                alt="shower icon"
-                width={15}
-                height={15}
-                className="mb-0"
-              />
-              <p className="text-[#807979] text-sm">5, bathrooms</p>
-            </div>
-          </div>
-          <div className="flex gap-30 mx-auto items-center mt-6 mb-8">
-            <p className="font-bold text-2xl text-[#3D3F42]">$130.000</p>
-            <button className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-full transition duration-300 text-sm cursor-pointer">
-              View details
-            </button>
-          </div>
-        </div>
-        <div className="mb-5 p-2 bg-white shadow-lg rounded-xl">
-          <Image
-            src="/mini flat 6.png"
-            alt="flats"
-            width={330}
-            height={330}
-            className="mb-7 w-full h-auto rounded-xl"
-          />
-          <h2 className="mt-3 text-[#807979] font-semibold text-xl mb-2">
-            Compact mini flat
-          </h2>
-
-          <div className="flex flex-wrap gap-y-3 gap-x-6">
-            <div className="flex items-center space-x-2">
-              <Image
-                src="/icons for IDU.png"
-                alt="location icon"
-                width={15}
-                height={15}
-                className="mb-0"
-              />
-              <p className="text-[#807979]">Yaba, Lagos</p>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Image
-                src="/verified.png"
-                alt="verified icon"
-                width={15}
-                height={15}
-                className="mb-0"
-              />
-              <p className="text-[#807979] text-sm">verified Landlords</p>
-            </div>
-
-            <div className="flex items-center space-x-2  bg-gray-200 py-1 px-3 rounded-full text-sm">
-              <Image
-                src="/bed.png"
-                alt="bed icon"
-                width={15}
-                height={15}
-                className="mb-0"
-              />
-              <p className="text-[#807979] text-sm">5, bedroom</p>
-            </div>
-            <div className="flex items-center space-x-2  bg-gray-200 py-1 px-3 rounded-full">
-              <Image
-                src="/shawer.png"
-                alt="shower icon"
-                width={15}
-                height={15}
-                className="mb-0"
-              />
-              <p className="text-[#807979] text-sm">5, bathrooms</p>
-            </div>
-          </div>
-          <div className="flex gap-30 mx-auto items-center mt-6 mb-8">
-            <p className="font-bold text-2xl text-[#3D3F42]">$340.000</p>
-            <button className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-full transition duration-300 text-sm cursor-pointer">
-              View details
-            </button>
-          </div>
-        </div>
+      <div className="flex justify-center w-full">
+        <button className="bg-[#34A853] hover:bg-green-700 text-white font-semibold py-2 px-8 rounded-full transition duration-300 mt-8 cursor-pointer">
+          browse Listings <span className="text-sm"> &rarr;</span>
+        </button>
       </div>
     </div>
   );
