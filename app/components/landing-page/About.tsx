@@ -2,6 +2,7 @@ import React from "react";
 import Image from "next/image";
 
 const About = () => {
+// how it works
   return (
     <section className="bg-[#E8F0E9] py-24 px-4 mb-5">
       <div className="max-w-7xl mx-auto">
@@ -40,7 +41,6 @@ const About = () => {
             </div>
           </div>
 
-          {/* Card 2: Search */}
           <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col h-full">
             <div className="h-32 flex items-center justify-center mb-6 relative w-full">
               <Image
@@ -75,8 +75,6 @@ const About = () => {
               </p>
             </div>
           </div>
-
-          {/* Card 3: Connect */}
           <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col h-full">
             <div className="h-32 relative w-full mb-6">
               <Image
@@ -111,8 +109,6 @@ const About = () => {
               </p>
             </div>
           </div>
-
-          {/* Card 4: Rent */}
           <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col h-full">
             <div className="h-32 flex items-center justify-center mb-6">
               <Image src="/House.png" alt="house" width={60} height={60} />

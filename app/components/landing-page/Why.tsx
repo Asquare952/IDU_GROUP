@@ -7,7 +7,7 @@ const Why = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div>
           <h1 className="text-2xl text-[#4CAF50] font-bold mb-4 text-center">
-            Why Rent <span className="font-mono">ULO</span>?
+            Why Rent<span className="font-semi">ULO</span>?
           </h1>
           <p className="text-4xl text-center font-bold mb-5 text-gray-900">
             Why Rent with US?
