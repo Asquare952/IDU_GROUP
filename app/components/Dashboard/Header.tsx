@@ -15,8 +15,8 @@ const Header = () => {
           <NotificationBell />
           <Chats />
           <div className=" flex items-center gap-1.5 cursor-pointer">
-            <Image src={AdminProfileImg} alt="" />
-            <div className=" flex flex-col gap-0.5">
+            <Image src={AdminProfileImg} alt="" width={50} height={50} />
+            <div className=" hidden md:flex md:flex-col gap-0.5">
               <h3 className=" font-semibold text-[12px] text-[#3D3F42]">Daniel Gbesimowo</h3>
               <p className="font-normal text-[11px] text-[#999EA5]">danielgbesimowo7@gmail.com</p>
             </div>
