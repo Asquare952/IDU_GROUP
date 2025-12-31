@@ -28,7 +28,7 @@ export default function page() {
       <section className=" flex flex-col gap-6 p-3">
         <div className=" flex justify-between">
           <div className=" flex flex-col gap-0.5">
-            <h1 className=" font-bold text-[32px] text-[#162B4C]">Welcome,Daniel</h1>
+            <h1 className=" text-[25px] font-bold md:text-[32px] text-[#162B4C]">Welcome,Daniel</h1>
             <p className=" font-normal text-[16px] text-[#3D3F42]">Here is how your properties are performing today</p>
           </div>
 
@@ -51,7 +51,7 @@ export default function page() {
                     <Image src={image} width={32} height={32} alt="" className=" bg-[#43A047] p-1 text-white rounded" />
                     <h3>{name}</h3>
                   </div>
-                  <p className=" font-bold text-4xl text-[#162B4C]">{figure}</p>
+                  <p className=" font-bold md:text-4xl text-[#162B4C]">{figure}</p>
                 </div>
                 <div className="flex items-center gap-1">
                   <p className=" bg-[#D9ECDA] text-[#43A047] py-1 px-3 rounded-2xl">+{percentage}</p>
@@ -68,7 +68,7 @@ export default function page() {
           <div className=" flex flex-col gap-3.5 bg-[#FFFFFF] py-4 px-6 rounded-[12px]">
             <div className=" flex justify-between">
               <div className=" flex flex-col gap-0.5">
-                <h1 className=" font-bold text-[32px] text-[#162B4C]">Your Listings</h1>
+                <h1 className=" font-bold text-[20px] md:text-[32px] text-[#162B4C]">Your Listings</h1>
                 <p className=" font-normal text-[16px] text-[#3D3F42]">Manage, edit, or track your current properties.</p>
               </div>
 
@@ -79,53 +79,55 @@ export default function page() {
               </form>
             </div>
 
+            <div className=" overflow-x-auto no-scrollbar scroll-smooth md:overflow-x-hidden">
+              <table className=" border-collapse w-full min-w-[500px]">
+                <thead className=" text-left">
+                  <tr>
+                    <th className="">Property</th>
+                    <th>Status</th>
+                    <th>Price</th>
+                    <th>Inquiries</th>
+                    <th>Views</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
 
-            <table className=" border-collapse w-full overflow-x-auto">
-              <thead className=" text-left">
-                <tr>
-                  <th className="">Property</th>
-                  <th>Status</th>
-                  <th>Price</th>
-                  <th>Inquiries</th>
-                  <th>Views</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
+                <tbody className="">
+                  {DashboardListings.map((item) => {
+                    const { id, image, status, name, location, price, inquiries, views } = item
+                    return (
+                      <tr key={id} >
+                        <td className=" flex gap-1 py-2">
+                          <Image src={image} width={80} height={32} alt=""/>
+                          <div className=" flex flex-col gap-0.5">
+                            <h3 className=" font-semibold text-[15px] w-[220px] text-[#7A7E84]">{name}</h3>
+                            <p className=" font-normal text-[10px] text-[#7A7E84]">{location}</p>
+                          </div>
+                        </td>
+                        <td className=" text-center font-normal text-[12px]">
+                          <p className={`${getStatusStyle(status)}`}>{status}</p>
+                        </td>
+                        <td className=" text-center font-semibold text-[12px] text-[#7A7E84]">
+                          ${price}k
+                        </td>
+                        <td className=" text-center font-semibold text-[12px] text-[#7A7E84]">
+                          {inquiries}
+                        </td>
+                        <td className=" text-center font-semibold text-[12px] text-[#7A7E84]">
+                          {views}k
+                        </td>
+                        <td className=" flex justify-center">
+                          <PenLine className="" />
+                        </td>
+                      </tr>
+                    )
+                  })}
 
-              <tbody className="">
-                {DashboardListings.map((item) => {
-                  const { id, image, status, name, location, price, inquiries, views } = item
-                  return (
-                    <tr key={id} >
-                      <td className=" flex gap-1 py-2">
-                        <Image src={image} width={42} height={32} alt="" />
-                        <div className=" flex flex-col gap-0.5">
-                          <h3 className=" font-semibold text-[15px] text-[#7A7E84]">{name}</h3>
-                          <p className=" font-normal text-[10px] text-[#7A7E84]">{location}</p>
-                        </div>
-                      </td>
-                      <td className=" text-center font-normal text-[12px]">
-                        <p className={`${getStatusStyle(status)}`}>{status}</p>
-                      </td>
-                      <td className=" text-center font-semibold text-[12px] text-[#7A7E84]">
-                        ${price}k
-                      </td>
-                      <td className=" text-center font-semibold text-[12px] text-[#7A7E84]">
-                        {inquiries}
-                      </td>
-                      <td className=" text-center font-semibold text-[12px] text-[#7A7E84]">
-                        {views}k
-                      </td>
-                      <td className=" flex justify-center">
-                        <PenLine className="" />
-                      </td>
-                    </tr>
-                  )
-                })}
+                </tbody>
 
-              </tbody>
-
-            </table>
+              </table>
+            </div>
+            
           </div>
 
           {/* inquiries */}
@@ -159,7 +161,7 @@ export default function page() {
 
           {/* income overviews */}
           <div className="flex flex-col gap-6 bg-white p-4 rounded-[12px]">
-            <div className=" flex justify-between">
+            <div className=" flex flex-col gap-4 md:flex-row md:justify-between">
               <div className=" flex flex-col gap-0.5">
                 <h1 className=" font-medium text-[20px] text-[#162B4C]">Income overview</h1>
                 <p className=" font-normal text-[16px] text-[#3D3F42] w-[273px]">Monitor your rental income
