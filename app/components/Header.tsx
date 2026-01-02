@@ -21,11 +21,36 @@ const Navbar = () => {
       {/* 123 */}
       <div className="hidden md:flex items-center space-x-10 ">
         <ul className="flex gap-7">
-          <a href="/">Home</a>
-          <a href="#listing">House</a>
-          <a href="#post">Property</a>
-          <a href="#about">About Us</a>
-          <a href="#join">Join Us</a>
+          <a
+            href="/"
+            className="text-[15px] font-medium text-gray-700 hover:text-[#4CAF50] transition-colors duration-200"
+          >
+            Home
+          </a>
+          <a
+            href="#listing"
+            className="text-[15px] font-medium text-gray-700 hover:text-[#4CAF50] transition-colors duration-200"
+          >
+            House
+          </a>
+          <a
+            href="#post"
+            className="text-[15px] font-medium text-gray-700 hover:text-[#4CAF50] transition-colors duration-200"
+          >
+            Property
+          </a>
+          <a
+            href="#about"
+            className="text-[15px] font-medium text-gray-700 hover:text-[#4CAF50] transition-colors duration-200"
+          >
+            About Us
+          </a>
+          <a
+            href="#join"
+            className="text-[15px] font-medium text-gray-700 hover:text-[#4CAF50] transition-colors duration-200"
+          >
+            Join Us
+          </a>
         </ul>
       </div>
 
