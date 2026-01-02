@@ -33,7 +33,7 @@ export default function page() {
           </div>
 
           <form>
-            <select className=" align-top bg-[#EBECED] border border-[#D6D8DB] outline-none py-2 px-3 rounded-[8px]">
+            <select className=" align-top bg-[#EBECED] border border-[#D6D8DB] outline-none py-2 px-3 rounded-lg">
               <option>Last 5 months</option>
             </select>
           </form>
