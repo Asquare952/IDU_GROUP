@@ -28,13 +28,10 @@ const Navbar = () => {
         </ul>
       </div>
 
-      {/* Right Side: Login & Hamburger */}
       <div className="flex items-center gap-4">
         <button className="px-6 md:px-8 py-2 md:py-2.5 rounded-lg md:rounded-xl text-white font-semibold text-sm transition duration-150 active:scale-95 shadow-sm cursor-pointer bg-[#43A047] hover:bg-green-600">
           Log in
         </button>
-
-        {/* Hamburger Icon - Visible only on Mobile */}
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="md:hidden flex flex-col justify-center items-center w-10 h-10 border border-gray-200 rounded-lg bg-white shadow-sm z-[110]"
@@ -58,7 +55,6 @@ const Navbar = () => {
             isOpen ? "translate-x-0" : "translate-x-full"
           }`}
         >
-          {/* Navigation Links for Mobile */}
           <div className="flex flex-col items-center space-y-8">
             <a
               href="/"
