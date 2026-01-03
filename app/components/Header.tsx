@@ -18,7 +18,6 @@ const Navbar = () => {
         />
         Rent<span className="text-[#4CAF50]">ULO</span>
       </div>
-      {/* 123 */}
       <div className="hidden md:flex items-center space-x-10 ">
         <ul className="flex gap-7">
           <a
