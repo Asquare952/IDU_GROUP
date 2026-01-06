@@ -1,4 +1,3 @@
-import React from "react";
 import Image from "next/image";
 import { FaFacebookF, FaInstagram, FaTelegramPlane } from "react-icons/fa";
 import { RiTwitterXFill } from "react-icons/ri";
@@ -6,8 +5,8 @@ import { RiTwitterXFill } from "react-icons/ri";
 const Footer = () => {
   return (
     <footer className="relative w-full bg-white pt-16 pb-12 overflow-hidden">
-      <div className="max-w-[1440px] mx-auto px-6 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-37 mb-16">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
           <div className="space-y-6">
             <div className="flex items-center gap-2">
               <Image
@@ -20,7 +19,7 @@ const Footer = () => {
                 Rent<span className="text-[#4CAF50]">ULO</span>
               </span>
             </div>
-            <p className="text-gray-600 text-[19px] leading-relaxed max-w-[260px]">
+            <p className="text-gray-600 text-[19px] leading-relaxed max-w-65">
               Discover trusted houses for rents near you. <br /> Directly from
               landlords, verified and <br />
               location-based.
