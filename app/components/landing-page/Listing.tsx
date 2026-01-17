@@ -25,8 +25,6 @@ const Listing = () => {
             your area
           </p>
         </div>
-
-        {/* Updated Grid with container variants */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -34,76 +32,71 @@ const Listing = () => {
           viewport={{ once: true, margin: "-100px" }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
-          {properties.map(
-            (
-              item,
-              i // Note the 'i' here for index
-            ) => (
-              <motion.div
-                key={item.id}
-                custom={i} // We pass the index to the variants file
-                variants={itemVariants}
-                whileHover={{ y: -10 }}
-                className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
-              >
-                <div className="relative h-64 w-full overflow-hidden group">
-                  <Image
-                    src={item.img}
-                    alt={item.title}
-                    fill
-                    className="object-cover rounded-3xl p-2 transition-transform duration-500 group-hover:scale-110"
-                  />
+          {properties.map((item, i) => (
+            <motion.div
+              key={item.id}
+              custom={i}
+              variants={itemVariants}
+              whileHover={{ y: -10 }}
+              className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
+            >
+              <div className="relative h-64 w-full overflow-hidden group">
+                <Image
+                  src={item.img}
+                  alt={item.title}
+                  fill
+                  className="object-cover rounded-3xl p-2 transition-transform duration-500 group-hover:scale-110"
+                />
+              </div>
+
+              <div className="p-5">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <p className="text-gray-900 font-bold text-xl">
+                      {item.price}
+                      <span className="text-sm font-normal text-gray-400">
+                        {" "}
+                        / 2 days ago
+                      </span>
+                    </p>
+                    <h3 className="text-gray-800 font-semibold text-lg">
+                      {item.title}
+                    </h3>
+                  </div>
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    className="bg-[#E8F5E9] text-[#43A047] text-xs font-bold px-4 py-1.5 rounded-full cursor-pointer"
+                  >
+                    View
+                  </motion.button>
                 </div>
 
-                <div className="p-5">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <p className="text-gray-900 font-bold text-xl">
-                        {item.price}
-                        <span className="text-sm font-normal text-gray-400">
-                          {" "}
-                          / 2 days ago
-                        </span>
-                      </p>
-                      <h3 className="text-gray-800 font-semibold text-lg">
-                        {item.title}
-                      </h3>
-                    </div>
-                    <motion.button
-                      whileTap={{ scale: 0.95 }}
-                      className="bg-[#E8F5E9] text-[#43A047] text-xs font-bold px-4 py-1.5 rounded-full cursor-pointer"
-                    >
-                      View
-                    </motion.button>
+                <p className="text-gray-400 text-sm mb-4 leading-relaxed">
+                  Cozy rooms, large jacuzzi, spacious kitchen. Convenient
+                  lifestyle living.
+                </p>
+                <div className="flex flex-wrap gap-4 border-t border-gray-50 pt-4">
+                  <div className="flex items-center gap-2">
+                    <Image
+                      src="/shawer.png"
+                      alt="bath"
+                      width={16}
+                      height={16}
+                    />
+                    <span className="text-xs text-gray-500 font-medium">
+                      2 bathrooms
+                    </span>
                   </div>
-
-                  <p className="text-gray-400 text-sm mb-4 leading-relaxed">
-                    Cozy rooms, large jacuzzi, spacious kitchen. Convenient
-                    lifestyle living.
-                  </p>
-                  <div className="flex flex-wrap gap-4 border-t border-gray-50 pt-4">
-                    <div className="flex items-center gap-2">
-                      <Image
-                        src="/shawer.png"
-                        alt="bath"
-                        width={16}
-                        height={16}
-                      />
-                      <span className="text-xs text-gray-500 font-medium">
-                        2 bathrooms
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Image src="/bed.png" alt="bed" width={16} height={16} />
-                      <span className="text-xs text-gray-500 font-medium">
-                        5 bedrooms
-                      </span>
-                    </div>
+                  <div className="flex items-center gap-2">
+                    <Image src="/bed.png" alt="bed" width={16} height={16} />
+                    <span className="text-xs text-gray-500 font-medium">
+                      5 bedrooms
+                    </span>
                   </div>
                 </div>
-              </motion.div>
-            )
-          )}
+              </div>
+            </motion.div>
+          ))}
         </motion.div>
 
         <div className="flex justify-center w-full">
