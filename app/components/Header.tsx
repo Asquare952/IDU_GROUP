@@ -20,10 +20,10 @@ const Header = () => {
   }, []);
 
   const getHref = (item: string) => {
-    if (item === "Home") return "#";
-    if (item === "House") return "#listing";
-    if (item === "Property") return "#post";
-    if (item === "About Us") return "#about";
+    if (item === "Home") return "/#";
+    if (item === "House") return "/#listing";
+    if (item === "Property") return "/#post";
+    if (item === "About Us") return "/#about";
 
     if (item === "Join Us") return "/signup";
 
@@ -61,7 +61,7 @@ const Header = () => {
                 >
                   {item}
                 </Link>
-              )
+              ),
             )}
           </ul>
         </div>
