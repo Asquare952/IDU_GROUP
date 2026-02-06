@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { FaFacebookF, FaInstagram, FaTelegramPlane } from "react-icons/fa";
+import { FaFacebookF, FaInstagram, FaTiktok } from "react-icons/fa";
 import { RiTwitterXFill } from "react-icons/ri";
 
 const Footer = () => {
@@ -85,9 +85,15 @@ const Footer = () => {
             <div className="flex gap-3">
               {[
                 { icon: <FaFacebookF />, link: "#" },
-                { icon: <RiTwitterXFill />, link: "#" },
+                {
+                  icon: <RiTwitterXFill />,
+                  link: "https://x.com/Rentulonigeria",
+                },
                 { icon: <FaInstagram />, link: "#" },
-                { icon: <FaTelegramPlane />, link: "#" },
+                {
+                  icon: <FaTiktok />,
+                  link: "https://www.tiktok.com/@rentulonigeria?lang=en-GB",
+                },
               ].map((item, idx) => (
                 <a
                   key={idx}

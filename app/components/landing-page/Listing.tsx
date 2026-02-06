@@ -1,13 +1,12 @@
 "use client";
 import React from "react";
+import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import properties from "@/app/components/properties";
 import { containerVariants, itemVariants } from "@/app/components/animation";
 
 const Listing = () => {
-  const textColor = "#1A1C1F";
-
   return (
     <section id="listing">
       <div className="mb-20 mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 py-12">
@@ -15,9 +14,7 @@ const Listing = () => {
           <span className="text-green-600 font-bold text-xl tracking-wide">
             Featured listings
           </span>
-          <h2
-            className={`text-4xl md:text-5xl font-bold mt-2 mb-4 text-[${textColor}]`}
-          >
+          <h2 className="text-4xl md:text-5xl font-bold mt-2 mb-4 text-[#1A1C1F]">
             Simple. Transparent. Stress-free
           </h2>
           <p className="text-gray-500 max-w-2xl mx-auto text-lg">
@@ -25,6 +22,8 @@ const Listing = () => {
             your area
           </p>
         </div>
+
+        {/* Grid Section */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -32,7 +31,7 @@ const Listing = () => {
           viewport={{ once: true, margin: "-100px" }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
-          {properties.map((item, i) => (
+          {properties.slice(0, 9).map((item, i) => (
             <motion.div
               key={item.id}
               custom={i}
@@ -63,18 +62,22 @@ const Listing = () => {
                       {item.title}
                     </h3>
                   </div>
-                  <motion.button
-                    whileTap={{ scale: 0.95 }}
-                    className="bg-[#E8F5E9] text-[#43A047] text-xs font-bold px-4 py-1.5 rounded-full cursor-pointer"
-                  >
-                    View
-                  </motion.button>
+                  <Link href={`/properties/${item.id}`}>
+                    <motion.button
+                      whileTap={{ scale: 0.95 }}
+                      whileHover={{ scale: 1.05 }}
+                      className="bg-[#E8F5E9] text-[#43A047] text-xs font-bold px-4 py-1.5 rounded-full cursor-pointer"
+                    >
+                      View
+                    </motion.button>
+                  </Link>
                 </div>
 
                 <p className="text-gray-400 text-sm mb-4 leading-relaxed">
                   Cozy rooms, large jacuzzi, spacious kitchen. Convenient
                   lifestyle living.
                 </p>
+
                 <div className="flex flex-wrap gap-4 border-t border-gray-50 pt-4">
                   <div className="flex items-center gap-2">
                     <Image
@@ -100,13 +103,15 @@ const Listing = () => {
         </motion.div>
 
         <div className="flex justify-center w-full">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="bg-[#34A853] hover:bg-green-700 text-white font-semibold py-2 px-8 rounded-full transition duration-300 mt-8 cursor-pointer shadow-lg"
-          >
-            browse Listings <span className="text-sm"> &rarr;</span>
-          </motion.button>
+          <Link href="/properties">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-[#34A853] hover:bg-green-700 text-white font-semibold py-2 px-8 rounded-full transition duration-300 mt-8 cursor-pointer shadow-lg"
+            >
+              browse Listings <span className="text-sm"> &rarr;</span>
+            </motion.button>
+          </Link>
         </div>
       </div>
     </section>
