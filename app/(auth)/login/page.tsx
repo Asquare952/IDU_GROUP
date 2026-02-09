@@ -1,16 +1,54 @@
 "use client";
-import React from "react";
-import { Mail, Lock } from "lucide-react";
+import React, { useState } from "react";
+import { Mail, Lock, Phone, Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 
 const page = () => {
   const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+  const [identifier, setIdentifier] = useState("");
 
+  // 1. TanStack Query for the Skeleton Stage
+  const { isLoading } = useQuery({
+    queryKey: ["login-init"],
+    queryFn: async () => {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      return true;
+    },
+    gcTime: 0,
+  });
+
+  // Helper to check if input is a phone number
+  const isPhoneNumber = /^[0-9+]/.test(identifier);
+
+  // 2. SKELETON UI
+  if (isLoading) {
+    return (
+      <div className="relative min-h-screen w-full flex items-center justify-center p-4 md:p-10 bg-gray-50">
+        <div className="w-full max-w-6xl bg-white rounded-[45px] shadow-sm overflow-hidden flex flex-col md:flex-row min-h-[700px]">
+          <div className="hidden md:block w-1/2 p-5">
+            <div className="w-full h-full bg-gray-200 animate-pulse rounded-[35px]" />
+          </div>
+          <div className="w-full md:w-1/2 flex flex-col p-8 md:p-16 justify-center">
+            <div className="h-10 w-48 bg-gray-100 animate-pulse rounded-full mx-auto mb-10" />
+            <div className="space-y-6">
+              <div className="h-14 w-full bg-gray-50 animate-pulse rounded-2xl" />
+              <div className="h-14 w-full bg-gray-50 animate-pulse rounded-2xl" />
+              <div className="h-14 w-full bg-[#4CAF50]/10 animate-pulse rounded-2xl" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 3. ACTUAL LOGIN UI
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center p-4 md:p-10 overflow-hidden">
-      {/* blurred bg*/}
+      {/* Blurred BG */}
       <div className="absolute inset-0 z-0">
         <Image
           src="/IDU GROUP HOME.png"
@@ -37,12 +75,12 @@ const page = () => {
         <div className="w-full md:w-1/2 flex flex-col p-8 md:p-16 justify-center text-center">
           <div className="flex justify-center mb-10">
             <div className="bg-gray-100 p-1.5 rounded-full flex items-center border border-gray-200">
-              <button
-                onClick={() => router.push("/signup")}
-                className="px-8 py-2.5 text-sm font-bold text-gray-400 hover:text-gray-600 transition-all"
+              <Link
+                href="/signup"
+                className="px-8 py-2.5 text-sm font-bold text-gray-400 hover:text-gray-600 transition-all cursor-pointer"
               >
                 Sign up
-              </button>
+              </Link>
               <button className="px-8 py-2.5 bg-[#4CAF50] text-white text-sm font-bold rounded-full shadow-lg">
                 Log in
               </button>
@@ -57,21 +95,26 @@ const page = () => {
           </p>
 
           <form className="space-y-5 text-left mt-10">
+            {/* Email / Phone Field */}
             <div>
               <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1 mb-1.5 block">
-                Email
+                Email or Phone Number
               </label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-4 flex items-center text-[#4CAF50]">
-                  <Mail size={18} />
+                  {isPhoneNumber ? <Phone size={18} /> : <Mail size={18} />}
                 </span>
                 <input
-                  type="email"
-                  placeholder="ikechukwuu338@gmail.com"
+                  type="text"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  placeholder="Email or phone number.."
                   className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-[#4CAF50]/10 focus:border-[#4CAF50] transition-all"
                 />
               </div>
             </div>
+
+            {/* Password Field with Eye toggle */}
             <div>
               <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1 mb-1.5 block">
                 Password
@@ -81,12 +124,20 @@ const page = () => {
                   <Lock size={18} />
                 </span>
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="Your password.."
-                  className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-[#4CAF50]/10 focus:border-[#4CAF50] transition-all"
+                  className="w-full pl-12 pr-12 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-[#4CAF50]/10 focus:border-[#4CAF50] transition-all"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-4 flex items-center text-gray-400 hover:text-[#4CAF50] cursor-pointer"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
             </div>
+
             <div className="flex items-center justify-between px-1">
               <label className="flex items-center gap-2 cursor-pointer group">
                 <input
@@ -104,6 +155,7 @@ const page = () => {
                 forgot password?
               </button>
             </div>
+
             <div className="relative py-2">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-100"></div>
@@ -114,10 +166,11 @@ const page = () => {
                 </span>
               </div>
             </div>
+
             <div className="flex gap-4">
               <button
                 type="button"
-                className="flex-1 flex items-center justify-center gap-2 bg-[#ECF5ED] py-3 rounded-2xl hover:bg-[#e2ede3] transition-all font-bold text-xs text-gray-700 shadow-sm shadow-green-50"
+                className="flex-1 flex items-center justify-center gap-2 bg-[#ECF5ED] py-3 rounded-2xl hover:bg-[#e2ede3] transition-all font-bold text-xs text-gray-700 shadow-sm"
               >
                 <img
                   src="https://www.svgrepo.com/show/475656/google-color.svg"
@@ -128,7 +181,7 @@ const page = () => {
               </button>
               <button
                 type="button"
-                className="flex-1 flex items-center justify-center gap-2 bg-[#ECF5ED] py-3 rounded-2xl hover:bg-[#e2ede3] transition-all font-bold text-xs text-gray-700 shadow-sm shadow-green-50"
+                className="flex-1 flex items-center justify-center gap-2 bg-[#ECF5ED] py-3 rounded-2xl hover:bg-[#e2ede3] transition-all font-bold text-xs text-gray-700 shadow-sm"
               >
                 <img
                   src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg"
@@ -138,6 +191,7 @@ const page = () => {
                 Apple
               </button>
             </div>
+
             <button className="w-full bg-[#4CAF50] text-white py-4 rounded-2xl font-bold hover:bg-[#43A047] shadow-xl shadow-green-100 transition-all active:scale-[0.98] mt-2">
               Log in
             </button>

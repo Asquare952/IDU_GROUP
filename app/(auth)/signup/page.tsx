@@ -1,13 +1,57 @@
 "use client";
-import React from "react";
-import { User, Mail, Lock } from "lucide-react";
+import React, { useState } from "react";
+import {
+  User,
+  Mail,
+  Lock,
+  Phone,
+  MapPin,
+  Eye,
+  EyeOff,
+  ChevronDown,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 
 const page = () => {
   const router = useRouter();
-
+  const [showPassword, setShowPassword] = useState(false);
+  // 1. Update this block in your Signup Page
+  const { isLoading } = useQuery({
+    queryKey: ["signup-init"],
+    queryFn: async () => {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      return Date.now(); // Returning a unique timestamp helps
+    },
+    gcTime: 0, // This ensures the data is deleted immediately so it loads fresh next time
+    staleTime: 0,
+  });
+  
+  if (isLoading) {
+    return (
+      <div className="relative min-h-screen w-full flex items-center justify-center p-4 md:p-10 bg-gray-50">
+        <div className="w-full max-w-6xl bg-white rounded-[45px] shadow-sm overflow-hidden flex flex-col md:flex-row min-h-[700px]">
+          <div className="hidden md:block w-1/2 p-5">
+            <div className="w-full h-full bg-gray-200 animate-pulse rounded-[35px]" />
+          </div>
+          <div className="w-full md:w-1/2 flex flex-col p-8 md:p-16 justify-center">
+            <div className="h-10 w-48 bg-gray-100 animate-pulse rounded-full mx-auto mb-8" />
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="h-14 bg-gray-50 animate-pulse rounded-2xl" />
+                <div className="h-14 bg-gray-50 animate-pulse rounded-2xl" />
+              </div>
+              <div className="h-14 bg-gray-50 animate-pulse rounded-2xl" />
+              <div className="h-14 bg-gray-50 animate-pulse rounded-2xl" />
+              <div className="h-14 bg-[#4CAF50]/10 animate-pulse rounded-2xl" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center p-4 md:p-10 overflow-hidden">
       <div className="absolute inset-0 z-0">
@@ -19,8 +63,8 @@ const page = () => {
           className="object-cover blur-3xl brightness-[0.4] scale-110"
         />
       </div>
-      <div className="relative z-10 w-full max-w-6xl bg-white rounded-[45px] shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[700px]">
-        {/* Left Image */}
+
+      <div className="relative z-10 w-full max-w-6xl bg-white rounded-[45px] shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[750px]">
         <div className="hidden md:block w-1/2 relative p-5">
           <div className="relative w-full h-full rounded-[35px] overflow-hidden">
             <Image
@@ -32,76 +76,153 @@ const page = () => {
           </div>
         </div>
 
-        <div className="w-full md:w-1/2 flex flex-col p-8 md:p-16 justify-center text-center">
-          <div className="flex justify-center mb-10">
+        <div className="w-full md:w-1/2 flex flex-col p-8 md:p-12 justify-center text-center">
+          <div className="flex justify-center mb-6">
             <div className="bg-gray-100 p-1.5 rounded-full flex items-center border border-gray-200">
               <button className="px-8 py-2.5 bg-[#4CAF50] text-white text-sm font-bold rounded-full shadow-lg">
                 Sign up
               </button>
               <button
                 onClick={() => router.push("/login")}
-                className="px-8 py-2.5 text-sm font-bold text-gray-400 hover:text-gray-600 transition-all"
+                className="px-8 py-2.5 text-sm font-bold text-gray-400 hover:text-gray-600 transition-all cursor-pointer"
               >
                 Log in
               </button>
             </div>
           </div>
 
-          <h1 className="text-3xl font-extrabold text-gray-900 mb-2">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-2">
             Create Your Rent<span className="text-[#4CAF50]">ULO</span> Account
           </h1>
-          <p className="text-gray-500 text-sm font-medium">
-            Join our community of verified house seekers and landlords
+          <p className="text-gray-500 text-sm font-medium mb-6">
+            Fill in your details to get started
           </p>
 
-          <form className="space-y-5 text-left mt-8">
-            <div>
-              <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1 mb-1.5 block">
-                Name
-              </label>
-              <div className="relative">
-                <span className="absolute inset-y-0 left-4 flex items-center text-[#4CAF50]">
-                  <User size={18} />
-                </span>
+          <form className="space-y-4 text-left overflow-y-auto pr-2 max-h-[550px] custom-scrollbar">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
+                  First Name
+                </label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-4 flex items-center text-[#4CAF50]">
+                    <User size={16} />
+                  </span>
+                  <input
+                    type="text"
+                    placeholder="John"
+                    className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:border-[#4CAF50] transition-all"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
+                  Last Name
+                </label>
                 <input
                   type="text"
-                  placeholder="Your name.."
-                  className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-[#4CAF50]/10 focus:border-[#4CAF50] transition-all"
+                  placeholder="Doe"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:border-[#4CAF50] transition-all"
                 />
               </div>
             </div>
-            <div>
-              <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1 mb-1.5 block">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
+                  Gender
+                </label>
+                <div className="relative">
+                  <select className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none appearance-none cursor-pointer">
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                  </select>
+                  <ChevronDown
+                    size={14}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
+                  Phone No
+                </label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-4 flex items-center text-[#4CAF50]">
+                    <Phone size={16} />
+                  </span>
+                  <input
+                    type="tel"
+                    placeholder="0801234..."
+                    className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:border-[#4CAF50]"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
                 Email
               </label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-4 flex items-center text-[#4CAF50]">
-                  <Mail size={18} />
+                  <Mail size={16} />
                 </span>
                 <input
                   type="email"
-                  placeholder="ikechukwuu338@gmail.com"
-                  className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-[#4CAF50]/10 focus:border-[#4CAF50] transition-all"
+                  placeholder="example@rentulonigeria.com"
+                  className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:border-[#4CAF50]"
                 />
               </div>
             </div>
-            <div>
-              <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1 mb-1.5 block">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
+                  Address
+                </label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-4 flex items-center text-[#4CAF50]">
+                    <MapPin size={16} />
+                  </span>
+                  <input
+                    type="text"
+                    placeholder="123 Street"
+                    className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
+                  State
+                </label>
+                <input
+                  type="text"
+                  placeholder="Lagos"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none"
+                />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
                 Password
               </label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-4 flex items-center text-[#4CAF50]">
-                  <Lock size={18} />
+                  <Lock size={16} />
                 </span>
                 <input
-                  type="password"
-                  placeholder="Your password.."
-                  className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-[#4CAF50]/10 focus:border-[#4CAF50] transition-all"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Min. 8 characters"
+                  className="w-full pl-11 pr-12 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:border-[#4CAF50] transition-all"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-4 flex items-center text-gray-400 hover:text-[#4CAF50] cursor-pointer"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
             </div>
-
-            <div className="flex justify-center gap-6 py-2">
+            <div className="flex justify-center gap-8 py-3">
               <label className="flex items-center gap-2 cursor-pointer group">
                 <input
                   type="radio"
@@ -119,16 +240,16 @@ const page = () => {
                   className="accent-[#4CAF50] w-4 h-4"
                 />
                 <span className="text-sm font-semibold text-gray-600 group-hover:text-[#4CAF50]">
-                  Properties seeker?
+                  Seeker?
                 </span>
               </label>
             </div>
 
-            <p className="text-[10px] text-gray-400 text-center leading-relaxed">
+            <p className="text-[10px] text-gray-400 text-center">
               By creating an account, you agree to our
               <Link
                 href="/terms"
-                className="text-[#4CAF50] font-bold hover:underline gap-4"
+                className="text-[#4CAF50] font-bold hover:underline ml-1"
               >
                 Terms and Conditions
               </Link>
@@ -142,6 +263,6 @@ const page = () => {
       </div>
     </div>
   );
-};
+};;
 
 export default page;
