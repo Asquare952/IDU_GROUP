@@ -15,13 +15,13 @@ const properties: Properties[] = [
   },
   {
     id: 3,
-    title: "Modern Bungalow",
+    title: "Duplex",
     price: "₦1,000,000",
     img: "/flat3.jpg",
   },
   {
     id: 4,
-    title: "Modern Bungalow",
+    title: "Two bedroom apartment",
     price: "₦1,200,000",
     img: "/flat4.jpg",
   },
@@ -45,13 +45,13 @@ const properties: Properties[] = [
   },
   {
     id: 8,
-    title: "Modern Bungalow",
+    title: "Duplex",
     price: "₦1,800,000",
     img: "/flat8.jpg",
   },
   {
     id: 9,
-    title: "Modern Bungalow",
+    title: "Two Bedroom Apartment",
     price: "₦2,200,000",
     img: "/flat9.jpg",
   },
@@ -63,7 +63,7 @@ const properties: Properties[] = [
   },
   {
     id: 11,
-    title: "Modern Bungalow",
+    title: "Duplex",
     price: "₦1,200,000",
     img: "/flat1.jpg",
   },
@@ -75,7 +75,7 @@ const properties: Properties[] = [
   },
   {
     id: 13,
-    title: "Modern Bungalow",
+    title: "Two Bedroom Apartment",
     price: "₦1,200,000",
     img: "/flat4.jpg",
   },
@@ -87,7 +87,7 @@ const properties: Properties[] = [
   },
   {
     id: 15,
-    title: "Modern Bungalow",
+    title: "Duplex",
     price: "₦1,200,000",
     img: "/flat8.jpg",
   },
