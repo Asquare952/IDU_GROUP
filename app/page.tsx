@@ -15,6 +15,7 @@ export default function Home() {
     <div>
       <main>
         <section>
+          <Header />
           <HeroSection />
           <Users />
           <About />
@@ -23,6 +24,7 @@ export default function Home() {
           <Post />
           <Transparency />
           <CallToAction />
+          <Footer />
         </section>
       </main>
     </div>

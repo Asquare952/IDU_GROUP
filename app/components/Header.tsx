@@ -30,17 +30,6 @@ const Header = () => {
           />
           Rent<span className="text-[#4CAF50]">ULO</span>
         </div>
-
-        {isUpdatingHouses && (
-          <div className="flex items-center gap-2 px-3 py-1 bg-green-50 rounded-full border border-green-100 animate-pulse">
-            <div className="w-2 h-2 bg-[#4CAF50] rounded-full"></div>
-            <span className="text-[10px] font-bold text-[#4CAF50] uppercase tracking-wider">
-              Updating...
-            </span>
-          </div>
-        )}
-
-        
         <div className="hidden md:flex items-center">
           <ul className="flex gap-7">
             {["Home", "House", "Property", "About Us", "Join Us"].map(
@@ -98,11 +87,13 @@ const Header = () => {
           <Link
             href="/login"
             onClick={() => {
-              queryClient.removeQueries({ queryKey: ["login-init"] });
+              console.log("Login clicked!");
+              setIsOpen(false);
             }}
+            className="relative z-[999] block w-full"
           >
-            <button className="mt-4 px-10 py-3 rounded-full bg-[#4CAF50] text-white font-bold text-lg shadow-lg">
-              Login
+            <button className="w-full py-4 bg-[#4CAF50] text-white font-bold rounded-2xl shadow-lg active:scale-95 transition-transform">
+              Log in
             </button>
           </Link>
         </div>

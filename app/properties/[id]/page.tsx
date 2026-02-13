@@ -4,6 +4,8 @@ import properties from "@/app/components/properties";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
+import Navbar from "../../components/Header";
+import Footer from "../../components/Footer";
 
 export default function PropertyDetails({
   params,
@@ -17,6 +19,8 @@ export default function PropertyDetails({
     return <div className="p-20 text-center font-bold">House not found!</div>;
 
   return (
+    <>
+    <Navbar/>
     <div className="min-h-screen bg-white">
       <div className="max-w-[1200px] mx-auto p-6">
         <Link
@@ -59,5 +63,7 @@ export default function PropertyDetails({
         </div>
       </div>
     </div>
+    <Footer/>
+    </>
   );
 }

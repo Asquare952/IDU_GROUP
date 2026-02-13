@@ -89,7 +89,7 @@ const Footer = () => {
                   icon: <RiTwitterXFill />,
                   link: "https://x.com/Rentulonigeria",
                 },
-                { icon: <FaInstagram />, link: "#" },
+                { icon: <FaInstagram />, link: "https://www.instagram.com/rentulonigeria?igsh=YmF3N2ZjYjRkNjQ2&utm_source=qr" },
                 {
                   icon: <FaTiktok />,
                   link: "https://www.tiktok.com/@rentulonigeria?lang=en-GB",
