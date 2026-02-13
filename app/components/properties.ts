@@ -6,6 +6,7 @@ const properties: Properties[] = [
     title: "Modern Bungalow",
     price: "₦2,000,000",
     img: "/flat1.jpg",
+    
   },
   {
     id: 2,
