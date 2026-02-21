@@ -28,7 +28,6 @@ const Page = () => {
     console.log("FORM SUBMITTED", data);
 
     let identifier = data.identifier;
-
     const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
 
     if (!isEmail) {
@@ -38,19 +37,25 @@ const Page = () => {
         identifier = "+234" + identifier;
       }
     }
-
-    const payload = isEmail
-      ? { email: identifier, password: data.password }
-      : { phone_no: identifier, password: data.password };
+    const payload = {
+      user: identifier,
+      password: data.password,
+    };
 
     loginUser(payload, {
-      onSuccess: (response) => {
-        Cookies.set("ACCESS_TOKEN", response.accessToken, {
+      onSuccess: (response: any) => {
+        console.log("LOGIN RESPONSE:", response);
+
+        // Save token correctly
+        Cookies.set("ACCESS_TOKEN", response.token, {
           expires: data.remember ? 7 : 1,
         });
 
         toast.success("Login successful");
-        router.push("/");
+
+        // If backend does NOT return role,
+        // redirect directly or decode token later
+        router.push("/dashboard");
       },
 
       onError: (error) => {
@@ -61,6 +66,7 @@ const Page = () => {
         }
       },
     });
+
   };
 
   const {

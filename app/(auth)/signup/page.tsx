@@ -17,21 +17,38 @@ import Navbar from "../../components/Header";
 import Footer from "../../components/Footer";
 import { useRegister } from "../../api/features/auth/auth.queries";
 import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 
 const page = () => {
   const router = useRouter();
   const { mutate: registerUser, isPending } = useRegister();
   const [showPassword, setShowPassword] = useState(false);
 
-  // ✅ React Hook Form Setup
   const {
-    register, // connects inputs
-    handleSubmit, // handles form submission
-    formState: { errors }, // gives validation errors
+    register,
+    handleSubmit,
+    formState: { errors },
   } = useForm();
 
   const onSubmit = (data: any) => {
-    registerUser(data); // send form data to backend
+    const payload = {
+      ...data,
+      country: "Nigeria", // 👈 automatically added
+    };
+
+    registerUser(payload, {
+      onSuccess: () => {
+        toast.success("Account created successfully!");
+        if (data.role === "landlord") {
+          router.push("/dashboard");
+        } else {
+          router.push("/");
+        }
+      },
+      onError: (error: any) => {
+        toast.error(error.response?.data?.message || "Registration failed");
+      },
+    });
   };
 
   return (
@@ -44,7 +61,6 @@ const page = () => {
             src="/IDU GROUP HOME.png"
             alt="Background"
             fill
-            priority
             sizes="100vw"
             className="object-cover blur-3xl brightness-[0.4] scale-110"
           />

@@ -26,13 +26,25 @@ export const useLogin = () =>
 export const useRegister = () =>
   useMutation({
     mutationFn: register,
-
     onSuccess: () => {
       toast.success("Account created successfully");
-      window.location.href = "/login";
     },
-
     onError: (error: any) => {
       toast.error(error?.response?.data?.message || "Registration failed");
     },
   });
+
+
+// export const useRegister = () =>
+//   useMutation({
+//     mutationFn: register,
+
+//     // onSuccess: () => {
+//     //   toast.success("Account created successfully");
+//     //   window.location.href = "/login";
+//     // },
+
+//     onError: (error: any) => {
+//       toast.error(error?.response?.data?.message || "Registration failed");
+//     },
+//   });

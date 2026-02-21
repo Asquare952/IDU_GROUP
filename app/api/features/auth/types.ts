@@ -8,13 +8,19 @@ export interface RegisterPayload {
   address: string;
   state: string;
   password: string;
+  country: string; // add here
 }
 
-export type LoginPayload =
-  | { email: string; password: string }
-  | { phone_no: string; password: string };
-
+export interface LoginPayload {
+  user: string;
+  password: string;
+}
 export interface AuthResponse {
   accessToken: string;
-  // add refreshToken if backend sends it
+  user: {
+    id: string;
+    role: "landlord" | "tenant";
+    email: string;
+    first_name?: string;
+  };
 }
