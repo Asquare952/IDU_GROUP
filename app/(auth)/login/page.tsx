@@ -6,21 +6,80 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Navbar from "../../components/Header";
 import Footer from "../../components/Footer";
+import { useLogin } from "../../api/features/auth/auth.queries";
+import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
+import Cookies from "js-cookie";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema } from "@/app/lib/login.schema";
+import { z } from "zod";
+import axios from "axios";
 
-const page = () => {
+const Page = () => {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  const [identifier, setIdentifier] = useState("");
-  const [password, setPassword] = useState("");
+  const { mutate: loginUser, isPending, isSuccess, isError } = useLogin();
 
-  //check if input is a phone number
-  const isPhoneNumber = /^[0-9+]/.test(identifier);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Logging in with:", { identifier, password });
-    router.push("/");
+  type LoginFormValues = z.infer<typeof loginSchema> & {
+    remember?: boolean;
   };
+
+  const onSubmit = (data: LoginFormValues) => {
+    console.log("FORM SUBMITTED", data);
+
+    let identifier = data.identifier;
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
+
+    if (!isEmail) {
+      if (/^0\d{10}$/.test(identifier)) {
+        identifier = "+234" + identifier.slice(1);
+      } else if (/^\d{10}$/.test(identifier)) {
+        identifier = "+234" + identifier;
+      }
+    }
+    const payload = {
+      user: identifier,
+      password: data.password,
+    };
+
+    loginUser(payload, {
+      onSuccess: (response: any) => {
+        console.log("LOGIN RESPONSE:", response);
+
+        // Save token correctly
+        Cookies.set("ACCESS_TOKEN", response.token, {
+          expires: data.remember ? 7 : 1,
+        });
+
+        toast.success("Login successful");
+
+        // If backend does NOT return role,
+        // redirect directly or decode token later
+        router.push("/dashboard");
+      },
+
+      onError: (error) => {
+        if (axios.isAxiosError(error)) {
+          toast.error(error.response?.data?.message || "Login failed");
+        } else {
+          toast.error("Login failed");
+        }
+      },
+    });
+
+  };
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+  });
+
+  const watchIdentifier = watch("identifier");
+  const isPhoneNumber = /^[0-9+]/.test(watchIdentifier || "");
 
   return (
     <>
@@ -32,6 +91,7 @@ const page = () => {
             alt="Background"
             fill
             priority
+            sizes="100vw"
             className="object-cover blur-3xl brightness-[0.4] scale-110"
           />
         </div>
@@ -43,6 +103,8 @@ const page = () => {
                 src="/IDU GROUP HOME.png"
                 alt="RentULO Login"
                 fill
+                priority
+                sizes="50vw"
                 className="object-cover"
               />
             </div>
@@ -70,7 +132,10 @@ const page = () => {
               Access your account and continue your housing journey
             </p>
 
-            <form onSubmit={handleSubmit} className="space-y-5 text-left mt-10">
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="space-y-5 text-left mt-10"
+            >
               <div>
                 <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1 mb-1.5 block">
                   Email or Phone Number
@@ -80,14 +145,17 @@ const page = () => {
                     {isPhoneNumber ? <Phone size={18} /> : <Mail size={18} />}
                   </span>
                   <input
-                    required
+                    {...register("identifier")}
+                    placeholder="Email or phone number"
                     type="text"
-                    value={identifier}
-                    onChange={(e) => setIdentifier(e.target.value)}
-                    placeholder="Email or phone number.."
                     className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-[#4CAF50]/10 focus:border-[#4CAF50] transition-all"
                   />
                 </div>
+                {errors.identifier && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.identifier.message as string}
+                  </p>
+                )}
               </div>
               <div>
                 <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1 mb-1.5 block">
@@ -98,13 +166,17 @@ const page = () => {
                     <Lock size={18} />
                   </span>
                   <input
-                    required
+                    {...register("password")}
                     type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Your password.."
+                    placeholder="Your password..."
                     className="w-full pl-12 pr-12 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-[#4CAF50]/10 focus:border-[#4CAF50] transition-all"
                   />
+                  {errors.password && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.password.message as string}
+                    </p>
+                  )}
+
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
@@ -118,6 +190,7 @@ const page = () => {
                 <label className="flex items-center gap-2 cursor-pointer group">
                   <input
                     type="checkbox"
+                    {...register("remember")}
                     className="w-4 h-4 accent-[#4CAF50] border-gray-300 rounded"
                   />
                   <span className="text-xs text-gray-500 font-medium group-hover:text-gray-700">
@@ -168,8 +241,11 @@ const page = () => {
                 </button>
               </div>
 
-              <button className="w-full bg-[#4CAF50] text-white py-4 rounded-2xl font-bold hover:bg-[#43A047] shadow-xl shadow-green-100 transition-all active:scale-[0.98] mt-2 cursor-pointer">
-                Log in
+              <button
+                className="w-full bg-[#4CAF50] text-white py-4 rounded-2xl font-bold hover:bg-[#43A047] shadow-xl shadow-green-100 transition-all active:scale-[0.98] mt-2 cursor-pointer"
+                disabled={isPending}
+              >
+                {isPending ? "Logging in..." : "Log in"}
               </button>
             </form>
           </div>
@@ -180,4 +256,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

@@ -15,16 +15,40 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Navbar from "../../components/Header";
 import Footer from "../../components/Footer";
+import { useRegister } from "../../api/features/auth/auth.queries";
+import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 
 const page = () => {
   const router = useRouter();
+  const { mutate: registerUser, isPending } = useRegister();
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Here you would normally send data to your database
-    console.log("Form submitted!");
-    router.push("/"); // Send them home after signup
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
+  const onSubmit = (data: any) => {
+    const payload = {
+      ...data,
+      country: "Nigeria", // 👈 automatically added
+    };
+
+    registerUser(payload, {
+      onSuccess: () => {
+        toast.success("Account created successfully!");
+        if (data.role === "landlord") {
+          router.push("/dashboard");
+        } else {
+          router.push("/");
+        }
+      },
+      onError: (error: any) => {
+        toast.error(error.response?.data?.message || "Registration failed");
+      },
+    });
   };
 
   return (
@@ -37,7 +61,7 @@ const page = () => {
             src="/IDU GROUP HOME.png"
             alt="Background"
             fill
-            priority
+            sizes="100vw"
             className="object-cover blur-3xl brightness-[0.4] scale-110"
           />
         </div>
@@ -49,6 +73,8 @@ const page = () => {
                 src="/IDU GROUP HOME.png"
                 alt="RentULO"
                 fill
+                priority
+                sizes="50vw"
                 className="object-cover"
               />
             </div>
@@ -79,8 +105,8 @@ const page = () => {
 
             {/* Registration Form */}
             <form
-              onSubmit={handleSubmit}
-              className="space-y-4 text-left overflow-y-auto pr-2 max-h-[550px] custom-scrollbar"
+              onSubmit={handleSubmit(onSubmit)}
+              className="space-y-4 text-left overflow-y-auto pr-2 max-h-[550px]"
             >
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
@@ -92,24 +118,37 @@ const page = () => {
                       <User size={16} />
                     </span>
                     <input
-                      required
-                      type="text"
+                      {...register("first_name", {
+                        required: "First name is required",
+                      })}
                       placeholder="John"
                       className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:border-[#4CAF50] transition-all"
                     />
                   </div>
+                  {errors.first_name && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.first_name.message as string}
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
                     Last Name
                   </label>
                   <input
-                    required
+                    {...register("last_name", {
+                      required: "Last name is required",
+                    })}
                     type="text"
                     placeholder="Doe"
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:border-[#4CAF50] transition-all"
                   />
                 </div>
+                {errors.last_name && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.last_name.message as string}
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -118,7 +157,12 @@ const page = () => {
                     Gender
                   </label>
                   <div className="relative">
-                    <select className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none appearance-none cursor-pointer">
+                    <select
+                      {...register("gender", {
+                        required: "Gender is required",
+                      })}
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none appearance-none cursor-pointer"
+                    >
                       <option value="male">Male</option>
                       <option value="female">Female</option>
                     </select>
@@ -137,12 +181,19 @@ const page = () => {
                       <Phone size={16} />
                     </span>
                     <input
-                      required
+                      {...register("phone_no", {
+                        required: "Phone number is required",
+                      })}
                       type="tel"
-                      placeholder="080..."
+                      placeholder="+234 905."
                       className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:border-[#4CAF50]"
                     />
                   </div>
+                  {errors.phone_no && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.phone_no.message as string}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -155,12 +206,23 @@ const page = () => {
                     <Mail size={16} />
                   </span>
                   <input
-                    required
+                    {...register("email", {
+                      required: "Email is required",
+                      pattern: {
+                        value: /^\S+@\S+$/i,
+                        message: "Invalid email",
+                      },
+                    })}
                     type="email"
                     placeholder="example@rentulonigeria.com"
                     className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:border-[#4CAF50]"
                   />
                 </div>
+                {errors.email && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.email.message as string}
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -173,19 +235,28 @@ const page = () => {
                       <MapPin size={16} />
                     </span>
                     <input
-                      required
+                      {...register("address", {
+                        required: "Address is required",
+                      })}
                       type="text"
                       placeholder="123 Street"
                       className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none"
                     />
                   </div>
+                  {errors.address && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.address.message as string}
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
                     State
                   </label>
                   <input
-                    required
+                    {...register("state", {
+                      required: "State is required",
+                    })}
                     type="text"
                     placeholder="Lagos"
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none"
@@ -202,7 +273,13 @@ const page = () => {
                     <Lock size={16} />
                   </span>
                   <input
-                    required
+                    {...register("password", {
+                      required: "Password is required",
+                      minLength: {
+                        value: 8,
+                        message: "Minimum 8 characters",
+                      },
+                    })}
                     type={showPassword ? "text" : "password"}
                     placeholder="Min. 8 characters"
                     className="w-full pl-11 pr-12 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:border-[#4CAF50]"
@@ -215,15 +292,21 @@ const page = () => {
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
+                {errors.password && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.password.message as string}
+                  </p>
+                )}
               </div>
 
               <div className="flex justify-center gap-8 py-2">
                 <label className="flex items-center gap-2 cursor-pointer group">
                   <input
                     type="radio"
-                    name="role"
-                    required
-                    className="accent-[#4CAF50] w-4 h-4"
+                    value="landlord"
+                    {...register("role", {
+                      required: "Please select a role",
+                    })}
                   />
                   <span className="text-sm font-semibold text-gray-600 group-hover:text-[#4CAF50]">
                     Landlord?
@@ -232,14 +315,21 @@ const page = () => {
                 <label className="flex items-center gap-2 cursor-pointer group">
                   <input
                     type="radio"
-                    name="role"
-                    className="accent-[#4CAF50] w-4 h-4"
+                    value="tenant"
+                    {...register("role", {
+                      required: "Please select a role",
+                    })}
                   />
                   <span className="text-sm font-semibold text-gray-600 group-hover:text-[#4CAF50]">
-                    Seeker?
+                    Tenant?
                   </span>
                 </label>
               </div>
+              {errors.role && (
+                <p className="text-red-500 text-xs text-center">
+                  {errors.role.message as string}
+                </p>
+              )}
 
               <p className="text-[10px] text-gray-400 text-center">
                 By creating an account, you agree to our
@@ -251,8 +341,48 @@ const page = () => {
                 </Link>
               </p>
 
-              <button className="w-full bg-[#4CAF50] text-white py-4 rounded-2xl font-bold hover:bg-[#43A047] shadow-xl shadow-green-100 transition-all active:scale-[0.98] cursor-pointer">
-                Sign up
+              <div className="relative py-2">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-100"></div>
+                </div>
+                <div className="relative flex justify-center text-[10px] uppercase tracking-tighter">
+                  <span className="bg-white px-3 text-gray-400 font-bold">
+                    or continue with
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <button
+                  type="button"
+                  className="flex-1 flex items-center justify-center gap-2 bg-[#ECF5ED] py-3 rounded-2xl hover:bg-[#e2ede3] transition-all font-bold text-xs text-gray-700"
+                >
+                  <img
+                    src="https://www.svgrepo.com/show/475656/google-color.svg"
+                    className="w-4 h-4 cursor-pointer"
+                    alt="Google"
+                  />
+                  Google
+                </button>
+                <button
+                  type="button"
+                  className="flex-1 flex items-center justify-center gap-2 bg-[#ECF5ED] py-3 rounded-2xl hover:bg-[#e2ede3] transition-all font-bold text-xs text-gray-700"
+                >
+                  <img
+                    src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg"
+                    className="w-4 h-4"
+                    alt="Apple"
+                  />
+                  Apple
+                </button>
+              </div>
+
+              <button
+                className="w-full bg-[#4CAF50] text-white py-4 rounded-2xl font-bold hover:bg-[#43A047] shadow-xl shadow-green-100 transition-all active:scale-[0.98] cursor-pointer"
+                type="submit"
+                disabled={isPending}
+              >
+                {isPending ? "Creating Account..." : "Sign up"}
               </button>
             </form>
           </div>
