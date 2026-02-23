@@ -30,26 +30,32 @@ const page = () => {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data: any) => {
-    const payload = {
-      ...data,
-      country: "Nigeria", // 👈 automatically added
-    };
+ const onSubmit = (data: any) => {
+   let phone = data.phone_no;
 
-    registerUser(payload, {
-      onSuccess: () => {
-        toast.success("Account created successfully!");
-        if (data.role === "landlord") {
-          router.push("/dashboard");
-        } else {
-          router.push("/");
-        }
-      },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || "Registration failed");
-      },
-    });
-  };
+   // Normalize Nigerian phone numbers
+   if (/^0\d{10}$/.test(phone)) {
+     phone = "+234" + phone.slice(1);
+   } else if (/^\d{10}$/.test(phone)) {
+     phone = "+234" + phone;
+   }
+
+   const payload = {
+     ...data,
+     phone_no: phone, // 👈 use formatted phone
+     country: "Nigeria",
+   };
+
+   registerUser(payload, {
+     onSuccess: () => {
+       toast.success("Account created successfully! Please login.");
+       router.push("/login");
+     },
+     onError: (error: any) => {
+       toast.error(error.response?.data?.message || "Registration failed");
+     },
+   });
+ };
 
   return (
     <>

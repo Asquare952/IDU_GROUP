@@ -44,18 +44,19 @@ const Page = () => {
 
     loginUser(payload, {
       onSuccess: (response: any) => {
-        console.log("LOGIN RESPONSE:", response);
-
-        // Save token correctly
         Cookies.set("ACCESS_TOKEN", response.token, {
           expires: data.remember ? 7 : 1,
         });
 
+        Cookies.set("USER_ROLE", response.role);
+
         toast.success("Login successful");
 
-        // If backend does NOT return role,
-        // redirect directly or decode token later
-        router.push("/dashboard");
+        if (response.role === "landlord") {
+          router.push("/dashboard");
+        } else {
+          router.push("/");
+        }
       },
 
       onError: (error) => {
