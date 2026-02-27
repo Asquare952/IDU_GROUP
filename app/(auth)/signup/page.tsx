@@ -32,8 +32,6 @@ const page = () => {
 
  const onSubmit = (data: any) => {
    let phone = data.phone_no;
-
-   // Normalize Nigerian phone numbers
    if (/^0\d{10}$/.test(phone)) {
      phone = "+234" + phone.slice(1);
    } else if (/^\d{10}$/.test(phone)) {
@@ -42,7 +40,7 @@ const page = () => {
 
    const payload = {
      ...data,
-     phone_no: phone, // 👈 use formatted phone
+     phone_no: phone, //use formatted phone
      country: "Nigeria",
    };
 
@@ -59,6 +57,11 @@ const page = () => {
 
   return (
     <>
+      {isPending && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      )}
       <Navbar />
       <div className="relative min-h-screen w-full flex items-center justify-center p-4 md:p-10 overflow-hidden">
         {/* Background Overlay */}
@@ -114,7 +117,7 @@ const page = () => {
               onSubmit={handleSubmit(onSubmit)}
               className="space-y-4 text-left overflow-y-auto pr-2 max-h-[550px]"
             >
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-4">
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
                     First Name
@@ -141,14 +144,18 @@ const page = () => {
                   <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
                     Last Name
                   </label>
-                  <input
-                    {...register("last_name", {
-                      required: "Last name is required",
-                    })}
-                    type="text"
-                    placeholder="Doe"
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:border-[#4CAF50] transition-all"
-                  />
+                  <div className="relative">
+                    <span className="absolute inset-y-0 left-4 flex items-center text-[#4CAF50]">
+                      <User size={16} />
+                    </span>
+                    <input
+                      {...register("last_name", {
+                        required: "Last name is required",
+                      })}
+                      placeholder="Doe"
+                      className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:border-[#4CAF50] transition-all"
+                    />
+                  </div>
                 </div>
                 {errors.last_name && (
                   <p className="text-red-500 text-xs mt-1">
