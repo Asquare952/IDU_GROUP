@@ -40,7 +40,7 @@ const page = () => {
 
    const payload = {
      ...data,
-     phone_no: phone, //use formatted phone
+     phone_no: phone,
      country: "Nigeria",
    };
 
@@ -64,7 +64,6 @@ const page = () => {
       )}
       <Navbar />
       <div className="relative min-h-screen w-full flex items-center justify-center p-4 md:p-10 overflow-hidden">
-        {/* Background Overlay */}
         <div className="absolute inset-0 z-0">
           <Image
             src="/IDU GROUP HOME.png"
@@ -105,14 +104,12 @@ const page = () => {
             </div>
 
             <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-2">
-              Create Your Rent<span className="text-[#4CAF50]">ULO</span>{" "}
+              Create Your Rent<span className="text-[#4CAF50]">ULO</span>
               Account
             </h1>
             <p className="text-gray-500 text-sm font-medium mb-6">
               Fill in your details to get started
             </p>
-
-            {/* Registration Form */}
             <form
               onSubmit={handleSubmit(onSubmit)}
               className="space-y-4 text-left overflow-y-auto pr-2 max-h-[550px]"

@@ -22,8 +22,6 @@ const Listing = () => {
             your area
           </p>
         </div>
-
-        {/* Grid Section */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -54,7 +52,6 @@ const Listing = () => {
                     <p className="text-gray-900 font-bold text-xl">
                       {item.price}
                       <span className="text-sm font-normal text-gray-400">
-                        {" "}
                         / 2 days ago
                       </span>
                     </p>
