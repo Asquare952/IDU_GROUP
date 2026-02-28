@@ -6,7 +6,6 @@ const properties: Properties[] = [
     title: "Modern Bungalow",
     price: "₦2,000,000",
     img: "/flat1.jpg",
-    
   },
   {
     id: 2,
@@ -91,6 +90,12 @@ const properties: Properties[] = [
     title: "Duplex",
     price: "₦1,200,000",
     img: "/flat8.jpg",
+  },
+  {
+    id: 16,
+    title: "Modern Bungalow",
+    price: "₦1,500,000",
+    img: "/flat5.jpg",
   },
 ];
 

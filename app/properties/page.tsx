@@ -32,7 +32,7 @@ export default function AllPropertiesPage() {
           searchTerm === "" || itemTitle.includes(searchTerm);
 
         const matchesCategory =
-          selectedCategory === "All" || itemCat === selectedCat; 
+          selectedCategory === "All" || itemCat === selectedCat;
 
         return matchesSearch && matchesCategory;
       });
@@ -90,7 +90,7 @@ export default function AllPropertiesPage() {
                 key={cat}
                 onClick={() => {
                   setSelectedCategory(cat);
-                  setFinalSearch(tempSearch); 
+                  setFinalSearch(tempSearch);
                 }}
                 className={`px-6 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap ${
                   selectedCategory === cat
