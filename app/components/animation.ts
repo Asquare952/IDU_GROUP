@@ -1,4 +1,3 @@
-// app/utils/animations.ts
 import { Variants } from "framer-motion";
 
 export const containerVariants: Variants = {
@@ -17,7 +16,6 @@ export const itemVariants: Variants = {
     opacity: 1,
     y: 0,
     transition: {
-      // First 3 cards appear immediately, others are delayed
       delay: i < 3 ? 0 : 0.3,
       duration: 0.8,
       ease: [0.22, 1, 0.36, 1],

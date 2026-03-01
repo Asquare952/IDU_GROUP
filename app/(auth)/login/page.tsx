@@ -44,18 +44,19 @@ const Page = () => {
 
     loginUser(payload, {
       onSuccess: (response: any) => {
-        console.log("LOGIN RESPONSE:", response);
-
-        // Save token correctly
         Cookies.set("ACCESS_TOKEN", response.token, {
           expires: data.remember ? 7 : 1,
         });
 
+        Cookies.set("USER_ROLE", response.role);
+
         toast.success("Login successful");
 
-        // If backend does NOT return role,
-        // redirect directly or decode token later
-        router.push("/dashboard");
+        if (response.role === "landlord") {
+          router.push("/dashboard");
+        } else {
+          router.push("/");
+        }
       },
 
       onError: (error) => {
@@ -83,6 +84,11 @@ const Page = () => {
 
   return (
     <>
+      {isPending && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      )}
       <Navbar />
       <div className="relative min-h-screen w-full flex items-center justify-center p-4 md:p-10 overflow-hidden">
         <div className="absolute inset-0 z-0">
@@ -245,7 +251,7 @@ const Page = () => {
                 className="w-full bg-[#4CAF50] text-white py-4 rounded-2xl font-bold hover:bg-[#43A047] shadow-xl shadow-green-100 transition-all active:scale-[0.98] mt-2 cursor-pointer"
                 disabled={isPending}
               >
-                {isPending ? "Logging in..." : "Log in"}
+                {isPending ? "Log in..." : "Log in"}
               </button>
             </form>
           </div>
