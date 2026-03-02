@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useIsFetching, useQueryClient } from "@tanstack/react-query";
+import { HiMenu, HiX } from "react-icons/hi";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,7 +20,7 @@ const Header = () => {
 
   return (
     <>
-      <nav className="z-[100] sticky top-0 left-0 right-0 flex items-center justify-between px-6 md:px-12 py-4 bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-100 transition-all duration-300">
+      <nav className="z-[110] sticky top-0 left-0 right-0 flex items-center justify-between px-6 md:px-12 py-4 bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-100 transition-all duration-300">
         <div className="flex items-center text-2xl font-bold text-gray-900 tracking-tight">
           <Image
             src="/IDU GROUP LOGO.png"
@@ -54,17 +55,9 @@ const Header = () => {
           </Link>
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden flex flex-col justify-center items-center w-10 h-10 border border-gray-200 rounded-lg bg-white shadow-sm z-[110] cursor-pointer"
+            className="md:hidden flex items-center justify-center w-10 h-10 border border-gray-200 rounded-lg bg-white shadow-sm z-[110]"
           >
-            <span
-              className={`bg-gray-800 block transition-all duration-300 h-0.5 w-5 rounded-sm ${isOpen ? "rotate-45 translate-y-1.5" : "-translate-y-1"}`}
-            ></span>
-            <span
-              className={`bg-gray-800 block transition-all duration-300 h-0.5 w-5 rounded-sm my-0.5 ${isOpen ? "opacity-0" : "opacity-100"}`}
-            ></span>
-            <span
-              className={`bg-gray-800 block transition-all duration-300 h-0.5 w-5 rounded-sm ${isOpen ? "-rotate-45 -translate-y-1" : "translate-y-1"}`}
-            ></span>
+            {isOpen ? <HiX size={28} /> : <HiMenu size={28} />}
           </button>
         </div>
       </nav>
