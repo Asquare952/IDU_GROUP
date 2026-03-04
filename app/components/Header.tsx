@@ -106,7 +106,7 @@ const Header = () => {
         {/* mobile view section */}
         <div className="flex flex-col items-center space-y-8">
           <Link
-            href="/"
+            href="#"
             onClick={() => setIsOpen(false)}
             className="text-2xl font-semibold text-gray-800 hover:text-[#4CAF50]"
           >
