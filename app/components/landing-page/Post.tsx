@@ -3,7 +3,7 @@ import Image from "next/image";
 
 const Post = () => {
   return (
-    <section id="post">
+    <div>
       <div className="w-full relative overflow-hidden py-20 bg-[#E8F0E9]">
         <div className="absolute inset-0 pointer-events-none">
           <Image
@@ -25,7 +25,7 @@ const Post = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-12">
             <h2 className="font-semibold text-4xl md:text-5xl leading-tight text-gray-900">
-              List your Properties and Get Real{" "}
+              List your Properties and Get Real
               <br className="hidden md:block" />
               Tenants Fast
             </h2>
@@ -49,7 +49,7 @@ const Post = () => {
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 };
 

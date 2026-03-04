@@ -2,9 +2,8 @@ import React from "react";
 import Image from "next/image";
 
 const About = () => {
-// how it works
   return (
-    <section className="bg-[#E8F0E9] py-24 px-4 mb-5">
+    <div className="bg-[#E8F0E9] py-24 px-4 mb-5">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <span className="text-[#4CAF50] font-bold text-2xl uppercase tracking-wider">
@@ -132,7 +131,7 @@ const About = () => {
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 };
 
