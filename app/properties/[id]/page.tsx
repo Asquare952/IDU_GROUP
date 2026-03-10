@@ -52,7 +52,7 @@ export default function PropertyDesktopView() {
               </div>
             </div>
 
-            <div className="bg-gray-50 p-8 rounded-[32px] grid grid-cols-4 gap-4">
+            <div className="bg-gray-50 p-8 rounded-[32px] grid grid-cols-3 gap-4">
               <Spec
                 icon={<MapPin className="text-[#4CAF50]" />}
                 label="Location"
@@ -62,11 +62,6 @@ export default function PropertyDesktopView() {
                 icon={<Bed className="text-[#4CAF50]" />}
                 label="Rooms"
                 value="5 Bedrooms"
-              />
-              <Spec
-                icon={<Star className="text-yellow-400 fill-yellow-400" />}
-                label="Rating"
-                value="4.8 / 5.0"
               />
               <Spec
                 icon={<Shield className="text-[#4CAF50]" />}
@@ -82,6 +77,18 @@ export default function PropertyDesktopView() {
                 professionals seeking luxury in the heart of Lagos.
               </p>
             </div>
+            <div className="space-y-4 bg-blue-50 p-6 rounded-[32px] border border-blue-100">
+              <h2 className="text-3xl font-black text-gray-900">Safety Tips</h2>
+              <p className="text-gray-600 leading-relaxed text-lg">
+                1. Ensure you meet the Agent in an open location. <br />
+                2. Always verify the Landlord's identity and ownership of the
+                property before making any payments. <br />
+                3. Be cautious of deals that seem too good to be true, as they
+                may be scams. <br />
+                4. Always use secure payment methods and avoid cash transactions
+                when possible. <br />
+              </p>
+            </div>
             <div className="pt-8 border-t border-gray-100">
               <h3 className="text-xl font-bold mb-6">Building Amenities</h3>
               <div className="flex flex-wrap gap-8">
@@ -90,6 +97,9 @@ export default function PropertyDesktopView() {
                 <Amenity icon={<Droplets />} label="Water Treatment" />
                 <Amenity icon={<Leaf />} label="Green Area" />
               </div>
+            </div>
+            <div>
+              <h2 className="text-xl font-bold mb-6">Strictly "NO" Smoking</h2>
             </div>
           </div>
           <div className="lg:col-span-1">
@@ -130,7 +140,12 @@ export default function PropertyDesktopView() {
               </div>
               <div className="bg-gray-50 p-6 rounded-[32px] flex items-center gap-4">
                 <div className="w-12 h-12 bg-gray-300 rounded-full overflow-hidden">
-                  <Image src="/Company.png" width={48} height={48} alt="Agent" />
+                  <Image
+                    src="/Company.png"
+                    width={48}
+                    height={48}
+                    alt="Agent"
+                  />
                 </div>
                 <div>
                   <p className="font-bold text-gray-900">

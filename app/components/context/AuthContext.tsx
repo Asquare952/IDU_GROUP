@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  // ✅ Run only on client after mount
+  //Run only on client after mount
   useEffect(() => {
     const token = Cookies.get("ACCESS_TOKEN");
     setIsLoggedIn(!!token);
@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     router.push("/login");
   };
 
-  // ⛔ Prevent hydration mismatch
+  //Prevent hydration mismatch
   if (!mounted) return null;
 
   return (
