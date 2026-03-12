@@ -2,19 +2,21 @@
 import React from "react";
 import Image from "next/image";
 
-
 interface SearchItemProps {
   title: string;
   placeholder: string;
   isLast?: boolean;
   showLocationIcon?: boolean;
+  isDropdown?: boolean;
+  options?: string[];
 }
-
 const SearchItem = ({
   title,
   placeholder,
   isLast,
   showLocationIcon,
+  isDropdown,
+  options,
 }: SearchItemProps) => (
   <div
     className={`w-full md:flex-1 flex flex-col px-6 md:px-8 py-4 md:py-2 ${
@@ -24,12 +26,25 @@ const SearchItem = ({
     <span className="text-[10px] uppercase font-bold text-gray-400 tracking-widest mb-1">
       {title}
     </span>
+
     <div className="flex items-center justify-between gap-2">
-      <input
-        type="text"
-        placeholder={placeholder}
-        className="bg-transparent text-sm font-semibold text-[#1A2B49] outline-none placeholder:text-gray-300 w-full"
-      />
+      {isDropdown ? (
+        <select className="bg-transparent text-sm font-semibold text-[#1A2B49] outline-none w-full cursor-pointer appearance-none pr-4">
+          <option value="">{placeholder}</option>
+
+          {options?.map((option) => (
+            <option key={option} value={option.toLowerCase()}>
+              {option}
+            </option>
+          ))}
+        </select>
+      ) : (
+        <input
+          type="text"
+          placeholder={placeholder}
+          className="bg-transparent text-sm font-semibold text-[#1A2B49] outline-none placeholder:text-gray-300 w-full"
+        />
+      )}
 
       {showLocationIcon && (
         <div className="flex-shrink-0">
@@ -38,39 +53,19 @@ const SearchItem = ({
             height="18"
             viewBox="0 0 24 24"
             fill="none"
-            xmlns="http://www.w3.org/2000/svg"
           >
             <path
               d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.364 3.63604C20.0518 5.32387 21 7.61305 21 10Z"
               stroke="#22C55E"
               strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
             />
             <path
               d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z"
               stroke="#22C55E"
               strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
             />
           </svg>
         </div>
-      )}
-      {isLast && (
-        <svg
-          className="w-4 h-4 text-gray-400"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M19 9l-7 7-7-7"
-          />
-        </svg>
       )}
     </div>
   </div>
@@ -121,6 +116,8 @@ const HeroSection = () => {
             <SearchItem
               title="Property Type"
               placeholder="Select type"
+              isDropdown={true}
+              options={["Bungalow", "Duplex", "Apartment", "Self‑Contain"]}
               isLast={true}
             />
 

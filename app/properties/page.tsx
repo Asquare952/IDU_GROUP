@@ -59,7 +59,7 @@ export default function AllPropertiesPage() {
               />
             </div>
 
-            <div className="relative">
+            {/* <div className="relative">
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
@@ -75,7 +75,7 @@ export default function AllPropertiesPage() {
                 className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"
                 size={18}
               />
-            </div>
+            </div> */}
 
             <button
               onClick={() => setFinalSearch(tempSearch)}

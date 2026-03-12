@@ -20,6 +20,7 @@ import Footer from "@/app/components/Footer";
 export default function PropertyDesktopView() {
   const { id } = useParams();
   const property = propertiesLocal.find((p) => String(p.id) === String(id));
+  const [showAllTips, setShowAllTips] = useState(false);
 
   if (!property)
     return <div className="p-20 text-center">Property not found</div>;
@@ -78,16 +79,29 @@ export default function PropertyDesktopView() {
               </p>
             </div>
             <div className="space-y-4 bg-blue-50 p-6 rounded-[32px] border border-blue-100">
-              <h2 className="text-3xl font-black text-gray-900">Safety Tips</h2>
-              <p className="text-gray-600 leading-relaxed text-lg">
-                1. Ensure you meet the Agent in an open location. <br />
-                2. Always verify the Landlord's identity and ownership of the
-                property before making any payments. <br />
-                3. Be cautious of deals that seem too good to be true, as they
-                may be scams. <br />
-                4. Always use secure payment methods and avoid cash transactions
-                when possible. <br />
-              </p>
+              <h2 className="text-2xl font-black text-gray-900">Safety Tips</h2>
+              {(showAllTips
+                ? [
+                    "Ensure you meet the Agent in an open location.",
+                    "Always verify the Landlord's identity and ownership before making payments.",
+                    "Be cautious of deals that seem too good to be true.",
+                    "Always use secure payment methods and avoid cash transactions.",
+                  ]
+                : ["Ensure you meet the Agent in an open location."]
+              ).map((tip, index) => (
+                <p
+                  key={index}
+                  className="text-gray-600 leading-relaxed text-lg"
+                >
+                  {index + 1}. {tip}
+                </p>
+              ))}
+              <button
+                onClick={() => setShowAllTips(!showAllTips)}
+                className="text-[#4CAF50] font-semibold hover:underline"
+              >
+                {showAllTips ? "Show Less Tips" : "See Full Tips"}
+              </button>
             </div>
             <div className="pt-8 border-t border-gray-100">
               <h3 className="text-xl font-bold mb-6">Building Amenities</h3>

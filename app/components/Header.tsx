@@ -94,7 +94,7 @@ const Header = () => {
             onClick={() => setIsOpen(!isOpen)}
             className="md:hidden flex items-center justify-center w-10 h-10 border border-gray-200 rounded-lg bg-white shadow-sm z-[110]"
           >
-            {isOpen ? <HiX size={28} /> : <HiMenu size={28} />}
+          {isOpen ? <HiX size={28} /> : <HiMenu size={28} />}
           </button>
         </div>
       </nav>
