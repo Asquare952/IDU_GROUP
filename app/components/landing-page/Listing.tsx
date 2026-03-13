@@ -5,8 +5,12 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import properties from "@/app/components/properties";
 import { containerVariants, itemVariants } from "@/app/components/animation";
+import { useRouter } from "next/navigation";
 
 const Listing = () => {
+  const router = useRouter();
+  const isLoggedIn = false;
+
   return (
     <div id="listing">
       <div className="mb-20 mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 py-12">
@@ -59,15 +63,20 @@ const Listing = () => {
                       {item.title}
                     </h3>
                   </div>
-                  <Link href={`/properties/${item.id}`}>
-                    <motion.button
-                      whileTap={{ scale: 0.95 }}
-                      whileHover={{ scale: 1.05 }}
-                      className="bg-[#E8F5E9] text-[#43A047] text-xs font-bold px-4 py-1.5 rounded-full cursor-pointer"
-                    >
-                      View
-                    </motion.button>
-                  </Link>
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ scale: 1.05 }}
+                    onClick={() => {
+                      if (!isLoggedIn) {
+                        router.push("/signup");
+                      } else {
+                        router.push(`/properties/${item.id}`);
+                      }
+                    }}
+                    className="bg-[#E8F5E9] text-[#43A047] text-xs font-bold px-4 py-1.5 rounded-full cursor-pointer"
+                  >
+                    View
+                  </motion.button>
                 </div>
 
                 <p className="text-gray-400 text-sm mb-4 leading-relaxed">
