@@ -9,14 +9,13 @@ import Footer from "../../components/Footer";
 import { useLogin } from "../../api/features/auth/auth.queries";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import Cookies from "js-cookie";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@/app/lib/login.schema";
 import { z } from "zod";
-import axios from "axios";
+import { useAuth } from "@/app/components/context/AuthContext";
 
 const Page = () => {
-  const router = useRouter();
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const { mutate: loginUser, isPending, isSuccess, isError } = useLogin();
 
@@ -44,30 +43,15 @@ const Page = () => {
 
     loginUser(payload, {
       onSuccess: (response: any) => {
-        Cookies.set("ACCESS_TOKEN", response.token, {
-          expires: data.remember ? 7 : 1,
-        });
-
-        Cookies.set("USER_ROLE", response.role);
-
         toast.success("Login successful");
 
-        if (response.role === "landlord") {
-          router.push("/dashboard");
-        } else {
-          router.push("/");
-        }
+        login(response.token, response.role, data.remember);
       },
 
-      onError: (error) => {
-        if (axios.isAxiosError(error)) {
-          toast.error(error.response?.data?.message || "Login failed");
-        } else {
-          toast.error("Login failed");
-        }
+      onError: (error: any) => {
+        toast.error(error?.response?.data?.message || "Login failed");
       },
     });
-
   };
 
   const {

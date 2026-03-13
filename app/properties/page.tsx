@@ -22,20 +22,21 @@ export default function AllPropertiesPage() {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       const allProps = propertiesLocal as any[];
 
-      return allProps.filter((item) => {
-        const searchTerm = finalSearch.toLowerCase().trim();
-        const selectedCat = selectedCategory.toLowerCase().trim();
+     return allProps.filter((item) => {
+       const searchTerm = finalSearch.toLowerCase().trim();
+       const selectedCat = selectedCategory.toLowerCase().trim();
 
-        const itemTitle = (item.title || "").toLowerCase();
-        const itemCat = (item.category || "").toLowerCase();
-        const matchesSearch =
-          searchTerm === "" || itemTitle.includes(searchTerm);
+       const itemTitle = (item.title || "").toLowerCase();
+       const itemCat = (item.category || "").toLowerCase().trim();
 
-        const matchesCategory =
-          selectedCategory === "All" || itemCat === selectedCat;
+       const matchesSearch =
+         searchTerm === "" || itemTitle.includes(searchTerm);
 
-        return matchesSearch && matchesCategory;
-      });
+       const matchesCategory =
+         selectedCategory === "All" || itemCat.includes(selectedCat);
+
+       return matchesSearch && matchesCategory;
+     });
     },
   });
 
@@ -59,7 +60,7 @@ export default function AllPropertiesPage() {
               />
             </div>
 
-            <div className="relative">
+            {/* <div className="relative">
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
@@ -75,7 +76,7 @@ export default function AllPropertiesPage() {
                 className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"
                 size={18}
               />
-            </div>
+            </div> */}
 
             <button
               onClick={() => setFinalSearch(tempSearch)}

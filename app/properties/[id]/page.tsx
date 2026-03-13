@@ -20,6 +20,7 @@ import Footer from "@/app/components/Footer";
 export default function PropertyDesktopView() {
   const { id } = useParams();
   const property = propertiesLocal.find((p) => String(p.id) === String(id));
+  const [showAllTips, setShowAllTips] = useState(false);
 
   if (!property)
     return <div className="p-20 text-center">Property not found</div>;
@@ -52,7 +53,7 @@ export default function PropertyDesktopView() {
               </div>
             </div>
 
-            <div className="bg-gray-50 p-8 rounded-[32px] grid grid-cols-4 gap-4">
+            <div className="bg-gray-50 p-8 rounded-[32px] grid grid-cols-3 gap-4">
               <Spec
                 icon={<MapPin className="text-[#4CAF50]" />}
                 label="Location"
@@ -62,11 +63,6 @@ export default function PropertyDesktopView() {
                 icon={<Bed className="text-[#4CAF50]" />}
                 label="Rooms"
                 value="5 Bedrooms"
-              />
-              <Spec
-                icon={<Star className="text-yellow-400 fill-yellow-400" />}
-                label="Rating"
-                value="4.8 / 5.0"
               />
               <Spec
                 icon={<Shield className="text-[#4CAF50]" />}
@@ -82,6 +78,31 @@ export default function PropertyDesktopView() {
                 professionals seeking luxury in the heart of Lagos.
               </p>
             </div>
+            <div className="space-y-4 bg-blue-50 p-6 rounded-[32px] border border-blue-100">
+              <h2 className="text-2xl font-black text-gray-900">Safety Tips</h2>
+              {(showAllTips
+                ? [
+                    "Ensure you meet the Agent in an open location.",
+                    "Always verify the Landlord's identity and ownership before making payments.",
+                    "Be cautious of deals that seem too good to be true.",
+                    "Always use secure payment methods and avoid cash transactions.",
+                  ]
+                : ["Ensure you meet the Agent in an open location."]
+              ).map((tip, index) => (
+                <p
+                  key={index}
+                  className="text-gray-600 leading-relaxed text-lg"
+                >
+                  {index + 1}. {tip}
+                </p>
+              ))}
+              <button
+                onClick={() => setShowAllTips(!showAllTips)}
+                className="text-[#4CAF50] font-semibold hover:underline"
+              >
+                {showAllTips ? "Show Less Tips" : "See Full Tips"}
+              </button>
+            </div>
             <div className="pt-8 border-t border-gray-100">
               <h3 className="text-xl font-bold mb-6">Building Amenities</h3>
               <div className="flex flex-wrap gap-8">
@@ -90,6 +111,9 @@ export default function PropertyDesktopView() {
                 <Amenity icon={<Droplets />} label="Water Treatment" />
                 <Amenity icon={<Leaf />} label="Green Area" />
               </div>
+            </div>
+            <div>
+              <h2 className="text-xl font-bold mb-6">Strictly "NO" Smoking</h2>
             </div>
           </div>
           <div className="lg:col-span-1">
@@ -130,7 +154,12 @@ export default function PropertyDesktopView() {
               </div>
               <div className="bg-gray-50 p-6 rounded-[32px] flex items-center gap-4">
                 <div className="w-12 h-12 bg-gray-300 rounded-full overflow-hidden">
-                  <Image src="/Company.png" width={48} height={48} alt="Agent" />
+                  <Image
+                    src="/Company.png"
+                    width={48}
+                    height={48}
+                    alt="Agent"
+                  />
                 </div>
                 <div>
                   <p className="font-bold text-gray-900">

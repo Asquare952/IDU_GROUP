@@ -127,7 +127,7 @@ const page = () => {
                       {...register("first_name", {
                         required: "First name is required",
                       })}
-                      placeholder="John"
+                      placeholder="David"
                       className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:border-[#4CAF50] transition-all"
                     />
                   </div>
@@ -149,7 +149,7 @@ const page = () => {
                       {...register("last_name", {
                         required: "Last name is required",
                       })}
-                      placeholder="Doe"
+                      placeholder="Ugochukwu"
                       className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:border-[#4CAF50] transition-all"
                     />
                   </div>

@@ -3,7 +3,7 @@ import Image from "next/image";
 
 const Transparency = () => {
   return (
-    <section id="about">
+    <div id="about">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-40 mt-20">
         <div className="bg-white rounded-[32px] p-6 lg:p-10 flex flex-col lg:flex-row items-center gap-14 lg:gap-16">
           <div className="w-full lg:w-1/2">
@@ -47,7 +47,7 @@ const Transparency = () => {
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 };
 
