@@ -63,20 +63,15 @@ const Listing = () => {
                       {item.title}
                     </h3>
                   </div>
-                  <motion.button
-                    whileTap={{ scale: 0.95 }}
-                    whileHover={{ scale: 1.05 }}
-                    onClick={() => {
-                      if (!isLoggedIn) {
-                        router.push("/signup");
-                      } else {
-                        router.push(`/properties/${item.id}`);
-                      }
-                    }}
-                    className="bg-[#E8F5E9] text-[#43A047] text-xs font-bold px-4 py-1.5 rounded-full cursor-pointer"
-                  >
-                    View
-                  </motion.button>
+                  <Link href={`/properties/${item.id}`}>
+                    <motion.button
+                      whileTap={{ scale: 0.95 }}
+                      whileHover={{ scale: 1.05 }}
+                      className="bg-[#E8F5E9] text-[#43A047] text-xs font-bold px-4 py-1.5 rounded-full cursor-pointer"
+                    >
+                      View
+                    </motion.button>
+                  </Link>
                 </div>
 
                 <p className="text-gray-400 text-sm mb-4 leading-relaxed">

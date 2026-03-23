@@ -16,11 +16,14 @@ import {
 import Image from "next/image";
 import Navbar from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
+import { useBookProperty } from "@/app/api/features/property/property.queries";
+
 
 export default function PropertyDesktopView() {
   const { id } = useParams();
   const property = propertiesLocal.find((p) => String(p.id) === String(id));
   const [showAllTips, setShowAllTips] = useState(false);
+  const { mutate: handleBook, isPending } = useBookProperty();
 
   if (!property)
     return <div className="p-20 text-center">Property not found</div>;
@@ -138,12 +141,19 @@ export default function PropertyDesktopView() {
                   </h1>
                 </div>
                 <div className="space-y-4">
-                  <button className="w-full bg-[#4CAF50] text-white font-bold py-5 rounded-[24px] hover:bg-[#43A047] transition-all active:scale-95 shadow-lg shadow-green-100 cursor-pointer">
-                    Book Inspection
+                  <button
+                    onClick={() => handleBook(String(property.id))}
+                    disabled={isPending}
+                    className="w-full bg-green-600 border-2 border-none text-white font-black py-5 rounded-[24px] hover:bg-green-700 transition-all active:scale-95 shadow-lg shadow-orange-100 uppercase mt-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isPending ? "Processing..." : "Book Inspection"}
                   </button>
-
-                  <button className="w-full bg-[#FF9800] text-white font-black py-5 rounded-[24px] hover:bg-[#F57C00] transition-all active:scale-95 shadow-lg shadow-orange-100 uppercase">
-                    Lock This House (₦5,000)
+                  <button
+                    onClick={() => handleBook(String(property.id))}
+                    disabled={isPending}
+                    className="w-full bg-[#FF9800] text-white font-black py-5 rounded-[24px] hover:bg-[#F57C00] transition-all active:scale-95 shadow-lg shadow-orange-100 uppercase mt-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isPending ? "Locking..." : "Lock This House (₦5,000)"}
                   </button>
                 </div>
 
