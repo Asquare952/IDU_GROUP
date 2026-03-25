@@ -13,7 +13,7 @@ const Listing = () => {
 
   return (
     <div id="listing">
-      <div className="mb-20 mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 py-12">
+      <div className="mb-20 mx-auto max-w-360 px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-12 mx-auto text-center">
           <span className="text-green-600 font-bold text-xl tracking-wide">
             Featured listings
