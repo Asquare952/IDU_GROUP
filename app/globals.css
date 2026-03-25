@@ -7,3 +7,11 @@
 html {
   scroll-behavior: smooth;
 }
+
+.card-bg{
+  background: url("/flat3.jpg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 550px;
+}
