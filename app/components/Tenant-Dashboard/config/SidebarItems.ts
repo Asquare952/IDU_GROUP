@@ -19,13 +19,13 @@ export const sidebarItems: SidebarItems[] = [
   {
     id: 2,
     name: "My Lock",
-    path: "/tenant/dashboard/my-lock",
+    path: "/tenant/dashboard/locked-house",
     icon: Lock,
   },
   {
     id: 3,
     name: "Saved Houses",
-    path: "/tenant/dashboard/saved-houses",
+    path: "/tenant/dashboard/saved-house",
     icon: Heart,
   },
   {

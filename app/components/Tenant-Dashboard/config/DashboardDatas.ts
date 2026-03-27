@@ -49,3 +49,19 @@ export const Safetytips: SafetyTips[] = [
     icon: "✓ ",
   },
 ];
+
+export const LockedPropertyData = [
+  {
+    id: 1,
+    title: "2 Bedroom Apartment – Yaba",
+    address: "15 Ajayi Road, Yaba, Lagos",
+    price: "₦850,000",
+    period: "/year",
+    lockFee: "₦5,000",
+    expiry: "36 hours",
+    progress: 60,
+    landlord: "Mr. Ibrahim Adeyemi",
+    isVerified: true,
+    img: "/house-placeholder.jpg" 
+  }
+];
