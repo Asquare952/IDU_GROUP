@@ -1,6 +1,6 @@
+import { title } from "process";
 import { DashboardMetrics, SafetyTips } from "../types";
-
-import { Heart, Lock, Calendar, Eye } from "lucide-react";
+import { Heart, Lock, Calendar, Eye, AlertTriangle } from "lucide-react";
 
 export const DashMetrics: DashboardMetrics[] = [
   {
@@ -62,6 +62,35 @@ export const LockedPropertyData = [
     progress: 60,
     landlord: "Mr. Ibrahim Adeyemi",
     isVerified: true,
-    img: "/house-placeholder.jpg" 
-  }
+    img: "/house-placeholder.jpg",
+  },
 ];
+
+export const steps = [
+  { id: 1, 
+    title: "Lock Paid",
+    status: "completed" 
+  },
+  {
+    id: 2,
+    title: "Inspection Scheduled",
+    subtitle: "Scheduled for March 16, 2026 at 2:00 PM",
+    status: "completed",
+  },
+  {
+    id: 3,
+    title: "Application Submitted",
+    status: "pending",
+  },
+  {
+    id: 4,
+    title: "Deal Closed",
+    status: "pending",
+  },
+];
+
+export const ImportantNoticeData = {
+  title: "Important Notice",
+  message: "Your lock will expire in 36 hours. Complete your inspection and submit your application to secure this property. The ₦5,000 lock fee is refundable if the landlord accepts another application.",
+  icon: AlertTriangle,
+};

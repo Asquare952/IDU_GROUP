@@ -42,7 +42,7 @@ const page = () => {
               ₦850,000<span className=" text-gray-400 text-sm md:text-2xl">/year</span>
             </h3>
             <div className="flex items-center gap-1">
-              <button className=" bg-green-600 border-2 border-[#43A047] text-[#ffffff] px-16 py-3 rounded-md cursor-pointer hover:bg-[#ffffff] hover:text-green-600">
+              <button className="bg-green-600 border-2 border-[#43A047] text-[#ffffff] px-16 py-3 rounded-md cursor-pointer hover:bg-[#ffffff] hover:text-green-600">
                 View Details
               </button>
               <button className="bg-white border-2 border-[#43A047] text-[#43A047] px-16 py-3 rounded-md cursor-pointer hover:bg-[#43A047] hover:text-white">
