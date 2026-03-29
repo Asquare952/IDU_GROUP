@@ -1,6 +1,15 @@
 import { title } from "process";
 import { DashboardMetrics, SafetyTips } from "../types";
-import { Heart, Lock, Calendar, Eye, AlertTriangle } from "lucide-react";
+import {
+  Heart,
+  Lock,
+  Calendar,
+  Eye,
+  AlertTriangle,
+  UserX,
+  ShieldAlert,
+  MapPin,
+} from "lucide-react";
 
 export const DashMetrics: DashboardMetrics[] = [
   {
@@ -67,10 +76,7 @@ export const LockedPropertyData = [
 ];
 
 export const steps = [
-  { id: 1, 
-    title: "Lock Paid",
-    status: "completed" 
-  },
+  { id: 1, title: "Lock Paid", status: "completed" },
   {
     id: 2,
     title: "Inspection Scheduled",
@@ -91,6 +97,28 @@ export const steps = [
 
 export const ImportantNoticeData = {
   title: "Important Notice",
-  message: "Your lock will expire in 36 hours. Complete your inspection and submit your application to secure this property. The ₦5,000 lock fee is refundable if the landlord accepts another application.",
+  message:
+    "Your lock will expire in 36 hours. Complete your inspection and submit your application to secure this property. The ₦5,000 lock fee is refundable if the landlord accepts another application.",
   icon: AlertTriangle,
 };
+
+export const SafetyAction = [
+  {
+    id: 1,
+    label: "Report Agent",
+    icon: UserX,
+    variant: "danger",
+  },
+  {
+    id: 2,
+    label: "Alert Support",
+    icon: ShieldAlert,
+    variant: "Success",
+  },
+  {
+    id: 3,
+    label: "Share Location",
+    icon: MapPin,
+    variant: "Success",
+  },
+]

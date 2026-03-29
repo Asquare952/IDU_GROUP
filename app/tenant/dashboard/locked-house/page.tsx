@@ -4,11 +4,21 @@ import {
   LockedPropertyData,
   steps,
   ImportantNoticeData,
+  SafetyAction,
 } from "@/app/components/Tenant-Dashboard/config/DashboardDatas";
 import DashboardLayout from "@/app/components/Tenant-Dashboard/DashboardLayout";
-import { MapPin, Clock, Calendar, MessageSquare } from "lucide-react";
+import {
+  MapPin,
+  Clock,
+  Calendar,
+  MessageSquare,
+  AlertCircle,
+  X,
+} from "lucide-react";
+import { useState } from "react";
 
 const page = () => {
+  const [isSafetyOpen, setIsSafetyOpen] = useState(false);
   return (
     <DashboardLayout>
       <section className="flex flex-col gap-8 px-2.5 py-2.5 bg-[#F8F9FA] min-h-screen">
@@ -156,6 +166,58 @@ const page = () => {
             </p>
           </div>
         </div>
+
+        <div className="p-6 flex flex-col gap-3">
+          {/* --- the safety red button--- */}
+          {isSafetyOpen && (
+            <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-end justify-end p-6 md:p-10">
+              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[350px] overflow-hidden border border-gray-100">
+                <div className="p-6 pb-2 flex justify-between items-start">
+                  <div>
+                    <h3 className="text-xl font-bold text-[#162B4C]">
+                      🚨 Something Feels Wrong?
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                      We're here to help. Choose an action:
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setIsSafetyOpen(false)}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="p-6 flex flex-col gap-3">
+                  {SafetyAction.map((action) => (
+                    <button
+                      key={action.id}
+                      className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all
+              ${
+                action.variant === "danger"
+                  ? "bg-[#FF3B30] text-white hover:bg-red-700"
+                  : action.variant === "Success" || action.variant === "success"
+                    ? "bg-[#43A047] text-white hover:bg-green-700"
+                    : "bg-[#F2F2F7] text-[#162B4C] hover:bg-gray-200"
+              }`}
+                    >
+                      <action.icon size={18} />
+                      {action.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+        <button
+          onClick={() => setIsSafetyOpen(true)}
+          className="fixed bottom-10 right-10 bg-[#FF3B30] text-white p-5 rounded-full shadow-2xl hover:bg-red-700 transition-all z-40 active:scale-90"
+        >
+          <AlertCircle size={32} />
+        </button>
       </section>
     </DashboardLayout>
   );
