@@ -1,6 +1,9 @@
-"use client"
+"use client";
 
-import { DashMetrics, Safetytips } from "@/app/components/Tenant-Dashboard/config/DashboardDatas"
+import {
+  DashMetrics,
+  Safetytips,
+} from "@/app/components/Tenant-Dashboard/config/DashboardDatas";
 import DashboardLayout from "@/app/components/Tenant-Dashboard/DashboardLayout";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -39,8 +42,23 @@ const page = () => {
               </p>
             </div>
             <h3 className=" text-[#43A047] text-5xl font-bold">
-              ₦850,000<span className=" text-gray-400 text-sm md:text-2xl">/year</span>
+              ₦850,000
+              <span className=" text-gray-400 text-sm md:text-2xl">/year</span>
             </h3>
+            <div className="mt-2">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-gray-500 text-sm font-semibold">
+                  Lock time remaining
+                </span>
+                <span className="text-[#1B401C] text-sm font-bold">75%</span>
+              </div>
+              <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+                <div
+                  className="bg-[#43A047] h-full rounded-full transition-all duration-700"
+                  style={{ width: `65%` }}
+                />
+              </div>
+            </div>
             <div className="flex items-center gap-1">
               <button className="bg-green-600 border-2 border-[#43A047] text-[#ffffff] px-16 py-3 rounded-md cursor-pointer hover:bg-[#ffffff] hover:text-green-600">
                 View Details
@@ -184,6 +202,6 @@ const page = () => {
       </section>
     </DashboardLayout>
   );
-}
+};
 
-export default page
+export default page;

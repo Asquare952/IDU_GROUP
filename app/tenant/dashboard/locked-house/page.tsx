@@ -12,7 +12,7 @@ import {
   Clock,
   Calendar,
   MessageSquare,
-  AlertCircle,
+  AlertTriangle,
   X,
 } from "lucide-react";
 import { useState } from "react";
@@ -168,7 +168,6 @@ const page = () => {
         </div>
 
         <div className="p-6 flex flex-col gap-3">
-          {/* --- the safety red button--- */}
           {isSafetyOpen && (
             <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-end justify-end p-6 md:p-10">
               <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[350px] overflow-hidden border border-gray-100">
@@ -216,7 +215,7 @@ const page = () => {
           onClick={() => setIsSafetyOpen(true)}
           className="fixed bottom-10 right-10 bg-[#FF3B30] text-white p-5 rounded-full shadow-2xl hover:bg-red-700 transition-all z-40 active:scale-90"
         >
-          <AlertCircle size={32} />
+          <AlertTriangle size={32} />
         </button>
       </section>
     </DashboardLayout>
