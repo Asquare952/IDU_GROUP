@@ -2,11 +2,13 @@ import DesktopSearch from "./UI/search/DesktopSearch"
 import NotificationBell from "./UI/NotificationBell"
 import Image from "next/image"
 import AdminProfileImg from "@/public/assets/landloard-profile-img.png"
+import { Menu } from 'lucide-react';
 
 const Header = () => {
   return (
     <header className=' sticky top-0  p-4 bg-white border border-[#EBECED]'>
       <div className=' flex items-center justify-between gap-7'>
+        <Menu className=" md:hidden "/>
         <DesktopSearch />
 
         <div className=" flex items-center gap-2">

@@ -25,7 +25,7 @@ export default function page() {
 
   return (
     <DashboardLayout>
-      <section className=" flex flex-col gap-6 p-3">
+      <section className=" flex flex-col gap-6 py-5 px-6">
         <div className=" flex justify-between">
           <div className=" flex flex-col gap-0.5">
             <h1 className=" text-[20px] font-bold md:text-[32px] text-[#162B4C]">Welcome, Daniel</h1>
