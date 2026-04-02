@@ -15,37 +15,37 @@ export const sidebarItems: SidebarItems[] = [
   {
     id: 1,
     name: "Dashboard",
-    path: "/dashboard",
+    path: "/landlord/dashboard",
     icon: LayoutDashboard,
   },
   {
     id: 2,
     name: "My listings",
-    path: "/dashboard/my-listings",
+    path: "/landlord/my-listings",
     icon: List,
   },
   {
     id: 3,
     name: "Upload Listings",
-    path: "/dashboard/upload-listings",
+    path: "/landlord/upload-listings",
     icon: Plus,
   },
   {
     id: 4,
     name: "Message",
-    path: "/dashboard/messages",
+    path: "/landlord/messages",
     icon: MessageCircleMore,
   },
   {
     id: 5,
     name: "Insight and Analytics",
-    path: "/dashboard/insight-and-analytics",
+    path: "/landlord/insight-and-analytics",
     icon: ChartNoAxesCombined,
   },
   {
     id: 6,
     name: "Clients",
-    path: "/dashboard/clients",
+    path: "/landlord/clients",
     icon: UsersRound,
   },
 ];
@@ -54,13 +54,13 @@ export const sidebarItems2: SidebarItems[] = [
   {
     id: 1,
     name: "Help",
-    path: "/dashboard/help",
+    path: "/landlord/help",
     icon: CircleQuestionMark,
   },
   {
     id: 2,
     name: "Settings",
-    path: "/dashboard/settings",
+    path: "/landlord/settings",
     icon: Settings,
   },
   {

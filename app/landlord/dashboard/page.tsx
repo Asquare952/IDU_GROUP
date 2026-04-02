@@ -1,5 +1,5 @@
-import DashboardLayout from "../components/Dashboard/DashboardLayout"
-import { DashMetrics, DashboardListings, Inquiries } from "../components/Dashboard/config/DashboardDatas"
+import DashboardLayout from "../../components/Dashboard/DashboardLayout"
+import { DashMetrics, DashboardListings, Inquiries } from "../../components/Dashboard/config/DashboardDatas"
 import Image from "next/image"
 import { PenLine } from 'lucide-react';
 import ReviewGraph from "@/public/assets/income-overview-graph.png";
@@ -25,7 +25,7 @@ export default function page() {
 
   return (
     <DashboardLayout>
-      <section className=" flex flex-col gap-6 p-3">
+      <section className=" flex flex-col gap-6 py-5 px-6">
         <div className=" flex justify-between">
           <div className=" flex flex-col gap-0.5">
             <h1 className=" text-[20px] font-bold md:text-[32px] text-[#162B4C]">Welcome, Daniel</h1>
@@ -98,7 +98,7 @@ export default function page() {
                     return (
                       <tr key={id} >
                         <td className=" flex gap-1 py-2">
-                          <Image src={image} width={80} height={32} alt=""/>
+                          <Image src={image} width={80} height={32} alt="" />
                           <div className=" flex flex-col gap-0.5">
                             <h3 className=" font-semibold text-[12px] md:text-[15px] w-[220px] text-[#7A7E84]">{name}</h3>
                             <p className=" font-normal text-[10px] text-[#7A7E84]">{location}</p>
@@ -127,7 +127,7 @@ export default function page() {
 
               </table>
             </div>
-            
+
           </div>
 
           {/* inquiries */}

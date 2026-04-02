@@ -19,31 +19,31 @@ export const sidebarItems: SidebarItems[] = [
   {
     id: 2,
     name: "My Lock",
-    path: "/tenant/dashboard/locked-house",
+    path: "/tenant/locked-house",
     icon: Lock,
   },
   {
     id: 3,
     name: "Saved Houses",
-    path: "/tenant/dashboard/saved-house",
+    path: "/tenant/saved-house",
     icon: Heart,
   },
   {
     id: 4,
     name: "Message",
-    path: "/tenant/dashboard/messages",
+    path: "/tenant/messages",
     icon: MessageCircleMore,
   },
   {
     id: 5,
     name: "Safety Center",
-    path: "/tenant/dashboard/safety-center",
+    path: "/tenant/safety-center",
     icon: Shield,
   },
   {
     id: 6,
     name: "Settings",
-    path: "/tenant/dashboard/settings",
+    path: "/tenant/settings",
     icon: Settings,
   },
   {
