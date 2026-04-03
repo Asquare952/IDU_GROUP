@@ -14,6 +14,7 @@ import {
   MessageSquare,
   AlertTriangle,
   X,
+  ShieldAlert
 } from "lucide-react";
 import { useState } from "react";
 
@@ -23,7 +24,7 @@ const page = () => {
     <DashboardLayout>
       <section className="flex flex-col gap-8 px-2.5 py-2.5 bg-[#F8F9FA] min-h-screen">
         <div className="flex flex-col gap-1 p-3">
-          <h2 className="text-3xl font-bold text-[#162B4C]">My Lock</h2>
+          <h2 className="text-3xl font-bold text-[#16 2B4C]">My Lock</h2>
           <p className="text-gray-500">Track your reservation and next steps</p>
         </div>
 
@@ -169,40 +170,44 @@ const page = () => {
 
         <div className="p-6 flex flex-col gap-3">
           {isSafetyOpen && (
-            <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-end justify-end p-6 md:p-10">
-              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[350px] overflow-hidden border border-gray-100">
-                <div className="p-6 pb-2 flex justify-between items-start">
-                  <div>
-                    <h3 className="text-xl font-bold text-[#162B4C]">
-                      🚨 Something Feels Wrong?
-                    </h3>
-                    <p className="text-sm text-gray-500">
-                      We're here to help. Choose an action:
-                    </p>
+            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end justify-end p-6 md:p-10">
+              <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-[360px] overflow-hidden border border-gray-100 animate-in fade-in zoom-in duration-200">
+                <div className="p-8 pb-4">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="bg-red-50 p-3 rounded-2xl">
+                      <ShieldAlert className="text-[#FF3B30]" size={24} />
+                    </div>
+                    <button
+                      onClick={() => setIsSafetyOpen(false)}
+                      className="text-gray-400 hover:text-gray-600 p-1 hover:bg-gray-50 rounded-full transition-colors"
+                    >
+                      <X size={20} />
+                    </button>
                   </div>
-                  <button
-                    onClick={() => setIsSafetyOpen(false)}
-                    className="text-gray-400 hover:text-gray-600"
-                  >
-                    <X size={20} />
-                  </button>
-                </div>
 
-                {/* Action Buttons */}
+                  <h3 className="text-2xl font-bold text-[#162B4C] leading-tight">
+                    Safety Assistance
+                  </h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    If you feel unsafe or suspect a scam, choose an immediate
+                    action below.
+                  </p>
+                </div>
                 <div className="p-6 flex flex-col gap-3">
                   {SafetyAction.map((action) => (
                     <button
                       key={action.id}
-                      className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all
-              ${
-                action.variant === "danger"
-                  ? "bg-[#FF3B30] text-white hover:bg-red-700"
-                  : action.variant === "Success" || action.variant === "success"
-                    ? "bg-[#43A047] text-white hover:bg-green-700"
-                    : "bg-[#F2F2F7] text-[#162B4C] hover:bg-gray-200"
-              }`}
+                      className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer
+                ${
+                  action.variant === "danger"
+                    ? "bg-[#FF3B30] text-white hover:bg-red-700"
+                    : action.variant === "Success" ||
+                        action.variant === "success"
+                      ? "bg-[#43A047] text-white hover:bg-green-700"
+                      : "bg-[#F2F2F7] text-[#162B4C] hover:bg-gray-200"
+                }`}
                     >
-                      <action.icon size={18} />
+                      <action.icon size={20} />
                       {action.label}
                     </button>
                   ))}
