@@ -3,6 +3,8 @@
 import {
   DashMetrics,
   Safetytips,
+  SafetyAction,
+  ActiveProperty,
 } from "@/app/components/Tenant-Dashboard/config/DashboardDatas";
 import DashboardLayout from "@/app/components/Tenant-Dashboard/DashboardLayout";
 import Image from "next/image";
@@ -10,60 +12,134 @@ import { motion } from "framer-motion";
 import properties from "@/app/components/properties";
 import { containerVariants, itemVariants } from "@/app/components/animation";
 import { useRouter } from "next/navigation";
-import { MapPin } from "lucide-react";
+import {
+  MapPin,
+  ShieldAlert,
+  X,
+  AlertTriangle,
+  Lock,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+import { useState } from "react";
 
 const page = () => {
   const router = useRouter();
   const isLoggedIn = false;
+  const [isSafetyOpen, setIsSafetyOpen] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const nextSlide = () => {
+    setCurrentSlide((prev) =>
+      prev === ActiveProperty.images.length - 1 ? 0 : prev + 1,
+    );
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) =>
+      prev === 0 ? ActiveProperty.images.length - 1 : prev - 1,
+    );
+  };
   return (
     <DashboardLayout>
       <section className=" flex flex-col gap-8 px-2.5 py-2.5">
-        <div className="flex h-full">
-          <div className="flex-8 card-bg rounded-tl-2xl rounded-bl-2xl"></div>
-          <div className=" flex flex-col gap-5 flex-9 shadow-xl rounded-tr-2xl rounded-br-2xl bg-white p-4">
-            <div className="flex items-center gap-1.5 mt-3">
-              <div className=" bg-[#43A047] text-white py-1 px-1.5 rounded-lg">
-                🔒 <span className=" text-sm font-medium">Active Lock</span>
+        <div className="flex flex-col lg:flex-row w-full bg-white rounded-[2rem] shadow-xl overflow-hidden border border-gray-50">
+          <div className="relative h-72 md:h-96 lg:h-auto lg:w-[45%] group bg-gray-100">
+            <Image
+              src={ActiveProperty.images[currentSlide]}
+              alt="Side of the house"
+              fill
+              className="object-cover transition-all duration-500"
+            />
+
+            {/* Image Counter 1 / 8 */}
+            <div className="absolute top-4 right-4 bg-black/50 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1.5 rounded-full z-10 border border-white/10">
+              {currentSlide + 1} / {ActiveProperty.images.length}
+            </div>
+
+            <div className="absolute inset-0 flex items-center justify-between px-4 z-20 pointer-events-none">
+              <button
+                onClick={prevSlide}
+                className="pointer-events-auto bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-lg text-[#162B4C] hover:bg-white hover:scale-110 transition-all active:scale-95"
+              >
+                <ChevronLeft size={22} strokeWidth={2.5} />
+              </button>
+
+              <button
+                onClick={nextSlide}
+                className="pointer-events-auto bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-lg text-[#162B4C] hover:bg-white hover:scale-110 transition-all active:scale-95"
+              >
+                <ChevronRight size={22} strokeWidth={2.5} />
+              </button>
+            </div>
+
+            {/*Pagination Dots */}
+            <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-20 bg-black/50 backdrop-blur-md px-3 py-1.5  rounded-full z-10">
+              {ActiveProperty.images.map((_, index) => (
+                <div
+                  key={index}
+                  onClick={() => setCurrentSlide(index)}
+                  className={`transition-all duration-300 cursor-pointer rounded-full h-1.5 ${
+                    index === currentSlide
+                      ? "w-4 bg-white shadow-md"
+                      : "w-1.5 bg-white/40"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-col gap-5 p-6 md:p-10 lg:w-[55%]">
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="bg-[#43A047] text-white py-2 px-4 rounded-xl flex items-center gap-2">
+                <Lock size={14} />
+                <span className="text-xs font-bold uppercase">Active Lock</span>
               </div>
-              <div className=" ">
-                <span className="text-sm bg-red-200 py-1.5 px-1.5 rounded-lg text-red-700">
-                  36 hours remaining
+              <div className="bg-red-50 text-red-600 py-1.5 px-4 rounded-xl border border-red-100">
+                <span className="text-xs font-bold uppercase">
+                  {ActiveProperty.hoursRemaining} remaining
                 </span>
               </div>
             </div>
 
-            <div className=" flex flex-col gap-1.5">
-              <h2 className=" text-4xl font-bold mb-4.5">
-                2 Bedroom Apartment – Yaba
+            <div className="space-y-1">
+              <h2 className="text-2xl md:text-4xl font-bold text-[#162B4C] leading-tight">
+                {ActiveProperty.title}
               </h2>
-              <p className="text-sm md:text-xl flex items-center gap-1 text-gray-500 font-medium">
-                <MapPin className="w-6 h-6 text-green-500" />
-                15 Ajayi Road, Yaba, Lagos
+              <p className="flex items-center gap-2 text-gray-500 font-medium">
+                <MapPin size={18} className="text-[#43A047]" />
+                {ActiveProperty.location}
               </p>
             </div>
-            <h3 className=" text-[#43A047] text-5xl font-bold">
-              ₦850,000
-              <span className=" text-gray-400 text-sm md:text-2xl">/year</span>
+
+            <h3 className="text-[#43A047] text-4xl md:text-5xl font-extrabold">
+              {ActiveProperty.price}
+              <span className="text-gray-400 text-lg md:text-2xl font-normal ml-2">
+                /year
+              </span>
             </h3>
+
+            {/* Progress Bar */}
             <div className="mt-2">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-gray-500 text-sm font-semibold">
-                  Lock time remaining
+                <span className="text-gray-400 text-xs font-bold uppercase tracking-widest">
+                  Lock Progress
                 </span>
-                <span className="text-[#1B401C] text-sm font-bold">75%</span>
+                <span className="text-[#1B401C] text-sm font-bold">
+                  {ActiveProperty.lockProgress}%
+                </span>
               </div>
-              <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+              <div className="w-full bg-gray-100 h-2.5 rounded-full overflow-hidden">
                 <div
-                  className="bg-[#43A047] h-full rounded-full transition-all duration-700"
-                  style={{ width: `65%` }}
+                  className="bg-[#43A047] h-full rounded-full transition-all duration-1000"
+                  style={{ width: `${ActiveProperty.lockProgress}%` }}
                 />
               </div>
             </div>
-            <div className="flex items-center gap-1">
-              <button className="bg-green-600 border-2 border-[#43A047] text-[#ffffff] px-16 py-3 rounded-md cursor-pointer hover:bg-[#ffffff] hover:text-green-600">
+
+            <div className="flex flex-col sm:flex-row gap-3 mt-4">
+              <button className="w-full sm:w-auto bg-[#43A047] text-white px-10 py-4 rounded-2xl font-bold hover:shadow-lg hover:shadow-green-100 transition-all active:scale-95">
                 View Details
               </button>
-              <button className="bg-white border-2 border-[#43A047] text-[#43A047] px-16 py-3 rounded-md cursor-pointer hover:bg-[#43A047] hover:text-white">
+              <button className="w-full sm:w-auto bg-white border-2 border-gray-100 text-[#162B4C] px-10 py-4 rounded-2xl font-bold hover:bg-gray-50 transition-all active:scale-95">
                 Contact Landlord
               </button>
             </div>
@@ -199,6 +275,60 @@ const page = () => {
             })}
           </div>
         </div>
+        <div className="p-6 flex flex-col gap-3">
+          {isSafetyOpen && (
+            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end justify-end p-6 md:p-10">
+              <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-[360px] overflow-hidden border border-gray-100 animate-in fade-in zoom-in duration-200">
+                <div className="p-8 pb-4">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="bg-red-50 p-3 rounded-2xl">
+                      <ShieldAlert className="text-[#FF3B30]" size={24} />
+                    </div>
+                    <button
+                      onClick={() => setIsSafetyOpen(false)}
+                      className="text-gray-400 hover:text-gray-600 p-1 hover:bg-gray-50 rounded-full transition-colors"
+                    >
+                      <X size={20} />
+                    </button>
+                  </div>
+
+                  <h3 className="text-2xl font-bold text-[#162B4C] leading-tight">
+                    Safety Assistance
+                  </h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    If you feel unsafe or suspect a scam, choose an immediate
+                    action below.
+                  </p>
+                </div>
+                <div className="p-6 flex flex-col gap-3">
+                  {SafetyAction.map((action) => (
+                    <button
+                      key={action.id}
+                      className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer
+                       ${
+                         action.variant === "danger"
+                           ? "bg-[#FF3B30] text-white hover:bg-red-700"
+                           : action.variant === "Success" ||
+                               action.variant === "success"
+                             ? "bg-[#43A047] text-white hover:bg-green-700"
+                             : "bg-[#F2F2F7] text-[#162B4C] hover:bg-gray-200"
+                       }`}
+                    >
+                      <action.icon size={20} />
+                      {action.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+        <button
+          onClick={() => setIsSafetyOpen(true)}
+          className="fixed bottom-10 right-10 bg-[#FF3B30] text-white p-5 rounded-full shadow-2xl hover:bg-red-700 transition-all z-40 active:scale-90"
+        >
+          <AlertTriangle size={32} />
+        </button>
       </section>
     </DashboardLayout>
   );

@@ -11,6 +11,24 @@ import {
   MapPin,
 } from "lucide-react";
 
+export const ActiveProperty = {
+  id: 1,
+  title: "2 Bedroom Apartment – Yaba",
+  location: "15 Ajayi Road, Yaba, Lagos",
+  price: "₦850,000",
+  images: [
+    "/flat3.jpg",
+    "/flat4.jpg",
+    "/flat5.jpg",
+    "/flat6.jpg",
+    "/flat2.jpg",
+    "/flat1.jpg",
+    "/flat8.jpg",
+    "/flat7.jpg",
+  ],
+  lockProgress: 75,
+  hoursRemaining: "36 hours",
+};
 export const DashMetrics: DashboardMetrics[] = [
   {
     id: 1,
@@ -71,7 +89,12 @@ export const LockedPropertyData = [
     progress: 60,
     landlord: "Mr. Ibrahim Adeyemi",
     isVerified: true,
-    img: "/house-placeholder.jpg",
+    images: [
+      "/flat3.jpg",
+      "/flat4.jpg",
+      "/flat5.jpg",
+      "/flat6.jpg",
+    ],
   },
 ];
 
@@ -122,8 +145,6 @@ export const SafetyAction = [
     variant: "Success",
   },
 ];
-
-//savedhouses data
 
 export const SavedHousesData = [
   {
@@ -215,4 +236,103 @@ export const SupportLinks = [
   { id: 2, label: "Contact Support" },
   { id: 3, label: "Terms of Service" },
   { id: 4, label: "Privacy Policy" },
+];
+
+export const SafetyBannerData = {
+  title: "Need Immediate Help?",
+  description:
+    "If you're in an unsafe situation or suspect fraud, contact us immediately.",
+  emergencyLine: "0800-RENTULO",
+  chatText: "Live Chat Support",
+};
+
+export const SafetyReportCards = [
+  {
+    id: 1,
+    title: "Report Fake Listing",
+    description:
+      "Found a suspicious property listing? Let us know so we can investigate.",
+    icon: "Flag",
+    color: "red",
+    bgColor: "bg-red-50",
+    iconColor: "text-red-500",
+  },
+  {
+    id: 2,
+    title: "Report Agent",
+    description:
+      "Report fraudulent agents or suspicious behavior during your search.",
+    icon: "AlertTriangle",
+    color: "orange",
+    bgColor: "bg-orange-50",
+    iconColor: "text-orange-500",
+  },
+  {
+    id: 3,
+    title: "Contact RentULO Support",
+    description:
+      "Get help from our verified support team regarding any safety concerns.",
+    icon: "MessageCircle",
+    color: "blue",
+    bgColor: "bg-blue-50",
+    iconColor: "text-blue-600",
+  },
+];
+
+export const SafetyTipsData = [
+  {
+    id: 1,
+    title: "Never Pay Before Inspection",
+    desc: "Legitimate landlords will never ask for payment before you inspect the property. Always visit the property first.",
+    icon: "ShieldCheck",
+    color: "text-green-600",
+    bgColor: "bg-green-50",
+  },
+  {
+    id: 2,
+    title: "Verify Landlord Identity",
+    desc: "Use RentULO's verification system. Check for the verified badge and confirm identity before making any payments.",
+    icon: "UserCheck",
+    color: "text-green-600",
+    bgColor: "bg-green-50",
+  },
+  {
+    id: 3,
+    title: "No Inspection Fees",
+    desc: "Real landlords don't charge for inspections. If someone asks for inspection fees, it's likely a scam.",
+    icon: "Info",
+    color: "text-green-600",
+    bgColor: "bg-green-50",
+  },
+  {
+    id: 4,
+    title: "Meet in Safe Locations",
+    desc: "Always meet agents or landlords at the property or in public places. Never send money to unverified accounts.",
+    icon: "AlertTriangle",
+    color: "text-green-600",
+    bgColor: "bg-green-50",
+  },
+];
+
+export const CommonScamsData = [
+  {
+    id: 1,
+    title: "Too Good to Be True Prices",
+    desc: "Be wary of properties priced significantly below market rate. Scammers use low prices to attract victims.",
+  },
+  {
+    id: 2,
+    title: "Urgent Payment Requests",
+    desc: "Scammers create false urgency. Take your time to verify everything before making any payments.",
+  },
+  {
+    id: 3,
+    title: "Requests for Direct Bank Transfer",
+    desc: "Always use RentULO's secure payment system. Never transfer money directly to unverified accounts.",
+  },
+  {
+    id: 4,
+    title: "Landlord Not at Property",
+    desc: "Be suspicious if the 'landlord' isn't present during inspection or makes excuses about property access.",
+  },
 ];
