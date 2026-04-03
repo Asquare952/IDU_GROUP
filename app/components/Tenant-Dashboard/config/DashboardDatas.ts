@@ -11,22 +11,20 @@ import {
   MapPin,
 } from "lucide-react";
 
-
 export const ActiveProperty = {
   id: 1,
   title: "2 Bedroom Apartment – Yaba",
   location: "15 Ajayi Road, Yaba, Lagos",
   price: "₦850,000",
-  // ADD ALL SIDES OF THE HOUSE HERE
   images: [
-    "/flat3.jpg", 
-    "/flat4.jpg", 
-    "/flat5.jpg", 
-    "/flat6.jpg", 
+    "/flat3.jpg",
+    "/flat4.jpg",
+    "/flat5.jpg",
+    "/flat6.jpg",
     "/flat2.jpg",
     "/flat1.jpg",
     "/flat8.jpg",
-    "/flat7.jpg"
+    "/flat7.jpg",
   ],
   lockProgress: 75,
   hoursRemaining: "36 hours",
@@ -91,7 +89,12 @@ export const LockedPropertyData = [
     progress: 60,
     landlord: "Mr. Ibrahim Adeyemi",
     isVerified: true,
-    img: "/house-placeholder.jpg",
+    images: [
+      "/flat3.jpg",
+      "/flat4.jpg",
+      "/flat5.jpg",
+      "/flat6.jpg",
+    ],
   },
 ];
 
@@ -283,7 +286,7 @@ export const SafetyTipsData = [
     desc: "Legitimate landlords will never ask for payment before you inspect the property. Always visit the property first.",
     icon: "ShieldCheck",
     color: "text-green-600",
-    bgColor: "bg-green-50"
+    bgColor: "bg-green-50",
   },
   {
     id: 2,
@@ -291,7 +294,7 @@ export const SafetyTipsData = [
     desc: "Use RentULO's verification system. Check for the verified badge and confirm identity before making any payments.",
     icon: "UserCheck",
     color: "text-green-600",
-    bgColor: "bg-green-50"
+    bgColor: "bg-green-50",
   },
   {
     id: 3,
@@ -299,7 +302,7 @@ export const SafetyTipsData = [
     desc: "Real landlords don't charge for inspections. If someone asks for inspection fees, it's likely a scam.",
     icon: "Info",
     color: "text-green-600",
-    bgColor: "bg-green-50"
+    bgColor: "bg-green-50",
   },
   {
     id: 4,
@@ -307,29 +310,29 @@ export const SafetyTipsData = [
     desc: "Always meet agents or landlords at the property or in public places. Never send money to unverified accounts.",
     icon: "AlertTriangle",
     color: "text-green-600",
-    bgColor: "bg-green-50"
-  }
+    bgColor: "bg-green-50",
+  },
 ];
 
 export const CommonScamsData = [
   {
     id: 1,
     title: "Too Good to Be True Prices",
-    desc: "Be wary of properties priced significantly below market rate. Scammers use low prices to attract victims."
+    desc: "Be wary of properties priced significantly below market rate. Scammers use low prices to attract victims.",
   },
   {
     id: 2,
     title: "Urgent Payment Requests",
-    desc: "Scammers create false urgency. Take your time to verify everything before making any payments."
+    desc: "Scammers create false urgency. Take your time to verify everything before making any payments.",
   },
   {
     id: 3,
     title: "Requests for Direct Bank Transfer",
-    desc: "Always use RentULO's secure payment system. Never transfer money directly to unverified accounts."
+    desc: "Always use RentULO's secure payment system. Never transfer money directly to unverified accounts.",
   },
   {
     id: 4,
     title: "Landlord Not at Property",
-    desc: "Be suspicious if the 'landlord' isn't present during inspection or makes excuses about property access."
-  }
+    desc: "Be suspicious if the 'landlord' isn't present during inspection or makes excuses about property access.",
+  },
 ];

@@ -181,18 +181,19 @@ const page = () => {
                     action below.
                   </p>
                 </div>
-                <div className="p-8 pt-2 flex flex-col gap-3">
+                <div className="p-6 flex flex-col gap-3">
                   {SafetyAction.map((action) => (
                     <button
                       key={action.id}
-                      className={`w-full py-4 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all active:scale-[0.98]
-                ${
-                  action.variant === "danger"
-                    ? "bg-[#FF3B30] text-white hover:bg-[#D32F2F] shadow-md shadow-red-100"
-                    : action.variant === "success"
-                      ? "bg-[#43A047] text-white hover:bg-[#2E7D32] shadow-md shadow-green-100"
-                      : "bg-[#F2F2F7] text-[#162B4C] hover:bg-[#E5E5EA]"
-                }`}
+                      className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer
+                       ${
+                         action.variant === "danger"
+                           ? "bg-[#FF3B30] text-white hover:bg-red-700"
+                           : action.variant === "Success" ||
+                               action.variant === "success"
+                             ? "bg-[#43A047] text-white hover:bg-green-700"
+                             : "bg-[#F2F2F7] text-[#162B4C] hover:bg-gray-200"
+                       }`}
                     >
                       <action.icon size={20} />
                       {action.label}
@@ -205,7 +206,7 @@ const page = () => {
         </div>
         <button
           onClick={() => setIsSafetyOpen(true)}
-          className="fixed bottom-10 right-10 bg-[#FF3B30] text-white p-5 rounded-full shadow-2xl hover:bg-[#D32F2F] transition-all z-40 active:scale-90 hover:scale-110 group"
+          className="fixed bottom-10 right-10 bg-[#FF3B30] text-white p-5 rounded-full shadow-2xl hover:bg-red-700 transition-all z-40 active:scale-90"
         >
           <AlertTriangle size={32} />
         </button>
