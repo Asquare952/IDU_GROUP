@@ -1,4 +1,4 @@
-import { title } from "process";
+// import { title } from "process";
 import { DashboardMetrics, SafetyTips } from "../types";
 import {
   Heart,
@@ -9,6 +9,9 @@ import {
   UserX,
   ShieldAlert,
   MapPin,
+  Search,
+  Banknote,
+  BadgeCheck
 } from "lucide-react";
 
 export const ActiveProperty = {
@@ -61,19 +64,19 @@ export const Safetytips: SafetyTips[] = [
     id: 1,
     name: "How to spot fake agents",
     desc: "Always verify agent credentials through RentULO. Real agents will have verified badges.",
-    icon: "🔍",
+    icon: Search,
   },
   {
     id: 2,
     name: "Never pay inspection fees",
     desc: "Legitimate landlords never charge for house inspections. Report anyone asking for fees.",
-    icon: "💰",
+    icon: Banknote,
   },
   {
     id: 3,
     name: "Verify landlords before payment",
     desc: "Use RentULO's verification system to confirm landlord identity before making any payments.",
-    icon: "✓ ",
+    icon: BadgeCheck,
   },
 ];
 
