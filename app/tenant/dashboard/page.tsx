@@ -169,7 +169,7 @@ const page = () => {
         </div>
 
         <div className="flex flex-col gap-3.5">
-          <h2 className=" text-2xl font-semibold">Recommended Houses</h2>
+          <h2 className=" text-2xl font-bold">Recommended Houses</h2>
 
           <motion.div
             variants={containerVariants}
@@ -255,7 +255,7 @@ const page = () => {
         </div>
 
         <div className="flex flex-col gap-3.5 mt-4">
-          <h2 className="text-2xl font-semibold px-1">RentULO Safety Tips</h2>
+          <h2 className="text-2xl font-bold px-1">RentULO Safety Tips</h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {Safetytips.map((items) => {

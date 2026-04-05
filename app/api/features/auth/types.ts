@@ -8,7 +8,6 @@ export interface RegisterPayload {
   address: string;
   state: string;
   password: string;
-  country: string; // add here
 }
 
 export interface LoginPayload {

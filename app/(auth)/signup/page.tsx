@@ -30,30 +30,29 @@ const page = () => {
     formState: { errors },
   } = useForm();
 
- const onSubmit = (data: any) => {
-   let phone = data.phone_no;
-   if (/^0\d{10}$/.test(phone)) {
-     phone = "+234" + phone.slice(1);
-   } else if (/^\d{10}$/.test(phone)) {
-     phone = "+234" + phone;
-   }
+  const onSubmit = (data: any) => {
+    let phone = data.phone_no;
+    if (/^0\d{10}$/.test(phone)) {
+      phone = "+234" + phone.slice(1);
+    } else if (/^\d{10}$/.test(phone)) {
+      phone = "+234" + phone;
+    }
 
-   const payload = {
-     ...data,
-     phone_no: phone,
-     country: "Nigeria",
-   };
+    const payload = {
+      ...data,
+      phone_no: phone,
+    };
 
-   registerUser(payload, {
-     onSuccess: () => {
-       toast.success("Account created successfully! Please login.");
-       router.push("/login");
-     },
-     onError: (error: any) => {
-       toast.error(error.response?.data?.message || "Registration failed");
-     },
-   });
- };
+    registerUser(payload, {
+      onSuccess: () => {
+        toast.success("Account created successfully! Please login.");
+        router.push("/login");
+      },
+      onError: (error: any) => {
+        toast.error(error.response?.data?.message || "Registration failed");
+      },
+    });
+  };
 
   return (
     <>
@@ -127,7 +126,7 @@ const page = () => {
                       {...register("first_name", {
                         required: "First name is required",
                       })}
-                      placeholder="David"
+                      placeholder="First Name"
                       className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:border-[#4CAF50] transition-all"
                     />
                   </div>
@@ -149,7 +148,7 @@ const page = () => {
                       {...register("last_name", {
                         required: "Last name is required",
                       })}
-                      placeholder="Ugochukwu"
+                      placeholder="Last Name"
                       className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:border-[#4CAF50] transition-all"
                     />
                   </div>
@@ -286,12 +285,12 @@ const page = () => {
                     {...register("password", {
                       required: "Password is required",
                       minLength: {
-                        value: 8,
-                        message: "Minimum 8 characters",
+                        value: 6,
+                        message: "Minimum 6 characters",
                       },
                     })}
                     type={showPassword ? "text" : "password"}
-                    placeholder="Min. 8 characters"
+                    placeholder="Min. 6 characters"
                     className="w-full pl-11 pr-12 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:border-[#4CAF50]"
                   />
                   <button

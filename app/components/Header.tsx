@@ -15,6 +15,7 @@ const Header = () => {
 
   const handleLogout = () => {
     Cookies.remove("ACCESS_TOKEN");
+    Cookies.remove("USER_ROLE");
     router.push("/login");
   };
 
@@ -94,7 +95,7 @@ const Header = () => {
             onClick={() => setIsOpen(!isOpen)}
             className="md:hidden flex items-center justify-center w-10 h-10 border border-gray-200 rounded-lg bg-white shadow-sm z-[110]"
           >
-          {isOpen ? <HiX size={28} /> : <HiMenu size={28} />}
+            {isOpen ? <HiX size={28} /> : <HiMenu size={28} />}
           </button>
         </div>
       </nav>
@@ -142,28 +143,21 @@ const Header = () => {
             </Link>
           )}
 
-          {/* LOGIN / LOGOUT BUTTON */}
-          {!isLoggedIn ? (
-            <Link
-              href="/login"
-              onClick={() => setIsOpen(false)}
-              className="block w-full"
-            >
-              <button className="w-full py-4 bg-[#4CAF50] text-white font-bold rounded-2xl shadow-lg">
-                Log in
-              </button>
-            </Link>
-          ) : (
-            <button
-              onClick={() => {
-                setIsOpen(false);
-                handleLogout();
-              }}
-              className="w-full py-4 bg-red-500 text-white font-bold rounded-2xl shadow-lg"
-            >
-              Logout
+          {/* Temporarily hiding logout so I can see the "clean" 
+  design for my tenant-homepage inspiration 
+*/}
+          {/* isLoggedIn ? (
+  <button onClick={handleLogout} className="...">Logout</button>
+) : (
+  <Link href="/login"><button className="...">Log in</button></Link>
+) */}
+
+          {/* Force show the Login button only for now */}
+          <Link href="/login">
+            <button className="px-8 py-2.5 rounded-xl text-white bg-[#43A047]">
+              Log in
             </button>
-          )}
+          </Link>
         </div>
       </div>
     </>
