@@ -5,13 +5,22 @@ import Link from "next/link";
 import { useIsFetching, useQueryClient } from "@tanstack/react-query";
 import { HiMenu, HiX } from "react-icons/hi";
 import Cookies from "js-cookie";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+import { HiOutlineBell, HiOutlineChatAlt2 } from "react-icons/hi";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
   const token = Cookies.get("ACCESS_TOKEN");
+
+  // 2. Define the two types of logic you need:
+  // isLoggedIn: True if a token exists (used for Join Us link)
   const isLoggedIn = !!token;
+
+  // showLoggedInUI: True ONLY if token exists AND we aren't on public pages
+  // This is what hides the Logout button on / and /login
+  const showLoggedInUI = !!token && pathname !== "/login" && pathname !== "/";
 
   const handleLogout = () => {
     Cookies.remove("ACCESS_TOKEN");
@@ -51,21 +60,22 @@ const Header = () => {
             >
               Home
             </Link>
-
             <Link
-              href="/#listing"
-              className="text-[15px] font-medium text-gray-700 hover:text-[#4CAF50]"
+              href={isLoggedIn ? "/tenant/homepage" : "/#listing"}
+              className={`text-[15px] font-medium transition-all ${
+                pathname === "/tenant/homepage" || pathname === "/#listing"
+                  ? "text-[#4CAF50] font-bold"
+                  : "text-gray-700 hover:text-[#4CAF50]"
+              }`}
             >
               Property
             </Link>
-
             <Link
               href="/#about"
               className="text-[15px] font-medium text-gray-700 hover:text-[#4CAF50]"
             >
               About Us
             </Link>
-
             {!isLoggedIn && (
               <Link
                 href="/signup"
@@ -77,44 +87,66 @@ const Header = () => {
           </ul>
         </div>
         <div className="flex items-center gap-4">
-          {!isLoggedIn ? (
+          {!showLoggedInUI ? (
             <Link href="/login">
-              <button className="hidden md:block px-8 py-2.5 rounded-xl text-white font-semibold text-sm bg-[#43A047] hover:bg-green-600 transition-all active:scale-95 cursor-pointer">
+              <button className="px-8 py-2.5 rounded-xl text-white font-semibold text-sm bg-[#43A047] hover:bg-green-600 transition-all active:scale-95 cursor-pointer">
                 Log in
               </button>
             </Link>
           ) : (
-            <button
-              onClick={handleLogout}
-              className="hidden md:block px-8 py-2.5 rounded-xl text-white font-semibold text-sm bg-red-500 hover:bg-red-600 transition-all active:scale-95 cursor-pointer"
-            >
-              Logout
-            </button>
+            <div className="flex items-center gap-4">
+              {/* 1. Notifications with the little red dot */}
+              <div className="relative cursor-pointer text-gray-600 hover:text-[#4CAF50]">
+                <HiOutlineBell size={24} />
+                <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+              </div>
+
+              {/* 2. Messages/Chat Icon */}
+              <div className="cursor-pointer text-gray-600 hover:text-[#4CAF50]">
+                <HiOutlineChatAlt2 size={24} />
+              </div>
+              <div className="flex items-center gap-2 cursor-pointer border-l pl-4 border-gray-200">
+                <Image
+                  src="/Iyke ace.jpg"
+                  alt="Profile"
+                  width={40}
+                  height={40}
+                  className="rounded-full border-2 border-[#4CAF50] object-cover aspect-square"
+                />
+                <div className="hidden lg:block text-left">
+                  <p className="text-xs font-bold text-gray-900 leading-none">
+                    David
+                  </p>
+                  <p className="text-[10px] text-gray-500">Software engineer</p>
+                </div>
+              </div>
+            </div>
           )}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden flex items-center justify-center w-10 h-10 border border-gray-200 rounded-lg bg-white shadow-sm z-[110]"
-          >
-            {isOpen ? <HiX size={28} /> : <HiMenu size={28} />}
-          </button>
         </div>
+
+        {/* Mobile Menu Toggle */}
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="md:hidden flex items-center justify-center w-10 h-10 border border-gray-200 rounded-lg bg-white shadow-sm z-[110]"
+        >
+          {isOpen ? <HiX size={28} /> : <HiMenu size={28} />}
+        </button>
       </nav>
+
+      {/* Mobile Menu Overlay */}
       <div
         className={`fixed inset-0 bg-white z-[105] flex flex-col items-center justify-center transition-transform duration-500 ease-in-out md:hidden ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        {/* mobile view section */}
-        <div className="flex flex-col items-center space-y-8">
+        <div className="flex flex-col items-center space-y-8 w-full px-10">
           <Link
-            href="#"
+            href="/"
             onClick={() => setIsOpen(false)}
             className="text-2xl font-semibold text-gray-800 hover:text-[#4CAF50]"
           >
             Home
           </Link>
-
-          {/* PROPERTY - scrolls to listing section */}
           <Link
             href="/#listing"
             onClick={() => setIsOpen(false)}
@@ -122,8 +154,6 @@ const Header = () => {
           >
             Property
           </Link>
-
-          {/* ABOUT US - scrolls to about section */}
           <Link
             href="/#about"
             onClick={() => setIsOpen(false)}
@@ -131,8 +161,14 @@ const Header = () => {
           >
             About Us
           </Link>
+          <Link
+            href="/tenant/dashboard"
+            onClick={() => setIsOpen(false)}
+            className="text-2xl font-semibold text-gray-800 hover:text-[#4CAF50]"
+          >
+            Dashboard
+          </Link>
 
-          {/* SHOW JOIN US ONLY IF NOT LOGGED IN */}
           {!isLoggedIn && (
             <Link
               href="/signup"
@@ -143,21 +179,28 @@ const Header = () => {
             </Link>
           )}
 
-          {/* Temporarily hiding logout so I can see the "clean" 
-  design for my tenant-homepage inspiration 
-*/}
-          {/* isLoggedIn ? (
-  <button onClick={handleLogout} className="...">Logout</button>
-) : (
-  <Link href="/login"><button className="...">Log in</button></Link>
-) */}
-
-          {/* Force show the Login button only for now */}
-          <Link href="/login">
-            <button className="px-8 py-2.5 rounded-xl text-white bg-[#43A047]">
-              Log in
+          {/* Mobile Auth Button */}
+          {!showLoggedInUI ? (
+            <Link
+              href="/login"
+              onClick={() => setIsOpen(false)}
+              className="w-full"
+            >
+              <button className="w-full py-4 bg-[#4CAF50] text-white font-bold rounded-2xl shadow-lg">
+                Log in
+              </button>
+            </Link>
+          ) : (
+            <button
+              onClick={() => {
+                setIsOpen(false);
+                handleLogout();
+              }}
+              className="w-full py-4 bg-red-500 text-white font-bold rounded-2xl shadow-lg"
+            >
+              Logout
             </button>
-          </Link>
+          )}
         </div>
       </div>
     </>

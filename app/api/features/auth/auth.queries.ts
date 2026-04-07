@@ -9,6 +9,11 @@ export const useLogin = () =>
     mutationFn: login,
 
     onSuccess: (data: any) => {
+      console.log("Login response data:", data); // Debug log
+      if (!data || !data.role) {
+        toast.error("Invalid response data");
+        return;
+      }
       Cookies.set("ACCESS_TOKEN", data.token, { expires: 1 });
       toast.success("Login successful");
       if (data.role === "landlord") {
