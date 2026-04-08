@@ -17,8 +17,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [mounted, setMounted] = useState(false);
-
-  //Run only on client after mount
   useEffect(() => {
     const token = Cookies.get("ACCESS_TOKEN");
     setIsLoggedIn(!!token);
@@ -35,20 +33,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setIsLoggedIn(true);
 
     if (role === "landlord") {
-      router.push("/dashboard");
+      router.push("/landlord/dashboard");
+    } else if (role === "tenant") {
+      router.push("/tenant/dashboard");
     } else {
       router.push("/");
     }
   };
-
   const logout = () => {
     Cookies.remove("ACCESS_TOKEN");
     Cookies.remove("USER_ROLE");
     setIsLoggedIn(false);
     router.push("/login");
   };
-
-  //Prevent hydration mismatch
   if (!mounted) return null;
 
   return (

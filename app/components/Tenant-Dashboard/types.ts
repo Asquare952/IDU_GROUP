@@ -22,5 +22,5 @@ export type SafetyTips = {
   id: number;
   name: string;
   desc: string;
-  icon: string;
+  icon: LucideIcon;
 };

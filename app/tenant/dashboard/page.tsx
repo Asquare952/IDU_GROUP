@@ -169,7 +169,7 @@ const page = () => {
         </div>
 
         <div className="flex flex-col gap-3.5">
-          <h2 className=" text-2xl font-semibold">Recommended Houses</h2>
+          <h2 className=" text-2xl font-bold">Recommended Houses</h2>
 
           <motion.div
             variants={containerVariants}
@@ -254,22 +254,26 @@ const page = () => {
           </motion.div>
         </div>
 
-        <div className="flex flex-col gap-3.5">
-          <h2 className=" text-2xl font-semibold">RentULO Safety Tips</h2>
+        <div className="flex flex-col gap-3.5 mt-4">
+          <h2 className="text-2xl font-bold px-1">RentULO Safety Tips</h2>
 
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 ">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {Safetytips.map((items) => {
-              const { id, name, desc, icon } = items;
+              const { id, name, desc, icon: IconComponent } = items;
               return (
                 <div
                   key={id}
-                  className=" flex flex-col gap-2 bg-[#FFFFFF] py-2 px-4 rounded-2xl"
+                  className="flex flex-col gap-2 bg-[#FFFFFF] py-4 px-4 rounded-2xl border border-gray-50 shadow-sm"
                 >
-                  <div className="flex items-center gap-1">
-                    <span className=" text-xl">{icon}</span>
-                    <h2 className=" text-[18px] font-semibold">{name}</h2>
+                  <div className="flex items-center gap-2">
+                    <IconComponent size={24} className="text-[#43A047]" />
+                    <h2 className="text-[17px] font-bold text-[#162B4C] leading-tight">
+                      {name}
+                    </h2>
                   </div>
-                  <p className=" text-[15px] w-75">{desc}</p>
+                  <p className="text-[14px] text-gray-500 leading-relaxed max-w-[95%]">
+                    {desc}
+                  </p>
                 </div>
               );
             })}

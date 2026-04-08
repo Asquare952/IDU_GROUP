@@ -31,14 +31,12 @@ const Page = () => {
               className="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 group hover:shadow-md transition-all"
             >
               {/* Image Area */}
-              <div className="relative h-56 bg-gray-200">
+              <div className="relative h-56 bg-gray-200 p-2 rounded-[12px] ">
                 <img
                   src={house.img}
                   alt={house.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-500 hover:scale-105 rounded-[12px]"
                 />
-
-                {/* Delete Button */}
                 <button className="absolute top-4 right-4 bg-white p-2.5 rounded-full text-red-500 shadow-lg hover:bg-red-50 transition-colors cursor-pointer">
                   <Trash2 size={18} />
                 </button>

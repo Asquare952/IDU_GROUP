@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import { Mail, Lock, Phone, Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -11,13 +11,29 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@/app/lib/login.schema";
+import { useState, useEffect } from "react";
 import { z } from "zod";
 import { useAuth } from "@/app/components/context/AuthContext";
+import Cookies from "js-cookie";
 
 const Page = () => {
   const { login } = useAuth();
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const { mutate: loginUser, isPending, isSuccess, isError } = useLogin();
+
+  useEffect(() => {
+    const token = Cookies.get("ACCESS_TOKEN");
+    const role = Cookies.get("USER_ROLE"); 
+
+    if (token) {
+      if (role === "landlord") {
+        router.push("/landlord/dashboard");
+      } else if (role === "tenant") {
+        router.push("/tenant/homepage");
+      }
+    }
+  }, [router]);
 
   type LoginFormValues = z.infer<typeof loginSchema> & {
     remember?: boolean;
@@ -45,7 +61,15 @@ const Page = () => {
       onSuccess: (response: any) => {
         toast.success("Login successful");
 
-        login(response.token, response.role, data.remember);
+        login(response.accessToken, response.user.role, data.remember);
+
+        if (response.user.role === "landlord") {
+          router.push("/landlord/dashboard");
+        } else if (response.user.role === "tenant") {
+          router.push("/tenant/dashboard");
+        } else {
+          router.push("/");
+        }
       },
 
       onError: (error: any) => {
