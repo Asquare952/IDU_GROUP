@@ -10,7 +10,7 @@ const Page = () => {
   return (
     <div className="min-h-screen bg-[#FBFBFB] flex flex-col">
       <Navbar />
-      <main className="flex-grow">
+      <main className="flex-grow pt-20 md:pt-5">
         <HeroSection />
         <section className="px-6 md:px-12 mt-24 pb-20">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">

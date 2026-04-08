@@ -39,4 +39,43 @@ export const PROPERTY_LIST = [
     bathIcon: "/shawer.png",
     bedIcon: "/bed.png",
   },
+  {
+    id: 4,
+    price: "₦1,000,000",
+    title: "Executive Duplex",
+    description:
+      "Spacious backyard, swimming pool, and premium security features.",
+    image: "/Duplex.jpeg",
+    added: "1 day ago",
+    bathrooms: 2,
+    bedrooms: 5,
+    bathIcon: "/shawer.png",
+    bedIcon: "/bed.png",
+  },
+  {
+    id: 5,
+    price: "₦1,000,000",
+    title: "Executive Duplex",
+    description:
+      "Spacious backyard, swimming pool, and premium security features.",
+    image: "/Duplex.jpeg",
+    added: "1 day ago",
+    bathrooms: 2,
+    bedrooms: 5,
+    bathIcon: "/shawer.png",
+    bedIcon: "/bed.png",
+  },
+  {
+    id: 6,
+    price: "₦1,000,000",
+    title: "Executive Duplex",
+    description:
+      "Spacious backyard, swimming pool, and premium security features.",
+    image: "/Duplex.jpeg",
+    added: "1 day ago",
+    bathrooms: 2,
+    bedrooms: 5,
+    bathIcon: "/shawer.png",
+    bedIcon: "/bed.png",
+  },
 ];
