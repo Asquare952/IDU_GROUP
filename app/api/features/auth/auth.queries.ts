@@ -9,7 +9,7 @@ export const useLogin = () =>
     mutationFn: login,
 
     onSuccess: (data: any) => {
-      console.log("Login response data:", data); // Debug log
+      console.log("Login response data:", data);
       if (!data || !data.role) {
         toast.error("Invalid response data");
         return;
@@ -19,7 +19,7 @@ export const useLogin = () =>
       if (data.role === "landlord") {
         window.location.href = "/landlord/dashboard";
       } else if (data.role === "tenant") {
-        window.location.href = "/tenant/homepage";
+        window.location.href = "/tenant/dashboard";
       }
     },
     onError: (error: any) => {
