@@ -1,5 +1,13 @@
 import api from "../../axios";
-import { RegisterPayload, LoginPayload, AuthResponse } from "./types";
+import {
+  RegisterPayload,
+  LoginPayload,
+  AuthResponse,
+  ForgotPasswordRequest,
+  ForgotPasswordResponse,
+  ConfirmOtpRequest,
+  ResetPasswordRequest,
+} from "./types";
 
 export const register = async (data: RegisterPayload) => {
   const response = await api.post("/auth/register", data);
@@ -8,5 +16,22 @@ export const register = async (data: RegisterPayload) => {
 
 export const login = async (data: LoginPayload): Promise<AuthResponse> => {
   const response = await api.post("/auth/login", data);
+  return response.data;
+};
+
+export const forgotPasswordApi = async (
+  data: ForgotPasswordRequest,
+): Promise<ForgotPasswordResponse> => {
+  const response = await api.post("/auth/forgot-password", data);
+  return response.data;
+};
+
+export const confirmOtpApi = async (data: ConfirmOtpRequest): Promise<any> => {
+  const response = await api.post("/auth/confirm-otp", data);
+  return response.data;
+};
+
+export const resetPasswordApi = async (data: ResetPasswordRequest) => {
+  const response = await api.post("/auth/reset-password", data);
   return response.data;
 };
