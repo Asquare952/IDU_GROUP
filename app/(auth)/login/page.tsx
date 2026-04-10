@@ -211,12 +211,14 @@ const Page = () => {
                     Remember me
                   </span>
                 </label>
-                <button
-                  type="button"
-                  className="text-xs text-[#4CAF50] font-bold hover:underline"
-                >
-                  forgot password?
-                </button>
+                <div className="flex justify-end mb-4">
+                  <Link
+                    href="/forgot-password"
+                    className="text-xs font-semibold text-[#4CAF50] hover:underline transition-all"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
               </div>
 
               <div className="relative py-2">
