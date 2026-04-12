@@ -145,10 +145,7 @@ const UploadListingPage = () => {
                 </div>
               </section>
             </div>
-
-            {/* RIGHT COLUMN: Financial & Media (4 Columns) */}
             <div className="lg:col-span-4 space-y-8">
-              {/* 3. Financial Breakdown */}
               <section className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
                 <div className="flex items-center gap-2 mb-6 text-[#4CAF50]">
                   <div className="bg-[#4CAF50]/10 p-2 rounded-full">
@@ -211,8 +208,6 @@ const UploadListingPage = () => {
                   </div>
                 </div>
               </section>
-
-              {/* 4. Property Media */}
               <section className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
                 <div className="flex items-center gap-2 mb-6 text-pink-500">
                   <div className="bg-pink-50 p-2 rounded-full">

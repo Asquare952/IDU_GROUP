@@ -9,12 +9,11 @@ import {
   Eye,
   EyeOff,
   ChevronDown,
+  ArrowLeft,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import Navbar from "../../components/Header";
-import Footer from "../../components/Footer";
 import { useRegister } from "../../api/features/auth/auth.queries";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
@@ -61,8 +60,17 @@ const page = () => {
           <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
         </div>
       )}
-      <Navbar />
       <div className="relative min-h-screen w-full flex items-center justify-center p-4 md:p-10 overflow-hidden">
+        <div className="absolute top-8 left-8 z-20">
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-white hover:text-[#4CAF50] transition-colors font-medium text-sm"
+          >
+            <ArrowLeft size={16} />
+            Back to Home
+          </Link>
+        </div>
+
         <div className="absolute inset-0 z-0">
           <Image
             src="/IDU GROUP HOME.png"
@@ -73,7 +81,7 @@ const page = () => {
           />
         </div>
 
-        <div className="relative z-10 w-full max-w-6xl bg-white rounded-[45px] shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[750px]">
+        <div className="relative z-10 w-full max-w-6xl bg-white rounded-[45px] shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[750px] mt-12 md:mt-0">
           <div className="hidden md:block w-1/2 relative p-5">
             <div className="relative w-full h-full rounded-[35px] overflow-hidden">
               <Image
@@ -101,7 +109,6 @@ const page = () => {
                 </Link>
               </div>
             </div>
-
             <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-2">
               Create Your Rent<span className="text-[#4CAF50]">ULO</span>
               Account
@@ -397,7 +404,6 @@ const page = () => {
           </div>
         </div>
       </div>
-      <Footer />
     </>
   );
 };
