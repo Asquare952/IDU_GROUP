@@ -12,7 +12,7 @@ const Sidebar = () => {
     <aside className="hidden lg:flex lg:flex-col lg:gap-4 fixed left-0 top-0 h-full p-3 bg-white shadow border border-[#EBECED] ">
       <div className=" flex items-center gap-1 mt-3.5">
         <Image src={rentUloLogo} width={32.7} alt="" />
-        <h2 className=" font-semibold text-[22px] text-[#000000]">RENT<span className="text-[#43A047]">ULO</span></h2>
+        <h2 className=" font-bold text-[22px] text-[#000000]">Rent<span className="text-[#43A047]">ULO</span></h2>
       </div>
 
       <div className="h-full overflow-y-auto hide-scrollbar">

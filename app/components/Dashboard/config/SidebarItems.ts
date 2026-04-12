@@ -39,7 +39,7 @@ export const sidebarItems: SidebarItems[] = [
   {
     id: 5,
     name: "Insight and Analytics",
-    path: "/landlord/insight-and-analytics",
+    path: "/landlord/insight-analytics",
     icon: ChartNoAxesCombined,
   },
   {
