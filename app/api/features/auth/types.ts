@@ -26,3 +26,23 @@ export interface AuthResponse {
     first_name?: string;
   };
 }
+
+// Request type for triggering the OTP email
+export interface ForgotPasswordRequest {
+  email: string;
+}
+export interface ForgotPasswordResponse {
+  message: string;
+  status: string;
+}
+//otp flow
+export interface ConfirmOtpRequest {
+  email: string;
+  otpCode: string;
+}
+
+export interface ResetPasswordRequest{
+  email: string;
+  otpCode: string;
+  newPassword: string;
+}
