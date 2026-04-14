@@ -6,7 +6,6 @@ export interface Inspection {
   time: string;
   type: "Routine" | "Move-out" | "Move-in";
 }
-
 export const inspectionData: Inspection[] = [
   {
     id: 1,
