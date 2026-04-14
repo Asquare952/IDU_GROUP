@@ -1,4 +1,3 @@
-// import { title } from "process";
 import { DashboardMetrics, SafetyTips } from "../types";
 import {
   Heart,
@@ -156,7 +155,7 @@ export const SavedHousesData = [
     location: "Lekki Phase 1, Lagos",
     price: "1,200,000",
     beds: 3,
-    img: "/flat3.jpg",
+    img: "/flat1.jpg",
     isVerified: true,
   },
   {
@@ -165,7 +164,7 @@ export const SavedHousesData = [
     location: "Victoria Island, Lagos",
     price: "950,000",
     beds: 2,
-    img: "/flat1.jpg",
+    img: "/flat2.jpg",
     isVerified: true,
   },
   {
@@ -174,7 +173,7 @@ export const SavedHousesData = [
     location: "Ikeja GRA, Lagos",
     price: "2,500,000",
     beds: 4,
-    img: "/flat6.jpg",
+    img: "/flat3.jpg",
     isVerified: true,
   },
   {
@@ -183,7 +182,7 @@ export const SavedHousesData = [
     location: "Surulere, Lagos",
     price: "450,000",
     beds: 1,
-    img: "/flat2.jpg",
+    img: "/flat4.jpg",
     isVerified: true,
   },
   {
@@ -191,8 +190,8 @@ export const SavedHousesData = [
     title: "Penthouse Suite",
     location: "Ikoyi, Lagos",
     price: "5,000,000",
-    beds: 4,
-    img: "/flat7.jpg",
+    beds: 5,
+    img: "/flat5.jpg",
     isVerified: true,
   },
   {
@@ -201,7 +200,7 @@ export const SavedHousesData = [
     location: "Yaba, Lagos",
     price: "350,000",
     beds: 1,
-    img: "/flat4.jpg",
+    img: "/flat6.jpg",
     isVerified: true,
   },
 ];

@@ -1,237 +1,254 @@
-import DashboardLayout from "../../components/Dashboard/DashboardLayout"
-import { DashMetrics, DashboardListings, Inquiries } from "../../components/Dashboard/config/DashboardDatas"
-import Image from "next/image"
-import { PenLine } from 'lucide-react';
+"use client";
+import DashboardLayout from "../../components/Dashboard/DashboardLayout";
+import {
+  DashMetrics,
+  DashboardListings,
+  Inquiries,
+} from "../../components/Dashboard/config/DashboardDatas";
+import Image from "next/image";
+import { PenLine, ChevronRight, TrendingUp } from "lucide-react";
 import ReviewGraph from "@/public/assets/income-overview-graph.png";
-import SnapshotGraph from "@/public/assets/tenants-activity-snapshot-graph.png"
+import SnapshotGraph from "@/public/assets/tenants-activity-snapshot-graph.png";
 
-
-export default function page() {
+export default function Page() {
   const getStatusStyle = (status: string) => {
     switch (status) {
       case "Active":
-        return " bg-[#D9ECDA] py-1 px-2 text-[#43A047] rounded-full";
+        return "bg-green-50 text-[#43A047] border border-green-100";
       case "Pending":
-        return "bg-[#FFFBEF] py-1 px-2 text-[#FFCD36] rounded-full";
+        return "bg-amber-50 text-[#FFCD36] border border-amber-100";
       case "Rented":
-        return " bg-[#DBE8FF] py-1 px-2 text-[#4B8EFF] rounded-full";
-
+        return "bg-blue-50 text-[#4B8EFF] border border-blue-100";
       default:
-        break;
+        return "bg-gray-50 text-gray-500";
     }
-  }
-
-
+  };
 
   return (
     <DashboardLayout>
-      <section className=" flex flex-col gap-6 py-5 px-6">
-        <div className=" flex justify-between">
-          <div className=" flex flex-col gap-0.5">
-            <h1 className=" text-[20px] font-bold md:text-[32px] text-[#162B4C]">Welcome, Daniel</h1>
-            <p className=" font-normal text-[12px] md:text-[16px] text-[#3D3F42]">Here is how your properties are performing today</p>
+      {/* Container with responsive padding */}
+      <section className="flex flex-col gap-6 p-4 md:p-8 bg-[#F8FAFC]">
+        {/* Header Section - Stacked on Mobile */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h1 className="text-xl md:text-3xl font-extrabold text-[#162B4C]">
+              Welcome back, Daniel
+            </h1>
+            <p className="text-sm md:text-base text-slate-500 font-medium">
+              Here is how your properties are performing today.
+            </p>
           </div>
-
-          <form>
-            <select className=" align-top bg-[#EBECED] border border-[#D6D8DB] outline-none py-2 px-3 rounded-lg">
-              <option>Last 5 months</option>
-            </select>
-          </form>
+          <select className="w-full md:w-auto bg-white border border-slate-200 py-2 px-4 rounded-xl shadow-sm outline-none">
+            <option>Last 5 months</option>
+          </select>
         </div>
 
-
-        {/* metrics */}
-        <div className=" grid grid-cols-2 lg:grid-cols-4 gap-2 ">
-          {DashMetrics.map((item) => {
-            const { id, name, percentage, figure, image } = item
-            return (
-              <div key={id} className=" flex flex-col gap-2 bg-[#FFFFFF] py-2 px-3 rounded-2xl">
-                <div className="flex justify-between gap-1.5">
-                  <div className="flex flex-col gap-1">
-                    <Image src={image} width={32} height={32} alt="" className=" bg-[#43A047] p-1 text-white rounded" />
-                    <h3>{name}</h3>
-                  </div>
-                  <p className=" font-bold  xl:text-4xl text-[#162B4C]">{figure}</p>
+        {/* Metrics Grid - 2 columns on mobile, 4 on desktop */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
+          {DashMetrics.map((item) => (
+            <div
+              key={item.id}
+              className="bg-white p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] border border-slate-100 shadow-sm"
+            >
+              <div className="flex flex-col gap-2">
+                <div className="p-2 bg-[#43A047]/10 w-fit rounded-lg">
+                  <Image
+                    src={item.image}
+                    width={20}
+                    height={20}
+                    alt=""
+                    className="saturate-150"
+                  />
                 </div>
-                <div className="flex items-center gap-1">
-                  <p className=" bg-[#D9ECDA] text-[#43A047] py-1 px-3 rounded-2xl">+{percentage}</p>
-                  <p>This month</p>
+                <div>
+                  <p className="text-[10px] md:text-xs font-bold text-slate-400 uppercase">
+                    {item.name}
+                  </p>
+                  <h2 className="text-xl md:text-2xl font-black text-[#162B4C]">
+                    {item.figure}
+                  </h2>
                 </div>
               </div>
-            )
-          })}
-        </div>
-
-
-        <div className=" grid grid-cols-1 lg:grid-cols-2 gap-2.5">
-          {/* dashboard properties listings */}
-          <div className=" flex flex-col gap-3.5 bg-[#FFFFFF] py-4 px-6 rounded-[12px]">
-            <div className=" flex justify-between">
-              <div className=" flex flex-col gap-0.5">
-                <h1 className=" font-bold text-[20px] md:text-[32px] text-[#162B4C]">Your Listings</h1>
-                <p className=" font-normal text-[16px] text-[#3D3F42]">Manage, edit, or track your current properties.</p>
-              </div>
-
-              <form>
-                <select className=" align-top bg-[#EBECED] border-none outline-none py-2 px-3 rounded-[8px]">
-                  <option>Last 5 months</option>
-                </select>
-              </form>
             </div>
+          ))}
+        </div>
 
-            <div className=" overflow-x-auto no-scrollbar scroll-smooth md:overflow-x-hidden">
-              <table className=" border-collapse w-full min-w-[500px]">
-                <thead className=" text-left">
-                  <tr>
-                    <th className="">Property</th>
-                    <th>Status</th>
-                    <th>Price</th>
-                    <th>Inquiries</th>
-                    <th>Views</th>
-                    <th>Action</th>
+        {/* Responsive Grid Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Your Listings Table - Responsive Scroll */}
+          <div className="bg-white rounded-[1.5rem] md:rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+            <div className="p-6 border-b border-slate-50 flex justify-between items-center">
+              <h3 className="font-bold text-[#162B4C]">Your Listings</h3>
+              <button className="text-[#43A047] text-xs font-bold">
+                View All
+              </button>
+            </div>
+            <div className="overflow-x-auto no-scrollbar">
+              <table className="w-full text-left min-w-[600px]">
+                <thead className="bg-slate-50/50">
+                  <tr className="text-slate-400 text-[10px] uppercase font-bold">
+                    <th className="px-6 py-4">Property</th>
+                    <th className="px-4 py-4 text-center">Status</th>
+                    <th className="px-4 py-4 text-center">Price</th>
+                    <th className="px-6 py-4 text-right">Action</th>
                   </tr>
                 </thead>
-
-                <tbody className="">
-                  {DashboardListings.map((item) => {
-                    const { id, image, status, name, location, price, inquiries, views } = item
-                    return (
-                      <tr key={id} >
-                        <td className=" flex gap-1 py-2">
-                          <Image src={image} width={80} height={32} alt="" />
-                          <div className=" flex flex-col gap-0.5">
-                            <h3 className=" font-semibold text-[12px] md:text-[15px] w-[220px] text-[#7A7E84]">{name}</h3>
-                            <p className=" font-normal text-[10px] text-[#7A7E84]">{location}</p>
+                <tbody className="divide-y divide-slate-50">
+                  {DashboardListings.map((item) => (
+                    <tr
+                      key={item.id}
+                      className="hover:bg-slate-50/50 transition-colors"
+                    >
+                      <td className="px-6 py-4">
+                        <div className="flex gap-3 items-center">
+                          <div className="w-10 h-10 relative rounded-lg overflow-hidden shrink-0">
+                            <Image
+                              src={item.image}
+                              fill
+                              className="object-cover"
+                              alt=""
+                            />
                           </div>
-                        </td>
-                        <td className=" text-center font-normal text-[12px]">
-                          <p className={`${getStatusStyle(status)}`}>{status}</p>
-                        </td>
-                        <td className=" text-center font-semibold text-[12px] text-[#7A7E84]">
-                          ${price}k
-                        </td>
-                        <td className=" text-center font-semibold text-[12px] text-[#7A7E84]">
-                          {inquiries}
-                        </td>
-                        <td className=" text-center font-semibold text-[12px] text-[#7A7E84]">
-                          {views}k
-                        </td>
-                        <td className=" flex justify-center">
-                          <PenLine className="" />
-                        </td>
-                      </tr>
-                    )
-                  })}
-
+                          <div className="min-w-0">
+                            <h4 className="font-bold text-xs text-[#3D3F42] truncate w-[120px]">
+                              {item.name}
+                            </h4>
+                            <p className="text-[10px] text-slate-400 truncate w-[120px]">
+                              {item.location}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 text-center">
+                        <span
+                          className={`text-[9px] font-bold px-2 py-1 rounded-full ${getStatusStyle(item.status)}`}
+                        >
+                          {item.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4 text-center font-bold text-slate-600 text-xs">
+                        ₦{item.price}k
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <PenLine size={14} className="text-slate-400 ml-auto" />
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
-
               </table>
             </div>
-
           </div>
 
-          {/* inquiries */}
-          <div className=" flex flex-col gap-6 bg-white p-4 rounded-[12px]">
-            <div className=" flex flex-col gap-0.5">
-              <h1 className=" font-bold text-[20px] md:text-[32px] text-[#162B4C]">Recent Inquiries</h1>
-              <p className=" font-normal text-[12px] md:text-[16px] text-[#3D3F42]">See who is interested in your properties</p>
-            </div>
-
-            <div className=" flex flex-col gap-6">
-              {Inquiries.map((item) => {
-                const { id, name, message, image, figure } = item
-                return (
-                  <div key={id} className="flex justify-between items-center">
-                    <div className=" flex items-center gap-1">
-                      <Image src={image} width={49} height={49} alt="" />
-                      <div>
-                        <h3 className="font-semibold text-[12px] md:text-[15px] text-[#7A7E84]">{name}</h3>
-                        <p className="font-normal text-[10px] text-[#7A7E84]">{message}</p>
-                      </div>
+          {/* Recent Inquiries Sidebar */}
+          <div className="bg-white p-6 rounded-[1.5rem] md:rounded-[2.5rem] border border-slate-100 shadow-sm">
+            <h3 className="font-bold text-[#162B4C] mb-6">Recent Inquiries</h3>
+            <div className="space-y-6">
+              {Inquiries.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex justify-between items-center"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="relative w-10 h-10 rounded-full overflow-hidden shrink-0">
+                      <Image src={item.image} fill alt="" />
                     </div>
-                    <div className=" bg-[#D9ECDA] text-[#43A047] w-[24px] h-[24px] rounded-full text-center">
-                      <p>{figure}</p>
+                    <div>
+                      <h4 className="font-bold text-xs text-[#3D3F42]">
+                        {item.name}
+                      </h4>
+                      <p className="text-[10px] text-slate-400 truncate w-[120px] md:w-auto">
+                        {item.message}
+                      </p>
                     </div>
                   </div>
-                )
-              })}
-            </div>
-
-          </div>
-
-          {/* income overviews */}
-          <div className="flex flex-col gap-6 bg-white p-4 rounded-[12px]">
-            <div className=" flex flex-col gap-4 xl:flex-row md:justify-between">
-              <div className=" flex flex-col gap-0.5">
-                <h1 className=" font-medium text-[20px] text-[#162B4C]">Income overview</h1>
-                <p className=" font-normal text-[16px] text-[#3D3F42] w-[273px]">Monitor your rental income
-                  performance over time</p>
-              </div>
-              <div className=" flex flex-col gap-0.5">
-                <h1 className=" font-bold text-[20px] md:text-[24px] text-[#162B4C]">$20,000</h1>
-                <div className="flex items-center gap-1">
-                  <p className=" bg-[#D9ECDA] text-[#43A047] py-1 px-3 rounded-2xl">+12%</p>
-                  <p>This month</p>
-                </div>
-              </div>
-
-              <form>
-                <select className=" align-top bg-[#EBECED] border-none outline-none py-2 px-3 rounded-[8px]">
-                  <option>Last 5 months</option>
-                </select>
-              </form>
-
-            </div>
-
-            <div>
-              <Image src={ReviewGraph} width={604} height={258} alt="" />
-            </div>
-          </div>
-
-          {/* Tenants activity snapshots */}
-          <div className="flex flex-col bg-white p-4 rounded-[12px] gap-10">
-            <div className=" flex flex-col gap-1.5">
-              <h4 className=" font-medium text-[20px] text-[#162B4C]">Tenants activity snapshots</h4>
-              <p className=" font-normal text-[14px] text-[#999EA5] w-[340px]">Stay informed about tenant engagement, lease renewals, and occupancy trends.</p>
-            </div>
-
-            <div className=" flex flex-col gap-[75px]">
-              <div className=" flex items-center justify-between">
-                <div className="flex flex-col gap-1.5">
-                  <h4 className="font-semibold text-[12px] text-[#3D3F42]">Occupancy rate:</h4>
-                  <p className="font-medium text-[10px] text-[#7A7E84] w-[178px]">Percentage of rented properties this month</p>
-                </div>
-                <div className=" flex flex-col items-center gap-2">
-                  <Image src={SnapshotGraph} width={76} height={76} alt="" />
-                  <div className=" flex items-center gap-1">
-                    <p className=" bg-[#D9ECDA] text-[#43A047] py-1 px-3 rounded-2xl">+12%</p>
-                    <span className=" font-normal text-[14px] text-[#999EA5]">this month</span>
+                  <div className="bg-[#43A047] text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                    {item.figure}
                   </div>
                 </div>
-              </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Income Overview (The one I missed!) */}
+          <div className="bg-white p-6 rounded-[1.5rem] md:rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-4">
+            <div className="flex flex-col md:flex-row justify-between gap-4">
               <div>
-                <div className=" flex items-center justify-between">
-                  <div className="flex flex-col gap-1.5">
-                    <h4 className="font-semibold text-[12px] text-[#3D3F42]">Tenant activity:</h4>
-                    <p className="font-medium text-[10px] text-[#7A7E84] w-[178px]">Track how your active tenants are this month</p>
+                <h3 className="font-bold text-[#162B4C]">Income Overview</h3>
+                <p className="text-xs text-slate-400">
+                  Rental income performance over time
+                </p>
+              </div>
+              <div className="flex items-center gap-4">
+                <h4 className="text-xl font-black text-[#162B4C]">$20,000</h4>
+                <span className="bg-green-50 text-[#43A047] px-2 py-1 rounded-lg text-[10px] font-bold">
+                  +12%
+                </span>
+              </div>
+            </div>
+            <div className="mt-4">
+              <Image
+                src={ReviewGraph}
+                width={600}
+                height={250}
+                alt="Income Graph"
+                className="w-full h-auto"
+              />
+            </div>
+          </div>
+
+          {/* Tenant Activity Snapshots */}
+          <div className="bg-white p-6 rounded-[1.5rem] md:rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-6">
+            <h3 className="font-bold text-[#162B4C]">
+              Tenants Activity Snapshots
+            </h3>
+            <div className="space-y-8">
+              {/* Occupancy Rate Row */}
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex flex-col">
+                  <h4 className="font-bold text-xs text-[#3D3F42]">
+                    Occupancy rate:
+                  </h4>
+                  <p className="text-[10px] text-slate-400 max-w-[150px]">
+                    Properties rented this month
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Image
+                    src={SnapshotGraph}
+                    width={50}
+                    height={50}
+                    alt="Graph"
+                  />
+                  <div className="text-center">
+                    <p className="text-xs font-bold text-[#43A047]">+12%</p>
+                    <p className="text-[8px] text-slate-400">vs last</p>
                   </div>
-                  <div className=" flex items-center gap-2">
-                    <div className=" flex items-center bg-[#43A047] py-2 px-3 border border-[#D6D8DB] text-white rounded-[8px]">
-                      <p>35</p>
-                    </div>
-                    <div className=" flex items-center bg-[#9EFF71] py-2 px-3 border border-[#D6D8DB] text-white rounded-[8px]">
-                      <p>12</p>
-                    </div>
+                </div>
+              </div>
+
+              {/* Tenant Activity Blocks */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-bold text-xs text-[#3D3F42]">
+                    Tenant Activity:
+                  </h4>
+                  <p className="text-[10px] text-slate-400">
+                    Track active engagement
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <div className="bg-[#43A047] px-4 py-2 rounded-xl text-white font-bold text-sm shadow-sm">
+                    35
+                  </div>
+                  <div className="bg-[#9EFF71] px-4 py-2 rounded-xl text-white font-bold text-sm shadow-sm">
+                    12
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          {/*  */}
-
         </div>
       </section>
     </DashboardLayout>
-
-  )
+  );
 }

@@ -11,12 +11,10 @@ import MobileSidebar from "./MobileSidebar"
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
   return (
-    <main className=' no-scrollbar relative h-screen w-screen overflow-x-hidden'>
+    <main className="relative h-screen w-screen overflow-hidden">
       <section className=" flex flex-row">
         <Sidebar />
-        <MobileSidebar isOpen={isMobileSidebarOpen}
-          onClose={() => setIsMobileSidebarOpen(false)} />
-        <main className=" bg-[#EBECED] h-full w-full lg:ml-66.5  min-h-[calc(100vh-var(--header-height))]">
+        <main className="bg-[#EBECED] h-screen w-full lg:ml-62.5 overflow-y-auto">
           <div className="sticky top-0 z-50">
             <Header onMenuClick={() => setIsMobileSidebarOpen(true)}/>
           </div>
@@ -24,7 +22,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         </main>
       </section>
     </main>
-  )
+  );
 }
 
 export default DashboardLayout

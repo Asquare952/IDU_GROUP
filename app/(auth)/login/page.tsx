@@ -1,11 +1,9 @@
 "use client";
 import React from "react";
-import { Mail, Lock, Phone, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, Phone, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import Navbar from "../../components/Header";
-import Footer from "../../components/Footer";
 import { useLogin } from "../../api/features/auth/auth.queries";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
@@ -107,8 +105,17 @@ const Page = () => {
           <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
         </div>
       )}
-      <Navbar />
       <div className="relative min-h-screen w-full flex items-center justify-center p-4 md:p-10 overflow-hidden">
+         <div className="absolute top-8 left-8 z-20">
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-white hover:text-[#4CAF50] transition-colors font-medium text-sm"
+          >
+            <ArrowLeft size={16} />
+            Back to Home
+          </Link>
+        </div>
+
         <div className="absolute inset-0 z-0">
           <Image
             src="/IDU GROUP HOME.png"
@@ -120,7 +127,7 @@ const Page = () => {
           />
         </div>
 
-        <div className="relative z-10 w-full max-w-6xl bg-white rounded-[45px] shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[700px]">
+        <div className="relative z-10 w-full max-w-6xl bg-white rounded-[45px] shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[750px] mt-12 md:mt-0">
           <div className="hidden md:block w-1/2 relative p-5">
             <div className="relative w-full h-full rounded-[35px] overflow-hidden">
               <Image
@@ -221,12 +228,14 @@ const Page = () => {
                     Remember me
                   </span>
                 </label>
-                <button
-                  type="button"
-                  className="text-xs text-[#4CAF50] font-bold hover:underline"
-                >
-                  forgot password?
-                </button>
+                <div className="flex justify-end mb-4">
+                  <Link
+                    href="/forgot-password"
+                    className="text-xs font-semibold text-[#4CAF50] hover:underline transition-all"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
               </div>
 
               <div className="relative py-2">
@@ -275,7 +284,6 @@ const Page = () => {
           </div>
         </div>
       </div>
-      <Footer />
     </>
   );
 };
