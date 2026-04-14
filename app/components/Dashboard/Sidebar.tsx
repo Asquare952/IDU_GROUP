@@ -23,13 +23,30 @@ const Sidebar = () => {
       <div className="flex-1 overflow-y-auto hide-scrollbar">
         <nav className=" flex flex-col gap-6 mt-10">
           {sidebarItems.map((item) => {
-            const { id, name, path, icon: Icon } = item;
-            const isActive = pathname === path;
+            const { id, name, path, action, icon: Icon } = item;
+            const isActive = !!path && pathname === path;
+            const className = `flex items-center gap-2 py-3 px-6 rounded-[8px] ${isActive ? "bg-[#43A047] text-white" : " hover:bg-[#43A047] hover:text-white"}`;
+            const logoutClassName = "flex items-center gap-2 py-3 px-6 rounded-[8px] text-[#DC2626]";
+
+            if (action === "logout") {
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={logout}
+                  className={logoutClassName}
+                >
+                  <Icon />
+                  <span>{name}</span>
+                </button>
+              );
+            }
+
             return (
               <Link
-                href={path}
+                href={path ?? "#"}
                 key={id}
-                className={`flex items-center gap-2 py-3 px-6 rounded-[8px] ${isActive ? "bg-[#43A047] text-white" : " hover:bg-[#43A047] hover:text-white"}`}
+                className={className}
               >
                 <Icon />
                 <span>{name}</span>
@@ -42,14 +59,30 @@ const Sidebar = () => {
           <nav className=" flex flex-col gap-2 mt-10">
             <h1>Others</h1>
             {sidebarItems2.map((item) => {
-              const { id, name, path, icon: Icon } = item;
-              const isActive = pathname === path;
+              const { id, name, path, action, icon: Icon } = item;
+              const isActive = !!path && pathname === path;
+              const className = `flex items-center gap-2 py-3 px-6 rounded-[8px] ${isActive ? "bg-[#43A047] text-white" : " hover:bg-[#43A047] hover:text-white"}`;
+              const logoutClassName = "flex items-center gap-2 py-3 px-6 rounded-[8px] text-[#DC2626]";
+
+              if (action === "logout") {
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={logout}
+                    className={logoutClassName}
+                  >
+                    <Icon />
+                    <span>{name}</span>
+                  </button>
+                );
+              }
 
               return (
                 <Link
-                  href={path}
+                  href={path ?? "#"}
                   key={id}
-                  className={`flex items-center gap-2 py-3 px-6 rounded-[8px] ${isActive ? "bg-[#43A047] text-white" : " hover:bg-[#43A047] hover:text-white"}`}
+                  className={className}
                 >
                   <Icon />
                   <span>{name}</span>
