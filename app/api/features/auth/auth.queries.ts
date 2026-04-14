@@ -1,6 +1,15 @@
 import { useMutation } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import { login, register, forgotPasswordApi, confirmOtpApi, resetPasswordApi } from "./auth.api";
+import {
+  AuthResponse,
+  ConfirmOtpRequest,
+  ForgotPasswordRequest,
+  ForgotPasswordResponse,
+  LoginPayload,
+  RegisterPayload,
+  ResetPasswordRequest,
+} from "./types";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 
@@ -28,7 +37,7 @@ export const useLogin = () =>
   });
 
 export const useRegister = () =>
-  useMutation({
+  useMutation<unknown, Error, RegisterPayload>({
     mutationFn: register,
     onSuccess: () => {
       toast.success("Account created successfully");
@@ -41,7 +50,7 @@ export const useRegister = () =>
 export const useForgotPassword = () => {
   const router = useRouter();
 
-  return useMutation({
+  return useMutation<ForgotPasswordResponse, Error, ForgotPasswordRequest>({
     mutationFn: forgotPasswordApi,
     onSuccess: (data, variables) => {
       toast.success(data?.message || "Recovery email sent successfully!");
@@ -59,7 +68,7 @@ export const useForgotPassword = () => {
 export const useConfirmOtp = () => {
   const router = useRouter();
 
-  return useMutation({
+  return useMutation<unknown, Error, ConfirmOtpRequest>({
     mutationFn: confirmOtpApi,
     onSuccess: (data, variables) => {
       toast.success("OTP Verified Successfully!");
@@ -81,7 +90,7 @@ export const useConfirmOtp = () => {
 export const useResetPassword = () => {
   const router = useRouter();
 
-  return useMutation({
+  return useMutation<unknown, Error, ResetPasswordRequest>({
     mutationFn: resetPasswordApi,
     onSuccess: () => {
       toast.success("Password reset successfully! Please login.");
