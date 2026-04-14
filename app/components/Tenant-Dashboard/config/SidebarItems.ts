@@ -31,7 +31,7 @@ export const sidebarItems: SidebarItems[] = [
   {
     id: 4,
     name: "Message",
-    path: "/tenant/messages",
+    path: "/tenant/dashboard/messages",
     icon: MessageCircleMore,
   },
   {
@@ -49,7 +49,7 @@ export const sidebarItems: SidebarItems[] = [
   {
     id: 7,
     name: "Logout",
-    path: "",
+    action: "logout",
     icon: LogOut,
   },
 ];

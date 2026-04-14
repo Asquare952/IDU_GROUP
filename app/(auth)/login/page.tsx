@@ -13,12 +13,13 @@ import { useState, useEffect } from "react";
 import { z } from "zod";
 import { useAuth } from "@/app/components/context/AuthContext";
 import Cookies from "js-cookie";
+import { AuthResponse } from "../../api/features/auth/types";
 
 const Page = () => {
   const { login } = useAuth();
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  const { mutate: loginUser, isPending, isSuccess, isError } = useLogin();
+  const { mutate: loginUser, isPending } = useLogin();
 
   useEffect(() => {
     const token = Cookies.get("ACCESS_TOKEN");
@@ -56,14 +57,23 @@ const Page = () => {
     };
 
     loginUser(payload, {
-      onSuccess: (response: any) => {
+      onSuccess: (response: AuthResponse) => {
+        const accessToken = response.accessToken ?? response.token;
+        const role = response.user?.role ?? response.role;
+
+        if (!accessToken || !role) {
+          console.error("Unexpected login response:", response);
+          toast.error("Login succeeded but returned an unexpected response shape.");
+          return;
+        }
+
         toast.success("Login successful");
 
-        login(response.accessToken, response.user.role, data.remember);
+        login(accessToken, role, data.remember);
 
-        if (response.user.role === "landlord") {
+        if (role === "landlord") {
           router.push("/landlord/dashboard");
-        } else if (response.user.role === "tenant") {
+        } else if (role === "tenant") {
           router.push("/tenant/dashboard");
         } else {
           router.push("/");

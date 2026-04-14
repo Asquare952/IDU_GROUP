@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 
 export const useLogin = () =>
-  useMutation({
+  useMutation<AuthResponse, Error, LoginPayload>({
     mutationFn: login,
 
     onSuccess: (data: any) => {

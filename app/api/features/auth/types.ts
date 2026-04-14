@@ -14,9 +14,12 @@ export interface LoginPayload {
   user: string;
   password: string;
 }
+
 export interface AuthResponse {
-  accessToken: string;
-  user: {
+  accessToken?: string;
+  token?: string;
+  role?: "landlord" | "tenant";
+  user?: {
     id: string;
     role: "landlord" | "tenant";
     email: string;
