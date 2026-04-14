@@ -4,11 +4,15 @@ import Image from "next/image"
 import AdminProfileImg from "@/public/assets/landloard-profile-img.png"
 import { Menu } from 'lucide-react';
 
-const Header = () => {
+interface HeaderProps{
+  onMenuClick: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({onMenuClick}) => {
   return (
     <header className=' sticky top-0  p-4 bg-white border border-[#EBECED]'>
       <div className=' flex items-center justify-between gap-7'>
-        <Menu className=" md:hidden "/>
+        <Menu className=" md:hidden " onClick={onMenuClick}/>
         <DesktopSearch />
 
         <div className=" flex items-center gap-2">
