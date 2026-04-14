@@ -7,7 +7,7 @@ import {
   LogOut,
   List,
   ChartNoAxesCombined,
-  UsersRound,
+  ClipboardCheck,
   CircleQuestionMark,
 } from "lucide-react";
 
@@ -44,9 +44,9 @@ export const sidebarItems: SidebarItems[] = [
   },
   {
     id: 6,
-    name: "Clients",
-    path: "/landlord/clients",
-    icon: UsersRound,
+    name: "Inspections",
+    path: "/landlord/inspections",
+    icon: ClipboardCheck,
   },
 ];
 
