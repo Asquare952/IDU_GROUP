@@ -87,8 +87,8 @@ const page = () => {
                       key={index}
                       className={`h-1.5 rounded-full transition-all ${
                         index === currentSlide
-                          ? "w-4 bg-white"
-                          : "w-1.5 bg-white/40"
+                          ? "w-4 bg-[#43A047]"
+                          : "w-1.5 bg-white/60 hover:bg-white"
                       }`}
                     />
                   ))}

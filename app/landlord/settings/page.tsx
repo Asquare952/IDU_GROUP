@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { NOTIFICATION_SETTINGS } from "./constants/settingsData";
 
-// 1. Define the Toggle component here so TypeScript doesn't complain
+
 const Toggle = ({ defaultChecked }: { defaultChecked: boolean }) => (
   <label className="relative inline-flex items-center cursor-pointer">
     <input
@@ -37,9 +37,7 @@ const SettingsPage = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* LEFT COLUMN: Profile, Notifications, Security */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Profile Section */}
             <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100">
               <div className="flex items-center gap-3 mb-8">
                 <div className="p-2 bg-green-50 rounded-lg">

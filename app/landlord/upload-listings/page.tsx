@@ -46,7 +46,6 @@ const UploadListingPage = () => {
           </header>
 
           <form className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* LEFT COLUMN: General Info & Amenities (8 Columns) */}
             <div className="lg:col-span-8 space-y-8">
               {/* 1. General Information */}
               <section className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
