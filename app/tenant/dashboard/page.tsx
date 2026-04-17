@@ -45,7 +45,6 @@ const Page = () => {
   return (
     <DashboardLayout>
       <section className="flex flex-col gap-8 px-2.5 py-2.5">
-        {/* Active Property Card */}
         <div className="flex flex-col lg:flex-row w-full bg-white rounded-[2rem] shadow-xl overflow-hidden border border-gray-50 group">
           <div className="relative h-72 md:h-96 lg:h-auto lg:w-[45%] bg-gray-100 overflow-hidden">
             <Link href={`/properties/${ActiveProperty.id || "1"}`}>
