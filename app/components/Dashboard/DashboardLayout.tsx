@@ -14,6 +14,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     <main className="relative h-screen w-screen overflow-hidden">
       <section className=" flex flex-row">
         <Sidebar />
+        <MobileSidebar isOpen={isMobileSidebarOpen} onClose={() => setIsMobileSidebarOpen(false)} />
         <main className="bg-[#EBECED] h-screen w-full lg:ml-62.5 overflow-y-auto">
           <div className="sticky top-0 z-50">
             <Header onMenuClick={() => setIsMobileSidebarOpen(true)}/>
