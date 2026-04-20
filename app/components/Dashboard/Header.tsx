@@ -1,19 +1,14 @@
 "use client";
 import React from "react";
 import DesktopSearch from "./UI/search/DesktopSearch";
-import NotificationBell from "./UI/NotificationBell";
 import Chats from "./UI/Chats";
 import Image from "next/image";
 import AdminProfileImg from "@/public/assets/landloard-profile-img.png";
 import { Menu } from "lucide-react";
-import { useNotificationCount } from "../../api/features/notification/useNotification";
 import { usePathname } from "next/navigation";
-import Link from "next/link";
+import NotificationMenu from "../shared/NotificationMenu";
 
 const Header = () => {
-  const { data, isLoading } = useNotificationCount();
-  const count = data?.count || 0;
-
   const pathname = usePathname();
   const notificationPath = pathname.includes("/tenant")
     ? "/tenant/notifications"
@@ -28,10 +23,8 @@ const Header = () => {
         <div className="flex items-center gap-6">
           <DesktopSearch />
 
-          <div className="flex items-center gap-4">
-            <Link href={notificationPath}>
-              <NotificationBell count={count} isLoading={isLoading} />
-            </Link>
+          <div className="flex items-center gap-1">
+            <NotificationMenu notificationPath={notificationPath} />
 
             <Chats />
             <div className="flex items-center gap-2.5 cursor-pointer border-l pl-4 border-gray-100">

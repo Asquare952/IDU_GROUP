@@ -1,18 +1,18 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useIsFetching, useQueryClient } from "@tanstack/react-query";
-import { HiMenu, HiOutlineHeart, HiOutlineLockClosed, HiX } from "react-icons/hi";
+import {
+  HiMenu,
+  HiOutlineHeart,
+  HiOutlineLockClosed,
+  HiX,
+} from "react-icons/hi";
 import Cookies from "js-cookie";
 import { useRouter, usePathname } from "next/navigation";
-import {
-  HiOutlineBell,
-  HiOutlineUser,
-  HiOutlineCog,
-  HiOutlineLogout,
-  HiOutlineViewGrid,
-} from "react-icons/hi";
+import { HiOutlineUser, HiOutlineCog, HiOutlineLogout } from "react-icons/hi";
+import NotificationMenu from "./shared/NotificationMenu";
+import { useState } from "react";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -99,10 +99,7 @@ const Header = () => {
             )
           ) : showLoggedInUI ? (
             <div className="relative flex items-center gap-3">
-              <div className="relative cursor-pointer text-gray-600 hover:text-[#4CAF50]">
-                <HiOutlineBell size={24} />
-                <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-              </div>
+              <NotificationMenu notificationPath="/tenant/notifications" />
 
               <div
                 className="flex items-center gap-2 cursor-pointer border-l pl-3 border-gray-200 active:scale-95 transition-all"
@@ -149,7 +146,7 @@ const Header = () => {
                       <button
                         onClick={() => {
                           setIsProfileOpen(false);
-                          router.push("/tenant/profile");
+                          router.push("/tenant/dashboard/settings");
                         }}
                         className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
                       >
@@ -158,7 +155,7 @@ const Header = () => {
                       <button
                         onClick={() => {
                           setIsProfileOpen(false);
-                          router.push("/tenant/profile");
+                          router.push("/tenant/dashboard/locked-houses");
                         }}
                         className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
                       >
@@ -167,7 +164,7 @@ const Header = () => {
                       <button
                         onClick={() => {
                           setIsProfileOpen(false);
-                          router.push("/tenant/profile");
+                          router.push("/tenant/dashboard/saved-houses");
                         }}
                         className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
                       >

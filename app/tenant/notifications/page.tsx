@@ -2,10 +2,28 @@
 import React from "react";
 import DashboardLayout from "@/app/components/Dashboard/DashboardLayout";
 import NotificationItem from "@/app/components/shared/NotificationItems";
-import { TENANT_NOTIFICATIONS } from "./data/notifications";
 import { Bell, Check } from "lucide-react";
+import {
+  useDeleteNotification,
+  useMarkAllNotificationsAsRead,
+  useMarkNotificationAsRead,
+  useNotifications,
+} from "@/app/api/features/notification";
+import {
+  formatNotificationTime,
+  getNotificationType,
+} from "@/app/components/shared/notification-helpers";
 
 const page = () => {
+  const { data: notifications = [], isLoading, isError } = useNotifications();
+  const markAsRead = useMarkNotificationAsRead();
+  const markAllAsRead = useMarkAllNotificationsAsRead();
+  const deleteNotification = useDeleteNotification();
+
+  const unreadNotifications = notifications.filter(
+    (notification) => !notification.isRead,
+  );
+
   return (
     <DashboardLayout>
       <div className="p-10 bg-[#FBFBFC] min-h-screen">
@@ -23,21 +41,65 @@ const page = () => {
           </p>
         </div>
         <div className="max-w-2xl mx-auto mb-8">
-          <button className="w-full bg-[#43A047] hover:bg-green-700 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-md active:scale-[0.98]">
-            <Check size={20} /> Mark all as read
+          <button
+            type="button"
+            onClick={() => markAllAsRead.mutate(notifications)}
+            disabled={
+              unreadNotifications.length === 0 ||
+              notifications.length === 0 ||
+              markAllAsRead.isPending
+            }
+            className="w-full bg-[#43A047] hover:bg-green-700 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-green-300"
+          >
+            <Check size={20} />{" "}
+            {markAllAsRead.isPending ? "Updating..." : "Mark all as read"}
           </button>
         </div>
         <div className="max-w-2xl mx-auto">
-          {TENANT_NOTIFICATIONS.map((notif) => (
-            <NotificationItem
-              key={notif.id}
-              type={notif.type}
-              message={notif.message}
-              time={notif.time}
-              isRead={notif.isRead}
-              accentColor="#43A047"
-            />
-          ))}
+          {isLoading ? (
+            <div className="space-y-4">
+              {[1, 2, 3].map((item) => (
+                <div
+                  key={item}
+                  className="h-32 animate-pulse rounded-3xl bg-white shadow-sm"
+                />
+              ))}
+            </div>
+          ) : isError ? (
+            <div className="rounded-3xl bg-white p-8 text-center text-slate-500 shadow-sm">
+              Unable to load your notifications right now.
+            </div>
+          ) : notifications.length === 0 ? (
+            <div className="rounded-3xl bg-white p-8 text-center text-slate-500 shadow-sm">
+              You have no notifications yet.
+            </div>
+          ) : (
+            notifications.map((notification) => (
+              <NotificationItem
+                key={notification.id}
+                title={notification.title}
+                type={getNotificationType(notification)}
+                message={notification.message}
+                time={formatNotificationTime(notification.createdAt)}
+                isRead={notification.isRead}
+                accentColor="#43A047"
+                onMarkAsRead={
+                  notification.isRead
+                    ? undefined
+                    : () => markAsRead.mutate(notification.id)
+                }
+                onDelete={() => deleteNotification.mutate(notification.id)}
+                isMarkingAsRead={
+                  markAsRead.isPending &&
+                  markAsRead.variables === notification.id
+                }
+                isDeleting={
+                  deleteNotification.isPending &&
+                  deleteNotification.variables === notification.id
+                }
+              />
+            ))
+          )}
         </div>
       </div>
     </DashboardLayout>

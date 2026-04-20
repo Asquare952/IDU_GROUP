@@ -1,17 +1,28 @@
 import api from "../../axios";
-import { Notification, NotificationCount } from "./types";
+import {
+  Notification,
+  NotificationCount,
+  NotificationCountResponse,
+  NotificationListResponse,
+} from "./types";
+import {
+  normalizeNotificationCount,
+  normalizeNotifications,
+} from "./notification.utils";
 
 export const notificationApi = {
   // GET `/notification/`
   getNotifications: async (): Promise<Notification[]> => {
-    const response = await api.get("/notification/");
-    return response.data;
+    const response = await api.get<NotificationListResponse>("/notification/");
+    return normalizeNotifications(response.data);
   },
 
   // GET `/notification/count`
   getUnreadCount: async (): Promise<NotificationCount> => {
-    const response = await api.get("/notification/count");
-    return response.data;
+    const response = await api.get<NotificationCountResponse>(
+      "/notification/count",
+    );
+    return normalizeNotificationCount(response.data);
   },
 
   // PUT `/notification/read`

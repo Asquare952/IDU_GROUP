@@ -1,27 +1,20 @@
 "use client";
 import React from "react";
-import Link from "next/link";
 import DesktopSearch from "./UI/search/DesktopSearch";
-import NotificationBell from "./UI/NotificationBell";
 import Image from "next/image";
 import AdminProfileImg from "@/public/assets/landloard-profile-img.png";
 import { Menu } from "lucide-react";
-import { useNotificationCount } from "../../api/features/notification/useNotification";
+import NotificationMenu from "../shared/NotificationMenu";
 
 const Header = () => {
-  const { data, isLoading } = useNotificationCount();
-  const count = data?.count || 0;
-
   return (
     <header className=" sticky top-0 p-4 bg-white border border-[#EBECED]">
       <div className=" flex items-center justify-between gap-7">
         <Menu className=" md:hidden " />
         <DesktopSearch />
 
-        <div className=" flex items-center gap-2">
-          <Link href="/tenant/notifications">
-            <NotificationBell count={count} isLoading={isLoading} />
-          </Link>
+        <div className=" flex items-center gap-1">
+          <NotificationMenu notificationPath="/tenant/notifications" />
 
           <div className=" flex items-center gap-1.5 cursor-pointer">
             <Image
