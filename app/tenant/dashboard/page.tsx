@@ -13,6 +13,7 @@ import properties from "@/app/components/properties";
 import { containerVariants, itemVariants } from "@/app/components/animation";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { HiOutlineHeart } from "react-icons/hi";
 import {
   MapPin,
   ShieldAlert,
@@ -45,7 +46,6 @@ const Page = () => {
   return (
     <DashboardLayout>
       <section className="flex flex-col gap-8 px-2.5 py-2.5">
-        {/* Active Property Card */}
         <div className="flex flex-col lg:flex-row w-full bg-white rounded-[2rem] shadow-xl overflow-hidden border border-gray-50 group">
           <div className="relative h-72 md:h-96 lg:h-auto lg:w-[45%] bg-gray-100 overflow-hidden">
             <Link href={`/properties/${ActiveProperty.id || "1"}`}>
@@ -197,16 +197,26 @@ const Page = () => {
                 whileHover={{ y: -10 }}
                 className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group"
               >
-                <Link href={isLoggedIn ? `/properties/${item.id}` : "/signup"}>
-                  <div className="relative h-64 w-full overflow-hidden cursor-pointer">
+                <div className="relative h-64 w-full overflow-hidden cursor-pointer">
+                  <Link
+                    href={isLoggedIn ? `/properties/${item.id}` : "/signup"}
+                    className="block h-full w-full"
+                  >
                     <Image
                       src={item.img}
                       alt={item.title}
                       fill
                       className="object-cover rounded-3xl p-3 transition-transform duration-500 group-hover:scale-110"
                     />
-                  </div>
-                </Link>
+                  </Link>
+                  <button
+                    type="button"
+                    className="absolute top-5 right-5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#162B4C] shadow-sm transition hover:text-red-500 cursor-pointer"
+                    aria-label={`Save ${item.title}`}
+                  >
+                    <HiOutlineHeart size={20} />
+                  </button>
+                </div>
 
                 <div className="p-5">
                   <div className="flex justify-between items-start mb-2">

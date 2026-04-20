@@ -1,18 +1,18 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useIsFetching, useQueryClient } from "@tanstack/react-query";
-import { HiMenu, HiOutlineHeart, HiOutlineLockClosed, HiX } from "react-icons/hi";
+import {
+  HiMenu,
+  HiOutlineHeart,
+  HiOutlineLockClosed,
+  HiX,
+} from "react-icons/hi";
 import Cookies from "js-cookie";
 import { useRouter, usePathname } from "next/navigation";
-import {
-  HiOutlineBell,
-  HiOutlineUser,
-  HiOutlineCog,
-  HiOutlineLogout,
-  HiOutlineViewGrid,
-} from "react-icons/hi";
+import { HiOutlineUser, HiOutlineCog, HiOutlineLogout } from "react-icons/hi";
+import NotificationMenu from "./shared/NotificationMenu";
+import { useState } from "react";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -81,119 +81,119 @@ const Header = () => {
           </ul>
         </div>
         <div className="flex items-center justify-end gap-3">
-          {/* UPDATED: Landing page shows Logout button if logged in, else Login */}
-          {pathname === "/" ? (
-            isLoggedIn ? (
-              <button
-                onClick={handleLogout}
-                className="px-8 py-2.5 rounded-xl text-white font-semibold text-sm bg-red-500 hover:bg-red-600 transition-all active:scale-95 cursor-pointer"
-              >
-                Log out
-              </button>
+          <div className="hidden md:flex items-center gap-3">
+            {pathname === "/" ? (
+              isLoggedIn ? (
+                <button
+                  onClick={handleLogout}
+                  className="px-8 py-2.5 rounded-xl text-white font-semibold text-sm bg-red-500 hover:bg-red-600 transition-all active:scale-95 cursor-pointer"
+                >
+                  Log out
+                </button>
+              ) : (
+                <Link href="/login">
+                  <button className="px-8 py-2.5 rounded-xl text-white font-semibold text-sm bg-[#43A047] hover:bg-green-600 transition-all active:scale-95 cursor-pointer">
+                    Log in
+                  </button>
+                </Link>
+              )
+            ) : showLoggedInUI ? (
+              <div className="relative flex items-center gap-3">
+                <NotificationMenu notificationPath="/tenant/notifications" />
+
+                <div
+                  className="flex items-center gap-2 cursor-pointer border-l pl-3 border-gray-200 active:scale-95 transition-all"
+                  onClick={() => setIsProfileOpen(!isProfileOpen)}
+                >
+                  <Image
+                    src="/Iyke ace.jpg"
+                    alt="Profile"
+                    width={36}
+                    height={36}
+                    className="rounded-full border-2 border-[#4CAF50] object-cover aspect-square"
+                  />
+                  <div className="hidden lg:block text-left">
+                    <p className="text-xs font-bold text-gray-900 leading-none">
+                      David
+                    </p>
+                    <p className="text-[10px] text-gray-500">
+                      Software engineer
+                    </p>
+                  </div>
+                </div>
+
+                {isProfileOpen && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-10"
+                      onClick={() => setIsProfileOpen(false)}
+                    />
+                    <div className="absolute right-0 top-14 w-60 bg-white rounded-2xl shadow-2xl border border-gray-100 z-20 overflow-hidden">
+                      <div className="p-4 border-b border-gray-50 bg-gray-50/50">
+                        <p className="text-sm font-bold text-gray-900">David</p>
+                        <p className="text-[10px] text-gray-500 truncate">
+                          david.engineer@rentulo.com
+                        </p>
+                      </div>
+                      <div className="p-2 flex flex-col gap-1">
+                        <button
+                          onClick={() => {
+                            setIsProfileOpen(false);
+                            router.push("/tenant/profile");
+                          }}
+                          className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
+                        >
+                          <HiOutlineUser size={18} /> Profile
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsProfileOpen(false);
+                            router.push("/tenant/dashboard/settings");
+                          }}
+                          className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
+                        >
+                          <HiOutlineCog size={18} /> Settings
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsProfileOpen(false);
+                            router.push("/tenant/dashboard/locked-houses");
+                          }}
+                          className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
+                        >
+                          <HiOutlineLockClosed size={18} /> Locked house
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsProfileOpen(false);
+                            router.push("/tenant/dashboard/saved-houses");
+                          }}
+                          className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
+                        >
+                          <HiOutlineHeart size={18} /> Saved house
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsProfileOpen(false);
+                            handleLogout();
+                          }}
+                          className="w-full flex items-center gap-3 p-2.5 text-sm text-red-500 hover:bg-red-50 rounded-xl mt-1 border-t border-gray-50 pt-3 transition-all"
+                        >
+                          <HiOutlineLogout size={18} /> Sign Out
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
             ) : (
-              <Link href="/login">
+              <Link href="/login" className="hidden md:block">
                 <button className="px-8 py-2.5 rounded-xl text-white font-semibold text-sm bg-[#43A047] hover:bg-green-600 transition-all active:scale-95 cursor-pointer">
                   Log in
                 </button>
               </Link>
-            )
-          ) : showLoggedInUI ? (
-            <div className="relative flex items-center gap-3">
-              <div className="relative cursor-pointer text-gray-600 hover:text-[#4CAF50]">
-                <HiOutlineBell size={24} />
-                <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-              </div>
-
-              <div
-                className="flex items-center gap-2 cursor-pointer border-l pl-3 border-gray-200 active:scale-95 transition-all"
-                onClick={() => setIsProfileOpen(!isProfileOpen)}
-              >
-                <Image
-                  src="/Iyke ace.jpg"
-                  alt="Profile"
-                  width={36}
-                  height={36}
-                  className="rounded-full border-2 border-[#4CAF50] object-cover aspect-square"
-                />
-                <div className="hidden lg:block text-left">
-                  <p className="text-xs font-bold text-gray-900 leading-none">
-                    David
-                  </p>
-                  <p className="text-[10px] text-gray-500">Software engineer</p>
-                </div>
-              </div>
-
-              {isProfileOpen && (
-                <>
-                  <div
-                    className="fixed inset-0 z-10"
-                    onClick={() => setIsProfileOpen(false)}
-                  />
-                  <div className="absolute right-0 top-14 w-60 bg-white rounded-2xl shadow-2xl border border-gray-100 z-20 overflow-hidden">
-                    <div className="p-4 border-b border-gray-50 bg-gray-50/50">
-                      <p className="text-sm font-bold text-gray-900">David</p>
-                      <p className="text-[10px] text-gray-500 truncate">
-                        david.engineer@rentulo.com
-                      </p>
-                    </div>
-                    <div className="p-2 flex flex-col gap-1">
-                      <button
-                        onClick={() => {
-                          setIsProfileOpen(false);
-                          router.push("/tenant/profile");
-                        }}
-                        className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
-                      >
-                        <HiOutlineUser size={18} /> Profile
-                      </button>
-                      <button
-                        onClick={() => {
-                          setIsProfileOpen(false);
-                          router.push("/tenant/profile");
-                        }}
-                        className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
-                      >
-                        <HiOutlineCog size={18} /> Settings
-                      </button>
-                      <button
-                        onClick={() => {
-                          setIsProfileOpen(false);
-                          router.push("/tenant/profile");
-                        }}
-                        className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
-                      >
-                        <HiOutlineLockClosed size={18} /> Locked house
-                      </button>
-                      <button
-                        onClick={() => {
-                          setIsProfileOpen(false);
-                          router.push("/tenant/profile");
-                        }}
-                        className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
-                      >
-                        <HiOutlineHeart size={18} /> Saved house
-                      </button>
-                      <button
-                        onClick={() => {
-                          setIsProfileOpen(false);
-                          handleLogout();
-                        }}
-                        className="w-full flex items-center gap-3 p-2.5 text-sm text-red-500 hover:bg-red-50 rounded-xl mt-1 border-t border-gray-50 pt-3 transition-all"
-                      >
-                        <HiOutlineLogout size={18} /> Sign Out
-                      </button>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-          ) : (
-            <Link href="/login" className="hidden md:block">
-              <button className="px-8 py-2.5 rounded-xl text-white font-semibold text-sm bg-[#43A047] hover:bg-green-600 transition-all active:scale-95 cursor-pointer">
-                Log in
-              </button>
-            </Link>
-          )}
+            )}
+          </div>
 
           <button
             onClick={() => setIsOpen(!isOpen)}

@@ -3,6 +3,7 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { HiOutlineHeart } from "react-icons/hi";
 import properties from "@/app/components/properties";
 import { containerVariants, itemVariants } from "@/app/components/animation";
 import { useRouter } from "next/navigation";
@@ -42,12 +43,24 @@ const Listing = () => {
               className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
             >
               <div className="relative h-64 w-full overflow-hidden group">
-                <Image
-                  src={item.img}
-                  alt={item.title}
-                  fill
-                  className="object-cover rounded-3xl p-2 transition-transform duration-500 group-hover:scale-110"
-                />
+                <Link
+                  href={`/properties/${item.id}`}
+                  className="block h-full w-full"
+                >
+                  <Image
+                    src={item.img}
+                    alt={item.title}
+                    fill
+                    className="object-cover rounded-3xl p-2 transition-transform duration-500 group-hover:scale-110"
+                  />
+                </Link>
+                <button
+                  type="button"
+                  className="absolute top-5 right-5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#162B4C] shadow-sm transition hover:text-red-500 cursor-pointer"
+                  aria-label={`Save ${item.title}`}
+                >
+                  <HiOutlineHeart size={20} />
+                </button>
               </div>
 
               <div className="p-5">

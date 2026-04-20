@@ -6,7 +6,7 @@ import {
   Inquiries,
 } from "../../components/Dashboard/config/DashboardDatas";
 import Image from "next/image";
-import { PenLine, ChevronRight, TrendingUp } from "lucide-react";
+import { PenLine } from "lucide-react";
 import ReviewGraph from "@/public/assets/income-overview-graph.png";
 import SnapshotGraph from "@/public/assets/tenants-activity-snapshot-graph.png";
 
@@ -51,7 +51,7 @@ export default function Page() {
               className="bg-white p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] border border-slate-100 shadow-sm"
             >
               <div className="flex flex-col gap-2">
-                <div className="p-2 bg-[#43A047]/10 w-fit rounded-lg">
+                <div className="p-2 bg-[#43A047] w-fit rounded-lg">
                   <Image
                     src={item.image}
                     width={20}
