@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (role === "landlord") {
       router.push("/landlord/dashboard");
     } else if (role === "tenant") {
-      router.push("/tenant/dashboard");
+      router.push("/tenant/homepage");
     } else {
       router.push("/");
     }

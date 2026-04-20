@@ -7,7 +7,8 @@ export type DashboardLayoutProps = {
 export type SidebarItems = {
   id: number;
   name: string;
-  path: string;
+  path?: string;
+  action?: "logout";
   icon: LucideIcon;
 };
 
