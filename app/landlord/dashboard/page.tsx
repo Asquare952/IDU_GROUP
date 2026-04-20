@@ -6,7 +6,7 @@ import {
   Inquiries,
 } from "../../components/Dashboard/config/DashboardDatas";
 import Image from "next/image";
-import { PenLine, ChevronRight, TrendingUp } from "lucide-react";
+import { PenLine } from "lucide-react";
 import ReviewGraph from "@/public/assets/income-overview-graph.png";
 import SnapshotGraph from "@/public/assets/tenants-activity-snapshot-graph.png";
 
