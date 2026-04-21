@@ -15,6 +15,27 @@ export interface LoginPayload {
   password: string;
 }
 
+export interface userProfile {
+  id: string;
+  first_name: string;
+  last_name: string;
+  phone_no: string;
+  email: string;
+  address: string;
+  state?: string;
+  bio?: string;
+  profileImage?: string;
+}
+export interface updateUserPayload {
+  bio?: string;
+  profileImage?: string;
+}
+
+export interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+}
+
 export interface AuthResponse {
   accessToken?: string;
   token?: string;
@@ -24,6 +45,12 @@ export interface AuthResponse {
     role: "landlord" | "tenant";
     email: string;
     first_name?: string;
+    last_name?: string;
+    phone_no?: string;
+    address?: string;
+    state?: string;
+    bio?: string;
+    profileImage?: string;
   };
 }
 

@@ -1,6 +1,14 @@
 "use client";
+
+
 import React from "react";
+import Link from "next/link";
+import Image from "next/image";
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 import DashboardLayout from "@/app/components/Tenant-Dashboard/DashboardLayout";
+import { useUserProfile } from "@/app/api/features/auth/auth.queries";
+import { AuthResponse } from "@/app/api/features/auth/types";
 import {
   User,
   Bell,
@@ -16,10 +24,85 @@ import {
   SupportLinks,
   SafetyAction,
 } from "@/app/components/Tenant-Dashboard/config/DashboardDatas";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+type SettingsUser = NonNullable<AuthResponse["user"]>;
+
+type CachedUserProfile = SettingsUser;
+
+type DecodedToken = {
+  id?: string;
+  sub?: string;
+  userId?: string;
+  _id?: string;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  phone_no?: string;
+  address?: string;
+  state?: string;
+};
 
 const page = () => {
   const [isSafetyOpen, setIsSafetyOpen] = useState(false);
+  const [userId, setUserId] = useState<string>();
+  const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
+  const [cachedProfile, setCachedProfile] = useState<CachedUserProfile>();
+  const [decodedProfile, setDecodedProfile] = useState<Partial<CachedUserProfile>>({});
+
+  useEffect(() => {
+    const token = Cookies.get("ACCESS_TOKEN");
+    const storedProfile = Cookies.get("USER_PROFILE");
+
+    if (storedProfile) {
+      try {
+        setCachedProfile(JSON.parse(storedProfile) as CachedUserProfile);
+      } catch {
+        setCachedProfile(undefined);
+      }
+    }
+
+    if (!token) {
+      setHasCheckedAuth(true);
+      return;
+    }
+
+    try {
+      const decoded = jwtDecode<DecodedToken>(token);
+      setUserId(decoded.id ?? decoded.userId ?? decoded._id ?? decoded.sub);
+      setDecodedProfile({
+        first_name: decoded.first_name,
+        last_name: decoded.last_name,
+        email: decoded.email,
+        phone_no: decoded.phone_no,
+        address: decoded.address,
+        state: decoded.state,
+      });
+    } catch {
+      setUserId(undefined);
+      setDecodedProfile({});
+    } finally {
+      setHasCheckedAuth(true);
+    }
+  }, []);
+
+  const { data: user } = useUserProfile(userId, hasCheckedAuth);
+  const displayUser = user ?? cachedProfile;
+  const displayFirstName =
+    user?.first_name ?? cachedProfile?.first_name ?? decodedProfile.first_name ?? "";
+  const displayLastName =
+    user?.last_name ?? cachedProfile?.last_name ?? decodedProfile.last_name ?? "";
+  const displayEmail =
+    user?.email ?? cachedProfile?.email ?? decodedProfile.email ?? "";
+  const displayPhone =
+    user?.phone_no ?? cachedProfile?.phone_no ?? decodedProfile.phone_no ?? "";
+  const displayAddress =
+    user?.address ?? cachedProfile?.address ?? decodedProfile.address ?? "";
+  const displayBio = user?.bio ?? cachedProfile?.bio ?? "";
+  const initials =
+    `${displayFirstName[0] ?? ""}${displayLastName[0] ?? ""}`.trim() ||
+    "U";
+
   return (
     <DashboardLayout>
       <div className="p-8 bg-[#F8F9FA] min-h-screen">
@@ -32,9 +115,17 @@ const page = () => {
         <div className="flex flex-col md:flex-row items-center justify-between bg-white rounded-3xl p-6 md:p-8 mb-8 shadow-sm border border-gray-50 text-center md:text-left gap-6 md:gap-0">
           <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
             <div className="relative">
-              <div className="w-20 h-20 md:w-24 md:h-24 bg-[#43A047] rounded-full flex items-center justify-center text-white text-2xl md:text-3xl font-bold">
-                OA
-              </div>
+              {displayUser?.profileImage ? (
+                <img
+                  src={displayUser.profileImage}
+                  alt="User profile"
+                  className="h-[50px] w-[50px] rounded-full object-cover"
+                />
+              ) : (
+                <div className="flex h-[80px] w-[80px] items-center justify-center rounded-full bg-[#43A047] text-2xl font-semibold text-white">
+                  {initials}
+                </div>
+              )}
               <div className="absolute bottom-1 right-1 bg-white p-1.5 rounded-full border border-gray-100 shadow-sm">
                 <User size={14} className="text-gray-400 cursor-pointer" />
               </div>
@@ -42,7 +133,7 @@ const page = () => {
 
             <div>
               <h3 className="text-2xl md:text-3xl font-bold text-[#162B4C]">
-                Ola Adeniji
+                {displayFirstName} {displayLastName}
               </h3>
               <p className="text-gray-500 flex items-center justify-center md:justify-start gap-1 text-sm md:text-base">
                 Verified User <span className="text-[#43A047]">✓</span>
@@ -50,9 +141,12 @@ const page = () => {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row w-full md:w-auto gap-3">
-            <button className="w-full md:w-auto bg-[#43A047] text-white px-6 py-3 md:py-2.5 rounded-xl font-semibold cursor-pointer hover:bg-green-700 transition-all">
+            <Link
+              href="/tenant/dashboard/edit-profile"
+              className="w-full md:w-auto rounded-xl bg-[#43A047] px-6 py-3 text-center font-semibold text-white transition-all hover:bg-green-700 md:py-2.5"
+            >
               Edit Profile
-            </button>
+            </Link>
             <button className="w-full md:w-auto bg-gray-50 text-gray-600 px-6 py-3 md:py-2.5 rounded-xl font-semibold border border-gray-100 cursor-pointer hover:bg-gray-100 transition-all">
               Change Photo
             </button>
@@ -72,7 +166,9 @@ const page = () => {
             <div className="flex justify-between items-center">
               <div>
                 <p className="text-sm font-bold text-[#162B4C]">Full Name</p>
-                <p className="text-gray-500">Ola Adeniji</p>
+                <p className="text-gray-500">
+                  {displayFirstName} {displayLastName}
+                </p>
               </div>
               <button className="text-[#43A047] font-bold text-sm cursor-pointer hover:underline">
                 Edit
@@ -81,7 +177,7 @@ const page = () => {
             <div className="flex justify-between items-center">
               <div>
                 <p className="text-sm font-bold text-[#162B4C]">Email</p>
-                <p className="text-gray-500">ola.adeniji@email.com</p>
+                <p className="text-gray-500">{displayEmail}</p>
               </div>
               <button className="text-[#43A047] font-bold text-sm cursor-pointer hover:underline">
                 Edit
@@ -90,7 +186,25 @@ const page = () => {
             <div className="flex justify-between items-center">
               <div>
                 <p className="text-sm font-bold text-[#162B4C]">Phone Number</p>
-                <p className="text-gray-500">+234 801 234 5678</p>
+                <p className="text-gray-500">{displayPhone}</p>
+              </div>
+              <button className="text-[#43A047] font-bold text-sm cursor-pointer hover:underline">
+                Edit
+              </button>
+            </div>
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-sm font-bold text-[#162B4C]">Address</p>
+                <p className="text-gray-500">{displayAddress}</p>
+              </div>
+              <button className="text-[#43A047] font-bold text-sm cursor-pointer hover:underline">
+                Edit
+              </button>
+            </div>
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-sm font-bold text-[#162B4C]">Bio</p>
+                <p className="text-gray-500">{displayBio || "No bio added yet"}</p>
               </div>
               <button className="text-[#43A047] font-bold text-sm cursor-pointer hover:underline">
                 Edit
@@ -222,14 +336,13 @@ const page = () => {
                     <button
                       key={action.id}
                       className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer
-                ${
-                  action.variant === "danger"
-                    ? "bg-[#FF3B30] text-white hover:bg-red-700"
-                    : action.variant === "Success" ||
-                        action.variant === "success"
-                      ? "bg-[#43A047] text-white hover:bg-green-700"
-                      : "bg-[#F2F2F7] text-[#162B4C] hover:bg-gray-200"
-                }`}
+                ${action.variant === "danger"
+                          ? "bg-[#FF3B30] text-white hover:bg-red-700"
+                          : action.variant === "Success" ||
+                            action.variant === "success"
+                            ? "bg-[#43A047] text-white hover:bg-green-700"
+                            : "bg-[#F2F2F7] text-[#162B4C] hover:bg-gray-200"
+                        }`}
                     >
                       <action.icon size={20} />
                       {action.label}
