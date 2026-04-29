@@ -77,7 +77,8 @@ export type RawRental = Partial<Rental> & {
   videos?: unknown;
 };
 
-const getApiBaseUrl = () => String(api.defaults.baseURL ?? "").replace(/\/$/, "");
+const getApiBaseUrl = () =>
+  String(api.defaults.baseURL ?? "").replace(/\/$/, "");
 
 const parseJsonSafely = (value: string): unknown => {
   try {
@@ -243,11 +244,30 @@ export const rentalApi = {
   },
 
   getAllRentals: async (options?: RentalRequestOptions): Promise<Rental[]> => {
-    const response = await api.get<ApiResponse<RawRental[] | { rentals?: RawRental[] }>>(
-      "/rental/all",
-      options?.skipAuthRedirect ? ({ skipAuthRedirect: true } as any) : undefined,
-    );
+    // For public access, make request without authorization header
+    if (options?.skipAuthRedirect) {
+      const response = await fetch(`${API_BASE_URL}/rental/all`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
+      if (!response.ok) {
+        throw new Error(`Failed to fetch rentals: ${response.status}`);
+      }
+
+      const data = (await response.json()) as ApiResponse<
+        RawRental[] | { rentals?: RawRental[] }
+      >;
+      return normalizeRentalListResponse(data.data);
+    }
+
+    // For authenticated requests, use the api instance
+    const response =
+      await api.get<ApiResponse<RawRental[] | { rentals?: RawRental[] }>>(
+        "/rental/all",
+      );
     return normalizeRentalListResponse(response.data.data);
   },
 
@@ -271,11 +291,28 @@ export const rentalApi = {
       ? `/rental/search?${queryString}`
       : "/rental/search";
 
-    const response = await api.get<ApiResponse<RawRental[] | { rentals?: RawRental[] }>>(
-      url,
-      options?.skipAuthRedirect ? ({ skipAuthRedirect: true } as any) : undefined,
-    );
+    // For public access, make request without authorization header
+    if (options?.skipAuthRedirect) {
+      const response = await fetch(`${API_BASE_URL}${url}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
+      if (!response.ok) {
+        throw new Error(`Failed to search rentals: ${response.status}`);
+      }
+
+      const data = (await response.json()) as ApiResponse<
+        RawRental[] | { rentals?: RawRental[] }
+      >;
+      return normalizeRentalListResponse(data.data);
+    }
+
+    // For authenticated requests, use the api instance
+    const response =
+      await api.get<ApiResponse<RawRental[] | { rentals?: RawRental[] }>>(url);
     return normalizeRentalListResponse(response.data.data);
   },
 
@@ -283,7 +320,12 @@ export const rentalApi = {
     id: string,
     options?: RentalRequestOptions,
   ): Promise<Rental> => {
-    const response = await api.get<ApiResponse<RawRental>>(`/rental/get1/${id}`, options?.skipAuthRedirect ? ({ skipAuthRedirect: true } as any) : undefined);
+    const response = await api.get<ApiResponse<RawRental>>(
+      `/rental/get1/${id}`,
+      options?.skipAuthRedirect
+        ? ({ skipAuthRedirect: true } as any)
+        : undefined,
+    );
 
     return normalizeRental(response.data.data);
   },

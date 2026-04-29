@@ -7,21 +7,13 @@ import { motion } from "framer-motion";
 import { HiOutlineHeart } from "react-icons/hi";
 import { rentalApi, Rental } from "@/app/api/features/rental";
 import { containerVariants, itemVariants } from "@/app/components/animation";
-import { hasAccessToken } from "@/app/lib/auth";
 
 const Listing = () => {
   const [rentals, setRentals] = useState<Rental[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [requiresLogin, setRequiresLogin] = useState(false);
 
   useEffect(() => {
-    if (!hasAccessToken()) {
-      setRequiresLogin(true);
-      setLoading(false);
-      return;
-    }
-
     const fetchRentals = async () => {
       try {
         const data = await rentalApi.getAllRentals({ skipAuthRedirect: true });
@@ -72,17 +64,7 @@ const Listing = () => {
           </p>
         </div>
 
-        {requiresLogin ? (
-          <div className="text-center py-12 text-gray-500">
-            <p>Live property listings require a signed-in account right now.</p>
-            <Link
-              href="/login"
-              className="mt-4 inline-flex rounded-full bg-[#34A853] px-6 py-3 text-sm font-semibold text-white transition hover:bg-green-700"
-            >
-              Log in to view live listings
-            </Link>
-          </div>
-        ) : rentals.length === 0 ? (
+        {rentals.length === 0 ? (
           <div className="text-center py-12 text-gray-400">
             <p>No listings available</p>
           </div>
