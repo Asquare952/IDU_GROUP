@@ -3,6 +3,7 @@ import {
   RegisterPayload,
   LoginPayload,
   AuthResponse,
+  GoogleAuthPayload,
   ForgotPasswordRequest,
   ForgotPasswordResponse,
   ConfirmOtpRequest,
@@ -16,6 +17,13 @@ export const register = async (data: RegisterPayload) => {
 
 export const login = async (data: LoginPayload): Promise<AuthResponse> => {
   const response = await api.post("/auth/login", data);
+  return response.data;
+};
+
+export const googleAuth = async (
+  data: GoogleAuthPayload,
+): Promise<AuthResponse> => {
+  const response = await api.post("/auth/google-auth", data);
   return response.data;
 };
 

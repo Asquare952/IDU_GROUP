@@ -14,6 +14,7 @@ import { z } from "zod";
 import { useAuth } from "@/app/components/context/AuthContext";
 import Cookies from "js-cookie";
 import { AuthResponse } from "../../api/features/auth/types";
+import GoogleAuthButton from "@/app/components/auth/GoogleAuthButton";
 
 const Page = () => {
   const { login } = useAuth();
@@ -29,7 +30,7 @@ const Page = () => {
       if (role === "landlord") {
         router.push("/landlord/dashboard");
       } else if (role === "tenant") {
-        router.push("/tenant/homepage");
+        router.push("/tenant/dashboard");
       }
     }
   }, [router]);
@@ -39,8 +40,6 @@ const Page = () => {
   };
 
   const onSubmit = (data: LoginFormValues) => {
-    console.log("FORM SUBMITTED", data);
-
     let identifier = data.identifier;
     const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
 
@@ -250,17 +249,9 @@ const Page = () => {
               </div>
 
               <div className="flex gap-4">
-                <button
-                  type="button"
-                  className="flex-1 flex items-center justify-center gap-2 bg-[#ECF5ED] py-3 rounded-2xl hover:bg-[#e2ede3] transition-all font-bold text-xs text-gray-700"
-                >
-                  <img
-                    src="https://www.svgrepo.com/show/475656/google-color.svg"
-                    className="w-4 h-4"
-                    alt="Google"
-                  />
-                  Google
-                </button>
+                <div className="flex-1">
+                  <GoogleAuthButton mode="login" />
+                </div>
                 <button
                   type="button"
                   className="flex-1 flex items-center justify-center gap-2 bg-[#ECF5ED] py-3 rounded-2xl hover:bg-[#e2ede3] transition-all font-bold text-xs text-gray-700"

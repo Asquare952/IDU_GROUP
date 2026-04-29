@@ -23,13 +23,17 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useGetAllRentals } from "@/app/api/features/rental/rental.queries";
+import type { Rental } from "@/app/api/features/rental";
 
 const Page = () => {
   const router = useRouter();
   const isLoggedIn = true;
   const [isSafetyOpen, setIsSafetyOpen] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [recommendedHouses, setRecommendedHouses] = useState<Rental[]>([]);
+  const { data: rentals = [] } = useGetAllRentals();
 
   const nextSlide = () => {
     setCurrentSlide((prev) =>
@@ -42,6 +46,12 @@ const Page = () => {
       prev === 0 ? ActiveProperty.images.length - 1 : prev - 1,
     );
   };
+
+  useEffect(() => {
+    if (rentals && rentals.length > 0) {
+      setRecommendedHouses(rentals.slice(0, 3));
+    }
+  }, [rentals]);
 
   return (
     <DashboardLayout>
@@ -82,7 +92,7 @@ const Page = () => {
                   onClick={() => setCurrentSlide(index)}
                   className={`h-2 rounded-full transition-all duration-300 ${
                     currentSlide === index
-                      ? "w-8 bg-[#43A047]" 
+                      ? "w-8 bg-[#43A047]"
                       : "w-2 bg-white/60 hover:bg-white"
                   }`}
                 />
@@ -182,105 +192,123 @@ const Page = () => {
         {/* Recommended Houses Section */}
         <div className="flex flex-col gap-3.5">
           <h2 className="text-2xl font-bold">Recommended Houses</h2>
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-          >
-            {properties.slice(0, 3).map((item, i) => (
-              <motion.div
-                key={item.id}
-                custom={i}
-                variants={itemVariants}
-                whileHover={{ y: -10 }}
-                className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group"
-              >
-                <div className="relative h-64 w-full overflow-hidden cursor-pointer">
-                  <Link
-                    href={isLoggedIn ? `/properties/${item.id}` : "/signup"}
-                    className="block h-full w-full"
-                  >
-                    <Image
-                      src={item.img}
-                      alt={item.title}
-                      fill
-                      className="object-cover rounded-3xl p-3 transition-transform duration-500 group-hover:scale-110"
-                    />
-                  </Link>
-                  <button
-                    type="button"
-                    className="absolute top-5 right-5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#162B4C] shadow-sm transition hover:text-red-500 cursor-pointer"
-                    aria-label={`Save ${item.title}`}
-                  >
-                    <HiOutlineHeart size={20} />
-                  </button>
-                </div>
-
-                <div className="p-5">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <p className="text-gray-900 font-bold text-xl">
-                        {item.price}
-                        <span className="text-sm font-normal text-gray-400">
-                          {" "}
-                          / 2 days ago
-                        </span>
-                      </p>
-                      <Link
-                        href={isLoggedIn ? `/properties/${item.id}` : "/signup"}
-                      >
-                        <h3 className="text-gray-800 font-semibold text-lg hover:text-[#43A047] transition-colors cursor-pointer">
-                          {item.title}
-                        </h3>
-                      </Link>
-                    </div>
-                    <motion.button
-                      whileTap={{ scale: 0.95 }}
-                      whileHover={{ scale: 1.05 }}
-                      onClick={() =>
-                        router.push(
-                          isLoggedIn ? `/properties/${item.id}` : "/signup",
-                        )
-                      }
-                      className="bg-[#E8F5E9] text-[#43A047] text-xs font-bold px-4 py-1.5 rounded-full cursor-pointer"
+          {recommendedHouses.length === 0 ? (
+            <div className="text-center py-12 text-gray-400">
+              <p>No listings available at the moment</p>
+            </div>
+          ) : (
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            >
+              {recommendedHouses.map((item, i) => (
+                <motion.div
+                  key={item.id}
+                  custom={i}
+                  variants={itemVariants}
+                  whileHover={{ y: -10 }}
+                  className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group"
+                >
+                  <div className="relative h-64 w-full overflow-hidden cursor-pointer">
+                    <Link
+                      href={isLoggedIn ? `/properties/${item.id}` : "/login"}
+                      className="block h-full w-full"
                     >
-                      View
-                    </motion.button>
+                      {item.images && item.images.length > 0 ? (
+                        <Image
+                          src={item.images[0]}
+                          alt={item.title}
+                          fill
+                          className="object-cover rounded-3xl p-3 transition-transform duration-500 group-hover:scale-110"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-100 rounded-3xl flex items-center justify-center">
+                          <span className="text-gray-400 text-sm">
+                            No Image
+                          </span>
+                        </div>
+                      )}
+                    </Link>
+                    <button
+                      type="button"
+                      className="absolute top-5 right-5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#162B4C] shadow-sm transition hover:text-red-500 cursor-pointer"
+                      aria-label={`Save ${item.title}`}
+                    >
+                      <HiOutlineHeart size={20} />
+                    </button>
                   </div>
 
-                  <p className="text-gray-400 text-sm mb-4 leading-relaxed">
-                    Cozy rooms, large jacuzzi, spacious kitchen. Convenient
-                    lifestyle living.
-                  </p>
-
-                  <div className="flex flex-wrap gap-4 border-t border-gray-50 pt-4">
-                    <div className="flex items-center gap-2">
-                      <Image
-                        src="/shawer.png"
-                        alt="bath"
-                        width={16}
-                        height={16}
-                      />
-                      <span className="text-xs text-gray-500 font-medium">
-                        2 bathrooms
-                      </span>
+                  <div className="p-5">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <p className="text-gray-900 font-bold text-xl">
+                          ₦{Number(item.price).toLocaleString()}
+                          <span className="text-sm font-normal text-gray-400">
+                            {" "}
+                            / {item.priceType}
+                          </span>
+                        </p>
+                        <Link
+                          href={
+                            isLoggedIn ? `/properties/${item.id}` : "/login"
+                          }
+                        >
+                          <h3 className="text-gray-800 font-semibold text-lg hover:text-[#43A047] transition-colors cursor-pointer">
+                            {item.title}
+                          </h3>
+                        </Link>
+                      </div>
+                      <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        whileHover={{ scale: 1.05 }}
+                        onClick={() =>
+                          router.push(
+                            isLoggedIn ? `/properties/${item.id}` : "/login",
+                          )
+                        }
+                        className="bg-[#E8F5E9] text-[#43A047] text-xs font-bold px-4 py-1.5 rounded-full cursor-pointer"
+                      >
+                        View
+                      </motion.button>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Image src="/bed.png" alt="bed" width={16} height={16} />
-                      <span className="text-xs text-gray-500 font-medium">
-                        5 bedrooms
-                      </span>
+
+                    <p className="text-gray-400 text-sm mb-4 leading-relaxed line-clamp-2">
+                      {item.description}
+                    </p>
+
+                    <div className="flex flex-wrap gap-4 border-t border-gray-50 pt-4">
+                      <div className="flex items-center gap-2">
+                        <Image
+                          src="/shawer.png"
+                          alt="property-type"
+                          width={16}
+                          height={16}
+                        />
+                        <span className="text-xs text-gray-500 font-medium">
+                          {item.propertyType}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Image
+                          src="/bed.png"
+                          alt="location"
+                          width={16}
+                          height={16}
+                        />
+                        <span className="text-xs text-gray-500 font-medium">
+                          {item.location}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
         </div>
-
-        {/* Safety Tips Section */}
         <div className="flex flex-col gap-3.5 mt-4">
           <h2 className="text-2xl font-bold px-1">RentULO Safety Tips</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">

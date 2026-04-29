@@ -31,14 +31,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     Cookies.set("USER_ROLE", role);
 
     setIsLoggedIn(true);
-
-    if (role === "landlord") {
-      router.push("/landlord/dashboard");
-    } else if (role === "tenant") {
-      router.push("/tenant/homepage");
-    } else {
-      router.push("/");
-    }
   };
   const logout = () => {
     Cookies.remove("ACCESS_TOKEN");

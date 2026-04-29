@@ -1,16 +1,52 @@
 "use client";
-import React from "react";
+
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { HiOutlineHeart } from "react-icons/hi";
-import properties from "@/app/components/properties";
+import { rentalApi, Rental } from "@/app/api/features/rental";
 import { containerVariants, itemVariants } from "@/app/components/animation";
-import { useRouter } from "next/navigation";
 
 const Listing = () => {
-  const router = useRouter();
-  const isLoggedIn = false;
+  const [rentals, setRentals] = useState<Rental[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchRentals = async () => {
+      try {
+        const data = await rentalApi.getAllRentals({ skipAuthRedirect: true });
+        setRentals(data);
+      } catch (err: any) {
+        console.error("Failed to fetch rentals:", err);
+        setError(
+          err.response?.data?.message ||
+            "Failed to load listings. Please try again.",
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRentals();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-64 text-red-500">
+        {error}
+      </div>
+    );
+  }
 
   return (
     <div id="listing">
@@ -27,94 +63,106 @@ const Listing = () => {
             your area
           </p>
         </div>
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-        >
-          {properties.slice(0, 9).map((item, i) => (
-            <motion.div
-              key={item.id}
-              custom={i}
-              variants={itemVariants}
-              whileHover={{ y: -10 }}
-              className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
-            >
-              <div className="relative h-64 w-full overflow-hidden group">
-                <Link
-                  href={`/properties/${item.id}`}
-                  className="block h-full w-full"
-                >
-                  <Image
-                    src={item.img}
-                    alt={item.title}
-                    fill
-                    className="object-cover rounded-3xl p-2 transition-transform duration-500 group-hover:scale-110"
-                  />
-                </Link>
-                <button
-                  type="button"
-                  className="absolute top-5 right-5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#162B4C] shadow-sm transition hover:text-red-500 cursor-pointer"
-                  aria-label={`Save ${item.title}`}
-                >
-                  <HiOutlineHeart size={20} />
-                </button>
-              </div>
 
-              <div className="p-5">
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <p className="text-gray-900 font-bold text-xl">
-                      {item.price}
-                      <span className="text-sm font-normal text-gray-400">
-                        / 2 days ago
-                      </span>
-                    </p>
-                    <h3 className="text-gray-800 font-semibold text-lg">
-                      {item.title}
-                    </h3>
-                  </div>
-                  <Link href={`/properties/${item.id}`}>
-                    <motion.button
-                      whileTap={{ scale: 0.95 }}
-                      whileHover={{ scale: 1.05 }}
-                      className="bg-[#E8F5E9] text-[#43A047] text-xs font-bold px-4 py-1.5 rounded-full cursor-pointer"
-                    >
-                      View
-                    </motion.button>
+        {rentals.length === 0 ? (
+          <div className="text-center py-12 text-gray-400">
+            <p>No listings available</p>
+          </div>
+        ) : (
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          >
+            {rentals.slice(0, 9).map((item, i) => (
+              <motion.div
+                key={item.id}
+                custom={i}
+                variants={itemVariants}
+                whileHover={{ y: -10 }}
+                className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
+              >
+                <div className="relative h-64 w-full overflow-hidden group">
+                  <Link
+                    href={`/properties/${item.id}`}
+                    className="block h-full w-full"
+                  >
+                    {item.images && item.images.length > 0 ? (
+                      <Image
+                        src={item.images[0]}
+                        alt={item.title}
+                        fill
+                        className="object-cover rounded-3xl p-2 transition-transform duration-500 group-hover:scale-110"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-100 rounded-3xl flex items-center justify-center">
+                        <span className="text-gray-400 text-sm">No Image</span>
+                      </div>
+                    )}
                   </Link>
+                  <button
+                    type="button"
+                    className="absolute top-5 right-5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#162B4C] shadow-sm transition hover:text-red-500 cursor-pointer"
+                    aria-label={`Save ${item.title}`}
+                  >
+                    <HiOutlineHeart size={20} />
+                  </button>
                 </div>
 
-                <p className="text-gray-400 text-sm mb-4 leading-relaxed">
-                  Cozy rooms, large jacuzzi, spacious kitchen. Convenient
-                  lifestyle living.
-                </p>
-
-                <div className="flex flex-wrap gap-4 border-t border-gray-50 pt-4">
-                  <div className="flex items-center gap-2">
-                    <Image
-                      src="/shawer.png"
-                      alt="bath"
-                      width={16}
-                      height={16}
-                    />
-                    <span className="text-xs text-gray-500 font-medium">
-                      2 bathrooms
-                    </span>
+                <div className="p-5">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <p className="text-gray-900 font-bold text-xl">
+                        ₦{Number(item.price).toLocaleString()}
+                        <span className="text-sm font-normal text-gray-400">
+                          / {item.priceType}
+                        </span>
+                      </p>
+                      <h3 className="text-gray-800 font-semibold text-lg">
+                        {item.title}
+                      </h3>
+                    </div>
+                    <Link href={`/properties/${item.id}`}>
+                      <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        whileHover={{ scale: 1.05 }}
+                        className="bg-[#E8F5E9] text-[#43A047] text-xs font-bold px-4 py-1.5 rounded-full cursor-pointer"
+                      >
+                        View
+                      </motion.button>
+                    </Link>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Image src="/bed.png" alt="bed" width={16} height={16} />
-                    <span className="text-xs text-gray-500 font-medium">
-                      5 bedrooms
-                    </span>
+
+                  <p className="text-gray-400 text-sm mb-4 leading-relaxed">
+                    {item.description}
+                  </p>
+
+                  <div className="flex flex-wrap gap-4 border-t border-gray-50 pt-4">
+                    <div className="flex items-center gap-2">
+                      <Image
+                        src="/shawer.png"
+                        alt="bath"
+                        width={16}
+                        height={16}
+                      />
+                      <span className="text-xs text-gray-500 font-medium">
+                        {item.propertyType}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Image src="/bed.png" alt="bed" width={16} height={16} />
+                      <span className="text-xs text-gray-500 font-medium">
+                        {item.location}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
 
         <div className="flex justify-center w-full">
           <Link href="/properties">

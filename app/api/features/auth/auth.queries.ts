@@ -1,34 +1,37 @@
 import { useMutation } from "@tanstack/react-query";
-import Cookies from "js-cookie";
-import { login, register, forgotPasswordApi, confirmOtpApi, resetPasswordApi } from "./auth.api";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import {
+  confirmOtpApi,
+  forgotPasswordApi,
+  googleAuth,
+  login,
+  register,
+  resetPasswordApi,
+} from "./auth.api";
+import type {
+  AuthResponse,
+  ConfirmOtpRequest,
+  ForgotPasswordRequest,
+  ForgotPasswordResponse,
+  GoogleAuthPayload,
+  LoginPayload,
+  RegisterPayload,
+  ResetPasswordRequest,
+} from "./types";
 
 export const useLogin = () =>
   useMutation<AuthResponse, Error, LoginPayload>({
     mutationFn: login,
+  });
 
-    onSuccess: (data: any) => {
-      console.log("Login response data:", data);
-      if (!data || !data.role) {
-        toast.error("Invalid response data");
-        return;
-      }
-      Cookies.set("ACCESS_TOKEN", data.token, { expires: 1 });
-      toast.success("Login successful");
-      if (data?.role === "landlord") {
-        window.location.href = "/landlord/dashboard";
-      } else if (data.role === "tenant") {
-        window.location.href = "/tenant/dashboard";
-      }
-    },
-    onError: (error: any) => {
-      toast.error(error?.response?.data?.message || "Login failed");
-    },
+export const useGoogleAuth = () =>
+  useMutation<AuthResponse, Error, GoogleAuthPayload>({
+    mutationFn: googleAuth,
   });
 
 export const useRegister = () =>
-  useMutation({
+  useMutation<unknown, Error, RegisterPayload>({
     mutationFn: register,
     onSuccess: () => {
       toast.success("Account created successfully");
@@ -41,7 +44,7 @@ export const useRegister = () =>
 export const useForgotPassword = () => {
   const router = useRouter();
 
-  return useMutation({
+  return useMutation<ForgotPasswordResponse, Error, ForgotPasswordRequest>({
     mutationFn: forgotPasswordApi,
     onSuccess: (data, variables) => {
       toast.success(data?.message || "Recovery email sent successfully!");
@@ -55,13 +58,12 @@ export const useForgotPassword = () => {
   });
 };
 
-
 export const useConfirmOtp = () => {
   const router = useRouter();
 
-  return useMutation({
+  return useMutation<unknown, Error, ConfirmOtpRequest>({
     mutationFn: confirmOtpApi,
-    onSuccess: (data, variables) => {
+    onSuccess: (_, variables) => {
       toast.success("OTP Verified Successfully!");
       const params = new URLSearchParams({
         email: variables.email,
@@ -81,7 +83,7 @@ export const useConfirmOtp = () => {
 export const useResetPassword = () => {
   const router = useRouter();
 
-  return useMutation({
+  return useMutation<unknown, Error, ResetPasswordRequest>({
     mutationFn: resetPasswordApi,
     onSuccess: () => {
       toast.success("Password reset successfully! Please login.");
@@ -89,7 +91,7 @@ export const useResetPassword = () => {
     },
     onError: (error: any) => {
       toast.error(
-        error?.response?.data?.message || "Failed to reset password"
+        error?.response?.data?.message || "Failed to reset password",
       );
     },
   });
