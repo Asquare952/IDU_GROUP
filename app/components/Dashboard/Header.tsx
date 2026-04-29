@@ -32,7 +32,8 @@ const Header = () => {
                 <Image
                   src={AdminProfileImg}
                   alt="Profile"
-                  fill
+                  width={35}
+                  height={35}
                   className="rounded-full object-cover"
                 />
               </div>

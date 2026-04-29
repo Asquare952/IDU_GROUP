@@ -1,34 +1,89 @@
 "use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import DashboardLayout from "../../components/Dashboard/DashboardLayout";
+import { rentalApi, Rental } from "@/app/api/features/rental";
 import {
   DashMetrics,
-  DashboardListings,
   Inquiries,
 } from "../../components/Dashboard/config/DashboardDatas";
 import Image from "next/image";
-import { PenLine } from "lucide-react";
+import { PenLine, Trash2, Loader2 } from "lucide-react";
 import ReviewGraph from "@/public/assets/income-overview-graph.png";
 import SnapshotGraph from "@/public/assets/tenants-activity-snapshot-graph.png";
+import { getCurrentUserId } from "@/app/lib/auth";
 
 export default function Page() {
+  const router = useRouter();
+  const [rentals, setRentals] = useState<Rental[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchRentals();
+  }, []);
+
+  const fetchRentals = async () => {
+    try {
+      const data = await rentalApi.getAllRentals();
+      const currentUserId = getCurrentUserId();
+
+      setRentals(
+        currentUserId
+          ? data.filter((rental) => rental.UserId === currentUserId)
+          : data,
+      );
+    } catch (error) {
+      console.error("Failed to fetch rentals:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this listing?")) return;
+
+    setDeleteId(id);
+    try {
+      await rentalApi.deleteRental(id);
+      setRentals((prev) => prev.filter((r) => r.id !== id));
+    } catch (error) {
+      console.error("Failed to delete:", error);
+      alert("Failed to delete listing");
+    } finally {
+      setDeleteId(null);
+    }
+  };
+
+  const handleEdit = (id: string) => {
+    router.push(`/landlord/edit-listing/${id}`);
+  };
+
   const getStatusStyle = (status: string) => {
     switch (status) {
-      case "Active":
+      case "available":
         return "bg-green-50 text-[#43A047] border border-green-100";
-      case "Pending":
+      case "pending":
         return "bg-amber-50 text-[#FFCD36] border border-amber-100";
-      case "Rented":
+      case "rented":
         return "bg-blue-50 text-[#4B8EFF] border border-blue-100";
       default:
         return "bg-gray-50 text-gray-500";
     }
   };
 
+  // Calculate metrics from real data
+  const activeListings = rentals.filter((r) => r.status === "available").length;
+  const totalViews = rentals.reduce(
+    (acc, r) => acc + Math.floor(Math.random() * 1000),
+    0,
+  ); // Replace with real view count when available
+
   return (
     <DashboardLayout>
-      {/* Container with responsive padding */}
       <section className="flex flex-col gap-6 p-4 md:p-8 bg-[#F8FAFC]">
-        {/* Header Section - Stacked on Mobile */}
+        {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-xl md:text-3xl font-extrabold text-[#162B4C]">
@@ -43,7 +98,7 @@ export default function Page() {
           </select>
         </div>
 
-        {/* Metrics Grid - 2 columns on mobile, 4 on desktop */}
+        {/* Metrics Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
           {DashMetrics.map((item) => (
             <div
@@ -65,7 +120,9 @@ export default function Page() {
                     {item.name}
                   </p>
                   <h2 className="text-xl md:text-2xl font-black text-[#162B4C]">
-                    {item.figure}
+                    {item.name === "Active listings"
+                      ? activeListings
+                      : item.figure}
                   </h2>
                 </div>
               </div>
@@ -73,70 +130,119 @@ export default function Page() {
           ))}
         </div>
 
-        {/* Responsive Grid Layout */}
+        {/* Main Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Your Listings Table - Responsive Scroll */}
+          {/* Your Listings Table - REAL DATA */}
           <div className="bg-white rounded-[1.5rem] md:rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
             <div className="p-6 border-b border-slate-50 flex justify-between items-center">
               <h3 className="font-bold text-[#162B4C]">Your Listings</h3>
-              <button className="text-[#43A047] text-xs font-bold">
-                View All
+              <button
+                onClick={() => router.push("/landlord/upload-listings")}
+                className="text-[#43A047] text-xs font-bold hover:underline"
+              >
+                + Add New
               </button>
             </div>
-            <div className="overflow-x-auto no-scrollbar">
-              <table className="w-full text-left min-w-[600px]">
-                <thead className="bg-slate-50/50">
-                  <tr className="text-slate-400 text-[10px] uppercase font-bold">
-                    <th className="px-6 py-4">Property</th>
-                    <th className="px-4 py-4 text-center">Status</th>
-                    <th className="px-4 py-4 text-center">Price</th>
-                    <th className="px-6 py-4 text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-50">
-                  {DashboardListings.map((item) => (
-                    <tr
-                      key={item.id}
-                      className="hover:bg-slate-50/50 transition-colors"
-                    >
-                      <td className="px-6 py-4">
-                        <div className="flex gap-3 items-center">
-                          <div className="w-10 h-10 relative rounded-lg overflow-hidden shrink-0">
-                            <Image
-                              src={item.image}
-                              fill
-                              className="object-cover"
-                              alt=""
-                            />
-                          </div>
-                          <div className="min-w-0">
-                            <h4 className="font-bold text-xs text-[#3D3F42] truncate w-[120px]">
-                              {item.name}
-                            </h4>
-                            <p className="text-[10px] text-slate-400 truncate w-[120px]">
-                              {item.location}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-4 text-center">
-                        <span
-                          className={`text-[9px] font-bold px-2 py-1 rounded-full ${getStatusStyle(item.status)}`}
-                        >
-                          {item.status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4 text-center font-bold text-slate-600 text-xs">
-                        ₦{item.price}k
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <PenLine size={14} className="text-slate-400 ml-auto" />
-                      </td>
+
+            {loading ? (
+              <div className="flex justify-center items-center py-12">
+                <Loader2 size={24} className="animate-spin text-[#43A047]" />
+              </div>
+            ) : rentals.length === 0 ? (
+              <div className="text-center py-12 text-slate-400">
+                <p>No listings yet</p>
+                <button
+                  onClick={() => router.push("/landlord/upload-listings")}
+                  className="text-[#43A047] text-sm font-semibold mt-2 hover:underline"
+                >
+                  Create your first listing
+                </button>
+              </div>
+            ) : (
+              <div className="overflow-x-auto no-scrollbar">
+                <table className="w-full text-left min-w-[600px]">
+                  <thead className="bg-slate-50/50">
+                    <tr className="text-slate-400 text-[10px] uppercase font-bold">
+                      <th className="px-6 py-4">Property</th>
+                      <th className="px-4 py-4 text-center">Status</th>
+                      <th className="px-4 py-4 text-center">Price</th>
+                      <th className="px-6 py-4 text-right">Action</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                    {rentals.map((item) => (
+                      <tr
+                        key={item.id}
+                        className="hover:bg-slate-50/50 transition-colors"
+                      >
+                        <td className="px-6 py-4">
+                          <div className="flex gap-3 items-center">
+                            <div className="w-10 h-10 relative rounded-lg overflow-hidden shrink-0 bg-slate-100">
+                              {item.images && item.images.length > 0 ? (
+                                <Image
+                                  src={item.images[0]}
+                                  fill
+                                  className="object-cover"
+                                  alt={item.title}
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-[8px] text-slate-400">
+                                  No Img
+                                </div>
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <h4 className="font-bold text-xs text-[#3D3F42] truncate w-[120px]">
+                                {item.title}
+                              </h4>
+                              <p className="text-[10px] text-slate-400 truncate w-[120px]">
+                                {item.location}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 text-center">
+                          <span
+                            className={`text-[9px] font-bold px-2 py-1 rounded-full capitalize ${getStatusStyle(item.status)}`}
+                          >
+                            {item.status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4 text-center font-bold text-slate-600 text-xs">
+                          ₦{Number(item.price).toLocaleString()}
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => handleEdit(item.id)}
+                              className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors"
+                              title="Edit"
+                            >
+                              <PenLine size={14} className="text-slate-400" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(item.id)}
+                              disabled={deleteId === item.id}
+                              className="p-1.5 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                              title="Delete"
+                            >
+                              {deleteId === item.id ? (
+                                <Loader2
+                                  size={14}
+                                  className="animate-spin text-red-400"
+                                />
+                              ) : (
+                                <Trash2 size={14} className="text-red-400" />
+                              )}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
 
           {/* Recent Inquiries Sidebar */}
@@ -169,7 +275,7 @@ export default function Page() {
             </div>
           </div>
 
-          {/* Income Overview (The one I missed!) */}
+          {/* Income Overview */}
           <div className="bg-white p-6 rounded-[1.5rem] md:rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-4">
             <div className="flex flex-col md:flex-row justify-between gap-4">
               <div>
@@ -202,7 +308,6 @@ export default function Page() {
               Tenants Activity Snapshots
             </h3>
             <div className="space-y-8">
-              {/* Occupancy Rate Row */}
               <div className="flex items-center justify-between gap-4">
                 <div className="flex flex-col">
                   <h4 className="font-bold text-xs text-[#3D3F42]">
@@ -226,7 +331,6 @@ export default function Page() {
                 </div>
               </div>
 
-              {/* Tenant Activity Blocks */}
               <div className="flex items-center justify-between">
                 <div>
                   <h4 className="font-bold text-xs text-[#3D3F42]">
