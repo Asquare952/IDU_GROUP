@@ -66,6 +66,12 @@ const Page = () => {
           return;
         }
 
+        if (response.user) {
+          Cookies.set("USER_PROFILE", JSON.stringify(response.user), {
+            expires: data.remember ? 7 : 1,
+          });
+        }
+
         toast.success("Login successful");
 
         login(accessToken, role, data.remember);

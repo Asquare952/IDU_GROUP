@@ -1,8 +1,13 @@
 "use client";
+
+
 import React from "react";
+// import Link from "next/link";
 import DashboardLayout from "@/app/components/Tenant-Dashboard/DashboardLayout";
+import { useState } from "react";
+
+
 import {
-  User,
   Bell,
   ShieldCheck,
   HelpCircle,
@@ -16,10 +21,13 @@ import {
   SupportLinks,
   SafetyAction,
 } from "@/app/components/Tenant-Dashboard/config/DashboardDatas";
-import { useState } from "react";
+
+
 
 const page = () => {
   const [isSafetyOpen, setIsSafetyOpen] = useState(false);
+  
+
   return (
     <DashboardLayout>
       <div className="p-8 bg-[#F8F9FA] min-h-screen">
@@ -29,75 +37,8 @@ const page = () => {
             Manage your account preferences and settings
           </p>
         </div>
-        <div className="flex flex-col md:flex-row items-center justify-between bg-white rounded-3xl p-6 md:p-8 mb-8 shadow-sm border border-gray-50 text-center md:text-left gap-6 md:gap-0">
-          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
-            <div className="relative">
-              <div className="w-20 h-20 md:w-24 md:h-24 bg-[#43A047] rounded-full flex items-center justify-center text-white text-2xl md:text-3xl font-bold">
-                OA
-              </div>
-              <div className="absolute bottom-1 right-1 bg-white p-1.5 rounded-full border border-gray-100 shadow-sm">
-                <User size={14} className="text-gray-400 cursor-pointer" />
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-2xl md:text-3xl font-bold text-[#162B4C]">
-                Ola Adeniji
-              </h3>
-              <p className="text-gray-500 flex items-center justify-center md:justify-start gap-1 text-sm md:text-base">
-                Verified User <span className="text-[#43A047]">✓</span>
-              </p>
-            </div>
-          </div>
-          <div className="flex flex-col sm:flex-row w-full md:w-auto gap-3">
-            <button className="w-full md:w-auto bg-[#43A047] text-white px-6 py-3 md:py-2.5 rounded-xl font-semibold cursor-pointer hover:bg-green-700 transition-all">
-              Edit Profile
-            </button>
-            <button className="w-full md:w-auto bg-gray-50 text-gray-600 px-6 py-3 md:py-2.5 rounded-xl font-semibold border border-gray-100 cursor-pointer hover:bg-gray-100 transition-all">
-              Change Photo
-            </button>
-          </div>
-        </div>
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-50">
-          <div className="flex items-center gap-3 mb-10">
-            <div className="bg-[#E8F5E9] p-2 rounded-lg">
-              <User size={20} className="text-gray-400" />
-            </div>
-            <h4 className="text-xl font-semibold text-[#162B4C]">
-              Profile Settings
-            </h4>
-          </div>
-
-          <div className="flex flex-col gap-8 mb-1">
-            <div className="flex justify-between items-center">
-              <div>
-                <p className="text-sm font-bold text-[#162B4C]">Full Name</p>
-                <p className="text-gray-500">Ola Adeniji</p>
-              </div>
-              <button className="text-[#43A047] font-bold text-sm cursor-pointer hover:underline">
-                Edit
-              </button>
-            </div>
-            <div className="flex justify-between items-center">
-              <div>
-                <p className="text-sm font-bold text-[#162B4C]">Email</p>
-                <p className="text-gray-500">ola.adeniji@email.com</p>
-              </div>
-              <button className="text-[#43A047] font-bold text-sm cursor-pointer hover:underline">
-                Edit
-              </button>
-            </div>
-            <div className="flex justify-between items-center">
-              <div>
-                <p className="text-sm font-bold text-[#162B4C]">Phone Number</p>
-                <p className="text-gray-500">+234 801 234 5678</p>
-              </div>
-              <button className="text-[#43A047] font-bold text-sm cursor-pointer hover:underline">
-                Edit
-              </button>
-            </div>
-          </div>
-        </div>
+        
+        
         <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-50 mt-8">
           <div className="flex items-center gap-3 mb-10">
             <div className="bg-[#E8F5E9] p-2 rounded-lg">
@@ -128,6 +69,7 @@ const page = () => {
             ))}
           </div>
         </div>
+
 
         <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-50 mt-8">
           <div className="flex items-center gap-3 mb-10">
@@ -222,14 +164,13 @@ const page = () => {
                     <button
                       key={action.id}
                       className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer
-                ${
-                  action.variant === "danger"
-                    ? "bg-[#FF3B30] text-white hover:bg-red-700"
-                    : action.variant === "Success" ||
-                        action.variant === "success"
-                      ? "bg-[#43A047] text-white hover:bg-green-700"
-                      : "bg-[#F2F2F7] text-[#162B4C] hover:bg-gray-200"
-                }`}
+                ${action.variant === "danger"
+                          ? "bg-[#FF3B30] text-white hover:bg-red-700"
+                          : action.variant === "Success" ||
+                            action.variant === "success"
+                            ? "bg-[#43A047] text-white hover:bg-green-700"
+                            : "bg-[#F2F2F7] text-[#162B4C] hover:bg-gray-200"
+                        }`}
                     >
                       <action.icon size={20} />
                       {action.label}

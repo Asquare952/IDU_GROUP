@@ -1,5 +1,24 @@
-import { useMutation } from "@tanstack/react-query";
-import { bookProperty } from "./property.api";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  fetchProperties,
+  bookProperty,
+  fetchLandlordListedProperties,
+} from "./property.api";
+import { LandlordListedProperties, Properties } from "./types";
+
+export const useFetchProperties = () => {
+  return useQuery<Properties, Error>({
+    queryKey: ["properties"],
+    queryFn: fetchProperties,
+  });
+};
+
+export const useFetchLandlordListedProperties = () => {
+  return useQuery<LandlordListedProperties, Error>({
+    queryKey: ["landlord-listed-properties"],
+    queryFn: fetchLandlordListedProperties,
+  });
+};
 
 export const useBookProperty = () => {
   return useMutation({
