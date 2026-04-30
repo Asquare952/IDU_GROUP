@@ -13,6 +13,11 @@ import { useUserProfile } from "@/app/api/features/auth/auth.queries";
 import { AuthResponse } from "@/app/api/features/auth/types";
 import Link from "next/link";
 
+const Header = () => {
+  const pathname = usePathname();
+  const notificationPath = pathname.includes("/tenant")
+    ? "/tenant/notifications"
+    : "/landlord/notifications";
 
 interface HeaderProp {
   onMenuClick: () => void;
@@ -176,8 +181,9 @@ const Header: FC<HeaderProp> = ({ onMenuClick }) => {
         <div className="flex items-center gap-1.5">
           <DesktopSearch />
 
-          <div className=" flex items-center gap-2">
-            <NotificationBell />
+          <div className="flex items-center gap-1">
+            <NotificationMenu notificationPath={notificationPath} />
+
             <Chats />
             {isLoading && !displayUser ? (
               <p>Loading...</p>

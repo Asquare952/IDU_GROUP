@@ -1,32 +1,127 @@
 "use client";
-import React, { useState } from "react";
-import { useParams } from "next/navigation";
-import propertiesLocal from "@/app/components/properties";
+
+import React, { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import {
   MapPin,
-  Bed,
-  Star,
+  Home,
+  CheckCircle,
+  Loader2,
   Shield,
   Zap,
   Droplets,
   Leaf,
-  CheckCircle,
-  Play,
 } from "lucide-react";
 import Image from "next/image";
 import Navbar from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
+import { rentalApi } from "@/app/api/features/rental";
 import { useBookProperty } from "@/app/api/features/property/property.queries";
-
+import { hasAccessToken } from "@/app/lib/auth";
 
 export default function PropertyDesktopView() {
-  const { id } = useParams();
-  const property = propertiesLocal.find((p) => String(p.id) === String(id));
+  const params = useParams<{ id: string }>();
+  const router = useRouter();
+  const propertyId = Array.isArray(params.id) ? params.id[0] : params.id;
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showAllTips, setShowAllTips] = useState(false);
   const { mutate: handleBook, isPending } = useBookProperty();
+  const isLoggedIn = hasAccessToken();
 
-  if (!property)
-    return <div className="p-20 text-center">Property not found</div>;
+  const {
+    data: property,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["property", propertyId],
+    queryFn: () =>
+      rentalApi.getRentalById(propertyId, { skipAuthRedirect: true }),
+    enabled: Boolean(propertyId) && isLoggedIn,
+  });
+
+  useEffect(() => {
+    setCurrentImageIndex(0);
+  }, [propertyId]);
+
+  if (!isLoggedIn) {
+    return (
+      <div className="bg-white min-h-screen">
+        <Navbar />
+        <div className="max-w-[1280px] mx-auto px-6 py-20 text-center">
+          <p className="text-gray-600 text-lg">
+            Sign in to view live property details.
+          </p>
+          <button
+            type="button"
+            onClick={() => router.push("/login")}
+            className="mt-4 rounded-full bg-[#4CAF50] px-8 py-3 font-bold text-white hover:bg-[#43A047]"
+          >
+            Log in
+          </button>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="bg-white min-h-screen">
+        <Navbar />
+        <div className="flex items-center justify-center py-32">
+          <Loader2 size={32} className="animate-spin text-[#4CAF50]" />
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="bg-white min-h-screen">
+        <Navbar />
+        <div className="max-w-[1280px] mx-auto px-6 py-20 text-center">
+          <p className="text-red-500 text-lg">
+            {(error as Error).message || "Failed to load this property."}
+          </p>
+          <button
+            type="button"
+            onClick={() => router.push("/properties")}
+            className="mt-4 text-[#4CAF50] font-semibold hover:underline"
+          >
+            Back to listings
+          </button>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!property) {
+    return (
+      <div className="bg-white min-h-screen">
+        <Navbar />
+        <div className="max-w-[1280px] mx-auto px-6 py-20 text-center">
+          <p className="text-gray-600 text-lg">Property not found.</p>
+          <button
+            type="button"
+            onClick={() => router.push("/properties")}
+            className="mt-4 text-[#4CAF50] font-semibold hover:underline"
+          >
+            Back to listings
+          </button>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  const activeImage = property.images[currentImageIndex] ?? property.images[0];
+  const landlordName = property.User
+    ? `${property.User.first_name} ${property.User.last_name}`.trim()
+    : "Verified Landlord";
 
   return (
     <div className="bg-white min-h-screen">
@@ -39,58 +134,86 @@ export default function PropertyDesktopView() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           <div className="lg:col-span-2 space-y-8">
-            <div className="relative aspect-video w-full bg-black rounded-[40px] overflow-hidden group shadow-2xl">
-              <Image
-                src={property.img}
-                alt={property.title}
-                fill
-                className="object-cover opacity-90 transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-all">
-                <div className="w-20 h-20 bg-white/30 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/50 cursor-pointer hover:scale-110 transition shadow-2xl">
-                  <Play fill="white" className="text-white ml-1" size={32} />
+            <div className="space-y-4">
+              <div className="relative aspect-video w-full bg-slate-100 rounded-[40px] overflow-hidden group shadow-2xl">
+                {activeImage ? (
+                  <Image
+                    src={activeImage}
+                    alt={property.title}
+                    fill
+                    className="object-cover opacity-95 transition-transform duration-700 group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-slate-400 text-lg">
+                    No image uploaded yet
+                  </div>
+                )}
+
+                <div className="absolute top-8 left-8 bg-[#4CAF50] px-4 py-2 rounded-full text-xs font-bold text-white flex items-center gap-2 shadow-lg capitalize">
+                  <CheckCircle size={14} /> {property.status}
                 </div>
               </div>
-              <div className="absolute top-8 left-8 bg-[#4CAF50] px-4 py-2 rounded-full text-xs font-bold text-white flex items-center gap-2 shadow-lg">
-                <CheckCircle size={14} /> VERIFIED VIDEO TOUR
-              </div>
+
+              {property.images.length > 1 && (
+                <div className="grid grid-cols-4 md:grid-cols-5 gap-3">
+                  {property.images.map((image, index) => (
+                    <button
+                      key={`${property.id}-image-${index}`}
+                      type="button"
+                      onClick={() => setCurrentImageIndex(index)}
+                      className={`relative aspect-square rounded-2xl overflow-hidden border-2 transition ${
+                        index === currentImageIndex
+                          ? "border-[#4CAF50]"
+                          : "border-transparent"
+                      }`}
+                    >
+                      <Image
+                        src={image}
+                        alt={`${property.title} ${index + 1}`}
+                        fill
+                        className="object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
-            <div className="bg-gray-50 p-8 rounded-[32px] grid grid-cols-3 gap-4">
+            <div className="bg-gray-50 p-8 rounded-[32px] grid grid-cols-1 md:grid-cols-3 gap-4">
               <Spec
                 icon={<MapPin className="text-[#4CAF50]" />}
                 label="Location"
-                value="Lekki, Lagos"
+                value={property.location}
               />
               <Spec
-                icon={<Bed className="text-[#4CAF50]" />}
-                label="Rooms"
-                value="5 Bedrooms"
+                icon={<Home className="text-[#4CAF50]" />}
+                label="Type"
+                value={property.propertyType}
               />
               <Spec
                 icon={<Shield className="text-[#4CAF50]" />}
-                label="Security"
-                value="High Grade"
+                label="Status"
+                value={property.status}
               />
             </div>
+
             <div className="space-y-4">
               <h2 className="text-3xl font-black text-gray-900">Description</h2>
               <p className="text-gray-600 leading-relaxed text-lg">
-                Spacious 5-bed in secure estate. Modern kitchen, en-suite rooms,
-                and balcony with a view. Perfect for growing families or young
-                professionals seeking luxury in the heart of Lagos.
+                {property.description || "No description provided yet."}
               </p>
             </div>
+
             <div className="space-y-4 bg-blue-50 p-6 rounded-[32px] border border-blue-100">
               <h2 className="text-2xl font-black text-gray-900">Safety Tips</h2>
               {(showAllTips
                 ? [
-                    "Ensure you meet the Agent in an open location.",
-                    "Always verify the Landlord's identity and ownership before making payments.",
+                    "Ensure you meet the landlord or agent in an open location.",
+                    "Always verify ownership before making any payment.",
                     "Be cautious of deals that seem too good to be true.",
-                    "Always use secure payment methods and avoid cash transactions.",
+                    "Use secure payment methods and keep your receipts.",
                   ]
-                : ["Ensure you meet the Agent in an open location."]
+                : ["Ensure you meet the landlord or agent in an open location."]
               ).map((tip, index) => (
                 <p
                   key={index}
@@ -100,82 +223,82 @@ export default function PropertyDesktopView() {
                 </p>
               ))}
               <button
+                type="button"
                 onClick={() => setShowAllTips(!showAllTips)}
                 className="text-[#4CAF50] font-semibold hover:underline"
               >
                 {showAllTips ? "Show Less Tips" : "See Full Tips"}
               </button>
             </div>
+
             <div className="pt-8 border-t border-gray-100">
-              <h3 className="text-xl font-bold mb-6">Building Amenities</h3>
+              <h3 className="text-xl font-bold mb-6">Listing Highlights</h3>
               <div className="flex flex-wrap gap-8">
-                <Amenity icon={<Zap />} label="24/7 Power" />
-                <Amenity icon={<Shield />} label="Armed Security" />
-                <Amenity icon={<Droplets />} label="Water Treatment" />
-                <Amenity icon={<Leaf />} label="Green Area" />
+                <Amenity icon={<Zap />} label={`${property.priceType} pricing`} />
+                <Amenity icon={<Shield />} label={`${property.status} listing`} />
+                <Amenity icon={<Droplets />} label="Image gallery included" />
+                <Amenity icon={<Leaf />} label="Direct rental posting" />
               </div>
             </div>
-            <div>
-              <h2 className="text-xl font-bold mb-6">Strictly "NO" Smoking</h2>
-            </div>
           </div>
+
           <div className="lg:col-span-1">
             <div className="sticky top-10 space-y-6">
               <div className="bg-white border border-gray-100 p-8 rounded-[40px] shadow-xl shadow-gray-200/50">
                 <div className="flex items-center gap-3 mb-6 bg-green-50 p-3 rounded-2xl border border-green-100">
                   <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
                   <span className="text-green-700 font-bold text-sm uppercase">
-                    Available - High Demand
+                    {property.status} listing
                   </span>
                 </div>
 
                 <div className="mb-8">
                   <p className="text-gray-400 text-sm font-medium mb-1">
-                    Annual Rent
+                    Rent
                   </p>
                   <h1 className="text-4xl font-black text-gray-900">
-                    ₦2,500,000
-                    <span className="text-lg font-normal text-gray-500">
-                      /yr
+                    N{Number(property.price).toLocaleString()}
+                    <span className="text-lg font-normal text-gray-500 capitalize">
+                      /{property.priceType}
                     </span>
                   </h1>
                 </div>
+
                 <div className="space-y-4">
                   <button
+                    type="button"
                     onClick={() => handleBook(String(property.id))}
                     disabled={isPending}
                     className="w-full bg-green-600 border-2 border-none text-white font-black py-5 rounded-[24px] hover:bg-green-700 transition-all active:scale-95 shadow-lg shadow-orange-100 uppercase mt-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isPending ? "Processing..." : "Book Inspection"}
+                    {isPending ? "Processing..." : "Book This House"}
                   </button>
                   <button
-                    onClick={() => handleBook(String(property.id))}
-                    disabled={isPending}
-                    className="w-full bg-[#FF9800] text-white font-black py-5 rounded-[24px] hover:bg-[#F57C00] transition-all active:scale-95 shadow-lg shadow-orange-100 uppercase mt-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    type="button"
+                    onClick={() => router.push("/properties")}
+                    className="w-full bg-[#FF9800] text-white font-black py-5 rounded-[24px] hover:bg-[#F57C00] transition-all active:scale-95 shadow-lg shadow-orange-100 uppercase mt-2 cursor-pointer"
                   >
-                    {isPending ? "Locking..." : "Lock This House (₦5,000)"}
+                    Back to Listings
                   </button>
                 </div>
 
                 <p className="text-center text-gray-400 text-xs mt-6">
-                  * Locking a house reserves it for 48 hours while you process
-                  your application.
+                  * Booking requires a completed account profile and a valid
+                  logged-in session.
                 </p>
               </div>
+
               <div className="bg-gray-50 p-6 rounded-[32px] flex items-center gap-4">
-                <div className="w-12 h-12 bg-gray-300 rounded-full overflow-hidden">
-                  <Image
-                    src="/Company.png"
-                    width={48}
-                    height={48}
-                    alt="Agent"
-                  />
+                <div className="w-12 h-12 bg-gray-300 rounded-full overflow-hidden flex items-center justify-center text-white font-bold">
+                  {landlordName.charAt(0) || "L"}
                 </div>
                 <div>
-                  <p className="font-bold text-gray-900">
-                    RentULO Verified Agent
+                  <p className="font-bold text-gray-900">{landlordName}</p>
+                  <p className="text-xs text-gray-500">
+                    {property.User?.Profile?.verified
+                      ? "Verified landlord profile"
+                      : "Landlord profile"}
                   </p>
-                  <p className="text-xs text-gray-500">Member since 2026</p>
                 </div>
               </div>
             </div>
@@ -187,18 +310,32 @@ export default function PropertyDesktopView() {
   );
 }
 
-function Spec({ icon, label, value }: any) {
+function Spec({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}) {
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center gap-2 text-xs text-gray-400 uppercase font-bold tracking-wider">
         {icon} {label}
       </div>
-      <p className="font-bold text-gray-900">{value}</p>
+      <p className="font-bold text-gray-900 capitalize">{value}</p>
     </div>
   );
 }
 
-function Amenity({ icon, label }: any) {
+function Amenity({
+  icon,
+  label,
+}: {
+  icon: React.ReactElement<{ size?: number }>;
+  label: string;
+}) {
   return (
     <div className="flex items-center gap-3">
       <div className="w-10 h-10 bg-[#E8F5E9] text-[#4CAF50] rounded-full flex items-center justify-center">

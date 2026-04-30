@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import { useRegister } from "../../api/features/auth/auth.queries";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
+import GoogleAuthButton from "@/app/components/auth/GoogleAuthButton";
 
 const page = () => {
   const router = useRouter();
@@ -369,17 +370,9 @@ const page = () => {
               </div>
 
               <div className="flex gap-4">
-                <button
-                  type="button"
-                  className="flex-1 flex items-center justify-center gap-2 bg-[#ECF5ED] py-3 rounded-2xl hover:bg-[#e2ede3] transition-all font-bold text-xs text-gray-700"
-                >
-                  <img
-                    src="https://www.svgrepo.com/show/475656/google-color.svg"
-                    className="w-4 h-4 cursor-pointer"
-                    alt="Google"
-                  />
-                  Google
-                </button>
+                <div className="flex-1">
+                  <GoogleAuthButton mode="signup" />
+                </div>
                 <button
                   type="button"
                   className="flex-1 flex items-center justify-center gap-2 bg-[#ECF5ED] py-3 rounded-2xl hover:bg-[#e2ede3] transition-all font-bold text-xs text-gray-700"

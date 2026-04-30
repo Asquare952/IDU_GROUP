@@ -56,6 +56,10 @@ export interface AuthResponse {
   };
 }
 
+export interface GoogleAuthPayload {
+  idToken: string;
+}
+
 // Request type for triggering the OTP email
 export interface ForgotPasswordRequest {
   email: string;
@@ -70,7 +74,7 @@ export interface ConfirmOtpRequest {
   otpCode: string;
 }
 
-export interface ResetPasswordRequest{
+export interface ResetPasswordRequest {
   email: string;
   otpCode: string;
   newPassword: string;

@@ -1,12 +1,10 @@
-"use client"
-
-import { sidebarItems, sidebarItems2 } from "./config/SidebarItems"
-import { useAuth } from "../context/AuthContext"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import rentUloLogo from "@/public/assets/IDU-LOGO-1.png"
-import Image from "next/image"
-
+"use client";
+import { sidebarItems, sidebarItems2 } from "./config/SidebarItems";
+import { useAuth } from "../context/AuthContext";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import rentUloLogo from "@/public/assets/IDU-LOGO-1.png";
+import Image from "next/image";
 
 const Sidebar = () => {
   const pathname = usePathname();
@@ -14,14 +12,15 @@ const Sidebar = () => {
 
   return (
     <aside className="hidden lg:flex lg:flex-col lg:gap-4 fixed left-0 top-0 h-screen p-3 bg-white shadow border border-[#EBECED]">
-      <div className=" flex items-center gap-1 mt-3.5">
-        <Image src={rentUloLogo} width={32.7} alt="" />
-        <h2 className=" font-bold text-[22px] text-[#000000]">
+      <div className="flex items-center gap-1 mt-3.5">
+        <Image src={rentUloLogo} width={32.7} alt="RentULO Logo" />
+        <h2 className="font-bold text-[22px] text-[#000000]">
           Rent<span className="text-[#43A047]">ULO</span>
         </h2>
       </div>
+
       <div className="flex-1 overflow-y-auto hide-scrollbar">
-        <nav className=" flex flex-col gap-6 mt-10">
+        <nav className="flex flex-col gap-6 mt-10">
           {sidebarItems.map((item) => {
             const { id, name, path, action, icon: Icon } = item;
             const isActive = !!path && pathname === path;
@@ -48,7 +47,7 @@ const Sidebar = () => {
                 key={id}
                 className={className}
               >
-                <Icon />
+                <Icon size={20} />
                 <span>{name}</span>
               </Link>
             );
@@ -78,23 +77,42 @@ const Sidebar = () => {
                 );
               }
 
+            // Handle the Logout Action specifically
+            if (action === "logout" || name === "Logout") {
               return (
                 <Link
                   href={path ?? "#"}
                   key={id}
                   className={className}
                 >
-                  <Icon />
+                  <Icon size={20} />
                   <span>{name}</span>
-                </Link>
+                </button>
               );
-            })}
-          </nav>
+            }
+
+            // Standard Link for Help/Settings
+            return (
+              <Link
+                href={(path as string) || "#"}
+                key={id}
+                className={`flex items-center gap-2 py-3 px-6 rounded-[8px] transition-all ${
+                  isActive
+                    ? "bg-[#43A047] text-white"
+                    : "hover:bg-[#43A047] hover:text-white"
+                }`}
+              >
+                <Icon size={20} />
+                <span>{name}</span>
+              </Link>
+            );
+          })}
         </div>
+
         <div style={{ height: "100px" }} />
       </div>
     </aside>
   );
-}
+};
 
-export default Sidebar
+export default Sidebar;

@@ -23,12 +23,32 @@ import {
   updateUserPayload
 } from "./types";
 import { writeCachedProfile } from "./profile-cache";
+import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import {
+  confirmOtpApi,
+  forgotPasswordApi,
+  googleAuth,
+  login,
+  register,
+  resetPasswordApi,
+} from "./auth.api";
+import type {
+  AuthResponse,
+  ConfirmOtpRequest,
+  ForgotPasswordRequest,
+  ForgotPasswordResponse,
+  GoogleAuthPayload,
+  LoginPayload,
+  RegisterPayload,
+  ResetPasswordRequest,
+} from "./types";
 
 export const useLogin = () =>
   useMutation<AuthResponse, Error, LoginPayload>({
     mutationFn: login,
+  });
 
     onSuccess: (data: any) => {
       console.log("Login response data:", data);
@@ -51,6 +71,9 @@ export const useLogin = () =>
     onError: (error: any) => {
       toast.error(error?.response?.data?.message || "Login failed");
     },
+export const useGoogleAuth = () =>
+  useMutation<AuthResponse, Error, GoogleAuthPayload>({
+    mutationFn: googleAuth,
   });
 
 export const useRegister = () =>
@@ -157,7 +180,7 @@ export const useConfirmOtp = () => {
 
   return useMutation<unknown, Error, ConfirmOtpRequest>({
     mutationFn: confirmOtpApi,
-    onSuccess: (data, variables) => {
+    onSuccess: (_, variables) => {
       toast.success("OTP Verified Successfully!");
       const params = new URLSearchParams({
         email: variables.email,
@@ -185,6 +208,9 @@ export const useResetPassword = () => {
     },
     onError: (error: any) => {
       toast.error(error?.response?.data?.message || "Failed to reset password");
+      toast.error(
+        error?.response?.data?.message || "Failed to reset password",
+      );
     },
   });
 };

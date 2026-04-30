@@ -3,6 +3,7 @@ import {
   RegisterPayload,
   LoginPayload,
   AuthResponse,
+  GoogleAuthPayload,
   ForgotPasswordRequest,
   ForgotPasswordResponse,
   ConfirmOtpRequest,
@@ -58,6 +59,10 @@ export const updateUserProfile = async (
 
 export const changePasswordApi = async (payload: ChangePasswordPayload) => {
   const response = await api.post(CHANGE_PASSWORD_ENDPOINT, payload);
+export const googleAuth = async (
+  data: GoogleAuthPayload,
+): Promise<AuthResponse> => {
+  const response = await api.post("/auth/google-auth", data);
   return response.data;
 };
 
