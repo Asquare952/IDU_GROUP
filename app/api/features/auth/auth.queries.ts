@@ -22,6 +22,7 @@ import {
   userProfile,
   updateUserPayload
 } from "./types";
+import { writeCachedProfile } from "./profile-cache";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 
@@ -38,6 +39,7 @@ export const useLogin = () =>
       Cookies.set("ACCESS_TOKEN", data.token, { expires: 1 });
       if (data.user) {
         Cookies.set("USER_PROFILE", JSON.stringify(data.user), { expires: 1 });
+        writeCachedProfile(data.user);
       }
       toast.success("Login successful");
       if (data?.role === "landlord") {
@@ -64,6 +66,7 @@ export const useRegister = () =>
 
 export const useUserProfile = (userId?: string, enabled = true) => {
   return useQuery<userProfile, Error>({
+  
     queryKey: ["user-profile", userId ?? "me"],
     queryFn: () => getUserProfile(userId as string),
     enabled: enabled && !!userId,
@@ -91,20 +94,17 @@ export const useUpdateUserProfile = (userId?: string) => {
       } as userProfile;
 
       queryClient.setQueryData(queryKey, mergedProfile);
-      queryClient.invalidateQueries({ queryKey });
 
       const storedProfile = Cookies.get("USER_PROFILE");
       const parsedStoredProfile = storedProfile ? JSON.parse(storedProfile) : {};
+      const nextProfile = {
+        ...parsedStoredProfile,
+        ...(hasProfileShape ? data : {}),
+        ...variables,
+      };
 
-      Cookies.set(
-        "USER_PROFILE",
-        JSON.stringify({
-          ...parsedStoredProfile,
-          ...(hasProfileShape ? data : {}),
-          ...variables,
-        }),
-        { expires: 1 },
-      );
+      Cookies.set("USER_PROFILE", JSON.stringify(nextProfile), { expires: 1 });
+      writeCachedProfile(nextProfile);
 
       toast.success("Profile updated successfully");
     },

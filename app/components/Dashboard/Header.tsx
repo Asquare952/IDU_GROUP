@@ -11,6 +11,7 @@ import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { useUserProfile } from "@/app/api/features/auth/auth.queries";
 import { AuthResponse } from "@/app/api/features/auth/types";
+import Link from "next/link";
 
 
 interface HeaderProp {
@@ -181,7 +182,7 @@ const Header: FC<HeaderProp> = ({ onMenuClick }) => {
             {isLoading && !displayUser ? (
               <p>Loading...</p>
             ) : displayUser ? (
-              <div className="flex items-center gap-1.5 cursor-pointer">
+              <Link href="/landlord/profile" className="flex items-center gap-1.5 cursor-pointer">
                 {displayProfileImage ? (
                   <img
                     src={displayProfileImage}
@@ -202,7 +203,7 @@ const Header: FC<HeaderProp> = ({ onMenuClick }) => {
                     {displayEmail}
                   </p>
                 </div>
-              </div>
+              </Link>
             ) : (
               <div className="flex items-center gap-1.5 cursor-pointer">
                 <Image src={AdminProfileImg} alt="" width={50} height={50} />

@@ -7,6 +7,7 @@ import Image from "next/image";
 import { Menu, Search, X } from "lucide-react";
 import { useUserProfile } from "@/app/api/features/auth/auth.queries";
 import { AuthResponse } from "@/app/api/features/auth/types";
+import { readCachedProfile } from "@/app/api/features/auth/profile-cache";
 import DesktopSearch from "./UI/search/DesktopSearch";
 import NotificationBell from "./UI/NotificationBell";
 
@@ -36,15 +37,7 @@ const Header: FC<HeaderProps> = ({ onMenuClick }) => {
 
   useEffect(() => {
     const token = Cookies.get("ACCESS_TOKEN");
-    const storedProfile = Cookies.get("USER_PROFILE");
-
-    if (storedProfile) {
-      try {
-        setCachedProfile(JSON.parse(storedProfile) as HeaderUser);
-      } catch {
-        setCachedProfile(undefined);
-      }
-    }
+    setCachedProfile(readCachedProfile() as HeaderUser | undefined);
 
     if (!token) {
       setHasCheckedAuth(true);
@@ -68,13 +61,17 @@ const Header: FC<HeaderProps> = ({ onMenuClick }) => {
   }, []);
 
   const { data: user, isLoading } = useUserProfile(userId, hasCheckedAuth);
-  const displayUser = user ?? cachedProfile;
+  const displayUser = {
+    ...user,
+    ...cachedProfile,
+  };
   const displayFirstName =
-    user?.first_name ?? cachedProfile?.first_name ?? decodedProfile.first_name ?? "";
+    cachedProfile?.first_name ?? user?.first_name ?? decodedProfile.first_name ?? "";
   const displayLastName =
-    user?.last_name ?? cachedProfile?.last_name ?? decodedProfile.last_name ?? "";
+    cachedProfile?.last_name ?? user?.last_name ?? decodedProfile.last_name ?? "";
   const displayEmail =
-    user?.email ?? cachedProfile?.email ?? decodedProfile.email ?? "";
+    cachedProfile?.email ?? user?.email ?? decodedProfile.email ?? "";
+  const displayProfileImage = cachedProfile?.profileImage ?? user?.profileImage;
   const initials =
     `${displayFirstName[0] ?? ""}${displayLastName[0] ?? ""}`.trim() ||
     "U";
@@ -136,9 +133,9 @@ const Header: FC<HeaderProps> = ({ onMenuClick }) => {
                 <p className="text-sm text-[#999EA5]">Loading...</p>
               ) : displayUser ? (
                 <div className="flex items-center gap-1.5 cursor-pointer">
-                  {displayUser.profileImage ? (
+                  {displayProfileImage ? (
                     <Image
-                      src={displayUser.profileImage}
+                      src={displayProfileImage}
                       alt="User profile"
                       width={44}
                       height={44}
@@ -164,10 +161,10 @@ const Header: FC<HeaderProps> = ({ onMenuClick }) => {
           {isLoading && !displayUser ? (
             <p>Loading...</p>
           ) : displayUser ? (
-            <div className="flex items-center gap-1.5 cursor-pointer">
-              {displayUser.profileImage ? (
+            <a href="/tenant/dashboard/profile" className="flex items-center gap-1.5 cursor-pointer">
+              {displayProfileImage ? (
                 <Image
-                  src={displayUser.profileImage}
+                  src={displayProfileImage}
                   alt="User profile"
                   width={50}
                   height={50}
@@ -187,7 +184,7 @@ const Header: FC<HeaderProps> = ({ onMenuClick }) => {
                   {displayEmail}
                 </p>
               </div>
-            </div>
+            </a>
           ) : null}
         </div>
       </div>

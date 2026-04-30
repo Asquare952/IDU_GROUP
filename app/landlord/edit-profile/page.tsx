@@ -1,4 +1,5 @@
-'use client';
+"use client"
+
 
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -6,14 +7,13 @@ import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { MoveLeft, Upload } from "lucide-react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import DashboardLayout from "@/app/components/Tenant-Dashboard/DashboardLayout";
+import DashboardLayout from "@/app/components/Dashboard/DashboardLayout";
 import {
   useChangePassword,
   useUpdateUserProfile,
   useUserProfile,
 } from "@/app/api/features/auth/auth.queries";
 import { AuthResponse, updateUserPayload } from "@/app/api/features/auth/types";
-import { readCachedProfile } from "@/app/api/features/auth/profile-cache";
 import { toast } from "react-toastify";
 
 type DecodedToken = {
@@ -125,7 +125,7 @@ const compressImage = async (file: File) => {
   return output;
 };
 
-const Page = () => {
+const page = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | undefined>(undefined);
@@ -175,7 +175,16 @@ const Page = () => {
       setHasCheckedAuth(true);
     }
 
-    setCachedProfile(readCachedProfile() as CachedUserProfile | undefined);
+    const savedProfile = Cookies.get("USER_PROFILE");
+    if (!savedProfile) {
+      return;
+    }
+
+    try {
+      setCachedProfile(JSON.parse(savedProfile) as CachedUserProfile);
+    } catch {
+      setCachedProfile(undefined);
+    }
   }, []);
 
   const { data: profile, isLoading: isProfileLoading } = useUserProfile(
@@ -188,41 +197,46 @@ const Page = () => {
     useChangePassword();
 
   useEffect(() => {
-    const mergedProfile = {
-      ...profile,
-      ...cachedProfile,
-    };
-
-    if (!profile && !cachedProfile) {
+    if (!profile) {
       reset({
         ...defaultValues,
-        first_name: decodedProfile.first_name ?? "",
-        last_name: decodedProfile.last_name ?? "",
-        phone_no: decodedProfile.phone_no ?? "",
-        email: decodedProfile.email ?? "",
-        address: decodedProfile.address ?? "",
-        state: decodedProfile.state ?? "",
-        bio: "",
-        profileImage: "",
+        first_name: cachedProfile?.first_name ?? decodedProfile.first_name ?? "",
+        last_name: cachedProfile?.last_name ?? decodedProfile.last_name ?? "",
+        phone_no: cachedProfile?.phone_no ?? decodedProfile.phone_no ?? "",
+        email: cachedProfile?.email ?? decodedProfile.email ?? "",
+        address: cachedProfile?.address ?? decodedProfile.address ?? "",
+        state: cachedProfile?.state ?? decodedProfile.state ?? "",
+        bio: cachedProfile?.bio ?? "",
+        profileImage: cachedProfile?.profileImage ?? "",
       });
 
-      setPreview(null);
+      setPreview(cachedProfile?.profileImage ?? null);
       return;
     }
 
     reset({
       ...defaultValues,
-      first_name: mergedProfile.first_name ?? decodedProfile.first_name ?? "",
-      last_name: mergedProfile.last_name ?? decodedProfile.last_name ?? "",
-      phone_no: mergedProfile.phone_no ?? decodedProfile.phone_no ?? "",
-      email: mergedProfile.email ?? decodedProfile.email ?? "",
-      address: mergedProfile.address ?? decodedProfile.address ?? "",
-      state: mergedProfile.state ?? decodedProfile.state ?? "",
-      bio: mergedProfile.bio ?? "",
-      profileImage: mergedProfile.profileImage ?? "",
+      first_name:
+        profile.first_name ??
+        cachedProfile?.first_name ??
+        decodedProfile.first_name ??
+        "",
+      last_name:
+        profile.last_name ??
+        cachedProfile?.last_name ??
+        decodedProfile.last_name ??
+        "",
+      phone_no:
+        profile.phone_no ?? cachedProfile?.phone_no ?? decodedProfile.phone_no ?? "",
+      email: profile.email ?? cachedProfile?.email ?? decodedProfile.email ?? "",
+      address:
+        profile.address ?? cachedProfile?.address ?? decodedProfile.address ?? "",
+      state: profile.state ?? cachedProfile?.state ?? decodedProfile.state ?? "",
+      bio: profile.bio ?? cachedProfile?.bio ?? "",
+      profileImage: profile.profileImage ?? cachedProfile?.profileImage ?? "",
     });
 
-    setPreview(mergedProfile.profileImage ?? null);
+    setPreview(profile.profileImage ?? cachedProfile?.profileImage ?? null);
   }, [cachedProfile, decodedProfile, profile, reset]);
 
   const handleButtonClick = () => {
@@ -305,16 +319,6 @@ const Page = () => {
     try {
       if (shouldUpdateProfile) {
         await updateProfile(payload);
-        setCachedProfile((current) =>
-          current
-            ? {
-                ...current,
-                bio,
-                profileImage,
-              }
-            : current,
-        );
-        setPreview(profileImage || null);
       }
 
       if (shouldChangePassword) {
@@ -342,6 +346,7 @@ const Page = () => {
   const imageSrc = preview || null;
   const isBusy =
     isProfileLoading || isUpdating || isChangingPassword || isSubmitting;
+
 
   return (
     <DashboardLayout>
@@ -591,7 +596,8 @@ const Page = () => {
         </div>
       </section>
     </DashboardLayout>
-  );
-};
 
-export default Page;
+  )
+}
+
+export default page

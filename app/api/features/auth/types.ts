@@ -25,6 +25,7 @@ export interface userProfile {
   state?: string;
   bio?: string;
   profileImage?: string;
+  createdAt?: string;
 }
 export interface updateUserPayload {
   bio?: string;
@@ -51,6 +52,7 @@ export interface AuthResponse {
     state?: string;
     bio?: string;
     profileImage?: string;
+    createdAt?: string;
   };
 }
 
