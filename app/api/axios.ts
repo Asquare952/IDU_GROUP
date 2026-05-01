@@ -21,28 +21,31 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
+    // Remove Content-Type for FormData (let browser set boundary)
     if (
       typeof FormData !== "undefined" &&
       config.data instanceof FormData &&
       config.headers
     ) {
-      const headers = config.headers as Record<string, unknown> & {
-        common?: Record<string, unknown>;
-      };
-
-      delete headers["Content-Type"];
-      delete headers["content-type"];
-
-      if (headers.common) {
-        delete headers.common["Content-Type"];
-        delete headers.common["content-type"];
-      }
+      delete config.headers["Content-Type"];
     }
 
     return config;
   },
   (error: AxiosError) => Promise.reject(error),
 );
+
+// ==============================
+// PUBLIC PATHS (no redirect on 401)
+// ==============================
+const PUBLIC_PATHS = [
+  "/",
+  "/properties",
+  "/about",
+  "/contact",
+  "/login",
+  "/signup",
+];
 
 // ==============================
 // RESPONSE INTERCEPTOR
@@ -57,14 +60,22 @@ api.interceptors.response.use(
     const responseData = error.response?.data as
       | { needsProfileCompletion?: boolean }
       | undefined;
+    const currentPath =
+      typeof window !== "undefined" ? window.location.pathname : "";
 
-    // 401 — Unauthorized (token expired/invalid)
+    // 401 — Unauthorized
     if (status === 401) {
       Cookies.remove("ACCESS_TOKEN");
 
+      // DON'T redirect if on public pages
+      const isPublicPage =
+        PUBLIC_PATHS.includes(currentPath) ||
+        currentPath.startsWith("/properties/");
+
       if (
         !requestConfig?.skipAuthRedirect &&
-        window.location.pathname !== "/login"
+        !isPublicPage &&
+        currentPath !== "/login"
       ) {
         window.location.href = "/login";
       }
@@ -72,7 +83,6 @@ api.interceptors.response.use(
 
     // 403 — Profile Completion Required
     if (status === 403 && responseData?.needsProfileCompletion === true) {
-      const currentPath = window.location.pathname;
       if (currentPath !== "/profile/complete") {
         sessionStorage.setItem("redirectAfterProfile", currentPath);
         window.location.href = "/profile/complete";
@@ -82,7 +92,5 @@ api.interceptors.response.use(
     return Promise.reject(error);
   },
 );
-
-
 
 export default api;

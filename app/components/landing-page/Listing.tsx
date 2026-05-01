@@ -5,25 +5,31 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { HiOutlineHeart } from "react-icons/hi";
+import { Lock } from "lucide-react";
+import Cookies from "js-cookie";
 import { rentalApi, Rental } from "@/app/api/features/rental";
 import { containerVariants, itemVariants } from "@/app/components/animation";
 
 const Listing = () => {
   const [rentals, setRentals] = useState<Rental[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
+    const token = Cookies.get("ACCESS_TOKEN");
+    setIsLoggedIn(!!token);
+
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
     const fetchRentals = async () => {
       try {
-        const data = await rentalApi.getAllRentals({ skipAuthRedirect: true });
+        const data = await rentalApi.getAllRentals();
         setRentals(data);
       } catch (err: any) {
         console.error("Failed to fetch rentals:", err);
-        setError(
-          err.response?.data?.message ||
-            "Failed to load listings. Please try again.",
-        );
       } finally {
         setLoading(false);
       }
@@ -40,14 +46,6 @@ const Listing = () => {
     );
   }
 
-  if (error) {
-    return (
-      <div className="flex justify-center items-center h-64 text-red-500">
-        {error}
-      </div>
-    );
-  }
-
   return (
     <div id="listing">
       <div className="mb-20 mx-auto max-w-360 px-4 sm:px-6 lg:px-8 py-12">
@@ -59,14 +57,34 @@ const Listing = () => {
             Simple. Transparent. Stress-free
           </h2>
           <p className="text-gray-500 max-w-2xl mx-auto text-lg">
-            Explore top-rated rentals and properties from trusted landlords in
-            your area
+            {isLoggedIn
+              ? "Explore top-rated rentals and properties from trusted landlords in your area"
+              : "Log in to explore top-rated rentals and properties from trusted landlords"}
           </p>
         </div>
 
+        {!isLoggedIn && (
+          <div className="text-center py-8 mb-8">
+            <p className="text-gray-400 mb-4">
+              Sign in to view available listings
+            </p>
+            <Link href="/login">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-[#34A853] text-white font-semibold py-3 px-8 rounded-full shadow-lg"
+              >
+                Log In to Browse
+              </motion.button>
+            </Link>
+          </div>
+        )}
+
         {rentals.length === 0 ? (
           <div className="text-center py-12 text-gray-400">
-            <p>No listings available</p>
+            <p>
+              {isLoggedIn ? "No listings available" : "Log in to see listings"}
+            </p>
           </div>
         ) : (
           <motion.div
@@ -86,8 +104,14 @@ const Listing = () => {
               >
                 <div className="relative h-64 w-full overflow-hidden group">
                   <Link
-                    href={`/properties/${item.id}`}
+                    href={isLoggedIn ? `/properties/${item.id}` : "#"}
                     className="block h-full w-full"
+                    onClick={(e) => {
+                      if (!isLoggedIn) {
+                        e.preventDefault();
+                        alert("Please log in to view property details");
+                      }
+                    }}
                   >
                     {item.images && item.images.length > 0 ? (
                       <Image
@@ -124,15 +148,30 @@ const Listing = () => {
                         {item.title}
                       </h3>
                     </div>
-                    <Link href={`/properties/${item.id}`}>
+
+                    {isLoggedIn ? (
+                      <Link href={`/properties/${item.id}`}>
+                        <motion.button
+                          whileTap={{ scale: 0.95 }}
+                          whileHover={{ scale: 1.05 }}
+                          className="bg-[#E8F5E9] text-[#43A047] text-xs font-bold px-4 py-1.5 rounded-full cursor-pointer"
+                        >
+                          View
+                        </motion.button>
+                      </Link>
+                    ) : (
                       <motion.button
                         whileTap={{ scale: 0.95 }}
                         whileHover={{ scale: 1.05 }}
-                        className="bg-[#E8F5E9] text-[#43A047] text-xs font-bold px-4 py-1.5 rounded-full cursor-pointer"
+                        className="bg-gray-100 text-gray-400 text-xs font-bold px-4 py-1.5 rounded-full cursor-not-allowed flex items-center gap-1"
+                        onClick={() =>
+                          alert("Please log in to view property details")
+                        }
                       >
+                        <Lock size={12} />
                         View
                       </motion.button>
-                    </Link>
+                    )}
                   </div>
 
                   <p className="text-gray-400 text-sm mb-4 leading-relaxed">

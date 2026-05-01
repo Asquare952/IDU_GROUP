@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 import {
   login,
   register,
@@ -9,6 +11,7 @@ import {
   changePasswordApi,
   getUserProfile,
   updateUserProfile,
+  googleAuth,
 } from "./auth.api";
 import {
   AuthResponse,
@@ -19,37 +22,18 @@ import {
   RegisterPayload,
   ResetPasswordRequest,
   ChangePasswordPayload,
+  GoogleAuthPayload,
   userProfile,
-  updateUserPayload
+  updateUserPayload,
 } from "./types";
 import { writeCachedProfile } from "./profile-cache";
-import { useMutation } from "@tanstack/react-query";
-import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
-import {
-  confirmOtpApi,
-  forgotPasswordApi,
-  googleAuth,
-  login,
-  register,
-  resetPasswordApi,
-} from "./auth.api";
-import type {
-  AuthResponse,
-  ConfirmOtpRequest,
-  ForgotPasswordRequest,
-  ForgotPasswordResponse,
-  GoogleAuthPayload,
-  LoginPayload,
-  RegisterPayload,
-  ResetPasswordRequest,
-} from "./types";
 
+// ==============================
+// LOGIN
+// ==============================
 export const useLogin = () =>
   useMutation<AuthResponse, Error, LoginPayload>({
     mutationFn: login,
-  });
-
     onSuccess: (data: any) => {
       console.log("Login response data:", data);
       if (!data || !data.role) {
@@ -71,11 +55,19 @@ export const useLogin = () =>
     onError: (error: any) => {
       toast.error(error?.response?.data?.message || "Login failed");
     },
+  });
+
+// ==============================
+// GOOGLE AUTH
+// ==============================
 export const useGoogleAuth = () =>
   useMutation<AuthResponse, Error, GoogleAuthPayload>({
     mutationFn: googleAuth,
   });
 
+// ==============================
+// REGISTER
+// ==============================
 export const useRegister = () =>
   useMutation<unknown, Error, RegisterPayload>({
     mutationFn: register,
@@ -87,9 +79,11 @@ export const useRegister = () =>
     },
   });
 
+// ==============================
+// USER PROFILE
+// ==============================
 export const useUserProfile = (userId?: string, enabled = true) => {
   return useQuery<userProfile, Error>({
-  
     queryKey: ["user-profile", userId ?? "me"],
     queryFn: () => getUserProfile(userId as string),
     enabled: enabled && !!userId,
@@ -103,7 +97,8 @@ export const useUpdateUserProfile = (userId?: string) => {
     mutationFn: (payload) => updateUserProfile(payload, userId as string),
     onSuccess: (data: any, variables) => {
       const queryKey = ["user-profile", userId ?? "me"];
-      const existingProfile = queryClient.getQueryData<Partial<userProfile>>(queryKey);
+      const existingProfile =
+        queryClient.getQueryData<Partial<userProfile>>(queryKey);
       const hasProfileShape =
         !!data &&
         (typeof data?.id === "string" ||
@@ -119,7 +114,9 @@ export const useUpdateUserProfile = (userId?: string) => {
       queryClient.setQueryData(queryKey, mergedProfile);
 
       const storedProfile = Cookies.get("USER_PROFILE");
-      const parsedStoredProfile = storedProfile ? JSON.parse(storedProfile) : {};
+      const parsedStoredProfile = storedProfile
+        ? JSON.parse(storedProfile)
+        : {};
       const nextProfile = {
         ...parsedStoredProfile,
         ...(hasProfileShape ? data : {}),
@@ -133,17 +130,20 @@ export const useUpdateUserProfile = (userId?: string) => {
     },
     onError: (error: any) => {
       if (error?.response?.status === 404) {
-        toast.error("Profile update endpoint not found. Check the backend route.");
+        toast.error(
+          "Profile update endpoint not found. Check the backend route.",
+        );
         return;
       }
 
-      toast.error(
-        error?.response?.data?.message || "Failed to update profile",
-      );
+      toast.error(error?.response?.data?.message || "Failed to update profile");
     },
   });
 };
 
+// ==============================
+// CHANGE PASSWORD
+// ==============================
 export const useChangePassword = () => {
   return useMutation<unknown, Error, ChangePasswordPayload>({
     mutationFn: changePasswordApi,
@@ -158,6 +158,9 @@ export const useChangePassword = () => {
   });
 };
 
+// ==============================
+// FORGOT PASSWORD
+// ==============================
 export const useForgotPassword = () => {
   const router = useRouter();
 
@@ -175,6 +178,9 @@ export const useForgotPassword = () => {
   });
 };
 
+// ==============================
+// CONFIRM OTP
+// ==============================
 export const useConfirmOtp = () => {
   const router = useRouter();
 
@@ -197,6 +203,9 @@ export const useConfirmOtp = () => {
   });
 };
 
+// ==============================
+// RESET PASSWORD
+// ==============================
 export const useResetPassword = () => {
   const router = useRouter();
 
@@ -208,9 +217,6 @@ export const useResetPassword = () => {
     },
     onError: (error: any) => {
       toast.error(error?.response?.data?.message || "Failed to reset password");
-      toast.error(
-        error?.response?.data?.message || "Failed to reset password",
-      );
     },
   });
 };

@@ -23,15 +23,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setMounted(true);
   }, []);
 
-  const login = (token: string, role: string, remember?: boolean) => {
-    Cookies.set("ACCESS_TOKEN", token, {
-      expires: remember ? 7 : 1,
-    });
+ const login = (token: string, role: string, remember?: boolean) => {
+   Cookies.set("ACCESS_TOKEN", token, {
+     expires: remember ? 7 : 1,
+     secure: window.location.protocol === "https:",
+     sameSite: "strict",
+     path: "/",
+   });
 
-    Cookies.set("USER_ROLE", role);
+   Cookies.set("USER_ROLE", role, {
+     expires: remember ? 7 : 1,
+     path: "/",
+   });
 
-    setIsLoggedIn(true);
-  };
+   setIsLoggedIn(true);
+ };
   const logout = () => {
     Cookies.remove("ACCESS_TOKEN");
     Cookies.remove("USER_ROLE");
