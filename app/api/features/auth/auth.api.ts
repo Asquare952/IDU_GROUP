@@ -59,6 +59,9 @@ export const updateUserProfile = async (
 
 export const changePasswordApi = async (payload: ChangePasswordPayload) => {
   const response = await api.post(CHANGE_PASSWORD_ENDPOINT, payload);
+  return response.data; // <-- ADD THIS LINE
+}; // <-- ADD THIS CLOSING BRACE
+
 export const googleAuth = async (
   data: GoogleAuthPayload,
 ): Promise<AuthResponse> => {
