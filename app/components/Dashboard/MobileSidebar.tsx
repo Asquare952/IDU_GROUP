@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import { sidebarItems, sidebarItems2 } from "./config/SidebarItems"
-import { useAuth } from "../context/AuthContext"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import rentUloLogo from "@/public/assets/IDU-LOGO-1.png"
-import Image from "next/image"
-import { X } from "lucide-react"
+import { sidebarItems, sidebarItems2 } from "./config/SidebarItems";
+import { useAuth } from "../context/AuthContext";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import rentUloLogo from "@/public/assets/IDU-LOGO-1.png";
+import Image from "next/image";
+import { X } from "lucide-react";
 
 interface MobileSidebarProps {
   isOpen: boolean;
@@ -33,7 +33,7 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
           <div className="flex items-center gap-1">
             <Image src={rentUloLogo} width={32.7} alt="" />
             <h2 className="text-[22px] font-semibold text-[#000000]">
-              RENT<span className="text-[#43A047]">ULO</span>
+              Rent<span className="text-[#43A047]">ULO</span>
             </h2>
           </div>
 
@@ -51,7 +51,7 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
           <nav className="mt-10 flex flex-col gap-6">
             {sidebarItems.map((item) => {
               const { id, name, path, icon: Icon } = item;
-              const isActive = !!path && pathname === path
+              const isActive = !!path && pathname === path;
 
               return (
                 <Link
@@ -63,7 +63,7 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
                   <Icon />
                   <span>{name}</span>
                 </Link>
-              )
+              );
             })}
           </nav>
 
@@ -72,9 +72,10 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
               <h1>Others</h1>
               {sidebarItems2.map((item) => {
                 const { id, name, path, action, icon: Icon } = item;
-                const isActive = !!path && pathname === path
-                const className = `flex items-center gap-2 rounded-[8px] py-3 px-6 ${isActive ? "bg-[#43A047] text-white" : "hover:bg-[#43A047] hover:text-white"}`
-                const logoutClassName = "flex items-center gap-2 rounded-[8px] py-3 px-6 text-[#DC2626]"
+                const isActive = !!path && pathname === path;
+                const className = `flex items-center gap-2 rounded-[8px] py-3 px-6 ${isActive ? "bg-[#43A047] text-white" : "hover:bg-[#43A047] hover:text-white"}`;
+                const logoutClassName =
+                  "flex items-center gap-2 rounded-[8px] py-3 px-6 text-[#DC2626]";
 
                 if (action === "logout") {
                   return (
@@ -90,7 +91,7 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
                       <Icon />
                       <span>{name}</span>
                     </button>
-                  )
+                  );
                 }
 
                 return (
@@ -103,14 +104,14 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
                     <Icon />
                     <span>{name}</span>
                   </Link>
-                )
+                );
               })}
             </nav>
           </div>
         </div>
       </aside>
     </div>
-  )
-}
+  );
+};
 
-export default MobileSidebar
+export default MobileSidebar;

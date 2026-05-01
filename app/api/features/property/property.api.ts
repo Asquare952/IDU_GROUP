@@ -25,7 +25,10 @@ const normalizeLandlordListedProperties = (
 };
 
 export const fetchProperties = async (): Promise<Properties> => {
-  const response = await axiosInstance.get(RENTAL_ALL_ENDPOINT, getAuthHeaders());
+  const response = await axiosInstance.get(
+    RENTAL_ALL_ENDPOINT,
+    getAuthHeaders(),
+  );
   return response.data;
 };
 
@@ -37,7 +40,7 @@ export const fetchLandlordListedProperties =
     );
 
     return normalizeLandlordListedProperties(response.data);
-};
+  };
 
 export const bookProperty = async (rentalId: string) => {
   const response = await axiosInstance.post(
@@ -45,9 +48,5 @@ export const bookProperty = async (rentalId: string) => {
     { rental_id: rentalId },
     getAuthHeaders(),
   );
-import api from "../../axios";
-
-export const bookProperty = async (rentalId: string) => {
-  const response = await api.post("/progress/book", { rental_id: rentalId });
   return response.data;
 };

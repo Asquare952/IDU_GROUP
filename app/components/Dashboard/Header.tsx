@@ -12,12 +12,7 @@ import { jwtDecode } from "jwt-decode";
 import { useUserProfile } from "@/app/api/features/auth/auth.queries";
 import { AuthResponse } from "@/app/api/features/auth/types";
 import Link from "next/link";
-
-const Header = () => {
-  const pathname = usePathname();
-  const notificationPath = pathname.includes("/tenant")
-    ? "/tenant/notifications"
-    : "/landlord/notifications";
+import { usePathname } from "next/navigation";
 
 interface HeaderProp {
   onMenuClick: () => void;
@@ -36,6 +31,11 @@ type DecodedToken = {
 };
 
 const Header: FC<HeaderProp> = ({ onMenuClick }) => {
+  const pathname = usePathname();
+  const notificationPath = pathname.includes("/tenant")
+    ? "/tenant/notifications"
+    : "/landlord/notifications";
+
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [mobileSearchValue, setMobileSearchValue] = useState("");
   const [userId, setUserId] = useState<string>();
@@ -79,9 +79,15 @@ const Header: FC<HeaderProp> = ({ onMenuClick }) => {
   const { data: user, isLoading } = useUserProfile(userId, hasCheckedAuth);
   const displayUser = user ?? cachedProfile;
   const displayFirstName =
-    user?.first_name ?? cachedProfile?.first_name ?? decodedProfile.first_name ?? "";
+    user?.first_name ??
+    cachedProfile?.first_name ??
+    decodedProfile.first_name ??
+    "";
   const displayLastName =
-    user?.last_name ?? cachedProfile?.last_name ?? decodedProfile.last_name ?? "";
+    user?.last_name ??
+    cachedProfile?.last_name ??
+    decodedProfile.last_name ??
+    "";
   const displayEmail =
     user?.email ?? cachedProfile?.email ?? decodedProfile.email ?? "";
   const displayProfileImage = user?.profileImage ?? cachedProfile?.profileImage;
@@ -182,13 +188,16 @@ const Header: FC<HeaderProp> = ({ onMenuClick }) => {
           <DesktopSearch />
 
           <div className="flex items-center gap-1">
-            <NotificationMenu notificationPath={notificationPath} />
+            <NotificationBell />
 
             <Chats />
             {isLoading && !displayUser ? (
               <p>Loading...</p>
             ) : displayUser ? (
-              <Link href="/landlord/profile" className="flex items-center gap-1.5 cursor-pointer">
+              <Link
+                href="/landlord/profile"
+                className="flex items-center gap-1.5 cursor-pointer"
+              >
                 {displayProfileImage ? (
                   <img
                     src={displayProfileImage}
@@ -226,7 +235,6 @@ const Header: FC<HeaderProp> = ({ onMenuClick }) => {
           </div>
         </div>
       </div>
-
     </header>
   );
 };
