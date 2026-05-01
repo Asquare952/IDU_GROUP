@@ -18,14 +18,14 @@ const Sidebar = () => {
           Rent<span className="text-[#43A047]">ULO</span>
         </h2>
       </div>
-
       <div className="flex-1 overflow-y-auto hide-scrollbar">
         <nav className="flex flex-col gap-6 mt-10">
           {sidebarItems.map((item) => {
             const { id, name, path, action, icon: Icon } = item;
             const isActive = !!path && pathname === path;
             const className = `flex items-center gap-2 py-3 px-6 rounded-[8px] ${isActive ? "bg-[#43A047] text-white" : " hover:bg-[#43A047] hover:text-white"}`;
-            const logoutClassName = "flex items-center gap-2 py-3 px-6 rounded-[8px] text-[#DC2626]";
+            const logoutClassName =
+              "flex items-center gap-2 py-3 px-6 rounded-[8px] text-[#DC2626]";
 
             if (action === "logout") {
               return (
@@ -42,18 +42,13 @@ const Sidebar = () => {
             }
 
             return (
-              <Link
-                href={path ?? "#"}
-                key={id}
-                className={className}
-              >
+              <Link href={path ?? "#"} key={id} className={className}>
                 <Icon size={20} />
                 <span>{name}</span>
               </Link>
             );
           })}
         </nav>
-
         <div className="">
           <nav className=" flex flex-col gap-2 mt-10">
             <h1>Others</h1>
@@ -61,7 +56,8 @@ const Sidebar = () => {
               const { id, name, path, action, icon: Icon } = item;
               const isActive = !!path && pathname === path;
               const className = `flex items-center gap-2 py-3 px-6 rounded-[8px] ${isActive ? "bg-[#43A047] text-white" : " hover:bg-[#43A047] hover:text-white"}`;
-              const logoutClassName = "flex items-center gap-2 py-3 px-6 rounded-[8px] text-[#DC2626]";
+              const logoutClassName =
+                "flex items-center gap-2 py-3 px-6 rounded-[8px] text-[#DC2626]";
 
               if (action === "logout") {
                 return (
@@ -76,37 +72,22 @@ const Sidebar = () => {
                   </button>
                 );
               }
-
-            // Handle the Logout Action specifically
-            if (action === "logout" || name === "Logout") {
               return (
                 <Link
-                  href={path ?? "#"}
+                  href={(path as string) || "#"}
                   key={id}
-                  className={className}
+                  className={`flex items-center gap-2 py-3 px-6 rounded-[8px] transition-all ${
+                    isActive
+                      ? "bg-[#43A047] text-white"
+                      : "hover:bg-[#43A047] hover:text-white"
+                  }`}
                 >
                   <Icon size={20} />
                   <span>{name}</span>
-                </button>
+                </Link>
               );
-            }
-
-            // Standard Link for Help/Settings
-            return (
-              <Link
-                href={(path as string) || "#"}
-                key={id}
-                className={`flex items-center gap-2 py-3 px-6 rounded-[8px] transition-all ${
-                  isActive
-                    ? "bg-[#43A047] text-white"
-                    : "hover:bg-[#43A047] hover:text-white"
-                }`}
-              >
-                <Icon size={20} />
-                <span>{name}</span>
-              </Link>
-            );
-          })}
+            })}
+          </nav>
         </div>
 
         <div style={{ height: "100px" }} />
