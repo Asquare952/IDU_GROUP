@@ -4,20 +4,20 @@ export const heroData = {
   description:
     "Born from the frustration of endless agency fees and fake listings, RentULO is redefining what it means to find a home in Nigeria.",
   primaryCta: "Join the Waitlist",
-  secondaryCta: "Watch Our Story",
-  image: "/founder-hero.jpg",
+  secondaryCta: "Read Our Story",
+  image: "/about-hero.jpeg",
   imageAlt: "RentULO Founder",
 };
 
 export const storyData = {
   title: "Genesis: The Story",
   paragraphs: [
-    'In 2021, our founder spent four months searching for a safe apartment in Lagos. He faced "inspection fees" for houses that didn\'t exist, "legal fees" for documents that were never signed, and the constant fear of being defrauded.',
+    'In 2025, our founder spent four months searching for a safe apartment in Lagos. He faced "inspection fees" for houses that didn\'t exist, "legal fees" for documents that were never signed, and the constant fear of being defrauded.',
     'The breaking point came when a veteran agent told him: "If we make it too easy for you to find a house, you won\'t value the hustle."',
   ],
   quote: {
     text: "You want to reduce the food on our table by bringing technology into this business.",
-    source: "A Lagos Estate Agent, 2022",
+    source: "A Lagos Estate Agent, 2026",
   },
   closing:
     "That resistance became our fuel. We realized that the rental market wasn't just broken; it was designed to be painful. We decided to build the antidote.",
@@ -103,14 +103,14 @@ export const teamData = {
   quote:
     "There are thousands of good realtors in Nigeria, but they are drowned out by the millions of bad actors. We are building the stage for the good ones to shine.",
   members: [
-    { name: "David Ugochukwu.", role: "CEO & Frontend Engineer", image: "/team-tunde.jpg" },
-    { name: "Peter Abahim.", role: "CTO & Lead Backend Engineer", image: "/team-amaka.jpg" },
-    { name: "AbdulAfeez O.", role: "Lead Frontend Engineer", image: "/team-bolu.jpg" },
-    { name: "Promise Obi.", role: "Backend Engineer", image: "/team-fatima.jpg" },
-    { name: "Rosheedah M.", role: "Head of Product Design", image: "/team-fatima.jpg" },
-    { name: "Prosper Okere.", role: "UI/UX Designer", image: "/team-fatima.jpg" },
-    { name: "Thomas Feranmi.", role: "Backend Engineer", image: "/team-fatima.jpg" },
-    { name: "Ifeanyichukwu O.", role: "Field Researcher", image: "/team-fatima.jpg" },
+    { name: "David Ugochukwu.", role: "CEO & Frontend Engineer", image: "/peter.jpeg" },
+    { name: "Peter Abahim.", role: "CTO & Lead Backend Engineer", image: "/Ik.jpeg" },
+    { name: "AbdulAfeez O.", role: "Lead Frontend Engineer", image: "/afeez.jpeg" },
+    { name: "Promise Obi.", role: "Backend Engineer", image: "/promise.jpeg" },
+    { name: "Rosheedah M.", role: "Head of Product Design", image: "/rosh.jpeg" },
+    { name: "Prosper Okere.", role: "UI/UX Designer", image: "/prosper.jpeg" },
+    { name: "Thomas Feranmi.", role: "Backend Engineer", image: "/Thomas.jpeg" },
+    { name: "Ifeanyichukwu O.", role: "Field Researcher", image: "/ifeanyi.jpeg" },
   ],
   message: {
     good: "To the good realtors: stand with us.",
@@ -124,7 +124,7 @@ export const timelineData = {
     "Every milestone shaped by struggle, sacrifice, and an unshakable belief in a better Nigeria.",
   events: [
     {
-      date: "Q4 2024",
+      date: "Q4 2026",
       title: "Lagos Beta Launch",
       description:
         "Onboarding the first 500 verified properties across Lekki, Ikeja, and Yaba.",
@@ -132,7 +132,7 @@ export const timelineData = {
       highlight: false,
     },
     {
-      date: "Q1 2025",
+      date: "Q1 2026",
       title: "Virtual Inspection Engine",
       description:
         "Deploying our proprietary 4K VR tour technology for immersive property viewing.",
@@ -140,7 +140,7 @@ export const timelineData = {
       highlight: false,
     },
     {
-      date: "Q3 2025",
+      date: "Q3 2026",
       title: "National Expansion",
       description:
         "Bringing the RentULO standard to Abuja, Port Harcourt, and Ibadan.",
@@ -169,7 +169,7 @@ export const testimonialsData = {
       name: "Chidi Okafor",
       role: "Tech Consultant",
       location: "Lagos",
-      image: "/avatar-chidi.jpg",
+      image: "/promise.jpeg",
     },
     {
       rating: 5,
@@ -178,7 +178,7 @@ export const testimonialsData = {
       name: "Titi Adenuga",
       role: "Creative Director",
       location: "Abuja",
-      image: "/avatar-titi.jpg",
+      image: "/rosh.jpeg",
     },
   ],
 };
@@ -188,5 +188,5 @@ export const ctaData = {
   description:
     "Be part of the movement that's bringing dignity and technology back to home finding. Early access members get zero-fee priority booking.",
   buttonText: "Join the Exclusive Waitlist",
-  badgeText: "Limited spots available for 2024 Beta",
+  badgeText: "Limited spots available for 2026 Beta",
 };

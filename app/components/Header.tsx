@@ -74,7 +74,7 @@ const Header = () => {
 
             <Link
               href="/about-us"
-              className="text-[15px] font-medium text-gray-700 hover:text-[#4CAF50]"
+              className={`text-[15px] font-medium transition-all ${pathname.includes("about-us") ? "text-[#4CAF50] font-bold" : "text-gray-700 hover:text-[#4CAF50]"}`}
             >
               About Us
             </Link>
