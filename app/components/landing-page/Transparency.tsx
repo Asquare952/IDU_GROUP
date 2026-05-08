@@ -1,5 +1,6 @@
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 const Transparency = () => {
   return (
@@ -41,9 +42,14 @@ const Transparency = () => {
               housing for everyone.
             </p>
 
-            <button className="bg-[#22C55E] hover:bg-green-700 text-white font-semibold py-3 px-10 rounded-full duration-300 text-base mt-8 cursor-pointer transition-all active:scale-95">
-              Join our mission
-            </button>
+            <Link
+              href="/about-us"
+              className="text-green-600 hover:text-green-700 font-semibold text-lg mt-8"
+            >
+              <button className="bg-[#22C55E] hover:bg-green-700 text-white font-semibold py-3 px-10 rounded-full duration-300 text-base mt-8 cursor-pointer transition-all active:scale-95">
+                Join our mission
+              </button>
+            </Link>
           </div>
         </div>
       </div>
