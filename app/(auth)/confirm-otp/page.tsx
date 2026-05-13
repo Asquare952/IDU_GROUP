@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
+import React, { Suspense, useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { HiArrowLeft } from "react-icons/hi";
@@ -7,7 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { useConfirmOtp } from "../../api/features/auth/auth.queries";
 import { toast } from "react-toastify";
 
-const page = () => {
+const ConfirmOtpContent = () => {
   const searchParams = useSearchParams();
   const email = searchParams.get("email") || "your email";
   const [timer, setTimer] = useState(120);
@@ -74,7 +74,7 @@ const page = () => {
       <div className="min-h-screen flex flex-col items-center justify-start md:justify-center px-4 relative overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
-            src="/IDU GROUP HOME.png"
+            src="/IDU GROUP HOME.webp"
             alt="Background"
             fill
             priority
@@ -171,4 +171,10 @@ const page = () => {
   );
 };
 
-export default page;
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ConfirmOtpContent />
+    </Suspense>
+  );
+}

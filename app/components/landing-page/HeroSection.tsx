@@ -212,7 +212,7 @@ const HeroSection = () => {
       <section className="relative h-[85vh] md:h-[800px] w-full px-4 pt-4">
         <div className="relative w-full h-full rounded-[32px] md:rounded-[40px] overflow-hidden">
           <Image
-            src="/IDU GROUP HOME.png"
+            src="/IDU GROUP HOME.webp"
             alt="Hero Background"
             fill
             className="object-cover brightness-[0.7]"

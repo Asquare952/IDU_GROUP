@@ -10,7 +10,7 @@ const Transparency = () => {
           <div className="w-full lg:w-1/2">
             <div className="relative aspect-[5/4] w-full">
               <Image
-                src="/Company.png"
+                src="/Company.webp"
                 alt="IDU Building"
                 fill
                 className="rounded-[24px] object-cover"

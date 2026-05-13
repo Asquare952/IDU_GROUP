@@ -5,7 +5,7 @@ export const heroData = {
     "Born from the frustration of endless agency fees and fake listings, RentULO is redefining what it means to find a home in Nigeria.",
   primaryCta: "Join the Waitlist",
   secondaryCta: "Read Our Story",
-  image: "/about-hero.jpeg",
+  image: "/about-hero.webp",
   imageAlt: "RentULO Founder",
 };
 
@@ -103,14 +103,14 @@ export const teamData = {
   quote:
     "There are thousands of good realtors in Nigeria, but they are drowned out by the millions of bad actors. We are building the stage for the good ones to shine.",
   members: [
-    { name: "David Ugochukwu.", role: "CEO & Frontend Engineer", image: "/peter.jpeg" },
-    { name: "Peter Abahim.", role: "CTO & Lead Backend Engineer", image: "/Ik.jpeg" },
-    { name: "AbdulAfeez O.", role: "Lead Frontend Engineer", image: "/afeez.jpeg" },
-    { name: "Promise Obi.", role: "Backend Engineer", image: "/promise.jpeg" },
-    { name: "Rosheedah M.", role: "Head of Product Design", image: "/rosh.jpeg" },
+    { name: "David Ugochukwu.", role: "CEO & Frontend Engineer", image: "/peter.webp" },
+    { name: "Peter Abahim.", role: "CTO & Lead Backend Engineer", image: "/Ik.webp" },
+    { name: "AbdulAfeez O.", role: "Lead Frontend Engineer", image: "/afeez.webp" },
+    { name: "Promise Obi.", role: "Backend Engineer", image: "/promise.webp" },
+    { name: "Rosheedah M.", role: "Head of Product Design", image: "/rosh.webp" },
     { name: "Prosper Okere.", role: "UI/UX Designer", image: "/prosper.jpeg" },
-    { name: "Thomas Feranmi.", role: "Backend Engineer", image: "/Thomas.jpeg" },
-    { name: "Ifeanyichukwu O.", role: "Field Researcher", image: "/ifeanyi.jpeg" },
+    { name: "Thomas Feranmi.", role: "Backend Engineer", image: "/Thomas.webp" },
+    { name: "Ifeanyichukwu O.", role: "Field Researcher", image: "/ifeanyi.webp" },
   ],
   message: {
     good: "To the good realtors: stand with us.",
@@ -169,7 +169,7 @@ export const testimonialsData = {
       name: "Chidi Okafor",
       role: "Tech Consultant",
       location: "Lagos",
-      image: "/promise.jpeg",
+      image: "/promise.webp",
     },
     {
       rating: 5,
@@ -178,7 +178,7 @@ export const testimonialsData = {
       name: "Titi Adenuga",
       role: "Creative Director",
       location: "Abuja",
-      image: "/rosh.jpeg",
+      image: "/rosh.webp",
     },
   ],
 };

@@ -39,7 +39,7 @@ const Post = () => {
           <div className="flex justify-center mt-16">
             <div className="relative w-full max-w-5xl shadow-2xl rounded-2xl overflow-hidden border border-gray-100">
               <Image
-                src="/Landlord Dashboard.png"
+                src="/Landlord Dashboard.webp"
                 alt="Landlord Dashboard"
                 width={1200}
                 height={800}

@@ -64,34 +64,34 @@ export const TOP_PROPERTIES: TopProperty[] = [
     title: "3-Bedroom Apartment, Lekki",
     views: "4.2k views this month",
     image:
-      "/flat7.jpg",
+      "/flat7.webp",
   },
   {
     id: 2,
     title: "Luxury Penthouse, Ikoyi",
     views: "3.8k views this month",
     image:
-      "/flat8.jpg",
+      "/flat8.webp",
   },
   {
     id: 3,
     title: "Studio Apartment, Yaba",
     views: "2.5k views this month",
     image:
-      "/flat9.jpg",
+      "/flat9.webp",
   },
   {
     id: 4,
     title: "Studio Apartment, Yaba",
     views: "2.5k views this month",
     image:
-      "/flat4.jpg",
+      "/flat4.webp",
   },
   {
     id: 5,
     title: "Studio Apartment, Yaba",
     views: "2.5k views this month",
     image:
-      "/flat1.jpg",
+      "/flat1.webp",
   },
 ];

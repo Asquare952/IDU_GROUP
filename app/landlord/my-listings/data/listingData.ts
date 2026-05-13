@@ -7,7 +7,7 @@ export const listingData = [
     beds: 2,
     baths: 2,
     status: "Rented",
-    img: "/flat1.jpg",
+    img: "/flat1.webp",
   },
   {
     id: "2",
@@ -17,7 +17,7 @@ export const listingData = [
     beds: 2,
     baths: 2,
     status: "Rented",
-    img: "/flat2.jpg",
+    img: "/flat2.webp",
   },
   {
     id: "3",
@@ -27,7 +27,7 @@ export const listingData = [
     beds: 2,
     baths: 2,
     status: "Rented",
-    img: "/flat3.jpg",
+    img: "/flat3.webp",
   },
   {
     id: "4",
@@ -37,7 +37,7 @@ export const listingData = [
     beds: 2,
     baths: 2,
     status: "Rented",
-    img: "/flat4.jpg",
+    img: "/flat4.webp",
   },
   {
     id: "5",
@@ -47,7 +47,7 @@ export const listingData = [
     beds: 2,
     baths: 2,
     status: "Rented",
-    img: "/flat3.jpg",
+    img: "/flat3.webp",
   },
   {
     id: "6",
@@ -57,6 +57,6 @@ export const listingData = [
     beds: 2,
     baths: 2,
     status: "Rented",
-    img: "/flat6.jpg",
+    img: "/flat6.webp",
   },
 ];

@@ -8,26 +8,28 @@ import {
   HiOutlineLockClosed,
   HiX,
 } from "react-icons/hi";
-import Cookies from "js-cookie";
 import { useRouter, usePathname } from "next/navigation";
 import { HiOutlineUser, HiOutlineCog, HiOutlineLogout } from "react-icons/hi";
 import NotificationMenu from "./shared/NotificationMenu";
 import { useState } from "react";
+import { useAuth } from "./context/AuthContext";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
-  const token = Cookies.get("ACCESS_TOKEN");
+  const { isLoggedIn, logout } = useAuth();
 
-  const isLoggedIn = !!token;
-  const showLoggedInUI = !!token && pathname !== "/login";
+  const showLoggedInUI = isLoggedIn && pathname !== "/login";
+  const showJoinUs = !isLoggedIn;
+  const isJoinUsPage =
+    pathname === "/signup" || pathname === "/confirm-otp";
 
   const handleLogout = () => {
-    Cookies.remove("ACCESS_TOKEN");
-    Cookies.remove("USER_ROLE");
-    router.push("/login");
+    setIsOpen(false);
+    setIsProfileOpen(false);
+    logout();
   };
 
   return (
@@ -63,21 +65,25 @@ const Header = () => {
               Property
             </Link>
 
-            {isLoggedIn && (
-              <Link
-                href="/tenant/dashboard"
-                className={`text-[15px] font-medium transition-all ${pathname.includes("dashboard") ? "text-[#4CAF50] font-bold" : "text-gray-700 hover:text-[#4CAF50]"}`}
-              >
-                Dashboard
-              </Link>
-            )}
-
             <Link
               href="/about-us"
               className={`text-[15px] font-medium transition-all ${pathname.includes("about-us") ? "text-[#4CAF50] font-bold" : "text-gray-700 hover:text-[#4CAF50]"}`}
             >
               About Us
             </Link>
+
+            {showJoinUs && (
+              <Link
+                href="/signup"
+                className={`text-[15px] font-medium transition-all ${
+                  isJoinUsPage
+                    ? "text-[#4CAF50] font-bold"
+                    : "text-gray-700 hover:text-[#4CAF50]"
+                }`}
+              >
+                Join us
+              </Link>
+            )}
           </ul>
         </div>
         <div className="flex items-center justify-end gap-3">
@@ -91,10 +97,11 @@ const Header = () => {
                   Log out
                 </button>
               ) : (
-                <Link href="/login">
-                  <button className="px-8 py-2.5 rounded-xl text-white font-semibold text-sm bg-[#43A047] hover:bg-green-600 transition-all active:scale-95 cursor-pointer">
-                    Log in
-                  </button>
+                <Link
+                  href="/login"
+                  className="inline-flex px-8 py-2.5 rounded-xl text-white font-semibold text-sm bg-[#43A047] hover:bg-green-600 transition-all active:scale-95 cursor-pointer"
+                >
+                  Log in
                 </Link>
               )
             ) : showLoggedInUI ? (
@@ -187,10 +194,11 @@ const Header = () => {
                 )}
               </div>
             ) : (
-              <Link href="/login" className="hidden md:block">
-                <button className="px-8 py-2.5 rounded-xl text-white font-semibold text-sm bg-[#43A047] hover:bg-green-600 transition-all active:scale-95 cursor-pointer">
-                  Log in
-                </button>
+              <Link
+                href="/login"
+                className="hidden md:inline-flex px-8 py-2.5 rounded-xl text-white font-semibold text-sm bg-[#43A047] hover:bg-green-600 transition-all active:scale-95 cursor-pointer"
+              >
+                Log in
               </Link>
             )}
           </div>
@@ -214,29 +222,29 @@ const Header = () => {
           >
             Home
           </Link>
-          {isLoggedIn && (
-            <Link
-              href="/tenant/dashboard"
-              onClick={() => setIsOpen(false)}
-              className="text-2xl font-semibold text-gray-800"
-            >
-              Dashboard
-            </Link>
-          )}
           <Link
-            href="/#listing"
+            href={isLoggedIn ? "/tenant/homepage" : "/#listing"}
             onClick={() => setIsOpen(false)}
             className="text-2xl font-semibold text-gray-800"
           >
             Property
           </Link>
           <Link
-            href="/#about"
+            href="/about-us"
             onClick={() => setIsOpen(false)}
             className="text-2xl font-semibold text-gray-800"
           >
             About Us
           </Link>
+          {showJoinUs && (
+            <Link
+              href="/signup"
+              onClick={() => setIsOpen(false)}
+              className="text-2xl font-semibold text-gray-800"
+            >
+              Join us
+            </Link>
+          )}
 
           {isLoggedIn ? (
             <button
@@ -252,11 +260,9 @@ const Header = () => {
             <Link
               href="/login"
               onClick={() => setIsOpen(false)}
-              className="w-full"
+              className="w-full inline-flex items-center justify-center py-4 bg-[#4CAF50] text-white font-bold rounded-2xl shadow-lg"
             >
-              <button className="w-full py-4 bg-[#4CAF50] text-white font-bold rounded-2xl shadow-lg">
-                Log in
-              </button>
+              Log in
             </Link>
           )}
         </div>
