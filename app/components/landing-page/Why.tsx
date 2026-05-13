@@ -75,7 +75,7 @@ const Why = () => {
           <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
             <div className="mb-6 h-24 flex items-center justify-center overflow-hidden">
               <Image
-                src="/google .png"
+                src="/google .webp"
                 alt="map"
                 width={180}
                 height={140}
@@ -94,14 +94,14 @@ const Why = () => {
           <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
             <div className="mb-6 h-24 relative flex items-center justify-center">
               <Image
-                src="/comment.png"
+                src="/comment.webp"
                 alt="chat1"
                 width={80}
                 height={80}
                 className="absolute top-0 left-4"
               />
               <Image
-                src="/comment2.png"
+                src="/comment2.webp"
                 alt="chat2"
                 width={80}
                 height={80}

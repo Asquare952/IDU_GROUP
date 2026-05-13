@@ -16,35 +16,32 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [mounted, setMounted] = useState(false);
   useEffect(() => {
     const token = Cookies.get("ACCESS_TOKEN");
     setIsLoggedIn(!!token);
-    setMounted(true);
   }, []);
 
- const login = (token: string, role: string, remember?: boolean) => {
-   Cookies.set("ACCESS_TOKEN", token, {
-     expires: remember ? 7 : 1,
-     secure: window.location.protocol === "https:",
-     sameSite: "strict",
-     path: "/",
-   });
+  const login = (token: string, role: string, remember?: boolean) => {
+    Cookies.set("ACCESS_TOKEN", token, {
+      expires: remember ? 7 : 1,
+      secure: window.location.protocol === "https:",
+      sameSite: "strict",
+      path: "/",
+    });
 
-   Cookies.set("USER_ROLE", role, {
-     expires: remember ? 7 : 1,
-     path: "/",
-   });
+    Cookies.set("USER_ROLE", role, {
+      expires: remember ? 7 : 1,
+      path: "/",
+    });
 
-   setIsLoggedIn(true);
- };
+    setIsLoggedIn(true);
+  };
   const logout = () => {
     Cookies.remove("ACCESS_TOKEN");
     Cookies.remove("USER_ROLE");
     setIsLoggedIn(false);
     router.push("/login");
   };
-  if (!mounted) return null;
 
   return (
     <AuthContext.Provider value={{ isLoggedIn, login, logout }}>

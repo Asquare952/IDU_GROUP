@@ -10,7 +10,7 @@ import {
 } from "../../components/Dashboard/config/DashboardDatas";
 import Image from "next/image";
 import { PenLine, Trash2, Loader2 } from "lucide-react";
-import ReviewGraph from "@/public/assets/income-overview-graph.png";
+import ReviewGraph from "@/public/assets/income-overview-graph.webp";
 import SnapshotGraph from "@/public/assets/tenants-activity-snapshot-graph.png";
 import { getCurrentUserId } from "@/app/lib/auth";
 

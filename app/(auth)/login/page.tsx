@@ -22,15 +22,19 @@ const Page = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { mutate: loginUser, isPending } = useLogin();
 
+  const getRedirectPath = (role: "landlord" | "tenant") => {
+    return role === "landlord" ? "/landlord/dashboard" : "/tenant/dashboard";
+  };
+
   useEffect(() => {
     const token = Cookies.get("ACCESS_TOKEN");
-    const role = Cookies.get("USER_ROLE"); 
+    const role = Cookies.get("USER_ROLE");
 
     if (token) {
       if (role === "landlord") {
-        router.push("/landlord/dashboard");
+        router.replace("/landlord/dashboard");
       } else if (role === "tenant") {
-        router.push("/tenant/dashboard");
+        router.replace("/tenant/dashboard");
       }
     }
   }, [router]);
@@ -57,42 +61,24 @@ const Page = () => {
 
     loginUser(payload, {
       onSuccess: (response: AuthResponse) => {
-         const accessToken = response.accessToken ?? response.token;
-         const role = response.user?.role ?? response.role;
+        const accessToken = response.accessToken ?? response.token;
+        const role = response.user?.role ?? response.role;
 
-         if (!accessToken || !role) {
-           toast.error("Login response missing token or role");
-           return;
-         }
+        if (!accessToken || !role) {
+          toast.error("Login response missing token or role");
+          return;
+        }
 
-         if (response.user) {
-           Cookies.set("USER_PROFILE", JSON.stringify(response.user), {
-             expires: data.remember ? 7 : 1,
-             path: "/",
-           });
-         }
+        if (response.user) {
+          Cookies.set("USER_PROFILE", JSON.stringify(response.user), {
+            expires: data.remember ? 7 : 1,
+            path: "/",
+          });
+        }
 
-         // Save token directly (don't rely on AuthContext for redirect)
-         Cookies.set("ACCESS_TOKEN", accessToken, {
-           expires: data.remember ? 7 : 1,
-           path: "/",
-         });
-
-         Cookies.set("USER_ROLE", role, {
-           expires: data.remember ? 7 : 1,
-           path: "/",
-         });
-
-         toast.success("Login successful");
-
-         // Full page reload to ensure cookies are available
-         if (role === "landlord") {
-           window.location.href = "/landlord/dashboard";
-         } else if (role === "tenant") {
-           window.location.href = "/tenant/dashboard";
-         } else {
-           window.location.href = "/";
-         }
+        login(accessToken, role, data.remember);
+        toast.success("Login successful");
+        router.replace(getRedirectPath(role));
       },
 
       onError: (error: any) => {
@@ -133,7 +119,7 @@ const Page = () => {
 
         <div className="absolute inset-0 z-0">
           <Image
-            src="/IDU GROUP HOME.png"
+            src="/IDU GROUP HOME.webp"
             alt="Background"
             fill
             priority
@@ -146,7 +132,7 @@ const Page = () => {
           <div className="hidden md:block w-1/2 relative p-5">
             <div className="relative w-full h-full rounded-[35px] overflow-hidden">
               <Image
-                src="/IDU GROUP HOME.png"
+                src="/IDU GROUP HOME.webp"
                 alt="RentULO Login"
                 fill
                 priority

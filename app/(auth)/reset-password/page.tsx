@@ -42,7 +42,7 @@ const ResetPasswordContent = () => {
     <div className="min-h-screen flex flex-col items-center justify-start px-4 relative overflow-hidden">
       <div className="absolute inset-0 z-0">
         <Image
-          src="/IDU GROUP HOME.png"
+          src="/IDU GROUP HOME.webp"
           alt="Background"
           fill
           priority

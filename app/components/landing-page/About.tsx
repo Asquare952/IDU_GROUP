@@ -43,7 +43,7 @@ const About = () => {
           <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col h-full">
             <div className="h-32 flex items-center justify-center mb-6 relative w-full">
               <Image
-                src="/map.png"
+                src="/map.webp"
                 alt="World Map"
                 width={180}
                 height={100}

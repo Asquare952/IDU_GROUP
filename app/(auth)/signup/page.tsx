@@ -74,7 +74,7 @@ const page = () => {
 
         <div className="absolute inset-0 z-0">
           <Image
-            src="/IDU GROUP HOME.png"
+            src="/IDU GROUP HOME.webp"
             alt="Background"
             fill
             sizes="100vw"
@@ -86,7 +86,7 @@ const page = () => {
           <div className="hidden md:block w-1/2 relative p-5">
             <div className="relative w-full h-full rounded-[35px] overflow-hidden">
               <Image
-                src="/IDU GROUP HOME.png"
+                src="/IDU GROUP HOME.webp"
                 alt="RentULO"
                 fill
                 priority
