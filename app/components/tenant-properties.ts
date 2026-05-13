@@ -5,7 +5,7 @@ export const PROPERTY_LIST = [
     title: "Modern Bungalow",
     description:
       "Cozy rooms, large jacuzzi, spacious kitchen. Convenient lifestyle living.",
-    image: "/Duplex.jpeg",
+    image: "/Duplex.webp",
     added: "2 days ago",
     bathrooms: 2,
     bedrooms: 5,
@@ -18,7 +18,7 @@ export const PROPERTY_LIST = [
     title: "Luxury Apartment",
     description:
       "Modern finishings with 24/7 power supply in the heart of Lagos.",
-    image: "/flat4.jpg",
+    image: "/flat4.webp",
     added: "5 hours ago",
 
     bathrooms: 3,
@@ -32,7 +32,7 @@ export const PROPERTY_LIST = [
     title: "Executive Duplex",
     description:
       "Spacious backyard, swimming pool, and premium security features.",
-    image: "/flat1.jpg",
+    image: "/flat1.webp",
     added: "1 day ago",
     bathrooms: 2,
     bedrooms: 5,
@@ -45,7 +45,7 @@ export const PROPERTY_LIST = [
     title: "Executive Duplex",
     description:
       "Spacious backyard, swimming pool, and premium security features.",
-    image: "/flat3.jpg",
+    image: "/flat3.webp",
     added: "1 day ago",
     bathrooms: 2,
     bedrooms: 5,
@@ -58,7 +58,7 @@ export const PROPERTY_LIST = [
     title: "Executive Duplex",
     description:
       "Spacious backyard, swimming pool, and premium security features.",
-    image: "/flat6.jpg",
+    image: "/flat6.webp",
     added: "1 day ago",
     bathrooms: 2,
     bedrooms: 5,
@@ -71,7 +71,7 @@ export const PROPERTY_LIST = [
     title: "Executive Duplex",
     description:
       "Spacious backyard, swimming pool, and premium security features.",
-    image: "/Duplex.jpeg",
+    image: "/Duplex.webp",
     added: "1 day ago",
     bathrooms: 2,
     bedrooms: 5,

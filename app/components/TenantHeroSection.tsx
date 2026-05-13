@@ -6,7 +6,7 @@ const TenantHeroSection = () => {
     <section className="relative w-full px-6 md:px-12 pt-6">
       <div className="relative w-full h-[250px] overflow-hidden rounded-2xl shadow-lg">
         <Image
-          src="/Duplex.jpeg"
+          src="/Duplex.webp"
           alt="RentULO Banner"
           fill
           className="object-cover object-[center_35%]"
