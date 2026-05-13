@@ -148,7 +148,7 @@ const Header = () => {
                         <button
                           onClick={() => {
                             setIsProfileOpen(false);
-                            router.push("/tenant/dashboard/settings");
+                            router.push("/tenant/settings");
                           }}
                           className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
                         >
@@ -157,7 +157,7 @@ const Header = () => {
                         <button
                           onClick={() => {
                             setIsProfileOpen(false);
-                            router.push("/tenant/dashboard/locked-houses");
+                            router.push("/tenant/locked-houses");
                           }}
                           className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
                         >
@@ -166,7 +166,7 @@ const Header = () => {
                         <button
                           onClick={() => {
                             setIsProfileOpen(false);
-                            router.push("/tenant/dashboard/saved-houses");
+                            router.push("/tenant/saved-houses");
                           }}
                           className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
                         >

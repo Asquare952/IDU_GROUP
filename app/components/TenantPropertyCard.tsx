@@ -1,18 +1,26 @@
 import Image from "next/image";
 import { HiOutlineHeart } from "react-icons/hi";
 import { FaBed, FaBath } from "react-icons/fa";
+import { useLikeRental } from "../api";
+import Link from "next/link";
 
 const TenantPropertyCard = ({ house }: { house: any }) => {
+  const likeRental = useLikeRental();
   return (
-    <div className="bg-white rounded-[20px] p-2 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300">
+    <Link href={`/properties/${house.id}`} className="bg-white rounded-[20px] p-2 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300">
       <div className="relative w-full h-[220px] rounded-[12px] overflow-hidden">
         <Image
-          src={house.image}
+          src={house.images[0]}
           alt={house.title}
           fill
           className="w-full h-full object-cover transition-transform duration-500 hover:scale-105 rounded-[12px]"
         />
-        <button className="absolute top-3 right-3 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm hover:text-red-500 transition cursor-pointer">
+        <button className="absolute top-3 right-3 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm hover:text-red-500 transition cursor-pointer"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            likeRental.mutate(house.id);
+          }}>
           <HiOutlineHeart size={20} />
         </button>
       </div>
@@ -53,7 +61,7 @@ const TenantPropertyCard = ({ house }: { house: any }) => {
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

@@ -24,8 +24,9 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useGetAllRentals } from "@/app/api/features/rental/rental.queries";
+import { useFetchProperties } from "@/app/api/features/property/property.queries";
 import type { Rental } from "@/app/api/features/rental";
+import { useLockedRentals } from "@/app/api/features/progress/progress.queries";
 
 const Page = () => {
   const router = useRouter();
@@ -33,7 +34,8 @@ const Page = () => {
   const [isSafetyOpen, setIsSafetyOpen] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [recommendedHouses, setRecommendedHouses] = useState<Rental[]>([]);
-  const { data: rentals = [] } = useGetAllRentals();
+  const { data: properties } = useFetchProperties();
+  const { data: lockedRentals } = useLockedRentals();
 
   const nextSlide = () => {
     setCurrentSlide((prev) =>
@@ -47,11 +49,6 @@ const Page = () => {
     );
   };
 
-  useEffect(() => {
-    if (rentals && rentals.length > 0) {
-      setRecommendedHouses(rentals.slice(0, 3));
-    }
-  }, [rentals]);
 
   return (
     <DashboardLayout>
@@ -192,7 +189,7 @@ const Page = () => {
         {/* Recommended Houses Section */}
         <div className="flex flex-col gap-3.5">
           <h2 className="text-2xl font-bold">Recommended Houses</h2>
-          {recommendedHouses.length === 0 ? (
+          {properties?.length === 0 ? (
             <div className="text-center py-12 text-gray-400">
               <p>No listings available at the moment</p>
             </div>
@@ -204,7 +201,7 @@ const Page = () => {
               viewport={{ once: true, margin: "-100px" }}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
             >
-              {recommendedHouses.map((item, i) => (
+              {properties?.slice(0, 3).map((item, i) => (
                 <motion.div
                   key={item.id}
                   custom={i}
@@ -214,23 +211,16 @@ const Page = () => {
                 >
                   <div className="relative h-64 w-full overflow-hidden cursor-pointer">
                     <Link
-                      href={isLoggedIn ? `/properties/${item.id}` : "/login"}
+                      href={`/properties/${item.id}`}
                       className="block h-full w-full"
                     >
-                      {item.images && item.images.length > 0 ? (
                         <Image
                           src={item.images[0]}
                           alt={item.title}
                           fill
                           className="object-cover rounded-3xl p-3 transition-transform duration-500 group-hover:scale-110"
                         />
-                      ) : (
-                        <div className="w-full h-full bg-gray-100 rounded-3xl flex items-center justify-center">
-                          <span className="text-gray-400 text-sm">
-                            No Image
-                          </span>
-                        </div>
-                      )}
+                      
                     </Link>
                     <button
                       type="button"

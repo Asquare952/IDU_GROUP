@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   fetchProperties,
   bookProperty,
@@ -21,13 +21,16 @@ export const useFetchLandlordListedProperties = () => {
 };
 
 export const useBookProperty = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (rentalId: string) => bookProperty(rentalId),
-    onSuccess: (data) => {
-      console.log("House Successfully Locked:", data);
-    },
-    onError: (error) => {
-      console.error("Failed to lock house:", error);
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["progress"] });
+      queryClient.invalidateQueries({ queryKey: ["properties"] });
+      queryClient.invalidateQueries({
+        queryKey: ["landlord-listed-properties"],
+      });
     },
   });
 };
