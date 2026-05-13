@@ -146,7 +146,7 @@ const Header = () => {
                         <button
                           onClick={() => {
                             setIsProfileOpen(false);
-                            router.push("/tenant/profile");
+                            router.push("/tenant/dashboard/profile");
                           }}
                           className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
                         >
@@ -164,7 +164,7 @@ const Header = () => {
                         <button
                           onClick={() => {
                             setIsProfileOpen(false);
-                            router.push("/tenant/dashboard/locked-houses");
+                            router.push("/tenant/dashboard/locked-house");
                           }}
                           className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
                         >
@@ -173,7 +173,7 @@ const Header = () => {
                         <button
                           onClick={() => {
                             setIsProfileOpen(false);
-                            router.push("/tenant/dashboard/saved-houses");
+                            router.push("/tenant/dashboard/saved-house");
                           }}
                           className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
                         >

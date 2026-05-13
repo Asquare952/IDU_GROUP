@@ -34,27 +34,6 @@ import { writeCachedProfile } from "./profile-cache";
 export const useLogin = () =>
   useMutation<AuthResponse, Error, LoginPayload>({
     mutationFn: login,
-    onSuccess: (data: any) => {
-      console.log("Login response data:", data);
-      if (!data || !data.role) {
-        toast.error("Invalid response data");
-        return;
-      }
-      Cookies.set("ACCESS_TOKEN", data.token, { expires: 1 });
-      if (data.user) {
-        Cookies.set("USER_PROFILE", JSON.stringify(data.user), { expires: 1 });
-        writeCachedProfile(data.user);
-      }
-      toast.success("Login successful");
-      if (data?.role === "landlord") {
-        window.location.href = "/landlord/dashboard";
-      } else if (data.role === "tenant") {
-        window.location.href = "/tenant/dashboard";
-      }
-    },
-    onError: (error: any) => {
-      toast.error(error?.response?.data?.message || "Login failed");
-    },
   });
 
 // ==============================
