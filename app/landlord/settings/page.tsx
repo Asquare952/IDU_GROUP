@@ -38,100 +38,6 @@ const SettingsPage = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
-            <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="p-2 bg-green-50 rounded-lg">
-                  <User className="text-[#43A047]" size={20} />
-                </div>
-                <h3 className="text-xl font-bold text-[#162B4C]">
-                  Profile Information
-                </h3>
-              </div>
-
-              <div className="flex items-center gap-6 mb-10">
-                <div className="w-20 h-20 bg-[#43A047] rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                  DU
-                </div>
-                <div>
-                  <button className="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl font-bold text-sm hover:bg-slate-200 transition-all">
-                    Change Photo
-                  </button>
-                  <p className="text-xs text-slate-400 mt-2">
-                    JPG or PNG. Max size 2MB.
-                  </p>
-                </div>
-              </div>
-
-              <form className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase ml-1">
-                      First Name
-                    </label>
-                    <input
-                      type="text"
-                      defaultValue="John"
-                      className="w-full bg-[#F0F2F5] border-none rounded-2xl px-5 py-3.5 focus:ring-2 focus:ring-[#43A047]/20 outline-none font-medium"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase ml-1">
-                      Last Name
-                    </label>
-                    <input
-                      type="text"
-                      defaultValue="Doe"
-                      className="w-full bg-[#F0F2F5] border-none rounded-2xl px-5 py-3.5 focus:ring-2 focus:ring-[#43A047]/20 outline-none font-medium"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-500 uppercase ml-1 flex items-center gap-1">
-                    <Phone size={12} /> Phone Number
-                  </label>
-                  <input
-                    type="text"
-                    defaultValue="+234 810 000 0000"
-                    className="w-full bg-[#F0F2F5] border-none rounded-2xl px-5 py-3.5 focus:ring-2 focus:ring-[#43A047]/20 outline-none font-medium"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-500 uppercase ml-1 flex items-center gap-1">
-                    <Mail size={12} /> Email Address
-                  </label>
-                  <input
-                    type="email"
-                    defaultValue="john.doe@example.com"
-                    className="w-full bg-[#F0F2F5] border-none rounded-2xl px-5 py-3.5 focus:ring-2 focus:ring-[#43A047]/20 outline-none font-medium"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-500 uppercase ml-1 flex items-center gap-1">
-                    <MapPin size={12} /> Address
-                  </label>
-                  <input
-                    type="text"
-                    defaultValue="123 Main St, City, State 12345"
-                    className="w-full bg-[#F0F2F5] border-none rounded-2xl px-5 py-3.5 focus:ring-2 focus:ring-[#43A047]/20 outline-none font-medium"
-                  />
-                </div>
-                <div className="flex justify-end gap-4 pt-6">
-                  <button
-                    type="button"
-                    className="px-6 py-3 rounded-xl font-bold text-slate-500"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-8 py-3 bg-[#43A047] text-white rounded-xl font-bold shadow-lg shadow-[#43A047]/20 cursor-pointer"
-                  >
-                    Save Changes
-                  </button>
-                </div>
-              </form>
-            </div>
-
             {/* Notification Preferences Section */}
             <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100">
               <div className="flex items-center gap-3 mb-8">
@@ -200,43 +106,9 @@ const SettingsPage = () => {
                   </button>
                 </div>
               </div>
+              
             </div>
-          </div>
-
-          {/* RIGHT COLUMN: Sidebar Cards */}
-          <div className="space-y-6">
-            <div className="bg-[#43A047] rounded-[2rem] p-8 text-white shadow-xl shadow-green-100">
-              <h3 className="font-bold text-xl mb-6">Account Status</h3>
-              <div className="space-y-4 text-sm font-medium">
-                <div className="flex justify-between border-b border-white/20 pb-3">
-                  <span>Account Type</span>
-                  <span>Landlord Pro</span>
-                </div>
-                <div className="flex justify-between border-b border-white/20 pb-3">
-                  <span>Member Since</span>
-                  <span>Jan 2024</span>
-                </div>
-                <div className="flex justify-between pb-3">
-                  <span>Properties</span>
-                  <span>12 Active</span>
-                </div>
-              </div>
-              <button className="w-full mt-6 bg-white text-[#43A047] py-3 rounded-2xl font-black text-sm">
-                Upgrade Plan
-              </button>
-            </div>
-
-            {/* <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-sm">
-              <div className="flex items-center gap-2 mb-6 text-[#162B4C]">
-                <CreditCard size={20} />
-                <h3 className="font-bold text-lg">Billing</h3>
-              </div>
-              <button className="w-full bg-slate-50 text-slate-600 py-3 rounded-xl font-bold text-sm border border-slate-100">
-                Manage Billing
-              </button>
-            </div> */}
-
-            <div className="bg-red-50/50 rounded-[2rem] p-8 border border-red-100">
+            <div className="bg-red-50/50 rounded-[2rem] border border-red-100">
               <h3 className="font-bold text-red-600 text-lg mb-2">
                 Danger Zone
               </h3>
@@ -245,8 +117,10 @@ const SettingsPage = () => {
               </button>
             </div>
           </div>
+        
+
+          </div>
         </div>
-      </div>
     </DashboardLayout>
   );
 };

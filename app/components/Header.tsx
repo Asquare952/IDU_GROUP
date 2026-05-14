@@ -7,6 +7,7 @@ import {
   HiOutlineHeart,
   HiOutlineLockClosed,
   HiX,
+  HiOutlineViewGrid,
 } from "react-icons/hi";
 import { useRouter, usePathname } from "next/navigation";
 import { HiOutlineUser, HiOutlineCog, HiOutlineLogout } from "react-icons/hi";
@@ -23,8 +24,7 @@ const Header = () => {
 
   const showLoggedInUI = isLoggedIn && pathname !== "/login";
   const showJoinUs = !isLoggedIn;
-  const isJoinUsPage =
-    pathname === "/signup" || pathname === "/confirm-otp";
+  const isJoinUsPage = pathname === "/signup" || pathname === "/confirm-otp";
 
   const handleLogout = () => {
     setIsOpen(false);
@@ -87,29 +87,17 @@ const Header = () => {
           </ul>
         </div>
         <div className="flex items-center justify-end gap-3">
-          <div className="hidden md:flex items-center gap-3">
-            {pathname === "/" ? (
-              isLoggedIn ? (
-                <button
-                  onClick={handleLogout}
-                  className="px-8 py-2.5 rounded-xl text-white font-semibold text-sm bg-red-500 hover:bg-red-600 transition-all active:scale-95 cursor-pointer"
-                >
-                  Log out
-                </button>
-              ) : (
-                <Link
-                  href="/login"
-                  className="inline-flex px-8 py-2.5 rounded-xl text-white font-semibold text-sm bg-[#43A047] hover:bg-green-600 transition-all active:scale-95 cursor-pointer"
-                >
-                  Log in
-                </Link>
-              )
-            ) : showLoggedInUI ? (
+          <div className="flex items-center gap-3">
+            {showLoggedInUI ? (
               <div className="relative flex items-center gap-3">
-                <NotificationMenu notificationPath="/tenant/notifications" />
+                {/* Notification bell — hidden on mobile, shown on md+ */}
+                <div className="hidden md:block">
+                  <NotificationMenu notificationPath="/tenant/notifications" />
+                </div>
 
+                {/* Profile trigger — just image on mobile, image + name on desktop */}
                 <div
-                  className="flex items-center gap-2 cursor-pointer border-l pl-3 border-gray-200 active:scale-95 transition-all"
+                  className="flex items-center gap-2 cursor-pointer md:border-l md:pl-3 md:border-gray-200 active:scale-95 transition-all"
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
                 >
                   <Image
@@ -129,13 +117,15 @@ const Header = () => {
                   </div>
                 </div>
 
+                {/* Dropdown — fixed positioning for mobile, absolute for desktop */}
                 {isProfileOpen && (
                   <>
                     <div
                       className="fixed inset-0 z-10"
                       onClick={() => setIsProfileOpen(false)}
                     />
-                    <div className="absolute right-0 top-14 w-60 bg-white rounded-2xl shadow-2xl border border-gray-100 z-20 overflow-hidden">
+                    {/* MOBILE DROPDOWN: fixed to top-right of viewport, pushed down below header */}
+                    <div className="fixed right-4 top-20 w-60 bg-white rounded-2xl shadow-2xl border border-gray-100 z-20 overflow-hidden md:hidden">
                       <div className="p-4 border-b border-gray-50 bg-gray-50/50">
                         <p className="text-sm font-bold text-gray-900">David</p>
                         <p className="text-[10px] text-gray-500 truncate">
@@ -151,6 +141,80 @@ const Header = () => {
                           className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
                         >
                           <HiOutlineUser size={18} /> Profile
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsProfileOpen(false);
+                            router.push("/tenant/dashboard");
+                          }}
+                          className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
+                        >
+                          <HiOutlineViewGrid size={18} /> Dashboard
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsProfileOpen(false);
+                            router.push("/tenant/dashboard/settings");
+                          }}
+                          className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
+                        >
+                          <HiOutlineCog size={18} /> Settings
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsProfileOpen(false);
+                            router.push("/tenant/dashboard/locked-house");
+                          }}
+                          className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
+                        >
+                          <HiOutlineLockClosed size={18} /> Locked house
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsProfileOpen(false);
+                            router.push("/tenant/dashboard/saved-house");
+                          }}
+                          className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
+                        >
+                          <HiOutlineHeart size={18} /> Saved house
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsProfileOpen(false);
+                            handleLogout();
+                          }}
+                          className="w-full flex items-center gap-3 p-2.5 text-sm text-red-500 hover:bg-red-50 rounded-xl mt-1 border-t border-gray-50 pt-3 transition-all"
+                        >
+                          <HiOutlineLogout size={18} /> Sign Out
+                        </button>
+                      </div>
+                    </div>
+                    {/* DESKTOP DROPDOWN: absolute positioned relative to parent */}
+                    <div className="hidden md:block absolute right-0 top-14 w-60 bg-white rounded-2xl shadow-2xl border border-gray-100 z-20 overflow-hidden">
+                      <div className="p-4 border-b border-gray-50 bg-gray-50/50">
+                        <p className="text-sm font-bold text-gray-900">David</p>
+                        <p className="text-[10px] text-gray-500 truncate">
+                          david.engineer@rentulo.com
+                        </p>
+                      </div>
+                      <div className="p-2 flex flex-col gap-1">
+                        <button
+                          onClick={() => {
+                            setIsProfileOpen(false);
+                            router.push("/tenant/dashboard/profile");
+                          }}
+                          className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
+                        >
+                          <HiOutlineUser size={18} /> Profile
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsProfileOpen(false);
+                            router.push("/tenant/dashboard");
+                          }}
+                          className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
+                        >
+                          <HiOutlineViewGrid size={18} /> Dashboard
                         </button>
                         <button
                           onClick={() => {
@@ -203,6 +267,7 @@ const Header = () => {
             )}
           </div>
 
+          {/* Mobile hamburger */}
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="md:hidden flex items-center justify-center w-10 h-10 border border-gray-200 rounded-lg bg-white shadow-sm ml-2"
