@@ -6,7 +6,7 @@ const page = () => {
   return (
     <DashboardLayout>
       <div>
-        <div>Dashboard</div>
+        <div></div>
       </div>
     </DashboardLayout>
   );

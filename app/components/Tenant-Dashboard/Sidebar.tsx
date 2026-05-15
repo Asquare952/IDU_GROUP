@@ -12,7 +12,7 @@ const Sidebar = () => {
   const { logout } = useAuth();
 
   return (
-    <aside className="hidden lg:flex lg:flex-col lg:gap-4 fixed left-0 top-0 z-50 h-full p-3 bg-white shadow border border-[#EBECED] ">
+    <aside className="fixed left-0 top-0 z-50 hidden h-screen w-[280px] flex-col gap-4 border border-[#EBECED] bg-white p-3 shadow lg:flex">
       <div className=" flex items-center gap-1 mt-3.5">
         <Image src={rentUloLogo} width={32.7} alt="" />
         <h2 className=" font-bold text-2xl text-[#000000]">Rent<span className="text-[#43A047]">ULO</span></h2>
@@ -23,8 +23,8 @@ const Sidebar = () => {
           {sidebarItems.map((item) => {
             const { id, name, path, action, icon: Icon } = item;
             const isActive = !!path && pathname === path
-            const className = `flex items-center gap-2 py-3 pl-6 pr-17.5 rounded-lg ${isActive ? "bg-[#43A047] text-white" : " hover:bg-[#43A047] hover:text-white"}`
-            const logoutClassName = "flex items-center gap-2 py-3 pl-6 pr-17.5 rounded-lg text-[#DC2626]"
+            const className = `flex items-center gap-2 rounded-lg px-6 py-3 ${isActive ? "bg-[#43A047] text-white" : " hover:bg-[#43A047] hover:text-white"}`
+            const logoutClassName = "flex items-center gap-2 rounded-lg px-6 py-3 text-[#DC2626]"
 
             if (action === "logout") {
               return (
