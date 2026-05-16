@@ -46,7 +46,6 @@ const page = () => {
   return (
     <DashboardLayout>
       <div className="p-4 md:p-6 space-y-4 md:space-y-6">
-        {/* Page Header */}
         <div>
           <h1 className="text-xl md:text-2xl font-bold text-gray-900">
             Safety & Reports
@@ -55,8 +54,6 @@ const page = () => {
             Monitor and manage safety reports
           </p>
         </div>
-
-        {/* Stats Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           {safetyStats.map((stat) => (
             <div
