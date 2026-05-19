@@ -103,14 +103,38 @@ export const teamData = {
   quote:
     "There are thousands of good realtors in Nigeria, but they are drowned out by the millions of bad actors. We are building the stage for the good ones to shine.",
   members: [
-    { name: "David Ugochukwu.", role: "CEO & Frontend Engineer", image: "/peter.webp" },
-    { name: "Peter Abahim.", role: "CTO & Lead Backend Engineer", image: "/Ik.webp" },
-    { name: "AbdulAfeez O.", role: "Lead Frontend Engineer", image: "/afeez.webp" },
+    {
+      name: "David Ugochukwu.",
+      role: "CEO & Frontend Engineer",
+      image: "/peter.webp",
+    },
+    {
+      name: "Peter Abahim.",
+      role: "CTO & Lead Backend Engineer",
+      image: "/Ik.webp",
+    },
+    {
+      name: "AbdulAfeez O.",
+      role: "Lead Frontend Engineer",
+      image: "/afeez.webp",
+    },
     { name: "Promise Obi.", role: "Backend Engineer", image: "/promise.webp" },
-    { name: "Rosheedah M.", role: "Head of Product Design", image: "/rosh.webp" },
+    {
+      name: "Rosheedah M.",
+      role: "Head of Product Design",
+      image: "/rosh.webp",
+    },
     { name: "Prosper Okere.", role: "UI/UX Designer", image: "/prosper.jpeg" },
-    { name: "Thomas Feranmi.", role: "Backend Engineer", image: "/Thomas.webp" },
-    { name: "Ifeanyichukwu O.", role: "Field Researcher", image: "/ifeanyi.webp" },
+    {
+      name: "Thomas Feranmi.",
+      role: "Backend Engineer",
+      image: "/Thomas.webp",
+    },
+    {
+      name: "Ifeanyichukwu O.",
+      role: "Field Researcher",
+      image: "/ifeanyi.webp",
+    },
   ],
   message: {
     good: "To the good realtors: stand with us.",

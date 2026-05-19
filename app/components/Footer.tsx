@@ -28,13 +28,13 @@ const Footer = () => {
           <div className="flex flex-col gap-4">
             <h4 className="font-bold text-gray-900 text-[21px]">Company</h4>
             <nav className="flex flex-col gap-3 text-gray-500 text-[19px]">
-              <a href="#" className="hover:text-green-600">
-                About IDU
+              <a href="/about-us" className="hover:text-green-600">
+                About RentULO
               </a>
               <a href="#" className="hover:text-green-600">
                 Careers
               </a>
-              <a href="#" className="hover:text-green-600">
+              <a href="/signup" className="hover:text-green-600">
                 Join us
               </a>
             </nav>
@@ -58,10 +58,10 @@ const Footer = () => {
           <div className="flex flex-col gap-4">
             <h4 className="font-bold text-gray-900 text-[21px]">Support</h4>
             <nav className="flex flex-col gap-3 text-gray-500 text-[19px]">
-              <a href="#" className="hover:text-green-600">
+              <a href="/help-center" className="hover:text-green-600">
                 Help center
               </a>
-              <a href="#" className="hover:text-green-600">
+              <a href="/contact" className="hover:text-green-600">
                 Contact us
               </a>
               <a href="#" className="hover:text-green-600">

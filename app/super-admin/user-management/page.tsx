@@ -34,7 +34,6 @@ const page = () => {
           </button>
         </div>
 
-        {/* Search + Filters */}
         <div className="bg-white rounded-xl md:rounded-2xl border border-gray-100 shadow-sm p-3 md:p-4 space-y-3 md:space-y-4">
           <div className="flex items-center gap-2 md:gap-3">
             <div className="relative flex-1">

@@ -19,8 +19,6 @@ const page = () => {
           <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
           <p className="text-gray-500 mt-1">Welcome back, Super Admin</p>
         </div>
-
-        {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {stats.map((stat) => (
             <div
@@ -79,7 +77,6 @@ const page = () => {
             </div>
           </div>
 
-          {/* Recent Activity */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
               Recent Activity
