@@ -49,7 +49,7 @@ const Footer = () => {
               <a href="#" className="hover:text-green-600">
                 List a property
               </a>
-              <a href="#" className="hover:text-green-600">
+              <a href="/faqs" className="hover:text-green-600">
                 FAQs
               </a>
             </nav>
