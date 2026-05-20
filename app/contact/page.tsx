@@ -14,19 +14,19 @@ const Page = () => {
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900">
       <Header />
-      <section className="pt-16 pb-12 px-4 sm:px-6 lg:px-8 text-center">
+      <div className="pt-16 pb-12 px-4 sm:px-6 lg:px-8 text-center">
         <div className="max-w-3xl mx-auto">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-emerald-950 mb-4">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-green-950 mb-4">
             {heroData.headline}
           </h1>
           <p className="text-gray-500 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
             {heroData.description}
           </p>
-          <div className="mt-6 w-16 h-0.5 bg-emerald-600 mx-auto rounded-full" />
+          <div className="mt-6 w-16 h-0.5 bg-green-600 mx-auto rounded-full" />
         </div>
-      </section>
+      </div>
 
-      <section className="py-12 px-4 sm:px-6 lg:px-8">
+      <div className="py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {contactCards.map((card, index) => {
@@ -34,10 +34,10 @@ const Page = () => {
               return (
                 <div
                   key={index}
-                  className="bg-emerald-50/50 rounded-2xl p-6 text-center group hover:shadow-lg transition-all duration-300 border border-emerald-100/50"
+                  className="bg-green-50/50 rounded-2xl p-6 text-center group hover:shadow-lg transition-all duration-300 border border-green-100/50"
                 >
-                  <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                    <Icon className="w-6 h-6 text-emerald-600" />
+                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <Icon className="w-6 h-6 text-green-600" />
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">
                     {card.title}
@@ -47,7 +47,7 @@ const Page = () => {
                   </p>
                   <a
                     href={`mailto:${card.email}`}
-                    className="inline-flex items-center gap-1 text-sm font-medium text-emerald-600 hover:text-emerald-700 transition-colors"
+                    className="inline-flex items-center gap-1 text-sm font-medium text-green-600 hover:text-green-700 transition-colors"
                   >
                     {card.actionLabel}
                     <ArrowRight className="w-4 h-4" />
@@ -57,17 +57,14 @@ const Page = () => {
             })}
           </div>
         </div>
-      </section>
-
-      {/* Contact Form + Image */}
-      <section className="py-12 px-4 sm:px-6 lg:px-8">
+      </div>
+      <div className="py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-            {/* Left - Image */}
             <div className="relative">
               <div className="rounded-2xl overflow-hidden bg-gray-100 aspect-[4/3]">
                 <img
-                  src="/contact-office.jpg"
+                  src="/contact-office.png"
                   alt="RentULO Office"
                   className="w-full h-full object-cover"
                 />
@@ -81,16 +78,16 @@ const Page = () => {
                 </p>
                 <div className="mt-4 space-y-2">
                   <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <MapPin className="w-4 h-4 text-emerald-600" />
+                    <MapPin className="w-4 h-4 text-green-600" />
                     <span>Lagos, Nigeria</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <Phone className="w-4 h-4 text-emerald-600" />
+                    <Phone className="w-4 h-4 text-green-600" />
                     <span>+234 800 123 4567</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <MailIcon className="w-4 h-4 text-emerald-600" />
-                    <span>hello@rentulo.ng</span>
+                    <MailIcon className="w-4 h-4 text-green-600" />
+                    <span>rentulonigeria@gmail.com</span>
                   </div>
                 </div>
               </div>
@@ -116,7 +113,7 @@ const Page = () => {
                     <input
                       type="text"
                       placeholder={formData.fields.lastName.placeholder}
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder:text-gray-400"
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder:text-gray-400"
                     />
                   </div>
                 </div>
@@ -129,14 +126,14 @@ const Page = () => {
                     <input
                       type="email"
                       placeholder={formData.fields.email.placeholder}
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder:text-gray-400"
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder:text-gray-400"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">
                       {formData.fields.subject.label}
                     </label>
-                    <select className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-gray-600 bg-white">
+                    <select className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-600 bg-white">
                       {formData.fields.subject.options.map((opt, i) => (
                         <option key={i} value={opt}>
                           {opt}
@@ -153,13 +150,13 @@ const Page = () => {
                   <textarea
                     rows={5}
                     placeholder={formData.fields.message.placeholder}
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder:text-gray-400 resize-none"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder:text-gray-400 resize-none"
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-semibold py-3 px-6 rounded-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                  className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {formData.submitLabel}
                   <ArrowRight className="w-4 h-4" />
@@ -172,9 +169,9 @@ const Page = () => {
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      <section className="py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
+      <div className="py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
         <div className="max-w-4xl mx-auto text-center">
           <h3 className="text-lg font-semibold text-gray-900 mb-6">
             {socialData.headline}
@@ -183,16 +180,18 @@ const Page = () => {
             {socialData.platforms.map((platform, index) => (
               <a
                 key={index}
-                href="#"
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-white rounded-full border border-gray-200 text-sm font-medium text-gray-700 hover:border-emerald-300 hover:text-emerald-700 transition-all"
+                href={platform.href}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-white rounded-full border border-gray-200 text-sm font-medium text-gray-700 hover:border-green-300 hover:text-green-700 transition-all"
               >
-                <span className="w-2 h-2 bg-emerald-500 rounded-full" />
+                <span className="w-2 h-2 bg-green-500 rounded-full" />
                 {platform.name}
               </a>
             ))}
           </div>
         </div>
-      </section>
+      </div>
 
       <footer className="py-10 px-4 sm:px-6 lg:px-8 border-t border-gray-100">
         <div className="max-w-6xl mx-auto">

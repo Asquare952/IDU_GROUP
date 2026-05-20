@@ -60,8 +60,8 @@ export const formData = {
   description:
     "Our team typically responds within 2 working hours. We're happy to answer any questions about the platform, partnerships, or press inquiries.",
   fields: {
-    firstName: { label: "First Name", placeholder: "John" },
-    lastName: { label: "Last Name", placeholder: "Doe" },
+    firstName: { label: "First Name", placeholder: "Dave" },
+    lastName: { label: "Last Name", placeholder: "Smith" },
     email: { label: "Email", placeholder: "john@example.com" },
     subject: {
       label: "Subject",
@@ -84,10 +84,26 @@ export const formData = {
 export const socialData = {
   headline: "Follow our journey",
   platforms: [
-    { name: "X", handle: "@RentULO" },
-    { name: "Instagram", handle: "@rentulo.ng" },
-    { name: "LinkedIn", handle: "RentULO" },
-    { name: "TikTok", handle: "@rentulo" },
+    {
+      name: "X",
+      handle: "@Rentulonigeria",
+      href: "https://x.com/Rentulonigeria",
+    },
+    {
+      name: "Instagram",
+      handle: "@Rentulonigeria",
+      href: "https://www.instagram.com/rentulonigeria?igsh=YmF3N2ZjYjRkNjQ2&utm_source=qr",
+    },
+    {
+      name: "Substack",
+      handle: "@rentulo",
+      href: "https://substack.com/@rentulo",
+    },
+    {
+      name: "TikTok",
+      handle: "@Rentulonigeria",
+      href: "https://www.tiktok.com/@rentulonigeria?lang=en-GB",
+    },
   ],
 };
 
