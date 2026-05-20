@@ -30,9 +30,9 @@ const Page = () => {
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900">
       <Header />
-      <div className="bg-gradient-to-b from-green-50/50 to-white pt-16 pb-12 px-4 sm:px-6 lg:px-8">
+      <div className="bg-gradient-to-b from-[#4CAF50]/12 to-white pt-16 pb-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-green-950 mb-4">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#4CAF50] mb-4">
             {heroData.headline}
           </h1>
           <p className="text-gray-500 text-base sm:text-lg mb-8 max-w-2xl mx-auto">
@@ -44,7 +44,7 @@ const Page = () => {
             <input
               type="text"
               placeholder={heroData.searchPlaceholder}
-              className="w-full pl-12 pr-4 py-3.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm placeholder:text-gray-400"
+              className="w-full pl-12 pr-4 py-3.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-transparent shadow-sm placeholder:text-gray-400"
             />
           </div>
         </div>
@@ -58,14 +58,14 @@ const Page = () => {
               return (
                 <div
                   key={index}
-                  className="bg-white rounded-2xl p-6 border border-gray-100 hover:shadow-lg hover:border-green-100 transition-all duration-300 cursor-pointer group"
+                  className="bg-white rounded-2xl p-6 border border-gray-100 hover:shadow-lg hover:border-[#4CAF50]/20 transition-all duration-300 cursor-pointer group"
                 >
                   <div
                     className={`${category.iconBg} w-12 h-12 rounded-xl flex items-center justify-center mb-4`}
                   >
                     <Icon className={`w-6 h-6 ${category.iconColor}`} />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-green-700 transition-colors">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-[#4CAF50] transition-colors">
                     {category.title}
                   </h3>
                   <p className="text-sm text-gray-500 leading-relaxed">
@@ -80,7 +80,7 @@ const Page = () => {
 
       <div className="py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-xl font-bold text-green-950 mb-6 text-center">
+          <h2 className="text-xl font-bold text-[#1B5E20] mb-6 text-center">
             Detailed Answers
           </h2>
 
@@ -90,17 +90,17 @@ const Page = () => {
               return (
                 <div
                   key={index}
-                  className="border border-gray-100 rounded-xl overflow-hidden hover:border-green-200 transition-colors"
+                  className="border border-gray-100 rounded-xl overflow-hidden hover:border-[#4CAF50]/25 transition-colors"
                 >
                   <button
                     onClick={() => toggleFaq(index)}
-                    className="w-full flex items-center justify-between p-5 text-left bg-white hover:bg-green-50/30 transition-colors"
+                    className="w-full flex items-center justify-between p-5 text-left bg-white hover:bg-[#4CAF50]/5 transition-colors"
                   >
                     <span className="font-medium text-gray-900 text-sm sm:text-base">
                       {item.question}
                     </span>
                     {isOpen ? (
-                      <ChevronUp className="w-5 h-5 text-green-600 flex-shrink-0 ml-4" />
+                      <ChevronUp className="w-5 h-5 text-[#4CAF50] flex-shrink-0 ml-4" />
                     ) : (
                       <ChevronDown className="w-5 h-5 text-gray-400 flex-shrink-0 ml-4" />
                     )}
@@ -122,27 +122,27 @@ const Page = () => {
 
       <div className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
-          <div className="bg-green-950 rounded-3xl p-8 sm:p-12 lg:p-16 relative overflow-hidden">
+          <div className="bg-[#4CAF50] rounded-3xl p-8 sm:p-12 lg:p-16 relative overflow-hidden">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
               <div>
                 <div className="flex items-center gap-2 mb-4">
-                  <Shield className="w-5 h-5 text-green-400" />
-                  <span className="text-green-400 text-sm font-semibold uppercase tracking-wider">
+                  <Shield className="w-5 h-5 text-white" />
+                  <span className="text-white text-sm font-semibold uppercase tracking-wider">
                     Trust & Safety
                   </span>
                 </div>
                 <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
                   {trustData.headline}
                 </h2>
-                <p className="text-base mb-8 leading-relaxed">
+                <p className="text-base text-white mb-8 leading-relaxed">
                   {trustData.description}
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {trustData.features.map((feature, index) => (
-                    <div key={index} className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-green-400 rounded-full" />
-                      <span className="text-green-100 text-sm">{feature}</span>
+                    <div key={index} className="flex items-center gap-3  text-white">
+                      <div className="w-2 h-2 bg-white rounded-full" />
+                      <span className="text-white/90 text-sm">{feature}</span>
                     </div>
                   ))}
                 </div>
@@ -172,7 +172,7 @@ const Page = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <button className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-8 rounded-full transition-all active:scale-95 shadow-lg shadow-green-600/20 cursor-pointer">
+            <button className="inline-flex items-center gap-2 bg-[#4CAF50] hover:bg-[#43A047] text-white font-semibold py-3 px-8 rounded-full transition-all active:scale-95 shadow-lg shadow-[#4CAF50]/20 cursor-pointer">
               <MessageCircle className="w-5 h-5" />
               {ctaData.primaryLabel}
             </button>

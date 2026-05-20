@@ -14,15 +14,15 @@ const Page = () => {
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900">
       <Header />
-      <div className="pt-16 pb-12 px-4 sm:px-6 lg:px-8 text-center">
+      <div className="bg-gradient-to-b from-[#4CAF50]/12 to-white pt-16 pb-12 px-4 sm:px-6 lg:px-8 text-center">
         <div className="max-w-3xl mx-auto">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-green-950 mb-4">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#1B5E20] mb-4">
             {heroData.headline}
           </h1>
           <p className="text-gray-500 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
             {heroData.description}
           </p>
-          <div className="mt-6 w-16 h-0.5 bg-green-600 mx-auto rounded-full" />
+          <div className="mt-6 w-16 h-0.5 bg-[#4CAF50] mx-auto rounded-full" />
         </div>
       </div>
 
@@ -34,10 +34,10 @@ const Page = () => {
               return (
                 <div
                   key={index}
-                  className="bg-green-50/50 rounded-2xl p-6 text-center group hover:shadow-lg transition-all duration-300 border border-green-100/50"
+                  className="bg-[#4CAF50]/5 rounded-2xl p-6 text-center group hover:shadow-lg transition-all duration-300 border border-[#4CAF50]/15"
                 >
-                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                    <Icon className="w-6 h-6 text-green-600" />
+                  <div className="w-12 h-12 bg-[#4CAF50]/12 rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <Icon className="w-6 h-6 text-[#4CAF50]" />
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">
                     {card.title}
@@ -47,7 +47,7 @@ const Page = () => {
                   </p>
                   <a
                     href={`mailto:${card.email}`}
-                    className="inline-flex items-center gap-1 text-sm font-medium text-green-600 hover:text-green-700 transition-colors"
+                    className="inline-flex items-center gap-1 text-sm font-medium text-[#4CAF50] hover:text-[#43A047] transition-colors"
                   >
                     {card.actionLabel}
                     <ArrowRight className="w-4 h-4" />
@@ -78,15 +78,15 @@ const Page = () => {
                 </p>
                 <div className="mt-4 space-y-2">
                   <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <MapPin className="w-4 h-4 text-green-600" />
+                    <MapPin className="w-4 h-4 text-[#4CAF50]" />
                     <span>Lagos, Nigeria</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <Phone className="w-4 h-4 text-green-600" />
+                    <Phone className="w-4 h-4 text-[#4CAF50]" />
                     <span>+234 800 123 4567</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <MailIcon className="w-4 h-4 text-green-600" />
+                    <MailIcon className="w-4 h-4 text-[#4CAF50]" />
                     <span>rentulonigeria@gmail.com</span>
                   </div>
                 </div>
@@ -97,43 +97,61 @@ const Page = () => {
               <form className="space-y-5">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    <label
+                      htmlFor="contact-first-name"
+                      className="block text-sm font-medium text-gray-700 mb-1.5"
+                    >
                       {formData.fields.firstName.label}
                     </label>
                     <input
+                      id="contact-first-name"
                       type="text"
                       placeholder={formData.fields.firstName.placeholder}
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder:text-gray-400"
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-transparent placeholder:text-gray-400"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    <label
+                      htmlFor="contact-last-name"
+                      className="block text-sm font-medium text-gray-700 mb-1.5"
+                    >
                       {formData.fields.lastName.label}
                     </label>
                     <input
+                      id="contact-last-name"
                       type="text"
                       placeholder={formData.fields.lastName.placeholder}
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder:text-gray-400"
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-transparent placeholder:text-gray-400"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    <label
+                      htmlFor="contact-email"
+                      className="block text-sm font-medium text-gray-700 mb-1.5"
+                    >
                       {formData.fields.email.label}
                     </label>
                     <input
+                      id="contact-email"
                       type="email"
                       placeholder={formData.fields.email.placeholder}
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder:text-gray-400"
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-transparent placeholder:text-gray-400"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    <label
+                      htmlFor="contact-subject"
+                      className="block text-sm font-medium text-gray-700 mb-1.5"
+                    >
                       {formData.fields.subject.label}
                     </label>
-                    <select className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-600 bg-white">
+                    <select
+                      id="contact-subject"
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-transparent text-gray-600 bg-white"
+                    >
                       {formData.fields.subject.options.map((opt, i) => (
                         <option key={i} value={opt}>
                           {opt}
@@ -144,19 +162,23 @@ const Page = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  <label
+                    htmlFor="contact-message"
+                    className="block text-sm font-medium text-gray-700 mb-1.5"
+                  >
                     {formData.fields.message.label}
                   </label>
                   <textarea
+                    id="contact-message"
                     rows={5}
                     placeholder={formData.fields.message.placeholder}
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder:text-gray-400 resize-none"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-transparent placeholder:text-gray-400 resize-none"
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full bg-[#4CAF50] hover:bg-[#43A047] text-white font-semibold py-3 px-6 rounded-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {formData.submitLabel}
                   <ArrowRight className="w-4 h-4" />
@@ -183,9 +205,9 @@ const Page = () => {
                 href={platform.href}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-white rounded-full border border-gray-200 text-sm font-medium text-gray-700 hover:border-green-300 hover:text-green-700 transition-all"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-white rounded-full border border-gray-200 text-sm font-medium text-gray-700 hover:border-[#4CAF50]/40 hover:text-[#4CAF50] transition-all"
               >
-                <span className="w-2 h-2 bg-green-500 rounded-full" />
+                <span className="w-2 h-2 bg-[#4CAF50] rounded-full" />
                 {platform.name}
               </a>
             ))}

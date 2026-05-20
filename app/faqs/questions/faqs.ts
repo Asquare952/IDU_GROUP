@@ -31,46 +31,46 @@ export const heroData = {
 export const categories: FaqCategory[] = [
   {
     icon: Rocket,
-    iconColor: "text-emerald-600",
-    iconBg: "bg-emerald-100",
+    iconColor: "text-[#4CAF50]",
+    iconBg: "bg-[#4CAF50]/12",
     title: "Getting Started",
     description:
       "New to RentULO? Learn how to create an account and start your search.",
   },
   {
     icon: ShieldCheck,
-    iconColor: "text-emerald-600",
-    iconBg: "bg-emerald-100",
+    iconColor: "text-[#4CAF50]",
+    iconBg: "bg-[#4CAF50]/12",
     title: "Property Verification",
     description: "Understand how we verify listings and what the badges mean.",
   },
   {
     icon: Shield,
-    iconColor: "text-emerald-600",
-    iconBg: "bg-emerald-100",
+    iconColor: "text-[#4CAF50]",
+    iconBg: "bg-[#4CAF50]/12",
     title: "Renter Safety",
     description:
       "Tips and protocols to keep you safe during your rental journey.",
   },
   {
     icon: Home,
-    iconColor: "text-emerald-600",
-    iconBg: "bg-emerald-100",
+    iconColor: "text-[#4CAF50]",
+    iconBg: "bg-[#4CAF50]/12",
     title: "Listing a Property",
     description:
       "How landlords and agents can list verified properties on our platform.",
   },
   {
     icon: CreditCard,
-    iconColor: "text-emerald-600",
-    iconBg: "bg-emerald-100",
+    iconColor: "text-[#4CAF50]",
+    iconBg: "bg-[#4CAF50]/12",
     title: "Payments & Fees",
     description: "Our zero-commission policy and how payments work on RentULO.",
   },
   {
     icon: UserCircle,
-    iconColor: "text-emerald-600",
-    iconBg: "bg-emerald-100",
+    iconColor: "text-[#4CAF50]",
+    iconBg: "bg-[#4CAF50]/12",
     title: "Account Support",
     description: "Managing your profile, verification, and account settings.",
   },

@@ -64,7 +64,7 @@ const Footer = () => {
               <a href="/contact" className="hover:text-green-600">
                 Contact us
               </a>
-              <a href="#" className="hover:text-green-600">
+              <a href="/terms-privacy" className="hover:text-green-600">
                 Terms and Privacy
               </a>
             </nav>
