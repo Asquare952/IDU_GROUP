@@ -120,7 +120,6 @@ const Page = () => {
             </button>
           </div>
 
-          {/* Filter Tabs */}
           <div className="flex flex-wrap gap-2">
             {filterTabs.map((tab) => (
               <button
@@ -151,7 +150,7 @@ const Page = () => {
             >
               <div className={`h-40 md:h-48 ${property.image} w-full`} />
 
-              {/* Content */}
+              
               <div className="p-4 md:p-5 space-y-3">
                 <div className="flex items-start justify-between gap-3">
                   <h3 className="text-base md:text-lg font-semibold text-gray-900">
@@ -210,8 +209,7 @@ const Page = () => {
             </p>
           </div>
         )}
-
-        {/* Pagination */}
+        
         <div className="flex items-center justify-between bg-white rounded-xl md:rounded-2xl border border-gray-100 shadow-sm p-4">
           <p className="text-sm text-gray-500">
             Showing 1-{filteredProperties.length} of{" "}

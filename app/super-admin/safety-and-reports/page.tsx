@@ -204,7 +204,6 @@ const page = () => {
           </div>
         </div>
 
-        {/* Recent Critical Reports */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
             Recent Critical Reports
