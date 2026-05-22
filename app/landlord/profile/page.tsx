@@ -1,14 +1,23 @@
-"use client"
+"use client";
 
 import Image from "next/image";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import DashboardLayout from "@/app/components/Dashboard/DashboardLayout";
-import { SquarePen, User, Mail, Phone, MapPin, Calendar, Building2, Shield } from 'lucide-react';
+import {
+  SquarePen,
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  Building2,
+  Shield,
+} from "lucide-react";
 import Link from "next/link";
 import { useUserProfile } from "@/app/api/features/auth/auth.queries";
 import { AuthResponse } from "@/app/api/features/auth/types";
-import { useFetchLandlordListedProperties } from "@/app/api/features/property/property.queries";
+import { useFetchLandlordListedProperties } from "@/app/api/features/rental";
 import { useState, useEffect } from "react";
 // import { property } from "zod";
 
@@ -30,13 +39,13 @@ type DecodedToken = {
   createdAt?: string;
 };
 
-
 const page = () => {
-
   const [userId, setUserId] = useState<string>();
   const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
   const [cachedProfile, setCachedProfile] = useState<CachedUserProfile>();
-  const [decodedProfile, setDecodedProfile] = useState<Partial<CachedUserProfile>>({});
+  const [decodedProfile, setDecodedProfile] = useState<
+    Partial<CachedUserProfile>
+  >({});
 
   const getStatusStyle = (status: string) => {
     switch (status) {
@@ -52,7 +61,6 @@ const page = () => {
   };
 
   const { data: properties } = useFetchLandlordListedProperties();
-
 
   useEffect(() => {
     const token = Cookies.get("ACCESS_TOKEN");
@@ -81,7 +89,7 @@ const page = () => {
         phone_no: decoded.phone_no,
         address: decoded.address,
         state: decoded.state,
-        createdAt: decoded.createdAt
+        createdAt: decoded.createdAt,
       });
     } catch {
       setUserId(undefined);
@@ -106,9 +114,15 @@ const page = () => {
 
   const displayUser = user ?? cachedProfile;
   const displayFirstName =
-    user?.first_name ?? cachedProfile?.first_name ?? decodedProfile.first_name ?? "";
+    user?.first_name ??
+    cachedProfile?.first_name ??
+    decodedProfile.first_name ??
+    "";
   const displayLastName =
-    user?.last_name ?? cachedProfile?.last_name ?? decodedProfile.last_name ?? "";
+    user?.last_name ??
+    cachedProfile?.last_name ??
+    decodedProfile.last_name ??
+    "";
   const displayEmail =
     user?.email ?? cachedProfile?.email ?? decodedProfile.email ?? "";
   const displayPhone =
@@ -122,15 +136,17 @@ const page = () => {
       ? new Date(cachedProfile.createdAt).getFullYear()
       : "";
   const initials =
-    `${displayFirstName[0] ?? ""}${displayLastName[0] ?? ""}`.trim() ||
-    "U";
+    `${displayFirstName[0] ?? ""}${displayLastName[0] ?? ""}`.trim() || "U";
 
   return (
     <DashboardLayout>
       <section className="p-8 bg-[#F8F9FA] min-h-screen">
         <div className=" flex justify-between items-center mb-6">
           <h2 className="text-4xl font-bold text-[#162B4C]">My Profile</h2>
-          <Link href="/landlord/edit-profile" className=" flex items-center gap-1.5 py-2.5 px-3.5 rounded-md bg-[#43A047] text-white">
+          <Link
+            href="/landlord/edit-profile"
+            className=" flex items-center gap-1.5 py-2.5 px-3.5 rounded-md bg-[#43A047] text-white"
+          >
             <SquarePen size={15} className=" text-md" />
             <span>Edit Profile</span>
           </Link>
@@ -222,12 +238,15 @@ const page = () => {
                   <Calendar size={25} className="text-gray-400" />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <p className="text-sm font-bold text-[#162B4C]">Memeber Since</p>
+                  <p className="text-sm font-bold text-[#162B4C]">
+                    Memeber Since
+                  </p>
                   <p className="text-gray-500">
-                    {displayMembershipYear ? `Since ${displayMembershipYear}` : "N/A"}
+                    {displayMembershipYear
+                      ? `Since ${displayMembershipYear}`
+                      : "N/A"}
                   </p>
                 </div>
-
               </div>
 
               <div className="flex gap-1">
@@ -235,10 +254,11 @@ const page = () => {
                   <Building2 size={25} className="text-gray-400" />
                 </div>
                 <div className=" flex flex-col gap-1">
-                  <p className="text-sm font-bold text-[#162B4C]">Company Name</p>
+                  <p className="text-sm font-bold text-[#162B4C]">
+                    Company Name
+                  </p>
                   <p className="text-gray-500">{displayEmail}</p>
                 </div>
-
               </div>
 
               <div className="flex gap-1">
@@ -246,10 +266,11 @@ const page = () => {
                   <Shield size={25} className="text-gray-400" />
                 </div>
                 <div className=" flex flex-col gap-1">
-                  <p className="text-sm font-bold text-[#162B4C]">Phone Number</p>
+                  <p className="text-sm font-bold text-[#162B4C]">
+                    Phone Number
+                  </p>
                   <p className="text-gray-500">{displayPhone}</p>
                 </div>
-
               </div>
             </div>
           </div>
@@ -275,14 +296,20 @@ const page = () => {
                         className="h-[50px] w-[50px] rounded-lg object-cover"
                       />
                       <div className="flex flex-col gap-1">
-                        <p className="text-sm font-bold text-gray-900">{prop.title}</p>
-                        <p className="text-xs text-gray-500">
-                          {prop.location}
+                        <p className="text-sm font-bold text-gray-900">
+                          {prop.title}
                         </p>
-                        <p className="text-lg font-bold text-[#43A047] mt-1">${prop.price.toFixed(2)}/month</p>
+                        <p className="text-xs text-gray-500">{prop.location}</p>
+                        <p className="text-lg font-bold text-[#43A047] mt-1">
+                          ${Number(prop.price).toFixed(2)}/month
+                        </p>
                       </div>
                     </div>
-                    <p className={`text-[9px] font-bold px-2 py-1 rounded-full ${getStatusStyle(prop.status)}`}>{prop.status}</p>
+                    <p
+                      className={`text-[9px] font-bold px-2 py-1 rounded-full ${getStatusStyle(prop.status)}`}
+                    >
+                      {prop.status}
+                    </p>
                   </div>
                 );
               })}
@@ -303,12 +330,13 @@ const page = () => {
                   <Calendar size={25} className="text-gray-400" />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <p className="text-sm font-bold text-[#162B4C]">Memeber Since</p>
+                  <p className="text-sm font-bold text-[#162B4C]">
+                    Memeber Since
+                  </p>
                   <p className="text-gray-500">
                     {displayFirstName} {displayLastName}
                   </p>
                 </div>
-
               </div>
 
               <div className="flex flex-col gap-1">
@@ -323,11 +351,9 @@ const page = () => {
             </div>
           </div>
         </div>
-
       </section>
     </DashboardLayout>
+  );
+};
 
-  )
-}
-
-export default page
+export default page;

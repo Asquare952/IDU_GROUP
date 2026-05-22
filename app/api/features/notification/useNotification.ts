@@ -4,11 +4,37 @@ import { Notification } from "./types";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
 
+const getAccessToken = () => Cookies.get("ACCESS_TOKEN") || "";
+
 const getNotificationScope = () => {
   const role = Cookies.get("USER_ROLE") || "anonymous";
-  const token = Cookies.get("ACCESS_TOKEN") || "guest";
+  const token = getAccessToken() || "guest";
 
   return `${role}:${token.slice(-12)}`;
+};
+
+const getErrorMessage = (error: unknown, fallback: string) => {
+  if (
+    error &&
+    typeof error === "object" &&
+    "response" in error &&
+    error.response &&
+    typeof error.response === "object" &&
+    "data" in error.response
+  ) {
+    const data = error.response.data;
+
+    if (
+      data &&
+      typeof data === "object" &&
+      "message" in data &&
+      typeof data.message === "string"
+    ) {
+      return data.message;
+    }
+  }
+
+  return fallback;
 };
 
 export const notificationQueryKeys = {
@@ -18,20 +44,24 @@ export const notificationQueryKeys = {
 
 export const useNotifications = () => {
   const scope = getNotificationScope();
+  const hasToken = Boolean(getAccessToken());
 
   return useQuery({
     queryKey: notificationQueryKeys.all(scope),
     queryFn: notificationApi.getNotifications,
+    enabled: hasToken,
     refetchInterval: 20000,
   });
 };
 
 export const useNotificationCount = () => {
   const scope = getNotificationScope();
+  const hasToken = Boolean(getAccessToken());
 
   return useQuery({
     queryKey: notificationQueryKeys.count(scope),
     queryFn: notificationApi.getUnreadCount,
+    enabled: hasToken,
     refetchInterval: 20000,
   });
 };
@@ -52,9 +82,9 @@ export const useMarkNotificationAsRead = () => {
         }),
       ]);
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       toast.error(
-        error?.response?.data?.message || "Failed to mark notification as read",
+        getErrorMessage(error, "Failed to mark notification as read"),
       );
     },
   });
@@ -76,9 +106,9 @@ export const useDeleteNotification = () => {
         }),
       ]);
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       toast.error(
-        error?.response?.data?.message || "Failed to delete notification",
+        getErrorMessage(error, "Failed to delete notification"),
       );
     },
   });
@@ -110,9 +140,9 @@ export const useMarkAllNotificationsAsRead = () => {
         }),
       ]);
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       toast.error(
-        error?.response?.data?.message || "Failed to mark notifications as read",
+        getErrorMessage(error, "Failed to mark notifications as read"),
       );
     },
   });

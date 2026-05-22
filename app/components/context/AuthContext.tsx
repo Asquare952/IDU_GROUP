@@ -14,8 +14,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
+  
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  
+
   useEffect(() => {
     const token = Cookies.get("ACCESS_TOKEN");
     setIsLoggedIn(!!token);

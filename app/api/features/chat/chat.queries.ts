@@ -1,17 +1,26 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getConversations, getMessages, sendMessage } from "./chat.api";
+import {
+  getConversations,
+  getMessages,
+  sanitizeConversationId,
+  sendMessage,
+  createConversation,
+} from "./chat.api";
 import {
   GetConversationsResponse,
   GetMessagesResponse,
   Message,
   SendMessagePayload,
+  CreateConversationPayload,
+  Conversation,
 } from "./types";
 
 export const useChatMessages = (conversationId: string) => {
+  const sanitizedConversationId = sanitizeConversationId(conversationId);
   const { data, isLoading } = useQuery<GetMessagesResponse>({
-    queryKey: ["messages", conversationId],
-    queryFn: () => getMessages(conversationId),
-    enabled: !!conversationId,
+    queryKey: ["messages", sanitizedConversationId],
+    queryFn: () => getMessages(sanitizedConversationId),
+    enabled: !!sanitizedConversationId,
   });
 
   return {
@@ -23,13 +32,28 @@ export const useChatMessages = (conversationId: string) => {
 export const useChatConversations = () => {
   const { data, isLoading } = useQuery<GetConversationsResponse>({
     queryKey: ["conversations"],
-    queryFn: getConversations,
+    queryFn: () => getConversations(),
+    enabled: true,
   });
 
   return {
     conversations: data?.conversations ?? [],
     isLoading,
   };
+};
+
+export const useCreateConversation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<Conversation, Error, CreateConversationPayload>({
+    mutationFn: createConversation,
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["conversations"],
+      });
+    },
+  });
 };
 
 export const useSendMessage = () => {

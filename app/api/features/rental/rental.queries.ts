@@ -5,8 +5,9 @@ import {
   UseQueryOptions,
   UseMutationOptions,
 } from "@tanstack/react-query";
-import {
-  rentalApi,
+import { fetchLandlordListedProperties, rentalApi } from "./rental.api";
+import type {
+  LandlordListedProperties,
   Rental,
   CreateRentalPayload,
   UpdateRentalPayload,
@@ -51,6 +52,19 @@ export const useGetRentalById = (
   });
 };
 
+export const useFetchLandlordListedProperties = (
+  options?: Omit<
+    UseQueryOptions<LandlordListedProperties, Error>,
+    "queryKey" | "queryFn"
+  >,
+) => {
+  return useQuery<LandlordListedProperties, Error>({
+    queryKey: ["landlord-listed-properties"],
+    queryFn: fetchLandlordListedProperties,
+    ...options,
+  });
+};
+
 // ========================
 // MUTATIONS (WRITE OPERATIONS)
 // ========================
@@ -69,6 +83,12 @@ export const useCreateRental = (
       // Invalidate all rental queries to refetch
       queryClient.invalidateQueries({
         queryKey: ["rentals"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["properties"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["landlord-listed-properties"],
       });
     },
     ...options,
@@ -93,6 +113,12 @@ export const useUpdateRental = (
       // Invalidate related queries
       queryClient.invalidateQueries({
         queryKey: ["rentals"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["properties"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["landlord-listed-properties"],
       });
     },
     ...options,

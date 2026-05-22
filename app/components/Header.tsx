@@ -136,7 +136,7 @@ const Header = () => {
                         <button
                           onClick={() => {
                             setIsProfileOpen(false);
-                            router.push("/tenant/dashboard/profile");
+                            router.push("/tenant/profile");
                           }}
                           className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
                         >
@@ -145,6 +145,7 @@ const Header = () => {
                         <button
                           onClick={() => {
                             setIsProfileOpen(false);
+                            router.push("/tenant/settings");
                             router.push("/tenant/dashboard");
                           }}
                           className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
@@ -228,7 +229,7 @@ const Header = () => {
                         <button
                           onClick={() => {
                             setIsProfileOpen(false);
-                            router.push("/tenant/dashboard/locked-house");
+                            router.push("/tenant/locked-house");
                           }}
                           className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
                         >
@@ -237,7 +238,7 @@ const Header = () => {
                         <button
                           onClick={() => {
                             setIsProfileOpen(false);
-                            router.push("/tenant/dashboard/saved-house");
+                            router.push("/tenant/saved-house");
                           }}
                           className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
                         >

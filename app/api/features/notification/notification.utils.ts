@@ -160,6 +160,12 @@ export const normalizeNotifications = (
     source = payload.results;
   } else if (Array.isArray(payload.items)) {
     source = payload.items;
+  } else if (Array.isArray(payload.docs)) {
+    source = payload.docs;
+  } else if (Array.isArray(payload.rows)) {
+    source = payload.rows;
+  } else if (Array.isArray(payload.records)) {
+    source = payload.records;
   } else if (Array.isArray(payload.data)) {
     source = payload.data;
   } else if (isRecord(payload.data)) {
@@ -171,6 +177,12 @@ export const normalizeNotifications = (
       source = nestedData.results;
     } else if (Array.isArray(nestedData.items)) {
       source = nestedData.items;
+    } else if (Array.isArray(nestedData.docs)) {
+      source = nestedData.docs;
+    } else if (Array.isArray(nestedData.rows)) {
+      source = nestedData.rows;
+    } else if (Array.isArray(nestedData.records)) {
+      source = nestedData.records;
     }
   }
 
@@ -180,7 +192,9 @@ export const normalizeNotifications = (
 
   const notifications = source
     .filter(isRecord)
-    .map((notification) => normalizeNotification(notification as NotificationRecord))
+    .map((notification) =>
+      normalizeNotification(notification as NotificationRecord),
+    )
     .filter(
       (notification) =>
         Boolean(notification.id) &&
