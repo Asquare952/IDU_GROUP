@@ -1,7 +1,43 @@
-import React from "react";
+"use client";
+
+import { useEffect, useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const Post = () => {
+    const router = useRouter();
+  const [auth, setAuth] = useState({
+    isLoggedIn: false,
+    userRole: null as "tenant" | "landlord" | null,
+    loading: true,
+  });
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch("/api/features/auth/me", {
+          credentials: "include",
+        });
+        const data = await res.json();
+        setAuth({
+          isLoggedIn: data.isLoggedIn,
+          userRole: data.userRole,
+          loading: false,
+        });
+      } catch {
+        setAuth({ isLoggedIn: false, userRole: null, loading: false });
+      }
+    };
+    checkAuth();
+  }, []);
+
+  const handleListProperty = () => {
+    if (auth.loading) return;
+    if (!auth.isLoggedIn) {
+      router.push("/login");
+    } else if (auth.userRole === "landlord") {
+      router.push("/landlord/dashboard");
+    }
+  };
   return (
     <div>
       <div className="w-full relative overflow-hidden py-20 bg-[#E8F0E9]">
@@ -32,9 +68,10 @@ const Post = () => {
             <p className="text-xl md:text-2xl text-gray-500 mt-6 max-w-2xl mx-auto">
               Post your house once, and reach verified tenants in your location
             </p>
-            <button className="bg-[#34A853] hover:bg-green-700 text-white font-bold py-2 px-8 rounded-full transition-all mt-10 shadow-lg flex items-center gap-2 mx-auto cursor-pointer transition-all active:scale-95">
+            {auth.userRole === "landlord" && <button onClick={handleListProperty} className="bg-[#34A853] hover:bg-green-700 text-white font-bold py-2 px-8 rounded-full transition-all mt-10 shadow-lg flex items-center gap-2 mx-auto cursor-pointer transition-all active:scale-95">
               Start Listing <span className="text-sm">&rarr;</span>
-            </button>
+            </button>}
+            
           </div>
           <div className="flex justify-center mt-16">
             <div className="relative w-full max-w-5xl shadow-2xl rounded-2xl overflow-hidden border border-gray-100">

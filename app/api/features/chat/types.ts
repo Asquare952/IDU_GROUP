@@ -1,7 +1,11 @@
 export interface User {
   _id: string;
-  name: string;
-  email?: string;
+  id?: string;
+  first_name: string;
+  last_name?: string;
+  name?: string;
+  fullName?: string;
+  firstName?: string;
   role?: "tenant" | "landlord";
 }
 
@@ -23,8 +27,14 @@ export interface SendMessagePayload {
   content: string;
 }
 
+export interface CreateConversationPayload {
+  other_user_id: string;
+}
+
 export interface Conversation {
-  _id: string;
+  conversation_id: string;
+  _id?: string;
+  id?: string;
   participants: User[]; // very important
   lastMessage?: Message;
   createdAt: string;

@@ -9,6 +9,7 @@ import {
   useNotifications,
 } from "@/app/api/features/notification";
 import { formatNotificationTime } from "./notification-helpers";
+import { div } from "framer-motion/m";
 
 interface NotificationMenuProps {
   notificationPath: string;
@@ -30,7 +31,7 @@ const NotificationMenu = ({ notificationPath }: NotificationMenuProps) => {
     !isNotificationsLoading && !hasNotificationsError
       ? notifications.filter((notification) => !notification.isRead).length
       : (notificationCount?.count ?? 0);
-  const topNotification = notifications[0];
+  // const topNotification = notifications[0];
 
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
@@ -94,24 +95,28 @@ const NotificationMenu = ({ notificationPath }: NotificationMenuProps) => {
                 <div className="h-3 w-full animate-pulse rounded bg-slate-100" />
                 <div className="h-3 w-1/3 animate-pulse rounded bg-slate-100" />
               </div>
-            ) : topNotification ? (
-              <div className="space-y-2">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="space-y-1">
-                    <h4 className="text-sm font-bold leading-snug text-[#162B4C]">
-                      {topNotification.title || "New notification"}
-                    </h4>
-                    <p className="text-xs leading-5 text-slate-600">
-                      {topNotification.message || "No extra details available."}
+            ) : notifications.length > 0 ? (
+              <div>
+                {notifications.map((notification, index) => (
+                  <div key={index} className="space-y-2">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="space-y-1">
+                        <h4 className="text-sm font-bold leading-snug text-[#162B4C]">
+                          {notification.title || "New notification"}
+                        </h4>
+                        <p className="text-xs leading-5 text-slate-600">
+                          {notification.message || "No extra details available."}
+                        </p>
+                      </div>
+                      {!notification.isRead ? (
+                        <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-[#43A047]" />
+                      ) : null}
+                    </div>
+                    <p className="text-[11px] font-medium text-slate-400">
+                      {formatNotificationTime(notification.createdAt)}
                     </p>
                   </div>
-                  {!topNotification.isRead ? (
-                    <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-[#43A047]" />
-                  ) : null}
-                </div>
-                <p className="text-[11px] font-medium text-slate-400">
-                  {formatNotificationTime(topNotification.createdAt)}
-                </p>
+                ))}
               </div>
             ) : (
               <p className="text-sm text-slate-500">

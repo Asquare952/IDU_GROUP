@@ -1,8 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { hasAccessToken } from "@/app/lib/auth";
+
+
 
 interface SearchItemProps {
   title: string;
@@ -26,9 +29,8 @@ const SearchItem = ({
   onChange,
 }: SearchItemProps) => (
   <div
-    className={`w-full md:flex-1 flex flex-col px-6 md:px-8 py-4 md:py-2 ${
-      !isLast ? "border-b md:border-b-0 md:border-r border-gray-100" : ""
-    }`}
+    className={`w-full md:flex-1 flex flex-col px-6 md:px-8 py-4 md:py-2 ${!isLast ? "border-b md:border-b-0 md:border-r border-gray-100" : ""
+      }`}
   >
     <span className="text-[10px] uppercase font-bold text-gray-400 tracking-widest mb-1">
       {title}
@@ -230,22 +232,19 @@ const HeroSection = () => {
             <div className="flex flex-row gap-4">
               <button
                 onClick={handleFindHouse}
-                disabled={auth.loading}
-                className={`cursor-pointer bg-[#43A047] hover:bg-green-600 text-white font-semibold py-3 px-6 md:px-10 rounded-full transition-all active:scale-95 shadow-lg shadow-green-900/20 ${
-                  auth.loading ? "opacity-70 cursor-wait" : ""
-                }`}
+                className={`cursor-pointer bg-[#43A047] hover:bg-green-600 text-white font-semibold py-3 px-6 md:px-10 rounded-full transition-all active:scale-95 shadow-lg shadow-green-900/20 ${auth.loading ? "opacity-70 cursor-wait" : ""
+                  }`}
               >
-                {auth.loading ? "Loading..." : "Find a house"}
+                Find a house
               </button>
-              <button
+              {auth.userRole === "landlord" ? <button
                 onClick={handleListProperty}
-                disabled={auth.loading}
-                className={`cursor-pointer bg-white/10 backdrop-blur-md border border-white/30 hover:bg-white/20 text-white font-semibold py-3 px-6 md:px-10 rounded-full transition-all active:scale-95 ${
-                  auth.loading ? "opacity-70 cursor-wait" : ""
-                }`}
+                className={`cursor-pointer bg-white/10 backdrop-blur-md border border-white/30 hover:bg-white/20 text-white font-semibold py-3 px-6 md:px-10 rounded-full transition-all active:scale-95 ${auth.loading ? "opacity-70 cursor-wait" : ""
+                  }`}
               >
-                {auth.loading ? "Loading..." : "List a property"}
-              </button>
+                List a property
+              </button> : ""}
+
             </div>
           </div>
         </div>

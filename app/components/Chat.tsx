@@ -12,6 +12,7 @@ import {
   useChatMessages,
   useSendMessage,
 } from "../api/features/chat/chat.queries";
+import { sanitizeConversationId } from "../api/features/chat/chat.api";
 import { Message } from "../api/features/chat/types";
 import { socket } from "../lib/socket";
 
@@ -36,7 +37,7 @@ const Chat = () => {
     ? params.conversationId[0]
     : params.conversationId;
   const { conversations } = useChatConversations();
-  const activeConversationId = routeConversationId ?? null;
+  const activeConversationId = sanitizeConversationId(routeConversationId);
   const { messages } = useChatMessages(activeConversationId ?? "");
   const { mutate: sendMessage, isPending } = useSendMessage();
   const messagesBasePath = pathname.includes("/messages/")
@@ -44,11 +45,19 @@ const Chat = () => {
     : pathname;
   const isMobileConversationOpen = !!routeConversationId;
 
-  const selectedConversation = conversations.find(
-    (conversation) => conversation._id === activeConversationId,
+  const selectedConversation = (conversations ?? []).find((conversation) =>
+    conversation.conversation_id === activeConversationId ||
+    (conversation as any)._id === activeConversationId ||
+    (conversation as any).id === activeConversationId,
   );
+
   const selectedConversationTitle = selectedConversation
-    ? selectedConversation.participants.map((participant) => participant.name).join(", ")
+    ? (selectedConversation.participants ?? [])
+      .map((participant) =>
+        // accept multiple possible field names from backend
+        (participant as any).first_name ?? (participant as any).name ?? (participant as any).fullName ?? (participant as any).firstName ?? participant._id ?? "User",
+      )
+      .join(", ")
     : "Select a conversation";
 
   useEffect(() => {
@@ -57,7 +66,9 @@ const Chat = () => {
 
     try {
       const decoded = jwtDecode<DecodedToken>(token);
-      setCurrentUserId(decoded._id ?? null);
+      setCurrentUserId(
+        decoded._id ?? decoded.id ?? decoded.userId ?? decoded.sub ?? null,
+      );
     } catch {
       setCurrentUserId(null);
     }
@@ -112,7 +123,11 @@ const Chat = () => {
   }, [messages]);
 
   const handleConversationSelect = (nextConversationId: string) => {
-    router.push(`${messagesBasePath}/${nextConversationId}`);
+    const sanitizedNextConversationId = sanitizeConversationId(nextConversationId);
+
+    if (!sanitizedNextConversationId) return;
+
+    router.push(`${messagesBasePath}/${sanitizedNextConversationId}`);
   };
 
   const handleBackToList = () => {
@@ -144,20 +159,36 @@ const Chat = () => {
       </div>
       <div className="mt-3 border-b border-white/20 md:border-[#ffffff33]" />
       <div className="mt-3 flex-1 space-y-2 overflow-y-auto">
-        {conversations.map((conversation) => {
-          const isActive = conversation._id === activeConversationId;
-          const participantNames = conversation.participants
-            .map((participant) => participant.name)
+        {(conversations ?? []).map((conversation) => {
+          const convId = sanitizeConversationId(
+            (conversation as any).conversation_id ??
+            (conversation as any)._id ??
+            (conversation as any).id,
+          );
+
+          if (!convId) {
+            return null;
+          }
+
+          const isActive = convId === activeConversationId;
+          const participantNames = (conversation.participants ?? [])
+            .map(
+              (participant) =>
+                participant.first_name ??
+                participant.name ??
+                participant.fullName ??
+                participant.firstName ??
+                participant._id ??
+                "Conversation",
+            )
             .join(", ");
 
           return (
             <button
-              key={conversation._id}
+              key={convId}
               type="button"
-              onClick={() => handleConversationSelect(conversation._id)}
-              className={`block w-full rounded-xl px-3 py-3 text-left transition ${
-                isActive ? "bg-white text-[#43A047]" : "bg-white/10 hover:bg-white/20"
-              }`}
+              onClick={() => handleConversationSelect(convId)}
+              className={`block w-full rounded-xl px-3 py-3 text-left transition ${isActive ? "bg-white text-[#43A047]" : "bg-white/10 hover:bg-white/20"}`}
             >
               {participantNames || "Conversation"}
             </button>
@@ -195,17 +226,13 @@ const Chat = () => {
               : "Choose a conversation to start chatting."}
           </p>
         ) : (
-          messages.map((msg) => {
+          messages.map((msg, idx) => {
             const isMe = currentUserId ? msg.senderId === currentUserId : false;
 
             return (
               <div
-                key={msg._id}
-                className={`mb-2 max-w-[85%] rounded-2xl px-4 py-2 md:max-w-[60%] ${
-                  isMe
-                    ? "self-end bg-green-500 text-white"
-                    : "self-start bg-white text-black"
-                }`}
+                key={msg._id ?? `message-${idx}`}
+                className={`mb-2 max-w-[85%] rounded-2xl px-4 py-2 md:max-w-[60%] ${isMe ? "self-end bg-green-500 text-white" : "self-start bg-white text-black"}`}
               >
                 {msg.content}
               </div>

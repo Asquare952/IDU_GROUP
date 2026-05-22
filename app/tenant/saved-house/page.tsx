@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { Suspense } from "react";
 import DashboardLayout from "@/app/components/Tenant-Dashboard/DashboardLayout";
 import {
   SavedHousesData,
@@ -14,16 +14,58 @@ import {
   X,
   ShieldAlert,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useLikedRentals, useClearLikedRentals, useUnlikeRental, useLockRental } from "@/app/api/features/progress/progress.queries";
+import {
+  useLikedRentals, useClearLikedRentals, useUnlikeRental, useInitializeLockPayment,
+  useVerifyLockPayment,
+} from "@/app/api/features/progress/progress.queries";
+import { getPropertyDetailsPath } from "@/app/lib/property-routes";
+import {
 
-const Page = () => {
+} from "@/app/api/features/progress/progress.queries";
+import { hasAccessToken } from "@/app/lib/auth";
+import {
+  buildLockPaymentPayload,
+  storePendingLockPayment,
+} from "@/app/lib/lock-payment";
+import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "react-toastify"
+
+const SavedHouseContent = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [isSafetyOpen, setIsSafetyOpen] = useState(false);
   const { data: getLikedRentals } = useLikedRentals();
   const { mutate: clearLikedRentals } = useClearLikedRentals();
   const { mutate: unlikeRental } = useUnlikeRental();
-  const { mutate: lockRental } = useLockRental();
+  const [verifiedReference, setVerifiedReference] = useState<string | null>(
+    null,
+  );
+  const initializeLockPayment = useInitializeLockPayment();
+  const { mutate: verifyPayment } = useVerifyLockPayment();
+
+  useEffect(() => {
+    const reference =
+      searchParams.get("reference") ||
+      searchParams.get("trxref") ||
+      searchParams.get("transaction_reference");
+
+    if (!reference || reference === verifiedReference || !hasAccessToken()) {
+      return;
+    }
+
+    setVerifiedReference(reference);
+    verifyPayment(reference, {
+      onSuccess: (data) => {
+        toast.success(data.message || "Payment verified successfully.");
+        router.replace("/tenant/locked-house");
+      },
+      onError: (error) => {
+        toast.error(error.message || "Payment verification failed.");
+      },
+    });
+  }, [router, searchParams, verifiedReference, verifyPayment]);
 
   return (
     <DashboardLayout>
@@ -45,30 +87,30 @@ const Page = () => {
         {/* Card Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {getLikedRentals?.map((house) => (
-            <Link href={`/properties/${house.id}`}
+            <Link href={getPropertyDetailsPath(house)}
               key={house.id}
               className="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 group hover:shadow-md transition-all duration-300"
             >
               {/* Image Area - Navigation Link */}
-              <Link href={`/properties/${house.id}`}>
-                <div className="relative h-56 bg-gray-200 p-2 rounded-[12px] cursor-pointer overflow-hidden">
-                  <img
-                    src={house.images[0]}
-                    alt={house.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 rounded-[12px]"
-                  />
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      unlikeRental(house.id);
-                    }}
-                    className="absolute top-4 right-4 bg-white p-2.5 rounded-full text-red-500 shadow-lg hover:bg-red-50 z-10"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </div>
-              </Link>
+
+              <div className="relative h-56 bg-gray-200 p-2 rounded-[12px] cursor-pointer overflow-hidden">
+                <img
+                  src={house.images[0]}
+                  alt={house.title}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 rounded-[12px]"
+                />
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    unlikeRental(house.id);
+                  }}
+                  className="absolute top-4 right-4 bg-white p-2.5 rounded-full text-red-500 shadow-lg hover:bg-red-50 z-10"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
+
 
               <div className="p-5 flex flex-col gap-3">
                 {/* {house.isVerified && (
@@ -78,11 +120,11 @@ const Page = () => {
                     </span>
                   </div>
                 )} */}
-                <Link href={`/properties/${house.id}`}>
-                  <h3 className="font-bold text-xl text-[#162B4C] hover:text-[#43A047] transition-colors cursor-pointer">
-                    {house.title}
-                  </h3>
-                </Link>
+
+                <h3 className="font-bold text-xl text-[#162B4C] hover:text-[#43A047] transition-colors cursor-pointer">
+                  {house.title}
+                </h3>
+
 
                 <p className="text-gray-400 text-sm flex items-center gap-1 font-medium">
                   <MapPin size={16} /> {house.location}
@@ -105,7 +147,32 @@ const Page = () => {
                   <button className="flex-1 border-2 border-[#43A047] text-[#43A047] p-3 rounded-xl flex items-center justify-center hover:bg-green-50 transition-all cursor-pointer" onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    lockRental(house.id);
+                    if (!hasAccessToken()) {
+                      router.push("/login");
+                      return;
+                    }
+
+                    const rentalId = String(house.id);
+
+                    initializeLockPayment.mutate(
+                      buildLockPaymentPayload(rentalId),
+                      {
+                        onSuccess: (data) => {
+                          storePendingLockPayment({
+                            reference: data.reference,
+                            rentalId,
+                          });
+
+                          window.location.href = data.authorizationUrl;
+                        },
+                        onError: (error) => {
+                          toast.error(
+                            error.message ||
+                            "Unable to start payment. Please try again.",
+                          );
+                        },
+                      },
+                    );
                   }}>
                     <Lock size={18} />
                   </button>
@@ -182,5 +249,11 @@ const Page = () => {
     </DashboardLayout>
   );
 };
+
+const Page = () => (
+  <Suspense fallback={null}>
+    <SavedHouseContent />
+  </Suspense>
+);
 
 export default Page;

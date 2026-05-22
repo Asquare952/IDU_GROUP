@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import React, { Suspense, useEffect, useState } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import {
   MapPin,
@@ -12,22 +12,48 @@ import {
   Zap,
   Droplets,
   Leaf,
+  Lock,
+  MessageSquare,
+  User,
+  CalendarDays
 } from "lucide-react";
 import Image from "next/image";
 import Navbar from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
-import { rentalApi } from "@/app/api/features/rental";
-import { useBookProperty } from "@/app/api/features/property/property.queries";
+import {
+  fetchPropertyBySlug,
+  useBookProperty,
+} from "@/app/api/features/property";
+import {
+  useInitializeLockPayment,
+  useVerifyLockPayment,
+} from "@/app/api/features/progress/progress.queries";
+import { useCreateConversation } from "@/app/api/features/chat/chat.queries";
+import { sanitizeConversationId } from "@/app/api/features/chat/chat.api";
 import { hasAccessToken } from "@/app/lib/auth";
+import {
+  buildLockPaymentPayload,
+  storePendingLockPayment,
+} from "@/app/lib/lock-payment";
+import { toast } from "react-toastify";
 
-export default function PropertyDesktopView() {
-  const params = useParams<{ id: string }>();
+function PropertyDesktopViewContent() {
+  const params = useParams<{ slug: string }>();
   const router = useRouter();
-  const propertyId = Array.isArray(params.id) ? params.id[0] : params.id;
+  const searchParams = useSearchParams();
+  const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showAllTips, setShowAllTips] = useState(false);
+  const [verifiedReference, setVerifiedReference] = useState<string | null>(
+    null,
+  );
   const { mutate: handleBook, isPending } = useBookProperty();
-  const isLoggedIn = hasAccessToken();
+  const { mutate: createConversation } = useCreateConversation();
+  const initializeLockPayment = useInitializeLockPayment();
+  const {
+    mutate: verifyPayment,
+    isPending: isVerifyingPayment,
+  } = useVerifyLockPayment();
 
   const {
     data: property,
@@ -35,36 +61,36 @@ export default function PropertyDesktopView() {
     isError,
     error,
   } = useQuery({
-    queryKey: ["property", propertyId],
-    queryFn: () =>
-      rentalApi.getRentalById(propertyId, { skipAuthRedirect: true }),
-    enabled: Boolean(propertyId) && isLoggedIn,
+    queryKey: ["property", slug],
+    queryFn: () => fetchPropertyBySlug(slug!),
+    enabled: Boolean(slug),
   });
 
   useEffect(() => {
     setCurrentImageIndex(0);
-  }, [propertyId]);
+  }, [slug]);
 
-  if (!isLoggedIn) {
-    return (
-      <div className="bg-white min-h-screen">
-        <Navbar />
-        <div className="max-w-[1280px] mx-auto px-6 py-20 text-center">
-          <p className="text-gray-600 text-lg">
-            Sign in to view live property details.
-          </p>
-          <button
-            type="button"
-            onClick={() => router.push("/login")}
-            className="mt-4 rounded-full bg-[#4CAF50] px-8 py-3 font-bold text-white hover:bg-[#43A047]"
-          >
-            Log in
-          </button>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
+  useEffect(() => {
+    const reference =
+      searchParams.get("reference") ||
+      searchParams.get("trxref") ||
+      searchParams.get("transaction_reference");
+
+    if (!reference || reference === verifiedReference || !hasAccessToken()) {
+      return;
+    }
+
+    setVerifiedReference(reference);
+    verifyPayment(reference, {
+      onSuccess: (data) => {
+        toast.success(data.message || "Payment verified successfully.");
+        router.replace("/tenant/locked-house");
+      },
+      onError: (error) => {
+        toast.error(error.message || "Payment verification failed.");
+      },
+    });
+  }, [router, searchParams, slug, verifiedReference, verifyPayment]);
 
   if (isLoading) {
     return (
@@ -161,11 +187,10 @@ export default function PropertyDesktopView() {
                       key={`${property.id}-image-${index}`}
                       type="button"
                       onClick={() => setCurrentImageIndex(index)}
-                      className={`relative aspect-square rounded-2xl overflow-hidden border-2 transition ${
-                        index === currentImageIndex
-                          ? "border-[#4CAF50]"
-                          : "border-transparent"
-                      }`}
+                      className={`relative aspect-square rounded-2xl overflow-hidden border-2 transition ${index === currentImageIndex
+                        ? "border-[#4CAF50]"
+                        : "border-transparent"
+                        }`}
                     >
                       <Image
                         src={image}
@@ -179,7 +204,7 @@ export default function PropertyDesktopView() {
               )}
             </div>
 
-            <div className="bg-gray-50 p-8 rounded-[32px] grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-gray-50 p-8 rounded-[32px] grid grid-cols-2 md:grid-cols-3 gap-4">
               <Spec
                 icon={<MapPin className="text-[#4CAF50]" />}
                 label="Location"
@@ -208,11 +233,11 @@ export default function PropertyDesktopView() {
               <h2 className="text-2xl font-black text-gray-900">Safety Tips</h2>
               {(showAllTips
                 ? [
-                    "Ensure you meet the landlord or agent in an open location.",
-                    "Always verify ownership before making any payment.",
-                    "Be cautious of deals that seem too good to be true.",
-                    "Use secure payment methods and keep your receipts.",
-                  ]
+                  "Ensure you meet the landlord or agent in an open location.",
+                  "Always verify ownership before making any payment.",
+                  "Be cautious of deals that seem too good to be true.",
+                  "Use secure payment methods and keep your receipts.",
+                ]
                 : ["Ensure you meet the landlord or agent in an open location."]
               ).map((tip, index) => (
                 <p
@@ -234,8 +259,14 @@ export default function PropertyDesktopView() {
             <div className="pt-8 border-t border-gray-100">
               <h3 className="text-xl font-bold mb-6">Listing Highlights</h3>
               <div className="flex flex-wrap gap-8">
-                <Amenity icon={<Zap />} label={`${property.priceType} pricing`} />
-                <Amenity icon={<Shield />} label={`${property.status} listing`} />
+                <Amenity
+                  icon={<Zap />}
+                  label={`${property.priceType} pricing`}
+                />
+                <Amenity
+                  icon={<Shield />}
+                  label={`${property.status} listing`}
+                />
                 <Amenity icon={<Droplets />} label="Image gallery included" />
                 <Amenity icon={<Leaf />} label="Direct rental posting" />
               </div>
@@ -253,9 +284,7 @@ export default function PropertyDesktopView() {
                 </div>
 
                 <div className="mb-8">
-                  <p className="text-gray-400 text-sm font-medium mb-1">
-                    Rent
-                  </p>
+                  <p className="text-gray-400 text-sm font-medium mb-1">Rent</p>
                   <h1 className="text-4xl font-black text-gray-900">
                     N{Number(property.price).toLocaleString()}
                     <span className="text-lg font-normal text-gray-500 capitalize">
@@ -267,11 +296,103 @@ export default function PropertyDesktopView() {
                 <div className="space-y-4">
                   <button
                     type="button"
-                    onClick={() => handleBook(String(property.id))}
-                    disabled={isPending}
-                    className="w-full bg-green-600 border-2 border-none text-white font-black py-5 rounded-[24px] hover:bg-green-700 transition-all active:scale-95 shadow-lg shadow-orange-100 uppercase mt-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={() => {
+                      if (!hasAccessToken()) {
+                        router.push("/login");
+                        return;
+                      }
+
+                      if (!property.userId) {
+                        toast.error("Landlord contact is not available for this listing.");
+                        return;
+                      }
+
+                      createConversation({ other_user_id: String(property.userId) }, {
+                        onSuccess: (data) => {
+                          const conversationId = sanitizeConversationId(
+                            data.conversation_id ?? data._id ?? data.id,
+                          );
+
+                          if (!conversationId) {
+                            toast.error("Unable to open this conversation.");
+                            return;
+                          }
+
+                          router.push(`/tenant/messages/${conversationId}`);
+                        },
+                        onError: (conversationError) => {
+                          toast.error(
+                            conversationError.message ||
+                              "Unable to start chat. Please try again.",
+                          );
+                        },
+                      });
+                    }}
+                    className="flex items-center justify-center gap-3 w-full bg-green-600 border-2 border-none text-white font-black py-5 rounded-[24px] hover:bg-green-700 transition-all active:scale-95 shadow-lg shadow-orange-100 uppercase mt-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
+                    <MessageSquare />
+                    <span>Chat Landloard</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!hasAccessToken()) {
+                        router.push("/login");
+                        return;
+                      }
+
+                      handleBook(String(property.id));
+                    }}
+                    disabled={isPending}
+                    className="flex items-center justify-center gap-3 w-full bg-green-600 border-2 border-none text-white font-black py-5 rounded-[24px] hover:bg-green-700 transition-all active:scale-95 shadow-lg shadow-orange-100 uppercase mt-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <CalendarDays />
                     {isPending ? "Processing..." : "Book This House"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!hasAccessToken()) {
+                        router.push("/login");
+                        return;
+                      }
+
+                      const rentalId = String(property.id);
+
+                      initializeLockPayment.mutate(
+                        buildLockPaymentPayload(rentalId),
+                        {
+                          onSuccess: (data) => {
+                            storePendingLockPayment({
+                              reference: data.reference,
+                              rentalId,
+                            });
+
+                            window.location.href = data.authorizationUrl;
+                          },
+                          onError: (error) => {
+                            toast.error(
+                              error.message ||
+                              "Unable to start payment. Please try again.",
+                            );
+                          },
+                        },
+                      );
+                    }}
+                    disabled={
+                      isPending ||
+                      initializeLockPayment.isPending ||
+                      isVerifyingPayment
+                    }
+                    className="flex items-center justify-center gap-3 w-full bg-green-600 border-2 border-none text-white font-black py-5 rounded-[24px] hover:bg-green-700 transition-all active:scale-95 shadow-lg shadow-orange-100 uppercase mt-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Lock className="inline-block mr-2" />
+                    <span>
+                      {initializeLockPayment.isPending ||
+                        isVerifyingPayment
+                        ? "Processing..."
+                        : "Lock This House"}
+                    </span>
                   </button>
                   <button
                     type="button"
@@ -295,9 +416,9 @@ export default function PropertyDesktopView() {
                 <div>
                   <p className="font-bold text-gray-900">{landlordName}</p>
                   <p className="text-xs text-gray-500">
-                    {property.User?.Profile?.verified
-                      ? "Verified landlord profile"
-                      : "Landlord profile"}
+                    {property.User?.Profile?.verified === true
+                      ? "Verified landlord"
+                      : ""}
                   </p>
                 </div>
               </div>
@@ -307,6 +428,14 @@ export default function PropertyDesktopView() {
       </main>
       <Footer />
     </div>
+  );
+}
+
+export default function PropertyDesktopView() {
+  return (
+    <Suspense fallback={null}>
+      <PropertyDesktopViewContent />
+    </Suspense>
   );
 }
 

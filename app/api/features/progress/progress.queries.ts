@@ -1,6 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { progressApi } from "./progress.api";
 import type { Rental } from "../rental";
+import type {
+  LockPaymentInitializePayload,
+  LockPaymentInitializeResponse,
+  LockPaymentVerifyResponse,
+} from "./types";
 
 const progressQueryKeys = {
   liked: ["progress", "liked"] as const,
@@ -18,30 +23,6 @@ const invalidateProgressQueries = (queryClient: ReturnType<typeof useQueryClient
 
 // Queries
 
-// get liked, locked, and booked rentals for the current user
-export const useLikedRentals = () =>
-  useQuery<Rental[]>({
-    queryKey: progressQueryKeys.liked,
-    queryFn: progressApi.getLikedRentals,
-  });
-
-
-// get locked rentals for the current user
-export const useLockedRentals = () =>
-  useQuery<Rental[]>({
-    queryKey: progressQueryKeys.locked,
-    queryFn: progressApi.getLockedRentals,
-  });
-
-
-// get booked rentals for the current user
-export const useBookedRentals = () =>
-  useQuery<Rental[]>({
-    queryKey: progressQueryKeys.booked,
-    queryFn: progressApi.getBookedRentals,
-  });
-
-
 // like rental
 export const useLikeRental = () => {
   const queryClient = useQueryClient();
@@ -58,6 +39,25 @@ export const useLockRental = () => {
 
   return useMutation({
     mutationFn: progressApi.lockRental,
+    onSuccess: () => invalidateProgressQueries(queryClient),
+  });
+};
+
+export const useInitializeLockPayment = () => {
+  return useMutation<
+    LockPaymentInitializeResponse,
+    Error,
+    LockPaymentInitializePayload
+  >({
+    mutationFn: progressApi.initializeLockPayment,
+  });
+};
+
+export const useVerifyLockPayment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<LockPaymentVerifyResponse, Error, string>({
+    mutationFn: progressApi.verifyLockPayment,
     onSuccess: () => invalidateProgressQueries(queryClient),
   });
 };
@@ -101,6 +101,32 @@ export const useUnbookRental = () => {
     onSuccess: () => invalidateProgressQueries(queryClient),
   });
 };
+
+// get liked rentals for the current user
+export const useLikedRentals = () =>
+  useQuery<Rental[]>({
+    queryKey: progressQueryKeys.liked,
+    queryFn: progressApi.getLikedRentals,
+  });
+
+
+// get locked rental for the current user
+export const useLockedRentals = () =>
+  useQuery<Rental[]>({
+    queryKey: progressQueryKeys.locked,
+    queryFn: progressApi.getLockedRentals,
+  });
+
+
+// get booked rental for the current user
+export const useBookedRentals = () =>
+  useQuery<Rental[]>({
+    queryKey: progressQueryKeys.booked,
+    queryFn: progressApi.getBookedRentals,
+  });
+
+
+
 
 // clear liked rentals
 export const useClearLikedRentals = () => {
