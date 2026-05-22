@@ -12,11 +12,11 @@ const Sidebar = () => {
   const { logout } = useAuth();
 
   return (
-    <aside className="hidden lg:flex lg:flex-col lg:gap-4 fixed left-0 top-0 z-50 h-full p-3 bg-white shadow border border-[#EBECED] ">
-      <Link href="/" className=" flex items-center gap-1 mt-3.5">
+    <aside className="fixed left-0 top-0 z-50 hidden h-screen w-[280px] flex-col gap-4 border border-[#EBECED] bg-white p-3 shadow lg:flex">
+      <div className=" flex items-center gap-1 mt-3.5">
         <Image src={rentUloLogo} width={32.7} alt="" />
         <h2 className=" font-bold text-2xl text-[#000000]">Rent<span className="text-[#43A047]">ULO</span></h2>
-      </Link>
+      </div>
 
       <div className="h-full overflow-y-auto hide-scrollbar">
         <nav className=" flex flex-col gap-6 mt-10">
