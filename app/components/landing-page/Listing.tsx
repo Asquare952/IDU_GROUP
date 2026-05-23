@@ -40,7 +40,7 @@ const Listing = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="flex justify-center items-center h-56 md:h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
       </div>
     );
@@ -50,13 +50,13 @@ const Listing = () => {
     <div id="listing">
       <div className="mb-20 mx-auto max-w-360 px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-12 mx-auto text-center">
-          <span className="text-green-600 font-bold text-xl tracking-wide">
+          <span className="text-green-600 font-bold text-base md:text-xl tracking-wide">
             Featured listings
           </span>
-          <h2 className="text-4xl md:text-5xl font-bold mt-2 mb-4 text-[#1A1C1F]">
+          <h2 className="text-3xl md:text-5xl font-bold mt-2 mb-4 text-[#1A1C1F]">
             Simple. Transparent. Stress-free
           </h2>
-          <p className="text-gray-500 max-w-2xl mx-auto text-lg">
+          <p className="text-gray-500 max-w-2xl mx-auto text-base md:text-lg">
             {isLoggedIn
               ? "Explore top-rated rentals and properties from trusted landlords in your area"
               : "Log in to explore top-rated rentals and properties from trusted landlords"}
@@ -65,7 +65,7 @@ const Listing = () => {
 
         {!isLoggedIn && (
           <div className="text-center py-8 mb-8">
-            <p className="text-gray-400 mb-4">
+            <p className="text-gray-400 text-base mb-4">
               Sign in to view available listings
             </p>
             <Link href="/login">
@@ -82,7 +82,7 @@ const Listing = () => {
 
         {rentals.length === 0 ? (
           <div className="text-center py-12 text-gray-400">
-            <p>
+            <p className="text-base">
               {isLoggedIn ? "No listings available" : "Log in to see listings"}
             </p>
           </div>
@@ -102,7 +102,7 @@ const Listing = () => {
                 whileHover={{ y: -10 }}
                 className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
               >
-                <div className="relative h-64 w-full overflow-hidden group">
+                <div className="relative h-56 md:h-64 w-full overflow-hidden group">
                   <Link
                     href={isLoggedIn ? `/properties/${item.id}` : "#"}
                     className="block h-full w-full"
@@ -122,7 +122,9 @@ const Listing = () => {
                       />
                     ) : (
                       <div className="w-full h-full bg-gray-100 rounded-3xl flex items-center justify-center">
-                        <span className="text-gray-400 text-sm">No Image</span>
+                        <span className="text-gray-400 text-base md:text-sm">
+                          No Image
+                        </span>
                       </div>
                     )}
                   </Link>
@@ -138,7 +140,7 @@ const Listing = () => {
                 <div className="p-5">
                   <div className="flex justify-between items-start mb-2">
                     <div>
-                      <p className="text-gray-900 font-bold text-xl">
+                      <p className="text-gray-900 font-bold text-lg md:text-xl">
                         ₦{Number(item.price).toLocaleString()}
                         <span className="text-sm font-normal text-gray-400">
                           / {item.priceType}
@@ -154,7 +156,7 @@ const Listing = () => {
                         <motion.button
                           whileTap={{ scale: 0.95 }}
                           whileHover={{ scale: 1.05 }}
-                          className="bg-[#E8F5E9] text-[#43A047] text-xs font-bold px-4 py-1.5 rounded-full cursor-pointer"
+                          className="bg-[#E8F5E9] text-[#43A047] text-sm md:text-xs font-bold px-4 py-1.5 rounded-full cursor-pointer"
                         >
                           View
                         </motion.button>
@@ -163,7 +165,7 @@ const Listing = () => {
                       <motion.button
                         whileTap={{ scale: 0.95 }}
                         whileHover={{ scale: 1.05 }}
-                        className="bg-gray-100 text-gray-400 text-xs font-bold px-4 py-1.5 rounded-full cursor-not-allowed flex items-center gap-1"
+                        className="bg-gray-100 text-gray-400 text-sm md:text-xs font-bold px-4 py-1.5 rounded-full cursor-not-allowed flex items-center gap-1"
                         onClick={() =>
                           alert("Please log in to view property details")
                         }
@@ -174,7 +176,7 @@ const Listing = () => {
                     )}
                   </div>
 
-                  <p className="text-gray-400 text-sm mb-4 leading-relaxed">
+                  <p className="text-gray-400 text-base md:text-sm mb-4 leading-relaxed">
                     {item.description}
                   </p>
 
@@ -186,13 +188,13 @@ const Listing = () => {
                         width={16}
                         height={16}
                       />
-                      <span className="text-xs text-gray-500 font-medium">
+                      <span className="text-sm md:text-xs text-gray-500 font-medium">
                         {item.propertyType}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Image src="/bed.png" alt="bed" width={16} height={16} />
-                      <span className="text-xs text-gray-500 font-medium">
+                      <span className="text-sm md:text-xs text-gray-500 font-medium">
                         {item.location}
                       </span>
                     </div>
@@ -208,7 +210,7 @@ const Listing = () => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-[#34A853] hover:bg-green-700 text-white font-semibold py-2 px-8 rounded-full transition duration-300 mt-8 cursor-pointer shadow-lg"
+              className="bg-[#34A853] hover:bg-green-700 text-white font-semibold text-base py-2 px-8 rounded-full transition duration-300 mt-8 cursor-pointer shadow-lg"
             >
               browse Listings <span className="text-sm"> &rarr;</span>
             </motion.button>

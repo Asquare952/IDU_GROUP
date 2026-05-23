@@ -5,7 +5,7 @@ import { FaBed, FaBath } from "react-icons/fa";
 const TenantPropertyCard = ({ house }: { house: any }) => {
   return (
     <div className="bg-white rounded-[20px] p-2 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300">
-      <div className="relative w-full h-[220px] rounded-[12px] overflow-hidden">
+      <div className="relative w-full h-[190px] md:h-[220px] rounded-[12px] overflow-hidden">
         <Image
           src={house.image}
           alt={house.title}

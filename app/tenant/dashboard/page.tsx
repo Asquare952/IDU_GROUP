@@ -212,7 +212,7 @@ const Page = () => {
                   whileHover={{ y: -10 }}
                   className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group"
                 >
-                  <div className="relative h-64 w-full overflow-hidden cursor-pointer">
+                  <div className="relative h-56 md:h-64 w-full overflow-hidden cursor-pointer">
                     <Link
                       href={isLoggedIn ? `/properties/${item.id}` : "/login"}
                       className="block h-full w-full"
