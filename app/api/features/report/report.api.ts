@@ -34,9 +34,10 @@ export const reportingApi = {
    * Requires exactly one of: search_name OR report_user_id
    */
   fileReport: async (payload: CreateReportPayload): Promise<Report> => {
-    // Validate that exactly one targeting method is used
-    const hasSearchName = !!payload.search_name;
-    const hasUserId = !!payload.report_user_id;
+    const searchName = payload.search_name?.trim();
+    const reportUserId = payload.report_user_id?.trim();
+    const hasSearchName = Boolean(searchName);
+    const hasUserId = Boolean(reportUserId);
 
     if (!hasSearchName && !hasUserId) {
       throw new Error("Must provide either search_name or report_user_id");
@@ -46,7 +47,12 @@ export const reportingApi = {
       throw new Error("Cannot provide both search_name and report_user_id");
     }
 
-    const response = await api.post<ApiResponse<Report>>("/report/", payload);
+    const response = await api.post<ApiResponse<Report>>("/report/", {
+      report_message: payload.report_message.trim(),
+      report_type: payload.report_type,
+      ...(searchName ? { search_name: searchName } : {}),
+      ...(reportUserId ? { report_user_id: reportUserId } : {}),
+    });
 
     if (!response.data.success || !response.data.data) {
       throw new Error(response.data.message || "Failed to file report");

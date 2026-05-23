@@ -1,27 +1,42 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { HiOutlineHeart } from "react-icons/hi";
-import { Lock } from "lucide-react";
-import Cookies from "js-cookie";
-import { rentalApi, Rental } from "@/app/api/features/rental";
+import { HiOutlineHeart, HiHeart } from "react-icons/hi";
+import { useFetchProperties } from "@/app/api/features/property";
+import { useLikeRental } from "@/app/api";
 import { containerVariants, itemVariants } from "@/app/components/animation";
+import { getPropertyDetailsPath } from "@/app/lib/property-routes";
+import { hasAccessToken } from "@/app/lib/auth";
+import { CheckCircle, Lock, Heart } from "lucide-react";
+
 
 const Listing = () => {
-  const [rentals, setRentals] = useState<Rental[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const router = useRouter();
+  const { mutate: likeRental } = useLikeRental();
 
-  useEffect(() => {
-    const token = Cookies.get("ACCESS_TOKEN");
-    setIsLoggedIn(!!token);
+  const {
+    data: properties = [],
+    isLoading,
+    isError,
+    error,
+  } = useFetchProperties();
 
-    if (!token) {
-      setLoading(false);
-      return;
+  const getStatusStyle = (status: string) => {
+    switch (status) {
+      case "available":
+        return "bg-green-50 text-[#43A047] border border-green-100";
+      case "pending":
+        return "bg-amber-50 text-[#FFCD36] border border-amber-100";
+      case "rented":
+        return "bg-blue-50 text-[#4B8EFF] border border-blue-100";
+      case "locked":
+        return "bg-blue-50 text-[#4B8EFF] border border-blue-100";
+      default:
+        return "bg-gray-50 text-gray-500";
     }
 
     const fetchRentals = async () => {
@@ -78,15 +93,18 @@ const Listing = () => {
               </motion.button>
             </Link>
           </div>
-        )}
-
-        {rentals.length === 0 ? (
+        ) : isError ? (
+          <div className="text-center py-12 text-red-500">
+            <p>{error.message || "Unable to load listings."}</p>
+          </div>
+        ) : properties.length === 0 ? (
           <div className="text-center py-12 text-gray-400">
             <p className="text-base">
               {isLoggedIn ? "No listings available" : "Log in to see listings"}
             </p>
           </div>
         ) : (
+
           <motion.div
             variants={containerVariants}
             initial="hidden"
@@ -94,12 +112,13 @@ const Listing = () => {
             viewport={{ once: true, margin: "-100px" }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
-            {rentals.slice(0, 9).map((item, i) => (
+            {properties.slice(0, 9).map((item, i) => (
               <motion.div
                 key={item.id}
                 custom={i}
                 variants={itemVariants}
                 whileHover={{ y: -10 }}
+
                 className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
               >
                 <div className="relative h-56 md:h-64 w-full overflow-hidden group">
@@ -132,8 +151,18 @@ const Listing = () => {
                     type="button"
                     className="absolute top-5 right-5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#162B4C] shadow-sm transition hover:text-red-500 cursor-pointer"
                     aria-label={`Save ${item.title}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (!hasAccessToken()) {
+                        router.push("/login");
+                        return;
+                      }
+                      likeRental(String(item.id))
+                    }}
                   >
-                    <HiOutlineHeart size={20} />
+                    {item.liked === true ? <Heart size={20} className="transition-all duration-200 text-red-500" /> : <HiOutlineHeart size={20} className="transition-all duration-200 text-gray-500" />}
+                    {/* <HiOutlineHeart size={20} className={`transition-all duration-200 fill-current ${item.liked === true ? "text-red-500" : ""}`} /> */}
                   </button>
                 </div>
 
@@ -170,10 +199,10 @@ const Listing = () => {
                           alert("Please log in to view property details")
                         }
                       >
-                        <Lock size={12} />
                         View
                       </motion.button>
-                    )}
+                    </Link>
+
                   </div>
 
                   <p className="text-gray-400 text-base md:text-sm mb-4 leading-relaxed">
@@ -201,6 +230,7 @@ const Listing = () => {
                   </div>
                 </div>
               </motion.div>
+
             ))}
           </motion.div>
         )}

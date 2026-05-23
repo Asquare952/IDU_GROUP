@@ -3,8 +3,9 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import DashboardLayout from "@/app/components/Dashboard/DashboardLayout";
-import { rentalApi, Rental } from "@/app/api/features/rental";
+import { rentalApi, useDeleteRental, Rental } from "@/app/api/features/rental";
 import { getCurrentUserId } from "@/app/lib/auth";
+import { getPropertyDetailsPath } from "@/app/lib/property-routes";
 import { Plus, MapPin, Home, Loader2 } from "lucide-react";
 import Image from "next/image";
 
@@ -43,6 +44,8 @@ const Page = () => {
   const [rentals, setRentals] = useState<Rental[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const { mutate: deleteRentalMutation } = useDeleteRental();
 
   useEffect(() => {
     const fetchRentals = async () => {
@@ -96,11 +99,10 @@ const Page = () => {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-1.5 rounded-lg text-[12px] font-bold transition-all border ${
-                activeTab === tab
+              className={`px-4 py-1.5 rounded-lg text-[12px] font-bold transition-all border ${activeTab === tab
                   ? "bg-[#43A047] text-white border-[#43A047]"
                   : "bg-white text-gray-400 border-gray-100 hover:bg-gray-50"
-              }`}
+                }`}
             >
               {tab}
             </button>
@@ -189,14 +191,21 @@ const Page = () => {
                     <div className="flex gap-1.5">
                       <button
                         type="button"
-                        onClick={() => router.push(`/landlord/edit-listing/${rental.id}`)}
+                        onClick={() => router.push(`/landlord/edit-property/${rental.id}`)}
                         className="px-3 py-1.5 border border-gray-100 rounded-lg text-gray-500 text-[11px] font-bold hover:bg-gray-50 transition-colors cursor-pointer"
                       >
                         Edit
                       </button>
                       <button
                         type="button"
-                        onClick={() => router.push(`/properties/${rental.id}`)}
+                        onClick={() => deleteRentalMutation(rental.id)}
+                        className="px-3 py-1.5 border bg-red-600 rounded-lg text-white text-[11px] font-bold hover:bg-red-700 transition-colors cursor-pointer"
+                      >
+                        Delete
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => router.push(getPropertyDetailsPath(rental))}
                         className="px-3 py-1.5 bg-[#43A047] text-white rounded-lg text-[11px] font-bold hover:bg-green-700 transition-all shadow-sm cursor-pointer"
                       >
                         View

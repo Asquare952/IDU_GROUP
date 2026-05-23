@@ -1,8 +1,15 @@
 import Image from "next/image";
 import { HiOutlineHeart } from "react-icons/hi";
 import { FaBed, FaBath } from "react-icons/fa";
+import { useLikeRental } from "../api";
+import Link from "next/link";
+import type { Property } from "../api/features/property";
+import { getPropertyDetailsPath } from "../lib/property-routes";
 
-const TenantPropertyCard = ({ house }: { house: any }) => {
+const TenantPropertyCard = ({ house }: { house: Property }) => {
+  const likeRental = useLikeRental();
+  const image = house.images[0];
+
   return (
     <div className="bg-white rounded-[20px] p-2 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300">
       <div className="relative w-full h-[190px] md:h-[220px] rounded-[12px] overflow-hidden">
@@ -19,10 +26,14 @@ const TenantPropertyCard = ({ house }: { house: any }) => {
       <div className="mt-4 px-1  px-2 py-1 ">
         <div className="flex justify-between items-center mb-2">
           <div className="flex items-center gap-2">
-            <p className="text-[18px] font-bold text-gray-900">{house.price}</p>
-            <span className="text-[10px] text-gray-400 mt-1">
-              {house.added}
-            </span>
+            <p className="text-[18px] font-bold text-gray-900">
+              N{house.price.toLocaleString()}
+            </p>
+            {house.added && (
+              <span className="text-[10px] text-gray-400 mt-1">
+                {house.added}
+              </span>
+            )}
           </div>
 
           <button className="bg-[#E8F5E9] text-[#4CAF50] text-[10px] px-4 py-1.5 rounded-full font-bold uppercase tracking-wider hover:bg-green-100 transition cursor-pointer">
@@ -37,23 +48,27 @@ const TenantPropertyCard = ({ house }: { house: any }) => {
         </p>
         <div className="flex justify-between items-center mt-4 border-t border-gray-100 pt-3">
           <div className="flex gap-4 text-sm">
-            <div className="flex items-center gap-1 text-green-600">
-              <FaBath size={14} />
-              <span className="text-gray-600 text-xs">
-                {house.bathrooms} bathrooms
-              </span>
-            </div>
+            {house.bathrooms && (
+              <div className="flex items-center gap-1 text-green-600">
+                <FaBath size={14} />
+                <span className="text-gray-600 text-xs">
+                  {house.bathrooms} bathrooms
+                </span>
+              </div>
+            )}
 
-            <div className="flex items-center gap-1 text-green-600">
-              <FaBed size={14} />
-              <span className="text-gray-600 text-xs">
-                {house.bedrooms} bedrooms
-              </span>
-            </div>
+            {house.bedrooms && (
+              <div className="flex items-center gap-1 text-green-600">
+                <FaBed size={14} />
+                <span className="text-gray-600 text-xs">
+                  {house.bedrooms} bedrooms
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

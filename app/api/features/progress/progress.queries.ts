@@ -1,6 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { progressApi } from "./progress.api";
 import type { Rental } from "../rental";
+import type {
+  LockPaymentInitializePayload,
+  LockPaymentInitializeResponse,
+  LockPaymentVerifyResponse,
+} from "./types";
 
 const progressQueryKeys = {
   liked: ["progress", "liked"] as const,
@@ -14,24 +19,11 @@ const invalidateProgressQueries = (queryClient: ReturnType<typeof useQueryClient
   queryClient.invalidateQueries({ queryKey: progressQueryKeys.booked });
 };
 
-export const useLikedRentals = () =>
-  useQuery<Rental[]>({
-    queryKey: progressQueryKeys.liked,
-    queryFn: progressApi.getLikedRentals,
-  });
 
-export const useLockedRentals = () =>
-  useQuery<Rental[]>({
-    queryKey: progressQueryKeys.locked,
-    queryFn: progressApi.getLockedRentals,
-  });
 
-export const useBookedRentals = () =>
-  useQuery<Rental[]>({
-    queryKey: progressQueryKeys.booked,
-    queryFn: progressApi.getBookedRentals,
-  });
+// Queries
 
+// like rental
 export const useLikeRental = () => {
   const queryClient = useQueryClient();
 
@@ -41,6 +33,7 @@ export const useLikeRental = () => {
   });
 };
 
+// lock rental
 export const useLockRental = () => {
   const queryClient = useQueryClient();
 
@@ -50,6 +43,26 @@ export const useLockRental = () => {
   });
 };
 
+export const useInitializeLockPayment = () => {
+  return useMutation<
+    LockPaymentInitializeResponse,
+    Error,
+    LockPaymentInitializePayload
+  >({
+    mutationFn: progressApi.initializeLockPayment,
+  });
+};
+
+export const useVerifyLockPayment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<LockPaymentVerifyResponse, Error, string>({
+    mutationFn: progressApi.verifyLockPayment,
+    onSuccess: () => invalidateProgressQueries(queryClient),
+  });
+};
+
+// book rental
 export const useBookRental = () => {
   const queryClient = useQueryClient();
 
@@ -59,6 +72,7 @@ export const useBookRental = () => {
   });
 };
 
+// unlike rental
 export const useUnlikeRental = () => {
   const queryClient = useQueryClient();
 
@@ -68,6 +82,7 @@ export const useUnlikeRental = () => {
   });
 };
 
+// unlock rental
 export const useUnlockRental = () => {
   const queryClient = useQueryClient();
 
@@ -77,6 +92,7 @@ export const useUnlockRental = () => {
   });
 };
 
+// unbook rental
 export const useUnbookRental = () => {
   const queryClient = useQueryClient();
 
@@ -86,6 +102,33 @@ export const useUnbookRental = () => {
   });
 };
 
+// get liked rentals for the current user
+export const useLikedRentals = () =>
+  useQuery<Rental[]>({
+    queryKey: progressQueryKeys.liked,
+    queryFn: progressApi.getLikedRentals,
+  });
+
+
+// get locked rental for the current user
+export const useLockedRentals = () =>
+  useQuery<Rental[]>({
+    queryKey: progressQueryKeys.locked,
+    queryFn: progressApi.getLockedRentals,
+  });
+
+
+// get booked rental for the current user
+export const useBookedRentals = () =>
+  useQuery<Rental[]>({
+    queryKey: progressQueryKeys.booked,
+    queryFn: progressApi.getBookedRentals,
+  });
+
+
+
+
+// clear liked rentals
 export const useClearLikedRentals = () => {
   const queryClient = useQueryClient();
 
@@ -95,6 +138,7 @@ export const useClearLikedRentals = () => {
   });
 };
 
+// clear locked rentals
 export const useClearLockedRentals = () => {
   const queryClient = useQueryClient();
 
@@ -104,6 +148,7 @@ export const useClearLockedRentals = () => {
   });
 };
 
+// clear booked rentals
 export const useClearBookedRentals = () => {
   const queryClient = useQueryClient();
 

@@ -1,80 +1,41 @@
 import api from "../../axios";
 import { API_BASE_URL } from "../../axios";
-import { getAccessToken } from "@/app/lib/auth";
+import { getCurrentUserId } from "@/app/lib/auth";
+import type {
+  ApiResponse,
+  CreateRentalPayload,
+  LandlordListedProperties,
+  RawRental,
+  Rental,
+  RentalRequestOptions,
+  RentalSearchParams,
+  UpdateRentalPayload,
+} from "./types";
 
-export interface RentalUser {
-  id: string;
-  first_name: string;
-  last_name: string;
-  phone_no: string;
-  Profile?: {
-    image: string;
-    verified: boolean;
-  } | null;
-}
+export type {
+  ApiResponse,
+  CreateRentalPayload,
+  LandlordListedProperties,
+  LandlordProfile,
+  ProfileCompletionError,
+  RawRental,
+  Rental,
+  RentalListResponse,
+  RentalRequestOptions,
+  RentalSearchParams,
+  RentalStatus,
+  RentalUser,
+  UpdateRentalPayload,
+} from "./types";
 
-export interface Rental {
-  id: string;
-  title: string;
-  description: string;
-  propertyType: string;
-  location: string;
-  price: string | number;
-  priceType: string;
-  status: "available" | "pending" | "rented" | string;
-  images: string[];
-  videos: string[];
-  UserId: string;
-  createdAt: string;
-  slug?: string;
-  User?: RentalUser | null;
-}
-
-export interface ApiResponse<T> {
-  success: boolean;
-  data: T;
+type ProfileRentalsResponse = {
+  success?: boolean;
+  data?: {
+    user?: Partial<LandlordListedProperties>;
+    profile?: LandlordListedProperties["profile"];
+    rentals?: RawRental[];
+  };
   message?: string;
-}
-
-export interface RentalSearchParams {
-  location?: string;
-  lat?: number;
-  lng?: number;
-}
-
-export interface CreateRentalPayload {
-  title: string;
-  description: string;
-  propertyType: string;
-  location: string;
-  price: string | number;
-  priceType: string;
-  status: string;
-  images: File[];
-  videos?: File[];
-}
-
-export interface UpdateRentalPayload {
-  title?: string;
-  description?: string;
-  propertyType?: string;
-  location?: string;
-  price?: string | number;
-  priceType?: string;
-  status?: string;
-  images?: File[];
-  videos?: File[];
-}
-
-export interface RentalRequestOptions {
-  skipAuthRedirect?: boolean;
-}
-
-export type RawRental = Partial<Rental> & {
-  _id?: string;
-  userId?: string;
-  images?: unknown;
-  videos?: unknown;
 };
 
 const getApiBaseUrl = () =>
@@ -185,6 +146,42 @@ export const normalizeRentalListResponse = (
   return [];
 };
 
+export const fetchLandlordListedProperties =
+  async (): Promise<LandlordListedProperties> => {
+    const userId = getCurrentUserId();
+
+    if (!userId) {
+      throw new Error("You must be logged in to view landlord listings.");
+    }
+
+    const response = await api.get<ProfileRentalsResponse>(
+      `/profile/get1/${userId}`,
+    );
+    const profileData = response.data.data;
+    const user = profileData?.user;
+    const rentals = normalizeRentalListResponse(profileData?.rentals);
+
+    return {
+      id: String(user?.id ?? userId),
+      first_name: String(user?.first_name ?? ""),
+      last_name: String(user?.last_name ?? ""),
+      gender: typeof user?.gender === "string" ? user.gender : "",
+      phone_no: String(user?.phone_no ?? ""),
+      address: typeof user?.address === "string" ? user.address : "",
+      state: String(user?.state ?? ""),
+      country: String(user?.country ?? ""),
+      role: "landlord",
+      is_active: typeof user?.is_active === "boolean" ? user.is_active : true,
+      is_superadmin:
+        typeof user?.is_superadmin === "boolean" ? user.is_superadmin : false,
+      profile: profileData?.profile ?? null,
+      rentals,
+      totalListings: rentals.length,
+      createdAt: String(user?.createdAt ?? ""),
+      updatedAt: String(user?.updatedAt ?? ""),
+    };
+  };
+
 const buildRentalFormData = (
   payload: CreateRentalPayload | UpdateRentalPayload,
 ): FormData => {
@@ -217,28 +214,19 @@ const buildRentalFormData = (
 };
 
 export const rentalApi = {
+  fetchLandlordListedProperties,
+
   createRental: async (payload: CreateRentalPayload): Promise<Rental> => {
     const formData = buildRentalFormData(payload);
-    const token = getAccessToken();
-    const response = await fetch(`${API_BASE_URL}/rental/post`, {
-      method: "POST",
-      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-      body: formData,
-    });
+    const response = await api.post<ApiResponse<RawRental>>(
+      "/rental/post",
+      formData,
+      { withCredentials: true },
+    );
 
-    const data = (await response.json()) as ApiResponse<RawRental> & {
+    const data = response.data as ApiResponse<RawRental> & {
       message?: string;
     };
-
-    if (!response.ok) {
-      throw {
-        response: {
-          status: response.status,
-          data,
-        },
-        message: data?.message || "Failed to upload rental listing.",
-      };
-    }
 
     return normalizeRental(data.data);
   },
@@ -246,7 +234,7 @@ export const rentalApi = {
   getAllRentals: async (options?: RentalRequestOptions): Promise<Rental[]> => {
     // For public access, make request without authorization header
     if (options?.skipAuthRedirect) {
-      const response = await fetch(`${API_BASE_URL}/rental/all`, {
+      const response = await fetch(`${API_BASE_URL}/rental/recent`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -334,27 +322,20 @@ export const rentalApi = {
     id: string,
     payload: UpdateRentalPayload,
   ): Promise<Rental> => {
-    const formData = buildRentalFormData(payload);
-    const token = getAccessToken();
-    const response = await fetch(`${API_BASE_URL}/rental/update/${id}`, {
-      method: "PUT",
-      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-      body: formData,
-    });
+    const requestBody =
+      (payload.images && payload.images.length > 0) ||
+      (payload.videos && payload.videos.length > 0)
+        ? buildRentalFormData(payload)
+        : payload;
 
-    const data = (await response.json()) as ApiResponse<RawRental> & {
+    const response = await api.put<ApiResponse<RawRental>>(
+      `/rental/update/${id}`,
+      requestBody,
+    );
+
+    const data = response.data as ApiResponse<RawRental> & {
       message?: string;
     };
-
-    if (!response.ok) {
-      throw {
-        response: {
-          status: response.status,
-          data,
-        },
-        message: data?.message || "Failed to update rental listing.",
-      };
-    }
 
     return normalizeRental(data.data);
   },

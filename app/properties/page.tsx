@@ -1,15 +1,19 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search } from "lucide-react";
+import { Search,  } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
-import { rentalApi, Rental } from "@/app/api/features/rental";
-import { hasAccessToken } from "@/app/lib/auth";
+import {
+  fetchProperties,
+  searchProperties,
+  type Property,
+} from "@/app/api/features/property";
+import { getPropertyDetailsPath } from "@/app/lib/property-routes";
 
 const CATEGORIES = [
   "All",
@@ -24,26 +28,21 @@ export default function AllPropertiesPage() {
   const [tempSearch, setTempSearch] = useState("");
   const [finalSearch, setFinalSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const isLoggedIn = hasAccessToken();
 
   const {
     data: properties = [],
     isLoading,
     isError,
     error,
-  } = useQuery<Rental[], Error>({
+  } = useQuery<Property[], Error>({
     queryKey: ["properties-list", finalSearch],
     queryFn: async () => {
       const trimmedSearch = finalSearch.trim();
 
       return trimmedSearch
-        ? rentalApi.searchRentals(
-            { location: trimmedSearch },
-            { skipAuthRedirect: true },
-          )
-        : rentalApi.getAllRentals({ skipAuthRedirect: true });
+        ? searchProperties({ location: trimmedSearch })
+        : fetchProperties();
     },
-    enabled: isLoggedIn,
   });
 
   const visibleProperties = properties.filter((item) => {
@@ -99,19 +98,7 @@ export default function AllPropertiesPage() {
             ))}
           </div>
 
-          {!isLoggedIn ? (
-            <div className="col-span-full py-20 text-center">
-              <p className="text-gray-500 text-lg font-medium">
-                Sign in to browse live property listings.
-              </p>
-              <Link
-                href="/login"
-                className="mt-4 inline-flex rounded-full bg-[#4CAF50] px-8 py-3 font-bold text-white hover:bg-[#43A047]"
-              >
-                Log in
-              </Link>
-            </div>
-          ) : isLoading ? (
+          {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[1, 2, 3, 4, 5, 6].map((n) => (
                 <div
@@ -193,7 +180,7 @@ export default function AllPropertiesPage() {
                               {item.title}
                             </h3>
                           </div>
-                          <Link href={`/properties/${item.id}`}>
+                          <Link href={getPropertyDetailsPath(item)}>
                             <motion.button
                               whileTap={{ scale: 0.95 }}
                               whileHover={{ scale: 1.05 }}

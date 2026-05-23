@@ -137,7 +137,7 @@ const Header: FC<HeaderProp> = ({ onMenuClick }) => {
               >
                 <Menu />
               </button>
-              <h2 className="text-2xl font-bold text-[#999EA5]">Dashboard</h2>
+              <h2 className="text-2xl font-bold text-[#999EA5] hidden md:block">Dashboard</h2>
             </div>
 
             <div className="flex items-center gap-3">

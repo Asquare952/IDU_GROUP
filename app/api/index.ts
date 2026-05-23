@@ -40,6 +40,7 @@ export type {
 // Rental Management
 // ============================================
 export {
+  fetchLandlordListedProperties,
   rentalApi,
   normalizeRental,
   normalizeRentalListResponse,
@@ -48,6 +49,7 @@ export {
   useGetAllRentals,
   useSearchRentals,
   useGetRentalById,
+  useFetchLandlordListedProperties,
   useCreateRental,
   useUpdateRental,
   useDeleteRental,
@@ -55,10 +57,28 @@ export {
 export type {
   Rental,
   RentalUser,
+  LandlordListedProperties,
+  LandlordProfile,
   CreateRentalPayload,
   UpdateRentalPayload,
   RentalSearchParams,
 } from "./features/rental/rental.api";
+
+// ============================================
+// Property Browse / Details
+// ============================================
+export {
+  propertyApi,
+  fetchProperties,
+  searchProperties,
+  fetchPropertyById,
+  normalizeProperty,
+  useFetchProperties,
+  useSearchProperties,
+  useFetchPropertyById,
+  useBookProperty,
+} from "./features/property";
+export type { Property, Properties } from "./features/property";
 
 // ============================================
 // Progress Tracking (Likes, Locks, Books)
@@ -71,9 +91,11 @@ export {
   useLikeRental,
   useLockRental,
   useBookRental,
+  useInitializeLockPayment,
   useUnlikeRental,
   useUnlockRental,
   useUnbookRental,
+  useVerifyLockPayment,
   useClearLikedRentals,
   useClearLockedRentals,
   useClearBookedRentals,
@@ -102,6 +124,7 @@ export {
   getConversations,
   getMessages,
   sendMessage,
+  createConversation,
 } from "./features/chat/chat.api";
 export {
   useChatMessages,
@@ -114,6 +137,7 @@ export type {
   GetConversationsResponse,
   GetMessagesResponse,
   SendMessagePayload,
+  CreateConversationPayload,
 } from "./features/chat/types";
 
 // ============================================

@@ -51,6 +51,9 @@ export type NotificationListResponse =
       notifications?: NotificationRecord[];
       results?: NotificationRecord[];
       items?: NotificationRecord[];
+      docs?: NotificationRecord[];
+      rows?: NotificationRecord[];
+      records?: NotificationRecord[];
     });
 
 export type NotificationCountResponse =

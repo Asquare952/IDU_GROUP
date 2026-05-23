@@ -24,16 +24,17 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useGetAllRentals } from "@/app/api/features/rental/rental.queries";
-import type { Rental } from "@/app/api/features/rental";
+import { useFetchProperties } from "@/app/api/features/property/property.queries";
+import { useLockedRentals } from "@/app/api/features/progress/progress.queries";
+import { getPropertyDetailsPath } from "@/app/lib/property-routes";
 
 const Page = () => {
   const router = useRouter();
   const isLoggedIn = true;
   const [isSafetyOpen, setIsSafetyOpen] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [recommendedHouses, setRecommendedHouses] = useState<Rental[]>([]);
-  const { data: rentals = [] } = useGetAllRentals();
+  const { data: properties } = useFetchProperties();
+  const { data: lockedRentals } = useLockedRentals();
 
   const nextSlide = () => {
     setCurrentSlide((prev) =>
@@ -47,18 +48,12 @@ const Page = () => {
     );
   };
 
-  useEffect(() => {
-    if (rentals && rentals.length > 0) {
-      setRecommendedHouses(rentals.slice(0, 3));
-    }
-  }, [rentals]);
-
   return (
     <DashboardLayout>
       <section className="flex flex-col gap-8 px-2.5 py-2.5">
         <div className="flex flex-col lg:flex-row w-full bg-white rounded-[2rem] shadow-xl overflow-hidden border border-gray-50 group">
           <div className="relative h-72 md:h-96 lg:h-auto lg:w-[45%] bg-gray-100 overflow-hidden">
-            <Link href={`/properties/${ActiveProperty.id || "1"}`}>
+            <Link href={getPropertyDetailsPath(ActiveProperty)}>
               <Image
                 src={ActiveProperty.images[currentSlide]}
                 alt="Active Property"
@@ -114,7 +109,7 @@ const Page = () => {
             </div>
 
             <div className="space-y-1">
-              <Link href={`/properties/${ActiveProperty.id || "1"}`}>
+              <Link href={getPropertyDetailsPath(ActiveProperty)}>
                 <h2 className="text-2xl md:text-4xl font-bold text-[#162B4C] leading-tight hover:text-[#43A047] transition-colors cursor-pointer">
                   {ActiveProperty.title}
                 </h2>
@@ -152,7 +147,7 @@ const Page = () => {
 
             <div className="flex flex-col sm:flex-row gap-3 mt-4">
               <Link
-                href={`/properties/${ActiveProperty.id || "1"}`}
+                href={getPropertyDetailsPath(ActiveProperty)}
                 className="w-full sm:w-auto"
               >
                 <button className="w-full bg-[#43A047] text-white px-10 py-4 rounded-2xl font-bold hover:shadow-lg hover:shadow-green-100 transition-all active:scale-95 cursor-pointer">
@@ -192,7 +187,7 @@ const Page = () => {
         {/* Recommended Houses Section */}
         <div className="flex flex-col gap-3.5">
           <h2 className="text-2xl font-bold">Recommended Houses</h2>
-          {recommendedHouses.length === 0 ? (
+          {properties?.length === 0 ? (
             <div className="text-center py-12 text-gray-400">
               <p>No listings available at the moment</p>
             </div>
@@ -204,7 +199,7 @@ const Page = () => {
               viewport={{ once: true, margin: "-100px" }}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
             >
-              {recommendedHouses.map((item, i) => (
+              {properties?.slice(0, 3).map((item, i) => (
                 <motion.div
                   key={item.id}
                   custom={i}
@@ -214,23 +209,15 @@ const Page = () => {
                 >
                   <div className="relative h-56 md:h-64 w-full overflow-hidden cursor-pointer">
                     <Link
-                      href={isLoggedIn ? `/properties/${item.id}` : "/login"}
+                      href={getPropertyDetailsPath(item)}
                       className="block h-full w-full"
                     >
-                      {item.images && item.images.length > 0 ? (
-                        <Image
-                          src={item.images[0]}
-                          alt={item.title}
-                          fill
-                          className="object-cover rounded-3xl p-3 transition-transform duration-500 group-hover:scale-110"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gray-100 rounded-3xl flex items-center justify-center">
-                          <span className="text-gray-400 text-sm">
-                            No Image
-                          </span>
-                        </div>
-                      )}
+                      <Image
+                        src={item.images[0]}
+                        alt={item.title}
+                        fill
+                        className="object-cover rounded-3xl p-3 transition-transform duration-500 group-hover:scale-110"
+                      />
                     </Link>
                     <button
                       type="button"
@@ -253,7 +240,7 @@ const Page = () => {
                         </p>
                         <Link
                           href={
-                            isLoggedIn ? `/properties/${item.id}` : "/login"
+                            isLoggedIn ? getPropertyDetailsPath(item) : "/login"
                           }
                         >
                           <h3 className="text-gray-800 font-semibold text-lg hover:text-[#43A047] transition-colors cursor-pointer">
@@ -266,7 +253,7 @@ const Page = () => {
                         whileHover={{ scale: 1.05 }}
                         onClick={() =>
                           router.push(
-                            isLoggedIn ? `/properties/${item.id}` : "/login",
+                            isLoggedIn ? getPropertyDetailsPath(item) : "/login",
                           )
                         }
                         className="bg-[#E8F5E9] text-[#43A047] text-xs font-bold px-4 py-1.5 rounded-full cursor-pointer"
