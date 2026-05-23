@@ -105,7 +105,7 @@ export default function AllPropertiesPage() {
                   key={n}
                   className="bg-white rounded-[35px] overflow-hidden shadow-sm border border-gray-100 p-2"
                 >
-                  <div className="relative h-64 w-full bg-gray-100 animate-pulse rounded-[28px]" />
+                  <div className="relative h-56 md:h-64 w-full bg-gray-100 animate-pulse rounded-[28px]" />
                   <div className="p-5 pt-4">
                     <div className="flex justify-between items-start mb-4">
                       <div className="space-y-3 w-2/3">
@@ -152,7 +152,7 @@ export default function AllPropertiesPage() {
                       key={item.id}
                       className="bg-white rounded-[35px] overflow-hidden shadow-sm border border-gray-100 hover:shadow-xl transition-all duration-300 group"
                     >
-                      <div className="relative h-64 w-full overflow-hidden group bg-slate-100">
+                      <div className="relative h-56 md:h-64 w-full overflow-hidden group bg-slate-100">
                         {item.images[0] ? (
                           <Image
                             src={item.images[0]}

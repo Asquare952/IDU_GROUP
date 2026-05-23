@@ -19,15 +19,17 @@ const Footer = () => {
                 Rent<span className="text-[#4CAF50]">ULO</span>
               </span>
             </div>
-            <p className="text-gray-600 text-[19px] leading-relaxed max-w-65">
+            <p className="text-gray-600 text-base md:text-[19px] leading-relaxed max-w-65">
               Discover trusted houses for rents near you. <br /> Directly from
               landlords, verified and <br />
               location-based.
             </p>
           </div>
           <div className="flex flex-col gap-4">
-            <h4 className="font-bold text-gray-900 text-[21px]">Company</h4>
-            <nav className="flex flex-col gap-3 text-gray-500 text-[19px]">
+            <h4 className="font-bold text-gray-900 text-lg md:text-[21px]">
+              Company
+            </h4>
+            <nav className="flex flex-col gap-3 text-gray-500 text-base md:text-[19px]">
               <a href="/about-us" className="hover:text-green-600">
                 About RentULO
               </a>
@@ -41,8 +43,10 @@ const Footer = () => {
           </div>
 
           <div className="flex flex-col gap-4">
-            <h4 className="font-bold text-gray-900 text-[21px]">Discover</h4>
-            <nav className="flex flex-col gap-3 text-gray-500 text-[19px]">
+            <h4 className="font-bold text-gray-900 text-lg md:text-[21px]">
+              Discover
+            </h4>
+            <nav className="flex flex-col gap-3 text-gray-500 text-base md:text-[19px]">
               <a href="#" className="hover:text-green-600">
                 Find a house
               </a>
@@ -56,8 +60,10 @@ const Footer = () => {
           </div>
 
           <div className="flex flex-col gap-4">
-            <h4 className="font-bold text-gray-900 text-[21px]">Support</h4>
-            <nav className="flex flex-col gap-3 text-gray-500 text-[19px]">
+            <h4 className="font-bold text-gray-900 text-lg md:text-[21px]">
+              Support
+            </h4>
+            <nav className="flex flex-col gap-3 text-gray-500 text-base md:text-[19px]">
               <a href="/help-center" className="hover:text-green-600">
                 Help center
               </a>
@@ -74,10 +80,10 @@ const Footer = () => {
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-10">
           <div className="space-y-6">
             <div>
-              <h4 className="font-bold text-gray-900 mb-1 text-[21px]">
+              <h4 className="font-bold text-gray-900 mb-1 text-lg md:text-[21px]">
                 Stay updated on new rentals
               </h4>
-              <p className="text-gray-400 text-[21px]">
+              <p className="text-gray-400 text-base md:text-[21px]">
                 Get notified when verified listings appear near you
               </p>
             </div>
@@ -89,7 +95,10 @@ const Footer = () => {
                   icon: <RiTwitterXFill />,
                   link: "https://x.com/Rentulonigeria",
                 },
-                { icon: <FaInstagram />, link: "https://www.instagram.com/rentulonigeria?igsh=YmF3N2ZjYjRkNjQ2&utm_source=qr" },
+                {
+                  icon: <FaInstagram />,
+                  link: "https://www.instagram.com/rentulonigeria?igsh=YmF3N2ZjYjRkNjQ2&utm_source=qr",
+                },
                 {
                   icon: <FaTiktok />,
                   link: "https://www.tiktok.com/@rentulonigeria?lang=en-GB",
@@ -111,13 +120,13 @@ const Footer = () => {
               <input
                 type="email"
                 placeholder="enter email"
-                className="w-full pl-6 pr-4 py-3 text-sm:2 focus:outline-none bg-transparent"
+                className="w-full pl-6 pr-4 py-3 text-base focus:outline-none bg-transparent"
               />
-              <button className="bg-[#4CAF50] text-white px-8 py-2.5 rounded-full text-sm:2 cursor-pointer font-medium hover:bg-green-700 transition">
+              <button className="bg-[#4CAF50] text-white px-8 py-2.5 rounded-full text-base cursor-pointer font-medium hover:bg-green-700 transition">
                 Subscribe
               </button>
             </div>
-            <p className="text-right text-gray-400 text-[16px] mt-8">
+            <p className="text-right text-gray-400 text-sm md:text-[16px] mt-8">
               2025, RentULO, IDU GROUP
             </p>
           </div>

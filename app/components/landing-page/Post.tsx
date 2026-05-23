@@ -47,34 +47,34 @@ const Post = () => {
             alt=""
             width={500}
             height={500}
-            className="absolute top-[-10%] right-[-5%] opacity-30"
+            className="absolute top-[-10%] right-[-5%] w-[240px] md:w-[500px] h-auto opacity-30"
           />
           <Image
             src="/bent line 1.png"
             alt=""
             width={500}
             height={500}
-            className="absolute bottom-[-10%] left-[-5%] opacity-30"
+            className="absolute bottom-[-10%] left-[-5%] w-[240px] md:w-[500px] h-auto opacity-30"
           />
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-12">
-            <h2 className="font-semibold text-4xl md:text-5xl leading-tight text-gray-900">
+            <h2 className="font-semibold text-3xl md:text-5xl leading-tight text-gray-900">
               List your Properties and Get Real
               <br className="hidden md:block" />
               Tenants Fast
             </h2>
-            <p className="text-xl md:text-2xl text-gray-500 mt-6 max-w-2xl mx-auto">
+            <p className="text-base md:text-2xl text-gray-500 mt-6 max-w-2xl mx-auto">
               Post your house once, and reach verified tenants in your location
             </p>
-            {auth.userRole === "landlord" && <button onClick={handleListProperty} className="bg-[#34A853] hover:bg-green-700 text-white font-bold py-2 px-8 rounded-full transition-all mt-10 shadow-lg flex items-center gap-2 mx-auto cursor-pointer transition-all active:scale-95">
+            <button className="bg-[#34A853] hover:bg-green-700 text-white font-bold text-base py-2 px-8 rounded-full transition-all mt-10 shadow-lg flex items-center gap-2 mx-auto cursor-pointer transition-all active:scale-95">
               Start Listing <span className="text-sm">&rarr;</span>
             </button>}
             
           </div>
           <div className="flex justify-center mt-16">
-            <div className="relative w-full max-w-5xl shadow-2xl rounded-2xl overflow-hidden border border-gray-100">
+            <div className="relative w-full max-w-[92%] md:max-w-5xl shadow-2xl rounded-2xl overflow-hidden border border-gray-100">
               <Image
                 src="/Landlord Dashboard.webp"
                 alt="Landlord Dashboard"

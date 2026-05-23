@@ -32,7 +32,7 @@ const SearchItem = ({
     className={`w-full md:flex-1 flex flex-col px-6 md:px-8 py-4 md:py-2 ${!isLast ? "border-b md:border-b-0 md:border-r border-gray-100" : ""
       }`}
   >
-    <span className="text-[10px] uppercase font-bold text-gray-400 tracking-widest mb-1">
+    <span className="text-xs md:text-[10px] uppercase font-bold text-gray-400 tracking-widest mb-1">
       {title}
     </span>
     <div className="flex items-center justify-between gap-2">
@@ -40,7 +40,7 @@ const SearchItem = ({
         <select
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="bg-transparent text-sm font-semibold text-[#1A2B49] outline-none w-full cursor-pointer appearance-none pr-4"
+          className="bg-transparent text-base md:text-sm font-semibold text-[#1A2B49] outline-none w-full cursor-pointer appearance-none pr-4"
         >
           <option value="">{placeholder}</option>
           {options?.map((option) => (
@@ -55,7 +55,7 @@ const SearchItem = ({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="bg-transparent text-sm font-semibold text-[#1A2B49] outline-none placeholder:text-gray-300 w-full"
+          className="bg-transparent text-base md:text-sm font-semibold text-[#1A2B49] outline-none placeholder:text-gray-300 w-full"
         />
       )}
       {showLocationIcon && (
@@ -221,11 +221,11 @@ const HeroSection = () => {
             priority
           />
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 pb-24 md:pb-32">
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-[1.1]">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6 leading-[1.1]">
               Find Verified Homes <br />
               No Agents. <span className="text-[#22C55E]">No Scams.</span>
             </h1>
-            <p className="text-gray-100 text-sm md:text-lg max-w-xl mb-10 opacity-90">
+            <p className="text-gray-100 text-base md:text-lg max-w-xl mb-10 opacity-90">
               Discover trusted houses for rents near you. Directly from
               landlords, verified and location-based.
             </p>
@@ -277,7 +277,7 @@ const HeroSection = () => {
             />
             <button
               onClick={handleSearch}
-              className="cursor-pointer w-full md:w-auto bg-[#22C55E] hover:bg-green-600 text-white px-8 py-4 rounded-[16px] md:rounded-full font-bold text-sm transition mt-2 md:mt-0 md:ml-2 active:scale-95"
+              className="cursor-pointer w-full md:w-auto bg-[#22C55E] hover:bg-green-600 text-white px-8 py-4 rounded-[16px] md:rounded-full font-bold text-base md:text-sm transition mt-2 md:mt-0 md:ml-2 active:scale-95"
             >
               Search Properties
             </button>

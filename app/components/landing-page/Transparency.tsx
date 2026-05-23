@@ -36,7 +36,7 @@ const Transparency = () => {
               Driven by Transparency
             </h2>
 
-            <p className="mt-6 text-gray-500 font-normal text-lg leading-relaxed max-w-lg">
+            <p className="mt-6 text-gray-500 font-normal text-base md:text-lg leading-relaxed max-w-lg">
               IDU Group is a tech-driven team solving real-world challenges with
               innovation, development, and unity. Our mission: to simplify
               housing for everyone.
