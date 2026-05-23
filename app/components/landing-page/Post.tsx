@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 const Post = () => {
-    const router = useRouter();
+  const router = useRouter();
   const [auth, setAuth] = useState({
     isLoggedIn: false,
     userRole: null as "tenant" | "landlord" | null,
@@ -68,10 +68,15 @@ const Post = () => {
             <p className="text-base md:text-2xl text-gray-500 mt-6 max-w-2xl mx-auto">
               Post your house once, and reach verified tenants in your location
             </p>
-            <button className="bg-[#34A853] hover:bg-green-700 text-white font-bold text-base py-2 px-8 rounded-full transition-all mt-10 shadow-lg flex items-center gap-2 mx-auto cursor-pointer transition-all active:scale-95">
+            <button
+              onClick={handleListProperty}
+              disabled={auth.loading}
+              className={`bg-[#34A853] hover:bg-green-700 text-white font-bold text-base py-2 px-8 rounded-full transition-all mt-10 shadow-lg flex items-center gap-2 mx-auto cursor-pointer active:scale-95 ${
+                auth.loading ? "opacity-70 cursor-wait" : ""
+              }`}
+            >
               Start Listing <span className="text-sm">&rarr;</span>
-            </button>}
-            
+            </button>
           </div>
           <div className="flex justify-center mt-16">
             <div className="relative w-full max-w-[92%] md:max-w-5xl shadow-2xl rounded-2xl overflow-hidden border border-gray-100">
