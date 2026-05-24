@@ -212,12 +212,18 @@ const Page = () => {
                       href={getPropertyDetailsPath(item)}
                       className="block h-full w-full"
                     >
-                      <Image
-                        src={item.images[0]}
-                        alt={item.title}
-                        fill
-                        className="object-cover rounded-3xl p-3 transition-transform duration-500 group-hover:scale-110"
-                      />
+                      {item.images && item.images.length > 0 ? (
+                        <Image
+                          src={item.images[0]}
+                          alt={item.title}
+                          fill
+                          className="object-cover rounded-3xl p-3 transition-transform duration-500 group-hover:scale-110"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-200 rounded-3xl p-3 flex items-center justify-center text-gray-400 text-sm">
+                          No Image
+                        </div>
+                      )}
                     </Link>
                     <button
                       type="button"
@@ -253,7 +259,9 @@ const Page = () => {
                         whileHover={{ scale: 1.05 }}
                         onClick={() =>
                           router.push(
-                            isLoggedIn ? getPropertyDetailsPath(item) : "/login",
+                            isLoggedIn
+                              ? getPropertyDetailsPath(item)
+                              : "/login",
                           )
                         }
                         className="bg-[#E8F5E9] text-[#43A047] text-xs font-bold px-4 py-1.5 rounded-full cursor-pointer"

@@ -17,13 +17,17 @@ const Team = () => {
           {teamData.members.map((member, i) => (
             <div key={i} className="flex flex-col items-center">
               <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-full overflow-hidden bg-gray-200 mb-4 border-4 border-white shadow-md">
-                <Image
-                  src={member.image}
-                  alt={member.name}
-                  width={112}
-                  height={112}
-                  className="object-cover w-full h-full"
-                />
+                {member.image ? (
+                  <Image
+                    src={member.image}
+                    alt={member.name}
+                    width={112}
+                    height={112}
+                    className="object-cover w-full h-full"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500 text-sm">No Image</div>
+                )}
               </div>
               <h4 className="font-bold text-gray-900 text-sm">{member.name}</h4>
               <p className="text-xs text-amber-600 font-semibold uppercase tracking-wider mt-1">

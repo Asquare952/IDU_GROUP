@@ -256,7 +256,11 @@ export default function Page() {
                 >
                   <div className="flex items-center gap-3">
                     <div className="relative w-10 h-10 rounded-full overflow-hidden shrink-0">
-                      <Image src={item.image} fill alt="" />
+                      {item.image ? (
+                        <Image src={item.image} fill alt="" />
+                      ) : (
+                        <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500 text-xs">No image</div>
+                      )}
                     </div>
                     <div>
                       <h4 className="font-bold text-xs text-[#3D3F42]">

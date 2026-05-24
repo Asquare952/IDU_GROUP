@@ -167,6 +167,33 @@ export type {
 } from "./features/global-statistics/types";
 
 // ============================================
+// Super Admin
+// ============================================
+export { adminApi } from "./features/admin/admin.api";
+export {
+  useAdminUsers,
+  useToggleAdminUserStatus,
+  useDeleteAdminUser,
+  useAdminRentals,
+  useDeleteAdminRental,
+  useLockedAdminRentals,
+  useAdminReports,
+  useUpdateAdminReportStatus,
+  useAdminChats,
+  useAdminChatMessages,
+} from "./features/admin/admin.queries";
+export type {
+  AdminUser,
+  AdminUserProfile,
+  AdminRental,
+  AdminReport,
+  AdminReportStatus,
+  AdminChatConversation,
+  AdminChatMessage,
+  AdminChatParticipant,
+} from "./features/admin/types";
+
+// ============================================
 // Axios Instance
 // ============================================
 export { default as api, API_BASE_URL } from "./axios";

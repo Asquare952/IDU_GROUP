@@ -6,14 +6,20 @@ const Hero = () => {
     <section className="relative overflow-hidden">
       {/* Mobile Background Image */}
       <div className="absolute inset-0 lg:hidden">
-        <Image
-          src={heroData.image}
-          alt={heroData.imageAlt}
-          fill
-          className="object-cover"
-          priority
-        />
-        <div className="absolute inset-0 bg-black/60" />
+        {heroData.image ? (
+          <>
+            <Image
+              src={heroData.image}
+              alt={heroData.imageAlt}
+              fill
+              className="object-cover"
+              priority
+            />
+            <div className="absolute inset-0 bg-black/60" />
+          </>
+        ) : (
+          <div className="absolute inset-0 bg-gray-600" />
+        )}
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
@@ -41,13 +47,19 @@ const Hero = () => {
           {/* Desktop Image Only */}
           <div className="order-1 lg:order-2 relative hidden lg:block">
             <div className="relative aspect-[4/5] w-full rounded-[32px] overflow-hidden bg-gray-100">
-              <Image
-                src={heroData.image}
-                alt={heroData.imageAlt}
-                fill
-                className="object-cover"
-                priority
-              />
+              {heroData.image ? (
+                <Image
+                  src={heroData.image}
+                  alt={heroData.imageAlt}
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500">
+                  No Image
+                </div>
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
             </div>
           </div>
