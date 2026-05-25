@@ -11,31 +11,15 @@ const TenantPropertyCard = ({ house }: { house: Property }) => {
   const image = house.images[0];
 
   return (
-    <Link
-      href={getPropertyDetailsPath(house)}
-      className="bg-white rounded-[20px] p-2 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300"
-    >
-      <div className="relative w-full h-[220px] rounded-[12px] overflow-hidden">
-        {image ? (
-          <Image
-            src={image}
-            alt={house.title}
-            fill
-            className="w-full h-full object-cover transition-transform duration-500 hover:scale-105 rounded-[12px]"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center bg-slate-100 text-sm text-slate-400">
-            No image
-          </div>
-        )}
-        <button
-          className="absolute top-3 right-3 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm hover:text-red-500 transition cursor-pointer"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            likeRental.mutate(house.id);
-          }}
-        >
+    <div className="bg-white rounded-[20px] p-2 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300">
+      <div className="relative w-full h-[190px] md:h-[220px] rounded-[12px] overflow-hidden">
+        <Image
+          src={house.image}
+          alt={house.title}
+          fill
+          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105 rounded-[12px]"
+        />
+        <button className="absolute top-3 right-3 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm hover:text-red-500 transition cursor-pointer">
           <HiOutlineHeart size={20} />
         </button>
       </div>

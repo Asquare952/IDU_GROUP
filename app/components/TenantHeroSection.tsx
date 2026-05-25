@@ -4,7 +4,7 @@ import { FiSearch, FiMapPin, FiChevronDown } from "react-icons/fi";
 const TenantHeroSection = () => {
   return (
     <section className="relative w-full px-6 md:px-12 pt-6">
-      <div className="relative w-full h-[250px] overflow-hidden rounded-2xl shadow-lg">
+      <div className="relative w-full h-[210px] md:h-[250px] overflow-hidden rounded-2xl shadow-lg">
         <Image
           src="/Duplex.webp"
           alt="RentULO Banner"

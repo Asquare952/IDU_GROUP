@@ -38,26 +38,60 @@ const Listing = () => {
       default:
         return "bg-gray-50 text-gray-500";
     }
-  };
+
+    const fetchRentals = async () => {
+      try {
+        const data = await rentalApi.getAllRentals();
+        setRentals(data);
+      } catch (err: any) {
+        console.error("Failed to fetch rentals:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRentals();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-56 md:h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div id="listing">
       <div className="mb-20 mx-auto max-w-360 px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-12 mx-auto text-center">
-          <span className="text-green-600 font-bold text-xl tracking-wide">
+          <span className="text-green-600 font-bold text-base md:text-xl tracking-wide">
             Featured listings
           </span>
-          <h2 className="text-4xl md:text-5xl font-bold mt-2 mb-4 text-[#1A1C1F]">
+          <h2 className="text-3xl md:text-5xl font-bold mt-2 mb-4 text-[#1A1C1F]">
             Simple. Transparent. Stress-free
           </h2>
-          <p className="text-gray-500 max-w-2xl mx-auto text-lg">
-            Explore top-rated rentals and properties from trusted landlords in your area
+          <p className="text-gray-500 max-w-2xl mx-auto text-base md:text-lg">
+            {isLoggedIn
+              ? "Explore top-rated rentals and properties from trusted landlords in your area"
+              : "Log in to explore top-rated rentals and properties from trusted landlords"}
           </p>
         </div>
 
-        {isLoading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+        {!isLoggedIn && (
+          <div className="text-center py-8 mb-8">
+            <p className="text-gray-400 text-base mb-4">
+              Sign in to view available listings
+            </p>
+            <Link href="/login">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-[#34A853] text-white font-semibold py-3 px-8 rounded-full shadow-lg"
+              >
+                Log In to Browse
+              </motion.button>
+            </Link>
           </div>
         ) : isError ? (
           <div className="text-center py-12 text-red-500">
@@ -65,7 +99,9 @@ const Listing = () => {
           </div>
         ) : properties.length === 0 ? (
           <div className="text-center py-12 text-gray-400">
-            <p>No listings available</p>
+            <p className="text-base">
+              {isLoggedIn ? "No listings available" : "Log in to see listings"}
+            </p>
           </div>
         ) : (
 
@@ -85,33 +121,32 @@ const Listing = () => {
 
                 className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
               >
-                <div className="relative h-64 w-full overflow-hidden group">
-
-                  {item.images && item.images.length > 0 ? (
-                    <Image
-                      src={item.images[0]}
-                      alt={item.title}
-                      fill
-                      className="object-cover rounded-3xl p-2 transition-transform duration-500 group-hover:scale-110"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gray-100 rounded-3xl flex items-center justify-center">
-                      <span className="text-gray-400 text-sm">No Image</span>
-                    </div>
-                  )}
-                  {item.status === "available" && <div className="absolute top-5 left-8 bg-[#4CAF50] px-4 py-2 rounded-full text-xs font-bold text-white flex items-center gap-2 shadow-lg capitalize">
-                    <CheckCircle size={14} /> {item.status}
-                  </div>}
-                  {item.status === "rented" && <div className="absolute top-5 left-8 bg-[#4CAF50] px-4 py-2 rounded-full text-xs font-bold text-white flex items-center gap-2 shadow-lg capitalize">
-                    <CheckCircle size={14} /> {item.status}
-                  </div>}
-                  {item.status === "pending" && <div className="absolute top-5 left-8 bg-[#4CAF50] px-4 py-2 rounded-full text-xs font-bold text-white flex items-center gap-2 shadow-lg capitalize">
-                    <CheckCircle size={14} /> {item.status}
-                  </div>}
-                  {item.status === "locked" && <div className="absolute top-5 left-8 bg-[#4CAF50] px-4 py-2 rounded-full text-xs font-bold text-white flex items-center gap-2 shadow-lg capitalize">
-                    <Lock size={14} /> {item.status}
-                  </div>}
-
+                <div className="relative h-56 md:h-64 w-full overflow-hidden group">
+                  <Link
+                    href={isLoggedIn ? `/properties/${item.id}` : "#"}
+                    className="block h-full w-full"
+                    onClick={(e) => {
+                      if (!isLoggedIn) {
+                        e.preventDefault();
+                        alert("Please log in to view property details");
+                      }
+                    }}
+                  >
+                    {item.images && item.images.length > 0 ? (
+                      <Image
+                        src={item.images[0]}
+                        alt={item.title}
+                        fill
+                        className="object-cover rounded-3xl p-2 transition-transform duration-500 group-hover:scale-110"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-100 rounded-3xl flex items-center justify-center">
+                        <span className="text-gray-400 text-base md:text-sm">
+                          No Image
+                        </span>
+                      </div>
+                    )}
+                  </Link>
                   <button
                     type="button"
                     className="absolute top-5 right-5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#162B4C] shadow-sm transition hover:text-red-500 cursor-pointer"
@@ -134,7 +169,7 @@ const Listing = () => {
                 <div className="p-5">
                   <div className="flex justify-between items-start mb-2">
                     <div>
-                      <p className="text-gray-900 font-bold text-xl">
+                      <p className="text-gray-900 font-bold text-lg md:text-xl">
                         ₦{Number(item.price).toLocaleString()}
                         <span className="text-sm font-normal text-gray-400">
                           / {item.priceType}
@@ -145,12 +180,24 @@ const Listing = () => {
                       </h3>
                     </div>
 
-
-                    <Link href={getPropertyDetailsPath(item)}>
+                    {isLoggedIn ? (
+                      <Link href={`/properties/${item.id}`}>
+                        <motion.button
+                          whileTap={{ scale: 0.95 }}
+                          whileHover={{ scale: 1.05 }}
+                          className="bg-[#E8F5E9] text-[#43A047] text-sm md:text-xs font-bold px-4 py-1.5 rounded-full cursor-pointer"
+                        >
+                          View
+                        </motion.button>
+                      </Link>
+                    ) : (
                       <motion.button
                         whileTap={{ scale: 0.95 }}
                         whileHover={{ scale: 1.05 }}
-                        className="bg-[#E8F5E9] text-[#43A047] text-xs font-bold px-4 py-1.5 rounded-full cursor-pointer"
+                        className="bg-gray-100 text-gray-400 text-sm md:text-xs font-bold px-4 py-1.5 rounded-full cursor-not-allowed flex items-center gap-1"
+                        onClick={() =>
+                          alert("Please log in to view property details")
+                        }
                       >
                         View
                       </motion.button>
@@ -158,7 +205,7 @@ const Listing = () => {
 
                   </div>
 
-                  <p className="text-gray-400 text-sm mb-4 leading-relaxed">
+                  <p className="text-gray-400 text-base md:text-sm mb-4 leading-relaxed">
                     {item.description}
                   </p>
 
@@ -170,13 +217,13 @@ const Listing = () => {
                         width={16}
                         height={16}
                       />
-                      <span className="text-xs text-gray-500 font-medium">
+                      <span className="text-sm md:text-xs text-gray-500 font-medium">
                         {item.propertyType}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Image src="/bed.png" alt="bed" width={16} height={16} />
-                      <span className="text-xs text-gray-500 font-medium">
+                      <span className="text-sm md:text-xs text-gray-500 font-medium">
                         {item.location}
                       </span>
                     </div>
@@ -193,7 +240,7 @@ const Listing = () => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-[#34A853] hover:bg-green-700 text-white font-semibold py-2 px-8 rounded-full transition duration-300 mt-8 cursor-pointer shadow-lg"
+              className="bg-[#34A853] hover:bg-green-700 text-white font-semibold text-base py-2 px-8 rounded-full transition duration-300 mt-8 cursor-pointer shadow-lg"
             >
               browse Listings <span className="text-sm"> &rarr;</span>
             </motion.button>

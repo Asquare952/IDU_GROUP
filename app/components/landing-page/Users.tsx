@@ -28,22 +28,26 @@ const Users = () => {
             <div
               key={item.key}
               className={`flex flex-col items-center md:items-start md:pl-10 py-8 ${
-                index < statItems.length - 1 ? "md:border-r border-gray-200" : ""
+                index < statItems.length - 1
+                  ? "md:border-r border-gray-200"
+                  : ""
               }`}
             >
               <h2
-                className={`text-5xl font-bold text-[#1A2B49] mb-2 ${
+                className={`text-4xl md:text-5xl font-bold text-[#1A2B49] mb-2 ${
                   isLoadingGlobalStatistics ? "animate-pulse" : ""
                 }`}
               >
                 {formatCount(globalStatistics?.[item.key] ?? 0)}
               </h2>
-              <p className="text-sm font-medium text-gray-400">{item.label}</p>
+              <p className="text-base md:text-sm font-medium text-gray-400">
+                {item.label}
+              </p>
             </div>
           ))}
         </div>
         {hasGlobalStatisticsError ? (
-          <p className="mt-6 text-sm text-red-500">
+          <p className="mt-6 text-base md:text-sm text-red-500">
             Live platform statistics are unavailable right now.
           </p>
         ) : null}
