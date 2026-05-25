@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -12,10 +12,32 @@ import {
 import { useRouter, usePathname } from "next/navigation";
 import { HiOutlineUser, HiOutlineCog, HiOutlineLogout } from "react-icons/hi";
 import NotificationMenu from "./shared/NotificationMenu";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "./context/AuthContext";
+import { useUserProfile } from "@/app/api/features/auth/auth.queries";
+import { AuthResponse } from "@/app/api/features/auth/types";
+import { readCachedProfile } from "@/app/api/features/auth/profile-cache";
+import { jwtDecode } from "jwt-decode";
+import Cookies from "js-cookie";
+
+
+type HeaderUser = NonNullable<AuthResponse["user"]>;
+
+type DecodedToken = {
+  id?: string;
+  sub?: string;
+  userId?: string;
+  _id?: string;
+  email?: string;
+  first_name?: string;
+  last_name?: string;
+};
 
 const Header = () => {
+  const [userId, setUserId] = useState<string>();
+  const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
+  const [cachedProfile, setCachedProfile] = useState<HeaderUser>();
+  const [decodedProfile, setDecodedProfile] = useState<Partial<HeaderUser>>({});
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const router = useRouter();
@@ -25,6 +47,47 @@ const Header = () => {
   const showLoggedInUI = isLoggedIn && pathname !== "/login";
   const showJoinUs = !isLoggedIn;
   const isJoinUsPage = pathname === "/signup" || pathname === "/confirm-otp";
+
+  useEffect(() => {
+    const token = Cookies.get("ACCESS_TOKEN");
+    setCachedProfile(readCachedProfile() as HeaderUser | undefined);
+
+    if (!token) {
+      setHasCheckedAuth(true);
+      return;
+    }
+
+    try {
+      const decoded = jwtDecode<DecodedToken>(token);
+      setUserId(decoded.id ?? decoded.userId ?? decoded._id ?? decoded.sub);
+      setDecodedProfile({
+        email: decoded.email,
+        first_name: decoded.first_name,
+        last_name: decoded.last_name,
+      });
+    } catch {
+      setUserId(undefined);
+      setDecodedProfile({});
+    } finally {
+      setHasCheckedAuth(true);
+    }
+  }, []);
+
+  const { data: user, isLoading } = useUserProfile(userId, hasCheckedAuth);
+  const displayUser = {
+    ...user,
+    ...cachedProfile,
+  };
+  const displayFirstName =
+    cachedProfile?.first_name ?? user?.first_name ?? decodedProfile.first_name ?? "";
+  const displayLastName =
+    cachedProfile?.last_name ?? user?.last_name ?? decodedProfile.last_name ?? "";
+  const displayEmail =
+    cachedProfile?.email ?? user?.email ?? decodedProfile.email ?? "";
+  const displayProfileImage = cachedProfile?.profileImage ?? user?.profileImage;
+  const initials =
+    `${displayFirstName[0] ?? ""}${displayLastName[0] ?? ""}`.trim() ||
+    "U";
 
   const handleLogout = () => {
     setIsOpen(false);
@@ -55,12 +118,11 @@ const Header = () => {
             </Link>
 
             <Link
-              href={isLoggedIn ? "/tenant/homepage" : "/#listing"}
-              className={`text-[15px] font-medium transition-all ${
-                pathname === "/tenant/homepage" || pathname === "/#listing"
-                  ? "text-[#4CAF50] font-bold"
-                  : "text-gray-700 hover:text-[#4CAF50]"
-              }`}
+              href="/#listing"
+              className={`text-[15px] font-medium transition-all ${pathname === "/tenant/homepage" || pathname === "/#listing"
+                ? "text-[#4CAF50] font-bold"
+                : "text-gray-700 hover:text-[#4CAF50]"
+                }`}
             >
               Property
             </Link>
@@ -75,11 +137,10 @@ const Header = () => {
             {showJoinUs && (
               <Link
                 href="/signup"
-                className={`text-[15px] font-medium transition-all ${
-                  isJoinUsPage
-                    ? "text-[#4CAF50] font-bold"
-                    : "text-gray-700 hover:text-[#4CAF50]"
-                }`}
+                className={`text-[15px] font-medium transition-all ${isJoinUsPage
+                  ? "text-[#4CAF50] font-bold"
+                  : "text-gray-700 hover:text-[#4CAF50]"
+                  }`}
               >
                 Join us
               </Link>
@@ -96,26 +157,35 @@ const Header = () => {
                 </div>
 
                 {/* Profile trigger — just image on mobile, image + name on desktop */}
-                <div
-                  className="flex items-center gap-2 cursor-pointer md:border-l md:pl-3 md:border-gray-200 active:scale-95 transition-all"
-                  onClick={() => setIsProfileOpen(!isProfileOpen)}
-                >
-                  <Image
-                    src="/Iyke ace.jpg"
-                    alt="Profile"
-                    width={36}
-                    height={36}
-                    className="rounded-full border-2 border-[#4CAF50] object-cover aspect-square"
-                  />
-                  <div className="hidden lg:block text-left">
-                    <p className="text-xs font-bold text-gray-900 leading-none">
-                      David
-                    </p>
-                    <p className="text-[10px] text-gray-500">
-                      Software engineer
-                    </p>
-                  </div>
-                </div>
+                {isLoading && !displayUser ? (
+                  <p className="text-sm text-[#999EA5]">Loading...</p>
+                ) : displayUser ? (
+                  <div
+                    className="flex items-center gap-2 cursor-pointer md:border-l md:pl-3 md:border-gray-200 active:scale-95 transition-all"
+                    onClick={() => setIsProfileOpen(!isProfileOpen)}
+                  >
+                    {displayProfileImage ? (
+                      <Image
+                        src={displayProfileImage}
+                        alt="Profile"
+                        width={36}
+                        height={36}
+                        className="rounded-full border-2 border-[#4CAF50] object-cover aspect-square"
+                      />
+                    ) : (
+                      <div className="flex h-[50px] w-[50px] items-center justify-center rounded-full bg-[#43A047] text-2xl font-semibold text-white">
+                        {initials}
+                      </div>
+                    )}
+                    <div className="hidden lg:block text-left">
+                      <p className="text-xs font-bold text-gray-900 leading-none">
+                        {displayFirstName} {displayLastName}
+                      </p>
+                      <p className="text-[10px] text-gray-500">
+                        {displayEmail}
+                      </p>
+                    </div>
+                  </div>) : null}
 
                 {/* Dropdown — fixed positioning for mobile, absolute for desktop */}
                 {isProfileOpen && (
@@ -127,9 +197,9 @@ const Header = () => {
                     {/* MOBILE DROPDOWN: fixed to top-right of viewport, pushed down below header */}
                     <div className="fixed right-4 top-20 w-60 bg-white rounded-2xl shadow-2xl border border-gray-100 z-20 overflow-hidden md:hidden">
                       <div className="p-4 border-b border-gray-50 bg-gray-50/50">
-                        <p className="text-sm font-bold text-gray-900">David</p>
+                        <p className="text-sm font-bold text-gray-900">{displayFirstName} {displayLastName}</p>
                         <p className="text-[10px] text-gray-500 truncate">
-                          david.engineer@rentulo.com
+                          {displayEmail}
                         </p>
                       </div>
                       <div className="p-2 flex flex-col gap-1">
@@ -193,9 +263,9 @@ const Header = () => {
                     {/* DESKTOP DROPDOWN: absolute positioned relative to parent */}
                     <div className="hidden md:block absolute right-0 top-14 w-60 bg-white rounded-2xl shadow-2xl border border-gray-100 z-20 overflow-hidden">
                       <div className="p-4 border-b border-gray-50 bg-gray-50/50">
-                        <p className="text-sm font-bold text-gray-900">David</p>
+                        <p className="text-sm font-bold text-gray-900">{displayFirstName} {displayLastName}</p>
                         <p className="text-[10px] text-gray-500 truncate">
-                          david.engineer@rentulo.com
+                          {displayEmail}
                         </p>
                       </div>
                       <div className="p-2 flex flex-col gap-1">

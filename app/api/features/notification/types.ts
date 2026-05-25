@@ -2,7 +2,7 @@ export type NotificationValue = string | number | boolean | null | undefined;
 
 export interface Notification {
   id: string;
-  title: string;
+  title: string
   message: string;
   isRead: boolean;
   createdAt: string;
@@ -14,32 +14,10 @@ export interface NotificationCount {
 
 export type NotificationRecord = Record<string, unknown> & {
   id?: NotificationValue;
-  _id?: NotificationValue;
-  uuid?: NotificationValue;
-  notificationId?: NotificationValue;
-  notification_id?: NotificationValue;
-  title?: NotificationValue;
-  notificationTitle?: NotificationValue;
-  notification_title?: NotificationValue;
-  subject?: NotificationValue;
-  heading?: NotificationValue;
-  message?: NotificationValue;
-  notificationMessage?: NotificationValue;
-  notification_message?: NotificationValue;
-  body?: NotificationValue;
-  content?: NotificationValue;
-  text?: NotificationValue;
-  description?: NotificationValue;
-  details?: NotificationValue;
-  isRead?: NotificationValue;
   is_read?: NotificationValue;
-  read?: NotificationValue;
-  read_status?: NotificationValue;
-  status?: NotificationValue;
+  notification?: NotificationValue;
   createdAt?: NotificationValue;
-  created_at?: NotificationValue;
   updatedAt?: NotificationValue;
-  updated_at?: NotificationValue;
   date?: NotificationValue;
   timestamp?: NotificationValue;
 };

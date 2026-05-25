@@ -91,8 +91,8 @@ const page = () => {
     <DashboardLayout>
       <section className="p-8 bg-[#F8F9FA] min-h-screen">
         <div className=" flex justify-between items-center mb-6">
-          <h2 className="text-4xl font-bold text-[#162B4C]">My Profile</h2>
-          <Link href="/tenant/dashboard/edit-profile" className=" flex items-center gap-1.5 py-2.5 px-3.5 rounded-md bg-[#43A047] text-white">
+          <h2 className="text-2xl  md:text-4xl font-bold text-[#162B4C]">My Profile</h2>
+          <Link href="/tenant/edit-profile" className=" flex items-center gap-1.5 py-2.5 px-3.5 rounded-md bg-[#43A047] text-white">
             <SquarePen size={15} className=" text-md" />
             <span>Edit Profile</span>
           </Link>
@@ -191,17 +191,6 @@ const page = () => {
                     {displayMembershipYear ? `Since ${displayMembershipYear}` : "N/A"}
                   </p>
                 </div>
-
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <p className="text-sm font-bold text-[#162B4C]">Email</p>
-                <p className="text-gray-500">{displayEmail}</p>
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <p className="text-sm font-bold text-[#162B4C]">Phone Number</p>
-                <p className="text-gray-500">{displayPhone}</p>
               </div>
             </div>
           </div>

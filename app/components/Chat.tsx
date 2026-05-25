@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueries, useQueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import { AnimatePresence, motion } from "framer-motion";
 import { jwtDecode } from "jwt-decode";
@@ -12,8 +12,8 @@ import {
   useChatMessages,
   useSendMessage,
 } from "../api/features/chat/chat.queries";
-import { sanitizeConversationId } from "../api/features/chat/chat.api";
-import { Message } from "../api/features/chat/types";
+import { getMessages, sanitizeConversationId } from "../api/features/chat/chat.api";
+import { Conversation, Message, User } from "../api/features/chat/types";
 import { socket } from "../lib/socket";
 
 type DecodedToken = {
@@ -22,6 +22,53 @@ type DecodedToken = {
   userId?: string;
   _id?: string;
 };
+
+const getParticipantId = (participant: User) =>
+  participant._id ?? participant.id ?? "";
+
+const getParticipantName = (participant: User) => {
+  const firstName = participant.first_name ?? participant.firstName ?? "";
+  const lastName = participant.last_name ?? "";
+  const combinedName = `${firstName} ${lastName}`.trim();
+  const initials = firstName && lastName ? `${firstName[0]}${lastName[0]}` : "";
+
+  return (
+    participant.fullName ||
+    participant.name ||
+    combinedName ||
+    initials ||
+    participant.email ||
+    getParticipantId(participant) ||
+    ""
+  );
+};
+
+const getConversationTitle = (
+  conversation: Conversation | undefined,
+  currentUserId: string | null,
+) => {
+  if (!conversation) {
+    return "Select a conversation";
+  }
+
+  const participants = conversation.participants ?? [];
+  const otherParticipants = currentUserId
+    ? participants.filter(
+        (participant) => getParticipantId(participant) !== currentUserId,
+      )
+    : participants;
+  const displayParticipants =
+    otherParticipants.length > 0 ? otherParticipants : participants;
+  const names = displayParticipants
+    .map(getParticipantName)
+    .filter(Boolean)
+    .join(", ");
+
+  return names || "Conversation";
+};
+
+const getLastMessagePreview = (message: Message | undefined) =>
+  message?.content?.trim() || "No messages yet";
 
 const Chat = () => {
   const [message, setMessage] = useState("");
@@ -40,6 +87,34 @@ const Chat = () => {
   const activeConversationId = sanitizeConversationId(routeConversationId);
   const { messages } = useChatMessages(activeConversationId ?? "");
   const { mutate: sendMessage, isPending } = useSendMessage();
+  const conversationIds = (conversations ?? [])
+    .map((conversation) =>
+      sanitizeConversationId(
+        (conversation as any).conversation_id ??
+          (conversation as any)._id ??
+          (conversation as any).id,
+      ),
+    )
+    .filter(Boolean);
+  const messagePreviewQueries = useQueries({
+    queries: conversationIds.map((conversationId) => ({
+      queryKey: ["messages", conversationId],
+      queryFn: () => getMessages(conversationId),
+      enabled: Boolean(conversationId),
+      staleTime: 30_000,
+    })),
+  });
+  const lastMessageByConversationId = new Map<string, Message>();
+
+  messagePreviewQueries.forEach((query, index) => {
+    const conversationId = conversationIds[index];
+    const previewMessages = query.data?.messages ?? [];
+    const lastMessage = previewMessages[previewMessages.length - 1];
+
+    if (conversationId && lastMessage) {
+      lastMessageByConversationId.set(conversationId, lastMessage);
+    }
+  });
   const messagesBasePath = pathname.includes("/messages/")
     ? pathname.split("/messages/")[0] + "/messages"
     : pathname;
@@ -51,14 +126,18 @@ const Chat = () => {
     (conversation as any).id === activeConversationId,
   );
 
-  const selectedConversationTitle = selectedConversation
-    ? (selectedConversation.participants ?? [])
-      .map((participant) =>
-        // accept multiple possible field names from backend
-        (participant as any).first_name ?? (participant as any).name ?? (participant as any).fullName ?? (participant as any).firstName ?? participant._id ?? "User",
+  const selectedConversationTitle = getConversationTitle(
+    selectedConversation,
+    currentUserId,
+  );
+  const selectedConversationPreview = selectedConversation
+    ? getLastMessagePreview(
+        activeConversationId
+          ? lastMessageByConversationId.get(activeConversationId) ??
+              messages[messages.length - 1]
+          : undefined,
       )
-      .join(", ")
-    : "Select a conversation";
+    : "";
 
   useEffect(() => {
     const token = Cookies.get("ACCESS_TOKEN");
@@ -106,6 +185,27 @@ const Chat = () => {
           return {
             ...oldData,
             messages: [...oldData.messages, msg],
+          };
+        },
+      );
+      queryClient.setQueryData(
+        ["conversations"],
+        (oldData: { conversations: Conversation[] } | undefined) => {
+          if (!oldData) {
+            return oldData;
+          }
+
+          return {
+            ...oldData,
+            conversations: oldData.conversations.map((conversation) =>
+              conversation.conversation_id === msg.conversation_id
+                ? {
+                    ...conversation,
+                    lastMessage: msg,
+                    updatedAt: msg.createdAt || conversation.updatedAt,
+                  }
+                : conversation,
+            ),
           };
         },
       );
@@ -171,26 +271,34 @@ const Chat = () => {
           }
 
           const isActive = convId === activeConversationId;
-          const participantNames = (conversation.participants ?? [])
-            .map(
-              (participant) =>
-                participant.first_name ??
-                participant.name ??
-                participant.fullName ??
-                participant.firstName ??
-                participant._id ??
-                "Conversation",
-            )
-            .join(", ");
+          const participantNames = getConversationTitle(
+            conversation,
+            currentUserId,
+          );
+          const lastMessagePreview = getLastMessagePreview(
+            lastMessageByConversationId.get(convId),
+          );
 
           return (
             <button
               key={convId}
               type="button"
               onClick={() => handleConversationSelect(convId)}
-              className={`block w-full rounded-xl px-3 py-3 text-left transition ${isActive ? "bg-white text-[#43A047]" : "bg-white/10 hover:bg-white/20"}`}
+              className={`flex items-center gap-1 w-full rounded-xl px-3 py-3 text-left transition ${isActive ? "bg-white text-[#43A047]" : "bg-white/10 hover:bg-white/20"}`}
             >
-              {participantNames || "Conversation"}
+              {/* <div className="h-6 w-6 rounded-full bg-white/20"></div> */}
+              <div className=" flex flex-col gap-1">
+                <span className="block truncate text-sm font-bold">
+                  {participantNames}
+                </span>
+                <span
+                  className={`mt-1 block truncate text-xs ${isActive ? "text-slate-500" : "text-white/70"
+                    }`}
+                >
+                  {lastMessagePreview}
+                </span>
+              </div>
+              
             </button>
           );
         })}
@@ -210,7 +318,8 @@ const Chat = () => {
           >
             <ArrowLeft size={18} />
           </button>
-          <div className="min-w-0">
+          <div className=" flex items-center gap-1 min-w-0">
+            {/* <div className="h-6 w-6 rounded-full bg-white/20"></div> */}
             <p className="truncate text-base font-medium md:text-lg">
               {selectedConversationTitle}
             </p>

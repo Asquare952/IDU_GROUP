@@ -27,6 +27,10 @@ import { useState, useEffect } from "react";
 import { useFetchProperties } from "@/app/api/features/property/property.queries";
 import { useLockedRentals } from "@/app/api/features/progress/progress.queries";
 import { getPropertyDetailsPath } from "@/app/lib/property-routes";
+import { useCreateConversation } from "@/app/api/features/chat/chat.queries";
+import { sanitizeConversationId } from "@/app/api/features/chat/chat.api";
+import { hasAccessToken } from "@/app/lib/auth";
+import { toast } from "react-toastify";
 
 const Page = () => {
   const router = useRouter();
@@ -35,6 +39,7 @@ const Page = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const { data: properties } = useFetchProperties();
   const { data: lockedRentals } = useLockedRentals();
+  const { mutate: createConversation } = useCreateConversation();
 
   const nextSlide = () => {
     setCurrentSlide((prev) =>
@@ -85,11 +90,10 @@ const Page = () => {
                 <button
                   key={index}
                   onClick={() => setCurrentSlide(index)}
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    currentSlide === index
-                      ? "w-8 bg-[#43A047]"
-                      : "w-2 bg-white/60 hover:bg-white"
-                  }`}
+                  className={`h-2 rounded-full transition-all duration-300 ${currentSlide === index
+                    ? "w-8 bg-[#43A047]"
+                    : "w-2 bg-white/60 hover:bg-white"
+                    }`}
                 />
               ))}
             </div>
@@ -154,9 +158,40 @@ const Page = () => {
                   View Details
                 </button>
               </Link>
-              <button className="w-full sm:w-auto bg-white border-2 border-gray-100 text-[#162B4C] px-10 py-4 rounded-2xl font-bold hover:bg-gray-50 transition-all active:scale-95 cursor-pointer">
+              {/* <button onClick={() => {
+                if (!hasAccessToken()) {
+                  router.push("/login");
+                  return;
+                }
+
+                if (!property.userId) {
+                  toast.error("Landlord contact is not available for this listing.");
+                  return;
+                }
+
+                createConversation({ other_user_id: String(property.userId) }, {
+                  onSuccess: (data) => {
+                    const conversationId = sanitizeConversationId(
+                      data.conversation_id ?? data._id ?? data.id,
+                    );
+
+                    if (!conversationId) {
+                      toast.error("Unable to open this conversation.");
+                      return;
+                    }
+
+                    router.push(`/tenant/messages/${conversationId}`);
+                  },
+                  onError: (conversationError) => {
+                    toast.error(
+                      conversationError.message ||
+                      "Unable to start chat. Please try again.",
+                    );
+                  },
+                });
+              }} className="w-full sm:w-auto bg-white border-2 border-gray-100 text-[#162B4C] px-10 py-4 rounded-2xl font-bold hover:bg-gray-50 transition-all active:scale-95 cursor-pointer">
                 Contact Landlord
-              </button>
+              </button> */}
             </div>
           </div>
         </div>
@@ -194,13 +229,13 @@ const Page = () => {
           ) : (
             <motion.div
               variants={containerVariants}
-              initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: "-100px" }}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
             >
               {properties?.slice(0, 3).map((item, i) => (
-                <motion.div
+                <motion.a
+                  href={getPropertyDetailsPath(item)}
                   key={item.id}
                   custom={i}
                   variants={itemVariants}
@@ -208,17 +243,14 @@ const Page = () => {
                   className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group"
                 >
                   <div className="relative h-64 w-full overflow-hidden cursor-pointer">
-                    <Link
-                      href={getPropertyDetailsPath(item)}
-                      className="block h-full w-full"
-                    >
-                      <Image
-                        src={item.images[0]}
-                        alt={item.title}
-                        fill
-                        className="object-cover rounded-3xl p-3 transition-transform duration-500 group-hover:scale-110"
-                      />
-                    </Link>
+
+                    <Image
+                      src={item.images[0]}
+                      alt={item.title}
+                      fill
+                      className="object-cover rounded-3xl p-3 transition-transform duration-500 group-hover:scale-110"
+                    />
+
                     <button
                       type="button"
                       className="absolute top-5 right-5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#162B4C] shadow-sm transition hover:text-red-500 cursor-pointer"
@@ -238,22 +270,18 @@ const Page = () => {
                             / {item.priceType}
                           </span>
                         </p>
-                        <Link
-                          href={
-                            isLoggedIn ? getPropertyDetailsPath(item) : "/login"
-                          }
-                        >
+                        <div>
                           <h3 className="text-gray-800 font-semibold text-lg hover:text-[#43A047] transition-colors cursor-pointer">
                             {item.title}
                           </h3>
-                        </Link>
+                        </div>
                       </div>
                       <motion.button
                         whileTap={{ scale: 0.95 }}
                         whileHover={{ scale: 1.05 }}
                         onClick={() =>
                           router.push(
-                            isLoggedIn ? getPropertyDetailsPath(item) : "/login",
+                            getPropertyDetailsPath(item),
                           )
                         }
                         className="bg-[#E8F5E9] text-[#43A047] text-xs font-bold px-4 py-1.5 rounded-full cursor-pointer"
@@ -291,7 +319,7 @@ const Page = () => {
                       </div>
                     </div>
                   </div>
-                </motion.div>
+                </motion.a>
               ))}
             </motion.div>
           )}
@@ -343,14 +371,13 @@ const Page = () => {
                 {SafetyAction.map((action) => (
                   <button
                     key={action.id}
-                    className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                      action.variant === "danger"
-                        ? "bg-[#FF3B30] text-white hover:bg-red-700"
-                        : action.variant === "Success" ||
-                            action.variant === "success"
-                          ? "bg-[#43A047] text-white hover:bg-green-700"
-                          : "bg-[#F2F2F7] text-[#162B4C] hover:bg-gray-200"
-                    }`}
+                    className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${action.variant === "danger"
+                      ? "bg-[#FF3B30] text-white hover:bg-red-700"
+                      : action.variant === "Success" ||
+                        action.variant === "success"
+                        ? "bg-[#43A047] text-white hover:bg-green-700"
+                        : "bg-[#F2F2F7] text-[#162B4C] hover:bg-gray-200"
+                      }`}
                   >
                     <action.icon size={20} />
                     {action.label}

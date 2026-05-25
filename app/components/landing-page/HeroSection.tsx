@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { hasAccessToken } from "@/app/lib/auth";
+import { api } from "@/app/api";
+import { getCurrentUserRole } from "@/app/lib/auth";
 
 
 
@@ -94,10 +95,10 @@ const HeroSection = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch("/api/features/auth/me", {
-          credentials: "include",
+        const res = await api.get("/auth/me", {
+          withCredentials: true,
         });
-        const data = await res.json();
+        const data = await res.data;
         setAuth({
           isLoggedIn: data.isLoggedIn,
           userRole: data.userRole,
@@ -115,7 +116,7 @@ const HeroSection = () => {
     if (keyword) params.append("keyword", keyword);
     if (location) params.append("search", location);
     if (propertyType) params.append("category", propertyType);
-    router.push(`/properties?${params.toString()}`);
+    router.push(`/tenant/homepage?${params.toString()}`);
   };
 
   const handleFindHouse = () => {
@@ -237,13 +238,13 @@ const HeroSection = () => {
               >
                 Find a house
               </button>
-              {auth.userRole === "landlord" ? <button
+              {getCurrentUserRole() === "tenant" ? " " : <button
                 onClick={handleListProperty}
                 className={`cursor-pointer bg-white/10 backdrop-blur-md border border-white/30 hover:bg-white/20 text-white font-semibold py-3 px-6 md:px-10 rounded-full transition-all active:scale-95 ${auth.loading ? "opacity-70 cursor-wait" : ""
                   }`}
               >
                 List a property
-              </button> : ""}
+              </button>}
 
             </div>
           </div>

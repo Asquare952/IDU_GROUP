@@ -23,7 +23,7 @@ const Sidebar = () => {
           {sidebarItems.map((item) => {
             const { id, name, path, action, icon: Icon } = item;
             const isActive = !!path && pathname === path
-            const className = `flex items-center gap-2 rounded-lg px-6 py-3 ${isActive ? "bg-[#43A047] text-white" : " hover:bg-[#43A047] hover:text-white"}`
+            const className = `flex items-center gap-2 rounded-lg pl-6 pr-25 py-3 ${isActive ? "bg-[#43A047] text-white" : " hover:bg-[#43A047] hover:text-white"}`
             const logoutClassName = "flex items-center gap-2 rounded-lg px-6 py-3 text-[#DC2626]"
 
             if (action === "logout") {

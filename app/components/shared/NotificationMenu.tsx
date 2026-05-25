@@ -9,7 +9,6 @@ import {
   useNotifications,
 } from "@/app/api/features/notification";
 import { formatNotificationTime } from "./notification-helpers";
-import { div } from "framer-motion/m";
 
 interface NotificationMenuProps {
   notificationPath: string;
@@ -96,13 +95,13 @@ const NotificationMenu = ({ notificationPath }: NotificationMenuProps) => {
                 <div className="h-3 w-1/3 animate-pulse rounded bg-slate-100" />
               </div>
             ) : notifications.length > 0 ? (
-              <div>
-                {notifications.map((notification, index) => (
+              <div className="max-h-[300px] overflow-y-auto">
+                {notifications.slice(0, 10).map((notification, index) => (
                   <div key={index} className="space-y-2">
                     <div className="flex items-start justify-between gap-3">
                       <div className="space-y-1">
                         <h4 className="text-sm font-bold leading-snug text-[#162B4C]">
-                          {notification.title || "New notification"}
+                          {notification.message || "New notification"}
                         </h4>
                         <p className="text-xs leading-5 text-slate-600">
                           {notification.message || "No extra details available."}
