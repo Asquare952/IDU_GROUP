@@ -10,6 +10,7 @@ import { AuthResponse } from "@/app/api/features/auth/types";
 import { readCachedProfile } from "@/app/api/features/auth/profile-cache";
 import DesktopSearch from "./UI/search/DesktopSearch";
 import NotificationBell from "./UI/NotificationBell";
+import Link from "next/link";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -132,7 +133,7 @@ const Header: FC<HeaderProps> = ({ onMenuClick }) => {
               {isLoading && !displayUser ? (
                 <p className="text-sm text-[#999EA5]">Loading...</p>
               ) : displayUser ? (
-                <div className="flex items-center gap-1.5 cursor-pointer">
+                <Link href="/tenant/profile" className="flex items-center gap-1.5 cursor-pointer">
                   {displayProfileImage ? (
                     <Image
                       src={displayProfileImage}
@@ -146,7 +147,7 @@ const Header: FC<HeaderProps> = ({ onMenuClick }) => {
                       {initials}
                     </div>
                   )}
-                </div>
+                </Link>
               ) : null}
             </div>
           </div>
@@ -161,7 +162,7 @@ const Header: FC<HeaderProps> = ({ onMenuClick }) => {
           {isLoading && !displayUser ? (
             <p>Loading...</p>
           ) : displayUser ? (
-            <a href="/tenant/dashboard/profile" className="flex items-center gap-1.5 cursor-pointer">
+            <Link href="/tenant/profile" className="flex items-center gap-1.5 cursor-pointer">
               {displayProfileImage ? (
                 <Image
                   src={displayProfileImage}
@@ -184,7 +185,7 @@ const Header: FC<HeaderProps> = ({ onMenuClick }) => {
                   {displayEmail}
                 </p>
               </div>
-            </a>
+            </Link>
           ) : null}
         </div>
       </div>

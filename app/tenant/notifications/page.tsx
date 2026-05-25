@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import DashboardLayout from "@/app/components/Dashboard/DashboardLayout";
+import DashboardLayout from "@/app/components/Tenant-Dashboard/DashboardLayout";
 import NotificationItem from "@/app/components/shared/NotificationItems";
 import { Bell, Check } from "lucide-react";
 import {
@@ -77,7 +77,6 @@ const page = () => {
             notifications.map((notification) => (
               <NotificationItem
                 key={notification.id}
-                title={notification.title}
                 type={getNotificationType(notification)}
                 message={notification.message}
                 time={formatNotificationTime(notification.createdAt)}
