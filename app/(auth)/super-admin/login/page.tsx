@@ -161,7 +161,7 @@ export default function SuperAdminLoginPage() {
                 disabled={isPending}
                 className="w-full bg-[#4CAF50] text-white py-4 rounded-2xl font-bold hover:bg-[#43A047] shadow-xl shadow-green-100 transition-all active:scale-[0.98] disabled:opacity-50"
               >
-                {isPending ? "Signing in..." : "Sign In to Dashboard"}
+                {isPending ? "Logging in..." : "Log In to Dashboard"}
               </button>
 
               <div className="text-center pt-2">

@@ -7,7 +7,7 @@ import {
   useState,
   ReactNode,
 } from "react";
-import { useRouter } from "next/navigation";
+import { useAuthStatus, useLogoutAdmin } from "@/app/api/features/admin";
 
 type AdminAuthContextType = {
   isAuthenticated: boolean;
@@ -22,48 +22,33 @@ const AdminAuthContext = createContext<AdminAuthContextType | undefined>(
 );
 
 export function AdminAuthProvider({ children }: { children: ReactNode }) {
-  const router = useRouter();
+  const { data, isLoading: queryLoading } = useAuthStatus();
+  const logoutMutation = useLogoutAdmin();
+
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check authentication status from localStorage
-    const checkAuth = () => {
-      try {
-        const userData = localStorage.getItem("adminUser");
-        if (userData) {
-          const user = JSON.parse(userData);
-          const isAdmin =
-            user?.is_superadmin === true && user?.role === "admin";
-          setIsAuthenticated(!!userData);
-          setIsSuperAdmin(isAdmin);
-          setUserRole(user?.role || null);
-        } else {
-          setIsAuthenticated(false);
-          setIsSuperAdmin(false);
-          setUserRole(null);
-        }
-      } catch (error) {
-        console.error("Error checking auth status:", error);
+    if (!queryLoading) {
+      const loggedIn = !!data?.isLoggedIn && data?.userRole === "admin";
+      setIsAuthenticated(loggedIn);
+      setIsSuperAdmin(data?.userRole === "admin");
+      setUserRole(data?.userRole || null);
+      setIsLoading(false);
+    }
+  }, [data, queryLoading]);
+
+  const logout = () => {
+    logoutMutation.mutate(undefined, {
+      onSettled: () => {
         setIsAuthenticated(false);
         setIsSuperAdmin(false);
         setUserRole(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkAuth();
-  }, []);
-
-  const logout = () => {
-    localStorage.removeItem("adminUser");
-    setIsAuthenticated(false);
-    setIsSuperAdmin(false);
-    setUserRole(null);
-    router.push("/super-admin/login");
+        window.location.href = "/super-admin/login";
+      },
+    });
   };
 
   return (
