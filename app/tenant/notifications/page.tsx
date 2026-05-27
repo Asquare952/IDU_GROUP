@@ -77,6 +77,7 @@ const page = () => {
             notifications.map((notification) => (
               <NotificationItem
                 key={notification.id}
+                title={notification.title}
                 type={getNotificationType(notification)}
                 message={notification.message}
                 time={formatNotificationTime(notification.createdAt)}
