@@ -3,6 +3,7 @@ import { CheckCircle2, Info, LoaderCircle, Trash2 } from "lucide-react";
 
 interface NotificationProps {
   type: "Success" | "Info";
+  title: string;
   message: string;
   time: string;
   isRead: boolean;
