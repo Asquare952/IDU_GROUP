@@ -10,7 +10,6 @@ export type AdminUser = {
   first_name: string;
   last_name: string;
   email: string;
-  role: string;
   is_active: boolean;
   is_superadmin: boolean;
   createdAt: string;
@@ -85,7 +84,6 @@ export type AdminRegisterPayload = {
   state: string;
   password: string;
   adminSecretKey: string;
-  role: string;
 };
 
 export type AdminVerifyOTPPayload = {
