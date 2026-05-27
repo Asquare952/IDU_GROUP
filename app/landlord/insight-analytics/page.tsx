@@ -9,7 +9,11 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { ANALYTICS_STATS, MOCK_CHART_DATA, TOP_PROPERTIES } from "./data/analyticsData";
+import {
+  ANALYTICS_STATS,
+  MOCK_CHART_DATA,
+  TOP_PROPERTIES,
+} from "./data/analyticsData";
 import Image from "next/image";
 
 const AnalyticsPage = () => {
@@ -100,12 +104,18 @@ const AnalyticsPage = () => {
               {TOP_PROPERTIES.map((property) => (
                 <div key={property.id} className="flex items-center gap-4">
                   <div className="w-14 h-14 bg-slate-100 rounded-2xl overflow-hidden relative border border-slate-50">
-                    <Image
-                      src={property.image}
-                      alt={property.title}
-                      fill
-                      className="object-cover"
-                    />
+                    {property.image ? (
+                      <Image
+                        src={property.image}
+                        alt={property.title}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs">
+                        No Image
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex-1 min-w-0">

@@ -242,15 +242,24 @@ const Page = () => {
                   whileHover={{ y: -10 }}
                   className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group"
                 >
-                  <div className="relative h-64 w-full overflow-hidden cursor-pointer">
-
-                    <Image
-                      src={item.images[0]}
-                      alt={item.title}
-                      fill
-                      className="object-cover rounded-3xl p-3 transition-transform duration-500 group-hover:scale-110"
-                    />
-
+                  <div className="relative h-56 md:h-64 w-full overflow-hidden cursor-pointer">
+                    <Link
+                      href={getPropertyDetailsPath(item)}
+                      className="block h-full w-full"
+                    >
+                      {item.images && item.images.length > 0 ? (
+                        <Image
+                          src={item.images[0]}
+                          alt={item.title}
+                          fill
+                          className="object-cover rounded-3xl p-3 transition-transform duration-500 group-hover:scale-110"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-200 rounded-3xl p-3 flex items-center justify-center text-gray-400 text-sm">
+                          No Image
+                        </div>
+                      )}
+                    </Link>
                     <button
                       type="button"
                       className="absolute top-5 right-5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#162B4C] shadow-sm transition hover:text-red-500 cursor-pointer"
@@ -281,7 +290,9 @@ const Page = () => {
                         whileHover={{ scale: 1.05 }}
                         onClick={() =>
                           router.push(
-                            getPropertyDetailsPath(item),
+                            isLoggedIn
+                              ? getPropertyDetailsPath(item)
+                              : "/login",
                           )
                         }
                         className="bg-[#E8F5E9] text-[#43A047] text-xs font-bold px-4 py-1.5 rounded-full cursor-pointer"

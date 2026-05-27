@@ -5,19 +5,32 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { HiOutlineHeart, HiHeart } from "react-icons/hi";
+import { HiOutlineHeart } from "react-icons/hi";
+import { CheckCircle, Lock } from "lucide-react";
 import { useFetchProperties } from "@/app/api/features/property";
 import { useLikeRental } from "@/app/api";
 import { containerVariants, itemVariants } from "@/app/components/animation";
 import { getPropertyDetailsPath } from "@/app/lib/property-routes";
 import { hasAccessToken } from "@/app/lib/auth";
-import { CheckCircle, Lock, Heart } from "lucide-react";
 
+const getStatusStyle = (status: string) => {
+  switch (status) {
+    case "available":
+      return "bg-green-50 text-[#43A047] border border-green-100";
+    case "pending":
+      return "bg-amber-50 text-[#FFCD36] border border-amber-100";
+    case "rented":
+    case "locked":
+      return "bg-blue-50 text-[#4B8EFF] border border-blue-100";
+    default:
+      return "bg-gray-50 text-gray-500 border border-gray-100";
+  }
+};
 
 const Listing = () => {
   const router = useRouter();
+  const isLoggedIn = hasAccessToken();
   const { mutate: likeRental } = useLikeRental();
-
   const {
     data: properties = [],
     isLoading,
@@ -25,38 +38,10 @@ const Listing = () => {
     error,
   } = useFetchProperties();
 
-  const getStatusStyle = (status: string) => {
-    switch (status) {
-      case "available":
-        return "bg-green-50 text-[#43A047] border border-green-100";
-      case "pending":
-        return "bg-amber-50 text-[#FFCD36] border border-amber-100";
-      case "rented":
-        return "bg-blue-50 text-[#4B8EFF] border border-blue-100";
-      case "locked":
-        return "bg-blue-50 text-[#4B8EFF] border border-blue-100";
-      default:
-        return "bg-gray-50 text-gray-500";
-    }
-
-    const fetchRentals = async () => {
-      try {
-        const data = await rentalApi.getAllRentals();
-        setRentals(data);
-      } catch (err: any) {
-        console.error("Failed to fetch rentals:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRentals();
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-56 md:h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600" />
       </div>
     );
   }
@@ -78,7 +63,7 @@ const Listing = () => {
           </p>
         </div>
 
-        {!isLoggedIn && (
+        {!isLoggedIn ? (
           <div className="text-center py-8 mb-8">
             <p className="text-gray-400 text-base mb-4">
               Sign in to view available listings
@@ -99,12 +84,9 @@ const Listing = () => {
           </div>
         ) : properties.length === 0 ? (
           <div className="text-center py-12 text-gray-400">
-            <p className="text-base">
-              {isLoggedIn ? "No listings available" : "Log in to see listings"}
-            </p>
+            <p className="text-base">No listings available</p>
           </div>
         ) : (
-
           <motion.div
             variants={containerVariants}
             initial="hidden"
@@ -112,76 +94,82 @@ const Listing = () => {
             viewport={{ once: true, margin: "-100px" }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
-            {properties.slice(0, 9).map((item, i) => (
-              <motion.div
-                key={item.id}
-                custom={i}
-                variants={itemVariants}
-                whileHover={{ y: -10 }}
+            {properties.slice(0, 9).map((item, i) => {
+              const propertyPath = getPropertyDetailsPath(item);
 
-                className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
-              >
-                <div className="relative h-56 md:h-64 w-full overflow-hidden group">
-                  <Link
-                    href={isLoggedIn ? `/properties/${item.id}` : "#"}
-                    className="block h-full w-full"
-                    onClick={(e) => {
-                      if (!isLoggedIn) {
-                        e.preventDefault();
-                        alert("Please log in to view property details");
-                      }
-                    }}
-                  >
-                    {item.images && item.images.length > 0 ? (
-                      <Image
-                        src={item.images[0]}
-                        alt={item.title}
-                        fill
-                        className="object-cover rounded-3xl p-2 transition-transform duration-500 group-hover:scale-110"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gray-100 rounded-3xl flex items-center justify-center">
-                        <span className="text-gray-400 text-base md:text-sm">
-                          No Image
-                        </span>
-                      </div>
-                    )}
-                  </Link>
-                  <button
-                    type="button"
-                    className="absolute top-5 right-5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#162B4C] shadow-sm transition hover:text-red-500 cursor-pointer"
-                    aria-label={`Save ${item.title}`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      if (!hasAccessToken()) {
-                        router.push("/login");
-                        return;
-                      }
-                      likeRental(String(item.id))
-                    }}
-                  >
-                    {item.liked === true ? <Heart size={20} className="transition-all duration-200 text-red-500" /> : <HiOutlineHeart size={20} className="transition-all duration-200 text-gray-500" />}
-                    {/* <HiOutlineHeart size={20} className={`transition-all duration-200 fill-current ${item.liked === true ? "text-red-500" : ""}`} /> */}
-                  </button>
-                </div>
+              return (
+                <motion.div
+                  key={item.id}
+                  custom={i}
+                  variants={itemVariants}
+                  whileHover={{ y: -10 }}
+                  className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
+                >
+                  <div className="relative h-56 md:h-64 w-full overflow-hidden group">
+                    <Link href={propertyPath} className="block h-full w-full">
+                      {item.images && item.images.length > 0 ? (
+                        <Image
+                          src={item.images[0]}
+                          alt={item.title}
+                          fill
+                          className="object-cover rounded-3xl p-2 transition-transform duration-500 group-hover:scale-110"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-100 rounded-3xl flex items-center justify-center">
+                          <span className="text-gray-400 text-base md:text-sm">
+                            No Image
+                          </span>
+                        </div>
+                      )}
+                    </Link>
 
-                <div className="p-5">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <p className="text-gray-900 font-bold text-lg md:text-xl">
-                        ₦{Number(item.price).toLocaleString()}
-                        <span className="text-sm font-normal text-gray-400">
-                          / {item.priceType}
-                        </span>
-                      </p>
-                      <h3 className="text-gray-800 font-semibold text-lg">
-                        {item.title}
-                      </h3>
+                    <div
+                      className={`absolute top-5 left-5 z-10 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold capitalize shadow-sm ${getStatusStyle(
+                        item.status,
+                      )}`}
+                    >
+                      <CheckCircle size={12} />
+                      {item.status}
                     </div>
 
-                    {isLoggedIn ? (
-                      <Link href={`/properties/${item.id}`}>
+                    <button
+                      type="button"
+                      className="absolute top-5 right-5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#162B4C] shadow-sm transition hover:text-red-500 cursor-pointer"
+                      aria-label={`Save ${item.title}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        if (!hasAccessToken()) {
+                          router.push("/login");
+                          return;
+                        }
+
+                        likeRental(String(item.id));
+                      }}
+                    >
+                      <HiOutlineHeart
+                        size={20}
+                        className="transition-all duration-200"
+                      />
+                    </button>
+                  </div>
+
+                  <div className="p-5">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <p className="text-gray-900 font-bold text-lg md:text-xl">
+                          N{Number(item.price).toLocaleString()}
+                          <span className="text-sm font-normal text-gray-400">
+                            / {item.priceType}
+                          </span>
+                        </p>
+                        <h3 className="text-gray-800 font-semibold text-lg">
+                          {item.title}
+                        </h3>
+                      </div>
+
+                      <Link href={propertyPath}>
                         <motion.button
                           whileTap={{ scale: 0.95 }}
                           whileHover={{ scale: 1.05 }}
@@ -190,48 +178,51 @@ const Listing = () => {
                           View
                         </motion.button>
                       </Link>
-                    ) : (
-                      <motion.button
-                        whileTap={{ scale: 0.95 }}
-                        whileHover={{ scale: 1.05 }}
-                        className="bg-gray-100 text-gray-400 text-sm md:text-xs font-bold px-4 py-1.5 rounded-full cursor-not-allowed flex items-center gap-1"
-                        onClick={() =>
-                          alert("Please log in to view property details")
-                        }
+                    </div>
+
+                    <p className="text-gray-400 text-base md:text-sm mb-4 leading-relaxed">
+                      {item.description || "No description provided yet."}
+                    </p>
+
+                    <div className="flex flex-wrap gap-4 border-t border-gray-50 pt-4">
+                      <div className="flex items-center gap-2">
+                        <Image
+                          src="/shawer.png"
+                          alt="property type"
+                          width={16}
+                          height={16}
+                        />
+                        <span className="text-sm md:text-xs text-gray-500 font-medium">
+                          {item.propertyType}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Image
+                          src="/bed.png"
+                          alt="location"
+                          width={16}
+                          height={16}
+                        />
+                        <span className="text-sm md:text-xs text-gray-500 font-medium">
+                          {item.location}
+                        </span>
+                      </div>
+                    </div>
+
+                    {!isLoggedIn && (
+                      <button
+                        type="button"
+                        onClick={() => router.push("/login")}
+                        className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-gray-400"
                       >
-                        View
-                      </motion.button>
-                    </Link>
-
+                        <Lock size={14} />
+                        Sign in to continue
+                      </button>
+                    )}
                   </div>
-
-                  <p className="text-gray-400 text-base md:text-sm mb-4 leading-relaxed">
-                    {item.description}
-                  </p>
-
-                  <div className="flex flex-wrap gap-4 border-t border-gray-50 pt-4">
-                    <div className="flex items-center gap-2">
-                      <Image
-                        src="/shawer.png"
-                        alt="bath"
-                        width={16}
-                        height={16}
-                      />
-                      <span className="text-sm md:text-xs text-gray-500 font-medium">
-                        {item.propertyType}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Image src="/bed.png" alt="bed" width={16} height={16} />
-                      <span className="text-sm md:text-xs text-gray-500 font-medium">
-                        {item.location}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-
-            ))}
+                </motion.div>
+              );
+            })}
           </motion.div>
         )}
 

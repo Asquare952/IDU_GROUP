@@ -112,7 +112,7 @@ const page = () => {
             </div>
             <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-2">
               Create Your Rent<span className="text-[#4CAF50]">ULO</span>
-              Account
+              &nbsp;Account
             </h1>
             <p className="text-gray-500 text-sm font-medium mb-6">
               Fill in your details to get started

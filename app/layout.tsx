@@ -1,22 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "./Provider";
 import ToastProvider from "./components/ToastProvider";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthProvider } from "./components/context/AuthContext";
 import GoogleOAuthClientProvider from "./components/auth/GoogleOAuthClientProvider";
-
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { AdminAuthProvider } from "./providers/AdminAuthProvider";
 
 export const metadata: Metadata = {
   title: "IDU GROUP",
@@ -30,14 +19,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className="antialiased">
         <Providers>
           <GoogleOAuthClientProvider>
-            <AuthProvider>
-              <main>{children}</main>
-            </AuthProvider>
+            <AdminAuthProvider>
+              <AuthProvider>
+                <main>{children}</main>
+              </AuthProvider>
+            </AdminAuthProvider>
           </GoogleOAuthClientProvider>
           <ToastProvider />
         </Providers>

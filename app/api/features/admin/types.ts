@@ -1,0 +1,104 @@
+import type { Rental } from "../rental";
+
+export type AdminUserProfile = {
+  verified: boolean;
+  image?: string;
+};
+
+export type AdminUser = {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  role: string;
+  is_active: boolean;
+  is_superadmin: boolean;
+  createdAt: string;
+  updatedAt?: string;
+  phone_no?: string;
+  state?: string;
+  address?: string;
+  country?: string;
+  rentalsCount: number;
+  profile: AdminUserProfile | null;
+};
+
+export type AdminRental = Rental & {
+  landlordName: string;
+  userId: string;
+  userEmail?: string;
+  lockedByCount: number;
+  tenantCount: number;
+};
+
+export type AdminReportStatus = "pending" | "resolved" | "rejected" | string;
+
+export type AdminReport = {
+  id: string;
+  report_message: string;
+  report_type: string;
+  status: AdminReportStatus;
+  createdAt: string;
+  reporterName: string;
+  reporterEmail?: string;
+  targetName?: string;
+  targetEmail?: string;
+  searchName?: string;
+  reportUserId?: string;
+};
+
+export type AdminChatParticipant = {
+  id: string;
+  name: string;
+  email?: string;
+  role?: string;
+};
+
+export type AdminChatConversation = {
+  conversationId: string;
+  participants: AdminChatParticipant[];
+  lastMessage: string;
+  lastMessageAt: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type AdminChatMessage = {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  senderName: string;
+  content: string;
+  createdAt: string;
+  updatedAt?: string;
+};
+
+
+// ==================== AUTH TYPES ====================
+export type AdminRegisterPayload = {
+  first_name: string;
+  last_name: string;
+  gender: "male" | "female" | "others";
+  phone_no: string;
+  email: string;
+  address: string;
+  state: string;
+  password: string;
+  adminSecretKey: string;
+  role: string;
+};
+
+export type AdminVerifyOTPPayload = {
+  email: string;
+  otpCode: string;
+};
+
+export type AdminLoginPayload = {
+  email: string;
+  password: string;
+};
+
+export type AuthMeResponse = {
+  isLoggedIn: boolean;
+  userRole: string | null;
+};
