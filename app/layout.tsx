@@ -5,6 +5,7 @@ import ToastProvider from "./components/ToastProvider";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthProvider } from "./components/context/AuthContext";
 import GoogleOAuthClientProvider from "./components/auth/GoogleOAuthClientProvider";
+import { AdminAuthProvider } from "./providers/AdminAuthProvider";
 
 export const metadata: Metadata = {
   title: "IDU GROUP",
@@ -21,9 +22,11 @@ export default function RootLayout({
       <body className="antialiased">
         <Providers>
           <GoogleOAuthClientProvider>
-            <AuthProvider>
-              <main>{children}</main>
-            </AuthProvider>
+            <AdminAuthProvider>
+              <AuthProvider>
+                <main>{children}</main>
+              </AuthProvider>
+            </AdminAuthProvider>
           </GoogleOAuthClientProvider>
           <ToastProvider />
         </Providers>

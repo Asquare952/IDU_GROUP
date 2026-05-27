@@ -72,3 +72,33 @@ export type AdminChatMessage = {
   createdAt: string;
   updatedAt?: string;
 };
+
+
+// ==================== AUTH TYPES ====================
+export type AdminRegisterPayload = {
+  first_name: string;
+  last_name: string;
+  gender: "male" | "female" | "others";
+  phone_no: string;
+  email: string;
+  address: string;
+  state: string;
+  password: string;
+  adminSecretKey: string;
+  role: string;
+};
+
+export type AdminVerifyOTPPayload = {
+  email: string;
+  otpCode: string;
+};
+
+export type AdminLoginPayload = {
+  email: string;
+  password: string;
+};
+
+export type AuthMeResponse = {
+  isLoggedIn: boolean;
+  userRole: string | null;
+};

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { adminApi } from "./admin.api";
+import { adminApi, checkAuthStatus, loginAdmin, logoutAdmin, registerAdmin, verifyAdminOTP, } from "./admin.api";
 import type { AdminReportStatus } from "./types";
 
 const adminQueryKeys = {
@@ -92,3 +92,43 @@ export const useAdminChatMessages = (id: string | null) =>
     queryFn: () => adminApi.getChatMessages(id!),
     enabled: Boolean(id),
   });
+  
+  
+// ==================== AUTH QUERIES ====================
+const authQueryKeys = {
+  me: ["auth", "me"] as const,
+};
+
+export const useAuthStatus = () =>
+  useQuery({
+    queryKey: authQueryKeys.me,
+    queryFn: checkAuthStatus,
+    staleTime: 1000 * 60 * 5,
+    retry: false,
+  });
+
+export const useRegisterAdmin = () =>
+  useMutation({
+    mutationFn: registerAdmin,
+  });
+
+export const useVerifyAdminOTP = () =>
+  useMutation({
+    mutationFn: verifyAdminOTP,
+  });
+
+export const useLoginAdmin = () =>
+  useMutation({
+    mutationFn: loginAdmin,
+  });
+
+export const useLogoutAdmin = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: logoutAdmin,
+    onSuccess: () => {
+      queryClient.clear();
+    },
+  });
+};

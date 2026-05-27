@@ -4,10 +4,14 @@ import type {
   AdminChatConversation,
   AdminChatMessage,
   AdminChatParticipant,
+  AdminRegisterPayload,
   AdminRental,
   AdminReport,
   AdminReportStatus,
   AdminUser,
+  AdminVerifyOTPPayload,
+  AuthMeResponse,
+  AdminLoginPayload,
 } from "./types";
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -175,7 +179,8 @@ const normalizeAdminUser = (payload: unknown): AdminUser => {
       findStringByKeys(record, ["first_name", "firstName"]) ??
       splitName.first_name,
     last_name:
-      findStringByKeys(record, ["last_name", "lastName"]) ?? splitName.last_name,
+      findStringByKeys(record, ["last_name", "lastName"]) ??
+      splitName.last_name,
     email: findStringByKeys(record, ["email"]) ?? "",
     role: findStringByKeys(record, ["role"]) ?? "user",
     is_active: toBooleanValue(record.is_active, true),
@@ -383,9 +388,7 @@ const normalizeChatParticipant = (payload: unknown): AdminChatParticipant => {
   };
 };
 
-const normalizeChatConversation = (
-  payload: unknown,
-): AdminChatConversation => {
+const normalizeChatConversation = (payload: unknown): AdminChatConversation => {
   const record = isRecord(payload) ? payload : {};
   const participants = extractArray(record, [
     "participants",
@@ -435,18 +438,25 @@ const normalizeChatMessage = (payload: unknown): AdminChatMessage => {
         "conversation",
       ]) ?? "",
     senderId:
-      findStringByKeys(record, ["senderId", "sender_id", "userId", "user_id"]) ||
+      findStringByKeys(record, [
+        "senderId",
+        "sender_id",
+        "userId",
+        "user_id",
+      ]) ||
       findStringByKeys(senderSource, ["id", "_id"]) ||
       "",
     senderName: getUserName(senderSource) || "User",
     content:
       findStringByKeys(record, ["content", "message", "text", "body"]) ?? "",
-    createdAt:
-      findStringByKeys(record, ["createdAt", "created_at"]) ?? "",
+    createdAt: findStringByKeys(record, ["createdAt", "created_at"]) ?? "",
     updatedAt: findStringByKeys(record, ["updatedAt", "updated_at"]),
   };
 };
 
+
+
+//======== Test ======
 export const adminApi = {
   getUsers: async (): Promise<AdminUser[]> => {
     const response = await api.get("/admin/users");
@@ -501,7 +511,44 @@ export const adminApi = {
   },
 
   getChatMessages: async (id: string): Promise<AdminChatMessage[]> => {
-    const response = await api.get(`/admin/chats/${encodeURIComponent(id)}/messages`);
+    const response = await api.get(
+      `/admin/chats/${encodeURIComponent(id)}/messages`,
+    );
     return extractListPayload(response.data).map(normalizeChatMessage);
   },
+};
+
+export const registerAdmin = async (payload: AdminRegisterPayload) => {
+  const response = await api.post(
+    "/auth/register-admin",
+    {
+      ...payload,
+      role: "admin",
+    },
+    {
+      headers: {
+        "x-admin-secret": payload.adminSecretKey,
+      },
+    },
+  );
+  return response.data;
+};
+export const verifyAdminOTP = async (payload: AdminVerifyOTPPayload) => {
+  const response = await api.post("/auth/verify-admin", payload);
+  return response.data;
+};
+
+export const loginAdmin = async (payload: AdminLoginPayload) => {
+  const response = await api.post("/auth/login", payload);
+  return response.data;
+};
+
+export const checkAuthStatus = async (): Promise<AuthMeResponse> => {
+  const response = await api.get("/auth/me");
+  return response.data;
+};
+
+export const logoutAdmin = async () => {
+  const response = await api.post("/auth/logout");
+  return response.data;
 };
