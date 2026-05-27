@@ -82,13 +82,43 @@ const unwrapRecord = (payload: unknown, keys: string[]): unknown => {
   return current;
 };
 
+const unwrapUserRecord = (value: unknown): Record<string, unknown> => {
+  if (!isRecord(value)) {
+    return {};
+  }
+
+  const nestedUser =
+    value.user ??
+    value.User ??
+    value.participant ??
+    value.Participant ??
+    value.profile ??
+    value.Profile;
+
+  return isRecord(nestedUser) ? nestedUser : value;
+};
+
 const normalizeUser = (value: unknown): User => {
-  const record = isRecord(value) ? value : {};
+  const record = unwrapUserRecord(value);
   const id =
-    findStringByKeys(record, ["_id", "id", "user_id", "userId"]) || "";
+    findStringByKeys(record, [
+      "_id",
+      "id",
+      "user_id",
+      "userId",
+      "UserId",
+      "participant_id",
+      "participantId",
+    ]) || "";
   const firstName =
-    findStringByKeys(record, ["first_name", "firstName", "name", "fullName"]) ||
-    "User";
+    findStringByKeys(record, [
+      "first_name",
+      "firstName",
+      "name",
+      "fullName",
+      "username",
+      "email",
+    ]) || "";
 
   return {
     _id: id,
@@ -98,6 +128,7 @@ const normalizeUser = (value: unknown): User => {
     name: findStringByKeys(record, ["name"]),
     fullName: findStringByKeys(record, ["fullName"]),
     firstName: findStringByKeys(record, ["firstName"]),
+    email: findStringByKeys(record, ["email"]),
     role: findStringByKeys(record, ["role"]) as User["role"],
   };
 };
@@ -151,6 +182,21 @@ const extractArray = (payload: unknown, keys: string[]): unknown[] => {
   return [];
 };
 
+const uniqueUsers = (users: User[]) => {
+  const seen = new Set<string>();
+
+  return users.filter((user) => {
+    const key = user._id || user.id || user.first_name || user.name;
+
+    if (!key || seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
+};
+
 const normalizeConversation = (payload: unknown): Conversation => {
   const record = unwrapRecord(payload, [
     "data",
@@ -169,20 +215,46 @@ const normalizeConversation = (payload: unknown): Conversation => {
   );
   const participants = extractArray(conversation, [
     "participants",
+    "Participants",
     "users",
+    "Users",
     "members",
+    "Members",
   ]).map(normalizeUser);
+  const nestedParticipants = [
+    conversation.tenant,
+    conversation.Tenant,
+    conversation.landlord,
+    conversation.Landlord,
+    conversation.sender,
+    conversation.Sender,
+    conversation.receiver,
+    conversation.Receiver,
+    conversation.user,
+    conversation.User,
+    conversation.otherUser,
+    conversation.other_user,
+  ].map(normalizeUser);
+  const messages = extractArray(conversation, [
+    "messages",
+    "Messages",
+    "chatMessages",
+    "ChatMessages",
+  ]);
   const lastMessageSource =
     conversation.lastMessage ??
     conversation.last_message ??
+    conversation.latestMessage ??
+    conversation.latest_message ??
     conversation.message ??
-    conversation.latestMessage;
+    conversation.Message ??
+    messages[messages.length - 1];
 
   return {
     conversation_id: conversationId,
     _id: findStringByKeys(conversation, ["_id"]),
     id: findStringByKeys(conversation, ["id"]),
-    participants,
+    participants: uniqueUsers([...participants, ...nestedParticipants]),
     lastMessage: lastMessageSource
       ? normalizeMessage(lastMessageSource)
       : undefined,

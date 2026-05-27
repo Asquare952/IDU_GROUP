@@ -6,6 +6,7 @@ export interface User {
   name?: string;
   fullName?: string;
   firstName?: string;
+  email?: string;
   role?: "tenant" | "landlord";
 }
 

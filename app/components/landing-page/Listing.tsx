@@ -227,7 +227,7 @@ const Listing = () => {
         )}
 
         <div className="flex justify-center w-full">
-          <Link href="/properties">
+          <Link href="/tenant/homepage">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}

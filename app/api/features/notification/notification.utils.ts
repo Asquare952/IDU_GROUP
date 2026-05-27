@@ -72,8 +72,7 @@ const toNumberValue = (...values: NotificationValue[]) => {
 const getNotificationMessage = (notification: NotificationRecord) => {
   return toStringValue(
     notification.message as NotificationValue,
-    notification.notificationMessage as NotificationValue,
-    notification.notification_message as NotificationValue,
+    notification.notification as NotificationValue,
     notification.body as NotificationValue,
     notification.content as NotificationValue,
     notification.text as NotificationValue,

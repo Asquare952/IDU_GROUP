@@ -36,6 +36,7 @@ import {
   storePendingLockPayment,
 } from "@/app/lib/lock-payment";
 import { toast } from "react-toastify";
+import { div } from "framer-motion/client";
 
 function PropertyDesktopViewContent() {
   const params = useParams<{ slug: string }>();
@@ -160,7 +161,7 @@ function PropertyDesktopViewContent() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           <div className="lg:col-span-2 space-y-8">
-            <div className="space-y-4">
+            <div className=" grid grid-cols-2 gap-1">
               <div className="relative aspect-video w-full bg-slate-100 rounded-[40px] overflow-hidden group shadow-2xl">
                 {activeImage ? (
                   <Image
@@ -181,7 +182,7 @@ function PropertyDesktopViewContent() {
               </div>
 
               {property.images.length > 1 && (
-                <div className="grid grid-cols-4 md:grid-cols-5 gap-3">
+                <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
                   {property.images.map((image, index) => (
                     <button
                       key={`${property.id}-image-${index}`}
@@ -202,6 +203,15 @@ function PropertyDesktopViewContent() {
                   ))}
                 </div>
               )}
+            </div>
+
+            <div className=" grid grid-cols-2 gap-1.5">
+              {property.videos.map((video, index) => (
+                <div key={index} className="rounded-xl">
+                  <video src={video} controls className="w-full h-full object-cover" />
+                </div>
+              ))}
+
             </div>
 
             <div className="bg-gray-50 p-8 rounded-[32px] grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -323,7 +333,7 @@ function PropertyDesktopViewContent() {
                         onError: (conversationError) => {
                           toast.error(
                             conversationError.message ||
-                              "Unable to start chat. Please try again.",
+                            "Unable to start chat. Please try again.",
                           );
                         },
                       });

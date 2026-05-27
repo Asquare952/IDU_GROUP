@@ -2,7 +2,6 @@ import React from "react";
 import { CheckCircle2, Info, LoaderCircle, Trash2 } from "lucide-react";
 
 interface NotificationProps {
-  title?: string;
   type: "Success" | "Info";
   message: string;
   time: string;
@@ -15,7 +14,6 @@ interface NotificationProps {
 }
 
 const NotificationItem = ({
-  title,
   type,
   message,
   time,
@@ -92,20 +90,17 @@ const NotificationItem = ({
             </div>
           </div>
 
-          {title ? (
+          
             <div className="space-y-2">
               <h4 className="text-[#162B4C] font-bold text-[16px] leading-snug">
-                {title}
+              {displayMessage.length > 60 ? `${displayMessage.slice(0, 60)}...`
+                : displayMessage}
               </h4>
               <p className="text-sm leading-6 text-slate-600">
                 {displayMessage}
               </p>
             </div>
-          ) : (
-            <h4 className="text-[#162B4C] font-bold text-[16px] leading-snug">
-              {displayMessage}
-            </h4>
-          )}
+          
         </div>
       </div>
     </div>
