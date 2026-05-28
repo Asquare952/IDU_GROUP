@@ -8,9 +8,10 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { useLoginAdmin, useAuthStatus } from "@/app/api/features/admin";
+import Cookies from "js-cookie";
 
 interface SuperAdminLoginForm {
-  email: string;
+  user: string;
   password: string;
 }
 
@@ -27,18 +28,28 @@ export default function SuperAdminLoginPage() {
     formState: { errors },
   } = useForm<SuperAdminLoginForm>();
 
-  const onSubmit = async (data: SuperAdminLoginForm) => {
-    try {
-      await loginMutation.mutateAsync(data);
-      await refetch();
-      toast.success("Welcome back, Admin!");
-      router.push("/super-admin/dashboard");
-    } catch (err: any) {
-      const message =
-        err.response?.data?.message || err.message || "Login failed";
-      toast.error(message);
-    }
-  };
+ const onSubmit = async (data: SuperAdminLoginForm) => {
+   try {
+     const response = await loginMutation.mutateAsync({
+       user: data.user,
+       password: data.password,
+     });
+     
+     // Store the token in cookie
+     if (response?.accessToken || response?.token) {
+       const token = response.accessToken ?? response.token;
+       Cookies.set("ACCESS_TOKEN", token, { path: "/" });
+     }
+     
+     await refetch();
+     toast.success("Welcome back, Admin!");
+     router.push("/super-admin/dashboard");
+   } catch (err: any) {
+     const message =
+       err.response?.data?.message || err.message || "Login failed";
+     toast.error(message);
+   }
+ };
 
   const isPending = loginMutation.isPending;
 
@@ -96,7 +107,7 @@ export default function SuperAdminLoginPage() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Address
+                  Email or Phone Number
                 </label>
                 <div className="relative">
                   <Mail
@@ -104,21 +115,21 @@ export default function SuperAdminLoginPage() {
                     className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
                   />
                   <input
-                    {...register("email", {
+                    {...register("user", {
                       required: "Email is required",
                       pattern: {
                         value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
                         message: "Invalid email",
                       },
                     })}
-                    type="email"
-                    placeholder="translynigeria@gmail.com"
+                    type="text"
+                    placeholder="+234 123 456 7890"
                     className="w-full pl-12 pr-4 py-3 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#4CAF50]"
                   />
                 </div>
-                {errors.email && (
+                {errors.user && (
                   <p className="text-red-500 text-xs mt-1">
-                    {errors.email.message}
+                    {errors.user.message}
                   </p>
                 )}
               </div>
@@ -161,7 +172,7 @@ export default function SuperAdminLoginPage() {
                 disabled={isPending}
                 className="w-full bg-[#4CAF50] text-white py-4 rounded-2xl font-bold hover:bg-[#43A047] shadow-xl shadow-green-100 transition-all active:scale-[0.98] disabled:opacity-50"
               >
-                {isPending ? "Signing in..." : "Sign In to Dashboard"}
+                {isPending ? "Logging in..." : "Log In to Dashboard"}
               </button>
 
               <div className="text-center pt-2">

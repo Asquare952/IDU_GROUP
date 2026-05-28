@@ -117,10 +117,16 @@ export const useVerifyAdminOTP = () =>
     mutationFn: verifyAdminOTP,
   });
 
-export const useLoginAdmin = () =>
-  useMutation({
+export const useLoginAdmin = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
     mutationFn: loginAdmin,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: authQueryKeys.me });
+    },
   });
+};
 
 export const useLogoutAdmin = () => {
   const queryClient = useQueryClient();
