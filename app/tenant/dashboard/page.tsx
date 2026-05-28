@@ -90,10 +90,11 @@ const Page = () => {
                 <button
                   key={index}
                   onClick={() => setCurrentSlide(index)}
-                  className={`h-2 rounded-full transition-all duration-300 ${currentSlide === index
-                    ? "w-8 bg-[#43A047]"
-                    : "w-2 bg-white/60 hover:bg-white"
-                    }`}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    currentSlide === index
+                      ? "w-8 bg-[#43A047]"
+                      : "w-2 bg-white/60 hover:bg-white"
+                  }`}
                 />
               ))}
             </div>
@@ -234,8 +235,7 @@ const Page = () => {
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
             >
               {properties?.slice(0, 3).map((item, i) => (
-                <motion.a
-                  href={getPropertyDetailsPath(item)}
+                <motion.div
                   key={item.id}
                   custom={i}
                   variants={itemVariants}
@@ -330,7 +330,7 @@ const Page = () => {
                       </div>
                     </div>
                   </div>
-                </motion.a>
+                </motion.div>
               ))}
             </motion.div>
           )}
@@ -382,13 +382,14 @@ const Page = () => {
                 {SafetyAction.map((action) => (
                   <button
                     key={action.id}
-                    className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${action.variant === "danger"
-                      ? "bg-[#FF3B30] text-white hover:bg-red-700"
-                      : action.variant === "Success" ||
-                        action.variant === "success"
-                        ? "bg-[#43A047] text-white hover:bg-green-700"
-                        : "bg-[#F2F2F7] text-[#162B4C] hover:bg-gray-200"
-                      }`}
+                    className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                      action.variant === "danger"
+                        ? "bg-[#FF3B30] text-white hover:bg-red-700"
+                        : action.variant === "Success" ||
+                            action.variant === "success"
+                          ? "bg-[#43A047] text-white hover:bg-green-700"
+                          : "bg-[#F2F2F7] text-[#162B4C] hover:bg-gray-200"
+                    }`}
                   >
                     <action.icon size={20} />
                     {action.label}

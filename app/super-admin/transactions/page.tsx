@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import DashboardLayout from "@/app/components/super-admin/DashboardLayout";
 import { Search, Filter } from "lucide-react";
 import {
@@ -21,6 +23,15 @@ const getStatusColor = (status: string) => {
 };
 
 const page = () => {
+  const [activeFilter, setActiveFilter] = useState("All Transactions");
+
+  // FIXED: Proper filtering logic
+  const filteredTransactions = transactions.filter((txn) => {
+    if (activeFilter === "All Transactions") return true;
+    // Direct comparison since tab labels match status values exactly
+    return txn.status === activeFilter;
+  });
+
   return (
     <DashboardLayout>
       <div className="p-4 md:p-6 space-y-4 md:space-y-6">
@@ -32,6 +43,8 @@ const page = () => {
             Payment monitoring with daily stats and transaction history
           </p>
         </div>
+
+        {/* Stats cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           {transactionStats.map((stat) => (
             <div
@@ -56,6 +69,7 @@ const page = () => {
         </div>
 
         <div className="bg-white rounded-xl md:rounded-2xl border border-gray-100 shadow-sm p-3 md:p-4 space-y-3 md:space-y-4">
+          {/* Search bar */}
           <div className="flex items-center gap-2 md:gap-3">
             <div className="relative flex-1">
               <Search
@@ -73,12 +87,15 @@ const page = () => {
               <span className="hidden sm:inline">Filters</span>
             </button>
           </div>
+
+          {/* Filter tabs */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
-            {filterTabs.map((tab, i) => (
+            {filterTabs.map((tab) => (
               <button
                 key={tab}
+                onClick={() => setActiveFilter(tab)}
                 className={`px-3 py-1.5 rounded-full text-xs md:text-sm font-medium transition-colors whitespace-nowrap ${
-                  i === 0
+                  activeFilter === tab
                     ? "bg-[#43A047] text-white"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
@@ -89,6 +106,7 @@ const page = () => {
           </div>
         </div>
 
+        {/* Table with filtered data */}
         <div className="bg-white rounded-xl md:rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[800px]">
@@ -118,53 +136,66 @@ const page = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {transactions.map((txn) => (
-                  <tr key={txn.id} className="hover:bg-gray-50/50">
-                    <td className="px-3 md:px-6 py-3 md:py-4">
-                      <span className="text-xs md:text-sm font-medium text-blue-600">
-                        {txn.id}
-                      </span>
-                    </td>
-                    <td className="px-3 md:px-6 py-3 md:py-4">
-                      <div className="text-xs md:text-sm text-gray-900 whitespace-pre-line">
-                        {txn.dateTime}
-                      </div>
-                    </td>
-                    <td className="px-3 md:px-6 py-3 md:py-4">
-                      <div>
-                        <p className="text-xs md:text-sm font-medium text-gray-900">
-                          {txn.tenant}
-                        </p>
-                        <p className="text-[10px] md:text-xs text-gray-500">
-                          {txn.tenantDetail}
-                        </p>
-                      </div>
-                    </td>
-                    <td className="px-3 md:px-6 py-3 md:py-4 text-xs md:text-sm text-gray-600">
-                      {txn.property}
-                    </td>
-                    <td className="px-3 md:px-6 py-3 md:py-4 text-xs md:text-sm font-medium text-gray-900">
-                      {txn.amount}
-                    </td>
-                    <td className="px-3 md:px-6 py-3 md:py-4 text-xs md:text-sm text-gray-600">
-                      {txn.method}
-                    </td>
-                    <td className="px-3 md:px-6 py-3 md:py-4">
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-[10px] md:text-xs font-medium ${getStatusColor(txn.status)}`}
-                      >
-                        {txn.status}
-                      </span>
+                {filteredTransactions.length > 0 ? (
+                  filteredTransactions.map((txn) => (
+                    <tr key={txn.id} className="hover:bg-gray-50/50">
+                      <td className="px-3 md:px-6 py-3 md:py-4">
+                        <span className="text-xs md:text-sm font-medium text-blue-600">
+                          {txn.id}
+                        </span>
+                      </td>
+                      <td className="px-3 md:px-6 py-3 md:py-4">
+                        <div className="text-xs md:text-sm text-gray-900 whitespace-pre-line">
+                          {txn.dateTime}
+                        </div>
+                      </td>
+                      <td className="px-3 md:px-6 py-3 md:py-4">
+                        <div>
+                          <p className="text-xs md:text-sm font-medium text-gray-900">
+                            {txn.tenant}
+                          </p>
+                          <p className="text-[10px] md:text-xs text-gray-500">
+                            {txn.tenantDetail}
+                          </p>
+                        </div>
+                      </td>
+                      <td className="px-3 md:px-6 py-3 md:py-4 text-xs md:text-sm text-gray-600">
+                        {txn.property}
+                      </td>
+                      <td className="px-3 md:px-6 py-3 md:py-4 text-xs md:text-sm font-medium text-gray-900">
+                        {txn.amount}
+                      </td>
+                      <td className="px-3 md:px-6 py-3 md:py-4 text-xs md:text-sm text-gray-600">
+                        {txn.method}
+                      </td>
+                      <td className="px-3 md:px-6 py-3 md:py-4">
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[10px] md:text-xs font-medium ${getStatusColor(txn.status)}`}
+                        >
+                          {txn.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan={7}
+                      className="px-3 md:px-6 py-8 text-center text-gray-500 text-sm"
+                    >
+                      No {activeFilter.toLowerCase()} transactions found
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
-          
+
+          {/* Pagination */}
           <div className="flex flex-col sm:flex-row items-center justify-between px-4 md:px-6 py-3 md:py-4 border-t border-gray-100 gap-3">
             <p className="text-xs md:text-sm text-gray-500">
-              Showing 1-5 of 1,343 transactions
+              Showing {filteredTransactions.length} of {transactions.length}{" "}
+              transactions
             </p>
             <div className="flex items-center gap-1 md:gap-2">
               <button className="px-2 md:px-3 py-1 md:py-1.5 text-xs md:text-sm text-gray-600 hover:bg-gray-100 rounded-lg">
