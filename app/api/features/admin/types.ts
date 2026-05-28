@@ -93,7 +93,7 @@ export type AdminVerifyOTPPayload = {
 };
 
 export type AdminLoginPayload = {
-  email: string;
+  user: string;
   password: string;
 };
 
