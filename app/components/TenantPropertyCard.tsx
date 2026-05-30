@@ -1,15 +1,42 @@
 import Image from "next/image";
 import Link from "next/link";
-import { HiOutlineHeart } from "react-icons/hi";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { HiHeart, HiOutlineHeart } from "react-icons/hi";
 import { FaBed, FaBath } from "react-icons/fa";
-import { useLikeRental } from "../api";
+import { useLikeRental, useUnlikeRental } from "../api";
 import type { Property } from "../api/features/property";
 import { getPropertyDetailsPath } from "../lib/property-routes";
+import { hasAccessToken } from "../lib/auth";
 
 const TenantPropertyCard = ({ house }: { house: Property }) => {
+  const router = useRouter();
+  const [isLiked, setIsLiked] = useState(Boolean(house.liked));
   const { mutate: likeRental } = useLikeRental();
+  const { mutate: unlikeRental } = useUnlikeRental();
   const image = house.images[0];
   const propertyPath = getPropertyDetailsPath(house);
+
+  useEffect(() => {
+    setIsLiked(Boolean(house.liked));
+  }, [house.liked]);
+
+  const handleLikeToggle = () => {
+    if (!hasAccessToken()) {
+      router.push("/login");
+      return;
+    }
+
+    const wasLiked = isLiked;
+
+    setIsLiked(!wasLiked);
+
+    const mutation = wasLiked ? unlikeRental : likeRental;
+
+    mutation(String(house.id), {
+      onError: () => setIsLiked(wasLiked),
+    });
+  };
 
   return (
     <div className="relative bg-white rounded-[20px] p-2 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300">
@@ -33,11 +60,15 @@ const TenantPropertyCard = ({ house }: { house: Property }) => {
 
       <button
         type="button"
-        onClick={() => likeRental(String(house.id))}
+        onClick={handleLikeToggle}
         className="absolute top-3 right-3 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm hover:text-red-500 transition cursor-pointer"
         aria-label={`Save ${house.title}`}
       >
-        <HiOutlineHeart size={20} />
+        {isLiked ? (
+          <HiHeart size={22} className="text-red-500" />
+        ) : (
+          <HiOutlineHeart size={22} />
+        )}
       </button>
 
       <div className="mt-4 px-2 py-1">

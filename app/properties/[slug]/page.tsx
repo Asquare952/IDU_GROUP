@@ -6,7 +6,6 @@ import { useQuery } from "@tanstack/react-query";
 import {
   MapPin,
   Home,
-  CheckCircle,
   Loader2,
   Shield,
   Zap,
@@ -36,7 +35,6 @@ import {
   storePendingLockPayment,
 } from "@/app/lib/lock-payment";
 import { toast } from "react-toastify";
-import { div } from "framer-motion/client";
 
 function PropertyDesktopViewContent() {
   const params = useParams<{ slug: string }>();
@@ -146,6 +144,12 @@ function PropertyDesktopViewContent() {
   }
 
   const activeImage = property.images[currentImageIndex] ?? property.images[0];
+  const galleryImages = activeImage
+    ? [
+        activeImage,
+        ...property.images.filter((_, index) => index !== currentImageIndex),
+      ].slice(0, 5)
+    : [];
   const landlordName = property.User
     ? `${property.User.first_name} ${property.User.last_name}`.trim()
     : "Verified Landlord";
@@ -161,46 +165,55 @@ function PropertyDesktopViewContent() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           <div className="lg:col-span-2 space-y-8">
-            <div className=" grid grid-cols-2 gap-1">
-              <div className="relative aspect-video w-full bg-slate-100 rounded-[40px] overflow-hidden group shadow-2xl">
-                {activeImage ? (
+            <div className="grid grid-cols-1 gap-2 overflow-hidden lg:h-[430px] lg:grid-cols-[1.35fr_1fr]">
+              <div className="group relative h-[280px] w-full overflow-hidden bg-slate-100 lg:h-full">
+                {galleryImages[0] ? (
                   <Image
-                    src={activeImage}
+                    src={galleryImages[0]}
                     alt={property.title}
                     fill
+                    priority
                     className="object-cover opacity-95 transition-transform duration-700 group-hover:scale-105"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-slate-400 text-lg">
+                  <div className="flex h-full w-full items-center justify-center text-lg text-slate-400">
                     No image uploaded yet
                   </div>
                 )}
 
-                <div className="absolute top-8 left-8 bg-[#4CAF50] px-4 py-2 rounded-full text-xs font-bold text-white flex items-center gap-2 shadow-lg capitalize">
-                  <CheckCircle size={14} /> {property.status}
+                <div className="absolute left-5 top-5 rounded bg-white px-4 py-3 text-sm font-black text-gray-900 shadow-lg">
+                  From N{Number(property.price).toLocaleString()} /{" "}
+                  <span className="lowercase">{property.priceType}</span>
                 </div>
               </div>
 
-              {property.images.length > 1 && (
-                <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
-                  {property.images.map((image, index) => (
-                    <button
-                      key={`${property.id}-image-${index}`}
-                      type="button"
-                      onClick={() => setCurrentImageIndex(index)}
-                      className={`relative aspect-square rounded-2xl overflow-hidden border-2 transition ${index === currentImageIndex
-                        ? "border-[#4CAF50]"
-                        : "border-transparent"
-                        }`}
-                    >
-                      <Image
-                        src={image}
-                        alt={`${property.title} ${index + 1}`}
-                        fill
-                        className="object-cover"
-                      />
-                    </button>
-                  ))}
+              {galleryImages.length > 1 && (
+                <div className="grid h-[280px] grid-cols-2 gap-2 lg:h-full">
+                  {galleryImages.slice(1).map((image, index) => {
+                    const realImageIndex = property.images.findIndex(
+                      (propertyImage) => propertyImage === image,
+                    );
+
+                    return (
+                      <button
+                        key={`${property.id}-gallery-${image}-${index}`}
+                        type="button"
+                        onClick={() =>
+                          setCurrentImageIndex(
+                            realImageIndex >= 0 ? realImageIndex : index + 1,
+                          )
+                        }
+                        className="relative overflow-hidden bg-slate-100"
+                      >
+                        <Image
+                          src={image}
+                          alt={`${property.title} ${index + 2}`}
+                          fill
+                          className="object-cover transition-transform duration-500 hover:scale-105"
+                        />
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             </div>

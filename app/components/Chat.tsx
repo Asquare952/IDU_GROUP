@@ -67,8 +67,41 @@ const getConversationTitle = (
   return names || "Conversation";
 };
 
+const getConversationInitial = (
+  conversation: Conversation | undefined,
+  currentUserId: string | null,
+) => {
+  const title = getConversationTitle(conversation, currentUserId);
+  const firstLetter = title.trim().charAt(0).toUpperCase();
+
+  return /[A-Z0-9]/.test(firstLetter) ? firstLetter : "U";
+};
+
 const getLastMessagePreview = (message: Message | undefined) =>
   message?.content?.trim() || "No messages yet";
+
+const formatMessageTime = (dateValue: string | undefined) => {
+  if (!dateValue) {
+    return "";
+  }
+
+  const date = new Date(dateValue);
+
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  return new Intl.DateTimeFormat("en", {
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(date);
+};
+
+const isMatchingPendingMessage = (pendingMessage: Message, newMessage: Message) =>
+  Boolean(pendingMessage.isOptimistic) &&
+  pendingMessage.conversation_id === newMessage.conversation_id &&
+  pendingMessage.senderId === newMessage.senderId &&
+  pendingMessage.content === newMessage.content;
 
 const Chat = () => {
   const [message, setMessage] = useState("");
@@ -130,15 +163,10 @@ const Chat = () => {
     selectedConversation,
     currentUserId,
   );
-  const selectedConversationPreview = selectedConversation
-    ? getLastMessagePreview(
-        activeConversationId
-          ? lastMessageByConversationId.get(activeConversationId) ??
-              messages[messages.length - 1]
-          : undefined,
-      )
-    : "";
-
+  const selectedConversationInitial = getConversationInitial(
+    selectedConversation,
+    currentUserId,
+  );
   useEffect(() => {
     const token = Cookies.get("ACCESS_TOKEN");
     if (!token) return;
@@ -177,7 +205,9 @@ const Chat = () => {
           }
 
           const alreadyExists = oldData.messages.some(
-            (existingMessage) => existingMessage._id === msg._id,
+            (existingMessage) =>
+              existingMessage._id === msg._id ||
+              isMatchingPendingMessage(existingMessage, msg),
           );
 
           if (alreadyExists) return oldData;
@@ -242,6 +272,8 @@ const Chat = () => {
     sendMessage({
       conversation_id: activeConversationId,
       content: message.trim(),
+      optimisticId: `optimistic-${Date.now()}`,
+      optimisticSenderId: currentUserId ?? "",
     });
 
     setMessage("");
@@ -275,8 +307,17 @@ const Chat = () => {
             conversation,
             currentUserId,
           );
+          const participantInitial = getConversationInitial(
+            conversation,
+            currentUserId,
+          );
           const lastMessagePreview = getLastMessagePreview(
-            lastMessageByConversationId.get(convId),
+            lastMessageByConversationId.get(convId) ??
+              conversation.lastMessage,
+          );
+          const lastMessageTime = formatMessageTime(
+            (lastMessageByConversationId.get(convId) ?? conversation.lastMessage)
+              ?.createdAt,
           );
 
           return (
@@ -284,16 +325,29 @@ const Chat = () => {
               key={convId}
               type="button"
               onClick={() => handleConversationSelect(convId)}
-              className={`flex items-center gap-1 w-full rounded-xl px-3 py-3 text-left transition ${isActive ? "bg-white text-[#43A047]" : "bg-white/10 hover:bg-white/20"}`}
+              className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition ${isActive ? "bg-white text-[#43A047]" : "bg-white/10 hover:bg-white/20"}`}
             >
-              {/* <div className="h-6 w-6 rounded-full bg-white/20"></div> */}
-              <div className=" flex flex-col gap-1">
-                <span className="block truncate text-sm font-bold">
-                  {participantNames}
-                </span>
+              <div
+                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-black ${isActive ? "bg-[#43A047] text-white" : "bg-white text-[#43A047]"}`}
+                aria-hidden="true"
+              >
+                {participantInitial}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="block flex-1 truncate text-sm font-bold">
+                    {participantNames}
+                  </span>
+                  {lastMessageTime && (
+                    <span
+                      className={`shrink-0 text-[10px] ${isActive ? "text-slate-500" : "text-white/70"}`}
+                    >
+                      {lastMessageTime}
+                    </span>
+                  )}
+                </div>
                 <span
-                  className={`mt-1 block truncate text-xs ${isActive ? "text-slate-500" : "text-white/70"
-                    }`}
+                  className={`mt-1 block truncate text-xs ${isActive ? "text-slate-500" : "text-white/70"}`}
                 >
                   {lastMessagePreview}
                 </span>
@@ -318,8 +372,13 @@ const Chat = () => {
           >
             <ArrowLeft size={18} />
           </button>
-          <div className=" flex items-center gap-1 min-w-0">
-            {/* <div className="h-6 w-6 rounded-full bg-white/20"></div> */}
+          <div className=" flex min-w-0 items-center gap-3">
+            <div
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-sm font-black text-[#43A047]"
+              aria-hidden="true"
+            >
+              {selectedConversationInitial}
+            </div>
             <p className="truncate text-base font-medium md:text-lg">
               {selectedConversationTitle}
             </p>
@@ -337,13 +396,21 @@ const Chat = () => {
         ) : (
           messages.map((msg, idx) => {
             const isMe = currentUserId ? msg.senderId === currentUserId : false;
+            const sentTime = formatMessageTime(msg.createdAt);
 
             return (
               <div
                 key={msg._id ?? `message-${idx}`}
-                className={`mb-2 max-w-[85%] rounded-2xl px-4 py-2 md:max-w-[60%] ${isMe ? "self-end bg-green-500 text-white" : "self-start bg-white text-black"}`}
+                className={`mb-2 max-w-[85%] rounded-2xl px-4 py-2 md:max-w-[60%] ${isMe ? "self-end bg-green-500 text-white" : "self-start bg-white text-black"} ${msg.isOptimistic ? "opacity-80" : ""}`}
               >
-                {msg.content}
+                <p className="whitespace-pre-wrap break-words text-sm">
+                  {msg.content}
+                </p>
+                <div
+                  className={`mt-1 text-right text-[10px] leading-none ${isMe ? "text-white/75" : "text-slate-400"}`}
+                >
+                  {sentTime}
+                </div>
               </div>
             );
           })

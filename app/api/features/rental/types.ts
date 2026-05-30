@@ -1,4 +1,4 @@
-export type RentalStatus = "available" | "pending" | "rented" | string;
+export type RentalStatus = "available" | "pending" | "locked" | "rented" | string;
 
 export interface RentalUser {
   id: string;

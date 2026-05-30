@@ -9,7 +9,12 @@ import {
 } from "../rental";
 import type { Property, Properties } from "./types";
 
-const RENTAL_ALL_ENDPOINT = "/rental/recent";
+const RECENT_RENTALS_ENDPOINT = "/rental/recent";
+const ALL_RENTALS_ENDPOINT = "/rental/all";
+
+export type FetchPropertiesOptions = {
+  recentOnly?: boolean;
+};
 
 type ApiRequestConfig = AxiosRequestConfig & {
   skipAuthRedirect?: boolean;
@@ -134,19 +139,35 @@ const normalizeProperties = (payload: unknown): Properties => {
   ).map((rental) => normalizeProperty(rental));
 };
 
-export const fetchProperties = async (): Promise<Properties> => {
+export const fetchProperties = async (
+  options: FetchPropertiesOptions = { recentOnly: true },
+): Promise<Properties> => {
+  const recentOnly = options.recentOnly ?? true;
+  const endpoint = recentOnly ? RECENT_RENTALS_ENDPOINT : ALL_RENTALS_ENDPOINT;
   const response = await api.get<
     ApiResponse<RawRental[] | { rentals?: RawRental[] }>
-  >(RENTAL_ALL_ENDPOINT, { skipAuthRedirect: true } as ApiRequestConfig);
+  >(
+    endpoint,
+    recentOnly ? ({ skipAuthRedirect: true } as ApiRequestConfig) : undefined,
+  );
 
   return normalizeProperties(response.data);
 };
 
-export const searchProperties = async (params: {
-  location?: string;
-  lat?: number;
-  lng?: number;
-}): Promise<Properties> => {
+export const fetchRecentProperties = async (): Promise<Properties> =>
+  fetchProperties({ recentOnly: true });
+
+export const fetchAllProperties = async (): Promise<Properties> =>
+  fetchProperties({ recentOnly: false });
+
+export const searchProperties = async (
+  params: {
+    location?: string;
+    lat?: number;
+    lng?: number;
+  },
+  options: FetchPropertiesOptions = { recentOnly: true },
+): Promise<Properties> => {
   const queryParams = new URLSearchParams();
 
   if (params.location) {
@@ -166,7 +187,12 @@ export const searchProperties = async (params: {
   try {
     const response = await api.get<
       ApiResponse<RawRental[] | { rentals?: RawRental[] }>
-    >(endpoint, { skipAuthRedirect: true } as ApiRequestConfig);
+    >(
+      endpoint,
+      options.recentOnly ?? true
+        ? ({ skipAuthRedirect: true } as ApiRequestConfig)
+        : undefined,
+    );
 
     return normalizeProperties(response.data);
   } catch (error) {
@@ -175,7 +201,7 @@ export const searchProperties = async (params: {
     }
 
     const searchTerm = params.location.toLowerCase().trim();
-    const properties = await fetchProperties();
+    const properties = await fetchProperties(options);
 
     return properties.filter((property) =>
       [
@@ -196,9 +222,12 @@ export const searchProperties = async (params: {
 const fetchPropertyByIdentifier = async (
   identifier: string,
 ): Promise<Property> => {
-  const response = await api.get<ApiResponse<RawRental>>(`/rental/get1/${identifier}`, {
-    skipAuthRedirect: true,
-  } as ApiRequestConfig);
+  const response = await api.get<ApiResponse<RawRental>>(
+    `/rental/get1/${identifier}`,
+    {
+      skipAuthRedirect: true,
+    } as ApiRequestConfig,
+  );
 
   return normalizeProperty(response.data.data);
 };
@@ -209,7 +238,7 @@ export const fetchPropertyBySlug = async (slug: string): Promise<Property> => {
   try {
     return await fetchPropertyByIdentifier(identifier);
   } catch (error) {
-    const properties = await fetchProperties();
+    const properties = await fetchRecentProperties();
     const matchedProperty = properties.find(
       (property) => property.slug === identifier || property.id === identifier,
     );
@@ -238,6 +267,8 @@ export const bookProperty = async (rentalId: string) => {
 
 export const propertyApi = {
   fetchProperties,
+  fetchRecentProperties,
+  fetchAllProperties,
   searchProperties,
   fetchPropertyById,
   fetchPropertyBySlug,

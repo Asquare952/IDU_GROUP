@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search,  } from "lucide-react";
+import { Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { HiHeart, HiOutlineHeart } from "react-icons/hi";
 import Navbar from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 import {
@@ -14,6 +16,8 @@ import {
   type Property,
 } from "@/app/api/features/property";
 import { getPropertyDetailsPath } from "@/app/lib/property-routes";
+import { hasAccessToken } from "@/app/lib/auth";
+import { useLikeRental, useUnlikeRental } from "@/app/api";
 
 const CATEGORIES = [
   "All",
@@ -25,9 +29,17 @@ const CATEGORIES = [
 ];
 
 export default function AllPropertiesPage() {
+  const router = useRouter();
   const [tempSearch, setTempSearch] = useState("");
   const [finalSearch, setFinalSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [likedPropertyIds, setLikedPropertyIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const isLoggedIn = hasAccessToken();
+  const recentOnly = !isLoggedIn;
+  const { mutate: likeRental } = useLikeRental();
+  const { mutate: unlikeRental } = useUnlikeRental();
 
   const {
     data: properties = [],
@@ -35,13 +47,13 @@ export default function AllPropertiesPage() {
     isError,
     error,
   } = useQuery<Property[], Error>({
-    queryKey: ["properties-list", finalSearch],
+    queryKey: ["properties-list", finalSearch, recentOnly ? "recent" : "all"],
     queryFn: async () => {
       const trimmedSearch = finalSearch.trim();
 
       return trimmedSearch
-        ? searchProperties({ location: trimmedSearch })
-        : fetchProperties();
+        ? searchProperties({ location: trimmedSearch }, { recentOnly })
+        : fetchProperties({ recentOnly });
     },
   });
 
@@ -52,6 +64,55 @@ export default function AllPropertiesPage() {
 
     return item.propertyType.toLowerCase() === selectedCategory.toLowerCase();
   });
+
+  useEffect(() => {
+    setLikedPropertyIds(
+      new Set(
+        properties
+          .filter((property) => property.liked)
+          .map((property) => String(property.id)),
+      ),
+    );
+  }, [properties]);
+
+  const handleLikeToggle = (propertyId: string) => {
+    if (!hasAccessToken()) {
+      router.push("/login");
+      return;
+    }
+
+    const wasLiked = likedPropertyIds.has(propertyId);
+
+    setLikedPropertyIds((previousIds) => {
+      const nextIds = new Set(previousIds);
+
+      if (wasLiked) {
+        nextIds.delete(propertyId);
+      } else {
+        nextIds.add(propertyId);
+      }
+
+      return nextIds;
+    });
+
+    const mutation = wasLiked ? unlikeRental : likeRental;
+
+    mutation(propertyId, {
+      onError: () => {
+        setLikedPropertyIds((previousIds) => {
+          const nextIds = new Set(previousIds);
+
+          if (wasLiked) {
+            nextIds.add(propertyId);
+          } else {
+            nextIds.delete(propertyId);
+          }
+
+          return nextIds;
+        });
+      },
+    });
+  };
 
   return (
     <>
@@ -165,6 +226,28 @@ export default function AllPropertiesPage() {
                             No image
                           </div>
                         )}
+                        <button
+                          type="button"
+                          className="absolute right-5 top-5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#162B4C] shadow-sm transition hover:text-red-500"
+                          aria-label={`Save ${item.title}`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleLikeToggle(String(item.id));
+                          }}
+                        >
+                          {likedPropertyIds.has(String(item.id)) ? (
+                            <HiHeart
+                              size={22}
+                              className="text-red-500 transition-all duration-200"
+                            />
+                          ) : (
+                            <HiOutlineHeart
+                              size={22}
+                              className="transition-all duration-200"
+                            />
+                          )}
+                        </button>
                       </div>
 
                       <div className="p-5">

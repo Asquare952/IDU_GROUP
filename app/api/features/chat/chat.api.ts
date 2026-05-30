@@ -322,6 +322,10 @@ export const createConversation = async (
 export const sendMessage = async (
   payload: SendMessagePayload,
 ): Promise<Message> => {
-  const { data } = await axiosInstance.post("/chat/message", payload);
+  const { conversation_id, content } = payload;
+  const { data } = await axiosInstance.post("/chat/message", {
+    conversation_id,
+    content,
+  });
   return normalizeMessage(unwrapRecord(data, ["data", "message", "result"]));
 };
