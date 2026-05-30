@@ -13,7 +13,7 @@ import properties from "@/app/components/properties";
 import { containerVariants, itemVariants } from "@/app/components/animation";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { HiOutlineHeart } from "react-icons/hi";
+import { HiHeart, HiOutlineHeart } from "react-icons/hi";
 import {
   MapPin,
   ShieldAlert,
@@ -25,7 +25,11 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useFetchProperties } from "@/app/api/features/property/property.queries";
-import { useLockedRentals } from "@/app/api/features/progress/progress.queries";
+import {
+  useLikeRental,
+  useLockedRentals,
+  useUnlikeRental,
+} from "@/app/api/features/progress/progress.queries";
 import { getPropertyDetailsPath } from "@/app/lib/property-routes";
 import { useCreateConversation } from "@/app/api/features/chat/chat.queries";
 import { sanitizeConversationId } from "@/app/api/features/chat/chat.api";
@@ -37,9 +41,63 @@ const Page = () => {
   const isLoggedIn = true;
   const [isSafetyOpen, setIsSafetyOpen] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
-  const { data: properties } = useFetchProperties();
+  const [likedPropertyIds, setLikedPropertyIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const { data: properties } = useFetchProperties({ recentOnly: false });
   const { data: lockedRentals } = useLockedRentals();
   const { mutate: createConversation } = useCreateConversation();
+  const { mutate: likeRental } = useLikeRental();
+  const { mutate: unlikeRental } = useUnlikeRental();
+
+  useEffect(() => {
+    setLikedPropertyIds(
+      new Set(
+        (properties ?? [])
+          .filter((property) => property.liked)
+          .map((property) => String(property.id)),
+      ),
+    );
+  }, [properties]);
+
+  const handleLikeToggle = (propertyId: string) => {
+    if (!hasAccessToken()) {
+      router.push("/login");
+      return;
+    }
+
+    const wasLiked = likedPropertyIds.has(propertyId);
+
+    setLikedPropertyIds((previousIds) => {
+      const nextIds = new Set(previousIds);
+
+      if (wasLiked) {
+        nextIds.delete(propertyId);
+      } else {
+        nextIds.add(propertyId);
+      }
+
+      return nextIds;
+    });
+
+    const mutation = wasLiked ? unlikeRental : likeRental;
+
+    mutation(propertyId, {
+      onError: () => {
+        setLikedPropertyIds((previousIds) => {
+          const nextIds = new Set(previousIds);
+
+          if (wasLiked) {
+            nextIds.add(propertyId);
+          } else {
+            nextIds.delete(propertyId);
+          }
+
+          return nextIds;
+        });
+      },
+    });
+  };
 
   const nextSlide = () => {
     setCurrentSlide((prev) =>
@@ -264,8 +322,17 @@ const Page = () => {
                       type="button"
                       className="absolute top-5 right-5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#162B4C] shadow-sm transition hover:text-red-500 cursor-pointer"
                       aria-label={`Save ${item.title}`}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        handleLikeToggle(String(item.id));
+                      }}
                     >
-                      <HiOutlineHeart size={20} />
+                      {likedPropertyIds.has(String(item.id)) ? (
+                        <HiHeart size={22} className="text-red-500" />
+                      ) : (
+                        <HiOutlineHeart size={22} />
+                      )}
                     </button>
                   </div>
 

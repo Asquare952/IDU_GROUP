@@ -17,6 +17,7 @@ export interface Message {
   content: string;
   createdAt: string;
   updatedAt?: string;
+  isOptimistic?: boolean;
 }
 
 export interface GetMessagesResponse {
@@ -26,6 +27,8 @@ export interface GetMessagesResponse {
 export interface SendMessagePayload {
   conversation_id: string;
   content: string;
+  optimisticId?: string;
+  optimisticSenderId?: string;
 }
 
 export interface CreateConversationPayload {

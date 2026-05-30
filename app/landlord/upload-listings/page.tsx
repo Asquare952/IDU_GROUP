@@ -21,6 +21,7 @@ interface FormData {
   description: string;
   location: string;
   type: string;
+  status: string;
   basicRent: number;
   serviceCharge: number;
   legalFee: number;
@@ -48,6 +49,7 @@ const page = () => {
       description: "",
       location: "",
       type: "apartment",
+      status: "available",
       basicRent: 0,
       serviceCharge: 0,
       legalFee: 0,
@@ -123,7 +125,7 @@ const page = () => {
         location: data.location,
         price: Number(data.basicRent),
         priceType: "yearly",
-        status: "available",
+        status: data.status,
         images: images,
         videos: videos,
       } as any;
@@ -246,6 +248,20 @@ const page = () => {
                         <option value="land">Land</option>
                       </select>
                     </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
+                      House Status
+                    </label>
+                    <select
+                      {...register("status")}
+                      className="w-full p-4 bg-[#F8FAFC] rounded-2xl border-none appearance-none"
+                    >
+                      <option value="available">Available</option>
+                      <option value="pending">Pending</option>
+                      <option value="locked">Locked</option>
+                      <option value="rented">Rented</option>
+                    </select>
                   </div>
                 </div>
               </section>

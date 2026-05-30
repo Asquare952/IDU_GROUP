@@ -327,7 +327,7 @@ const Page = () => {
 
                   <div className="space-y-2">
                     <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
-                      Status
+                      House Status
                     </label>
                     <select
                       {...register("status")}
@@ -335,6 +335,7 @@ const Page = () => {
                     >
                       <option value="available">Available</option>
                       <option value="pending">Pending</option>
+                      <option value="locked">Locked</option>
                       <option value="rented">Rented</option>
                     </select>
                   </div>

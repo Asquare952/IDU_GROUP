@@ -1,14 +1,14 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { HiOutlineHeart } from "react-icons/hi";
+import { HiHeart, HiOutlineHeart } from "react-icons/hi";
 import { CheckCircle, Lock } from "lucide-react";
 import { useFetchProperties } from "@/app/api/features/property";
-import { useLikeRental } from "@/app/api";
+import { useLikeRental, useUnlikeRental } from "@/app/api";
 import { containerVariants, itemVariants } from "@/app/components/animation";
 import { getPropertyDetailsPath } from "@/app/lib/property-routes";
 import { hasAccessToken } from "@/app/lib/auth";
@@ -30,13 +30,66 @@ const getStatusStyle = (status: string) => {
 const Listing = () => {
   const router = useRouter();
   const isLoggedIn = hasAccessToken();
+  const [likedPropertyIds, setLikedPropertyIds] = useState<Set<string>>(
+    () => new Set(),
+  );
   const { mutate: likeRental } = useLikeRental();
+  const { mutate: unlikeRental } = useUnlikeRental();
   const {
     data: properties = [],
     isLoading,
     isError,
     error,
-  } = useFetchProperties();
+  } = useFetchProperties({ recentOnly: true });
+
+  useEffect(() => {
+    setLikedPropertyIds(
+      new Set(
+        properties
+          .filter((property) => property.liked)
+          .map((property) => String(property.id)),
+      ),
+    );
+  }, [properties]);
+
+  const handleLikeToggle = (propertyId: string) => {
+    if (!hasAccessToken()) {
+      router.push("/login");
+      return;
+    }
+
+    const wasLiked = likedPropertyIds.has(propertyId);
+
+    setLikedPropertyIds((previousIds) => {
+      const nextIds = new Set(previousIds);
+
+      if (wasLiked) {
+        nextIds.delete(propertyId);
+      } else {
+        nextIds.add(propertyId);
+      }
+
+      return nextIds;
+    });
+
+    const mutation = wasLiked ? unlikeRental : likeRental;
+
+    mutation(propertyId, {
+      onError: () => {
+        setLikedPropertyIds((previousIds) => {
+          const nextIds = new Set(previousIds);
+
+          if (wasLiked) {
+            nextIds.add(propertyId);
+          } else {
+            nextIds.delete(propertyId);
+          }
+
+          return nextIds;
+        });
+      },
+    });
+  };
 
   if (isLoading) {
     return (
@@ -57,28 +110,12 @@ const Listing = () => {
             Simple. Transparent. Stress-free
           </h2>
           <p className="text-gray-500 max-w-2xl mx-auto text-base md:text-lg">
-            {isLoggedIn
-              ? "Explore top-rated rentals and properties from trusted landlords in your area"
-              : "Log in to explore top-rated rentals and properties from trusted landlords"}
+            Explore recent rentals and properties from trusted landlords in your
+            area.
           </p>
         </div>
 
-        {!isLoggedIn ? (
-          <div className="text-center py-8 mb-8">
-            <p className="text-gray-400 text-base mb-4">
-              Sign in to view available listings
-            </p>
-            <Link href="/login">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-[#34A853] text-white font-semibold py-3 px-8 rounded-full shadow-lg"
-              >
-                Log In to Browse
-              </motion.button>
-            </Link>
-          </div>
-        ) : isError ? (
+        {isError ? (
           <div className="text-center py-12 text-red-500">
             <p>{error.message || "Unable to load listings."}</p>
           </div>
@@ -94,8 +131,9 @@ const Listing = () => {
             viewport={{ once: true, margin: "-100px" }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
-            {properties.slice(0, 9).map((item, i) => {
+            {properties.slice(0, 10).map((item, i) => {
               const propertyPath = getPropertyDetailsPath(item);
+              const isLiked = likedPropertyIds.has(String(item.id));
 
               return (
                 <motion.div
@@ -139,19 +177,20 @@ const Listing = () => {
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-
-                        if (!hasAccessToken()) {
-                          router.push("/login");
-                          return;
-                        }
-
-                        likeRental(String(item.id));
+                        handleLikeToggle(String(item.id));
                       }}
                     >
-                      <HiOutlineHeart
-                        size={20}
-                        className="transition-all duration-200"
-                      />
+                      {isLiked ? (
+                        <HiHeart
+                          size={22}
+                          className="text-red-500 transition-all duration-200"
+                        />
+                      ) : (
+                        <HiOutlineHeart
+                          size={22}
+                          className="transition-all duration-200"
+                        />
+                      )}
                     </button>
                   </div>
 
@@ -208,17 +247,6 @@ const Listing = () => {
                         </span>
                       </div>
                     </div>
-
-                    {!isLoggedIn && (
-                      <button
-                        type="button"
-                        onClick={() => router.push("/login")}
-                        className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-gray-400"
-                      >
-                        <Lock size={14} />
-                        Sign in to continue
-                      </button>
-                    )}
                   </div>
                 </motion.div>
               );
@@ -227,7 +255,7 @@ const Listing = () => {
         )}
 
         <div className="flex justify-center w-full">
-          <Link href="/tenant/homepage">
+          <Link href="/properties">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}

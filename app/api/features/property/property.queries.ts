@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  type FetchPropertiesOptions,
   fetchProperties,
   bookProperty,
   fetchPropertyBySlug,
@@ -8,10 +9,12 @@ import {
 import { Properties, Property } from "./types";
 import type { RentalSearchParams } from "../rental";
 
-export const useFetchProperties = () => {
+export const useFetchProperties = (
+  options: FetchPropertiesOptions = { recentOnly: true },
+) => {
   return useQuery<Properties, Error>({
-    queryKey: ["properties"],
-    queryFn: fetchProperties,
+    queryKey: ["properties", options.recentOnly ?? true ? "recent" : "all"],
+    queryFn: () => fetchProperties(options),
   });
 };
 
