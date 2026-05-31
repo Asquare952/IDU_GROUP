@@ -19,6 +19,7 @@ import {
 import { getPropertyDetailsPath } from "@/app/lib/property-routes";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
 const filterTabs = [
   { label: "All Properties", value: "all" },
@@ -277,10 +278,20 @@ const Page = () => {
                       <button
                         className="p-2 bg-red-50 hover:bg-red-100 text-red-500 rounded-lg transition-colors cursor-pointer"
                         disabled={isDeletingRental}
-                        onClick={() => {
-                          if (
-                            !window.confirm(`Delete property "${property.title}"?`)
-                          ) {
+                        onClick={async () => {
+                          const result = await Swal.fire({
+                            title: "Delete property?",
+                            text: `You are about to delete "${property.title}". This action cannot be undone.`,
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonColor: "#dc2626",
+                            cancelButtonColor: "#6b7280",
+                            confirmButtonText: "Yes, delete it",
+                            cancelButtonText: "Cancel",
+                            reverseButtons: true,
+                          });
+
+                          if (!result.isConfirmed) {
                             return;
                           }
 

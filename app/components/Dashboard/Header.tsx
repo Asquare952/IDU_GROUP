@@ -150,7 +150,7 @@ const Header: FC<HeaderProp> = ({ onMenuClick }) => {
                 <Search />
               </button>
               <NotificationBell />
-              <Chats />
+              {/* <Chats /> */}
               {isLoading && !displayUser ? (
                 <p className="text-sm text-[#999EA5]">Loading...</p>
               ) : displayUser ? (
@@ -190,7 +190,7 @@ const Header: FC<HeaderProp> = ({ onMenuClick }) => {
           <div className="flex items-center gap-1">
             <NotificationBell />
 
-            <Chats />
+            {/* <Chats /> */}
             {isLoading && !displayUser ? (
               <p>Loading...</p>
             ) : displayUser ? (

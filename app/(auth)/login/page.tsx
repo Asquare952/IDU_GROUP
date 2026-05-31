@@ -23,7 +23,7 @@ const Page = () => {
   const { mutate: loginUser, isPending } = useLogin();
 
   const getRedirectPath = (role: "landlord" | "tenant") => {
-    return role === "landlord" ? "/landlord/dashboard" : "/";
+    return role === "landlord" ? "/landlord/dashboard" : "/tenant/dashboard";
   };
 
   useEffect(() => {
@@ -34,7 +34,7 @@ const Page = () => {
       if (role === "landlord") {
         router.replace("/landlord/dashboard");
       } else if (role === "tenant") {
-        router.replace("/");
+        router.replace("/tenant/dashboard");
       }
     }
   }, [router]);

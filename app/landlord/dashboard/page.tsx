@@ -13,6 +13,7 @@ import { PenLine, Trash2, Loader2 } from "lucide-react";
 import ReviewGraph from "@/public/assets/income-overview-graph.webp";
 import SnapshotGraph from "@/public/assets/tenants-activity-snapshot-graph.png";
 import { getCurrentUserId } from "@/app/lib/auth";
+import Swal from "sweetalert2";
 
 export default function Page() {
   const router = useRouter();
@@ -41,16 +42,41 @@ export default function Page() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this listing?")) return;
+  const handleDelete = async (id: string, title: string) => {
+    const result = await Swal.fire({
+      title: "Delete property?",
+      text: `You are about to delete "${title}". This action cannot be undone.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Yes, delete it",
+      cancelButtonText: "Cancel",
+      reverseButtons: true,
+    });
+
+    if (!result.isConfirmed) {
+      return;
+    }
 
     setDeleteId(id);
     try {
       await rentalApi.deleteRental(id);
       setRentals((prev) => prev.filter((r) => r.id !== id));
+      await Swal.fire({
+        title: "Deleted!",
+        text: "Property has been deleted.",
+        icon: "success",
+        confirmButtonColor: "#43A047",
+      });
     } catch (error) {
       console.error("Failed to delete:", error);
-      alert("Failed to delete listing");
+      await Swal.fire({
+        title: "Delete failed",
+        text: "Failed to delete listing. Please try again.",
+        icon: "error",
+        confirmButtonColor: "#dc2626",
+      });
     } finally {
       setDeleteId(null);
     }
@@ -221,7 +247,7 @@ export default function Page() {
                               <PenLine size={14} className="text-slate-400" />
                             </button>
                             <button
-                              onClick={() => handleDelete(item.id)}
+                              onClick={() => handleDelete(item.id, item.title)}
                               disabled={deleteId === item.id}
                               className="p-1.5 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
                               title="Delete"
