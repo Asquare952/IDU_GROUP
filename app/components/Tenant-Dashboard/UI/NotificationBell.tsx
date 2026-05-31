@@ -8,10 +8,10 @@ const NotificationBell = () => {
   const { data: notificationCount } =
     useNotificationCount();
   return (
-    <div className=" relative cursor-pointer" onClick={() => router.push("/tenant/notifications")}>
-      <Bell size={34} />
+    <div className="relative cursor-pointer" onClick={() => router.push("/tenant/notifications")}>
+      <Bell size={24} />
       {notificationCount?.count && notificationCount.count > 0 ? (
-        <span className=" absolute right-0 top-0 bg-[#FF4343] py-3 px-3 rounded-full h-[13px] w-[13px] flex items-center justify-center text-white text-xs">
+        <span className="absolute right-0 top-0 flex h-3 w-3 items-center justify-center rounded-full bg-[#FF4343] text-[9px] text-white">
           {notificationCount.count}
         </span>
       ) : null}

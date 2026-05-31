@@ -168,12 +168,12 @@ const Header = () => {
                       <Image
                         src={displayProfileImage}
                         alt="Profile"
-                        width={36}
-                        height={36}
-                        className="rounded-full border-2 border-[#4CAF50] object-cover aspect-square"
+                        width={32}
+                        height={32}
+                        className="h-8 w-8 rounded-full border-2 border-[#4CAF50] object-cover aspect-square"
                       />
                     ) : (
-                      <div className="flex h-[50px] w-[50px] items-center justify-center rounded-full bg-[#43A047] text-2xl font-semibold text-white">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#43A047] text-sm font-semibold text-white">
                         {initials}
                       </div>
                     )}

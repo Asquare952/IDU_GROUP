@@ -12,6 +12,8 @@ import type {
   AdminVerifyOTPPayload,
   AuthMeResponse,
   AdminLoginPayload,
+  AdminAnalytics,
+  ReportPayload,
 } from "./types";
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -468,6 +470,16 @@ export const adminApi = {
     return response.data;
   },
 
+  suspendUser: async (id: string): Promise<unknown> => {
+    const response = await api.put(`/admin/users/${id}/suspend`, {});
+    return response.data;
+  },
+
+  unsuspendUser: async (id: string): Promise<unknown> => {
+    const response = await api.put(`/admin/users/${id}/unsuspend`, {});
+    return response.data;
+  },
+
   deleteUser: async (id: string): Promise<void> => {
     await api.delete(`/admin/users/${id}`);
   },
@@ -516,6 +528,28 @@ export const adminApi = {
     );
     return extractListPayload(response.data).map(normalizeChatMessage);
   },
+
+  getAnalytics: async (): Promise<AdminAnalytics> => {
+    const response = await api.get("/admin/analytics");
+    const data = response.data;
+    return {
+      totalUsers: toNumberValue(data.totalUsers ?? data.total_users, 0),
+      activeUsers: toNumberValue(data.activeUsers ?? data.active_users, 0),
+      suspendedUsers: toNumberValue(data.suspendedUsers ?? data.suspended_users, 0),
+      usersByRole: {
+        landlords: toNumberValue(data.usersByRole?.landlords ?? data.landlords, 0),
+        tenants: toNumberValue(data.usersByRole?.tenants ?? data.tenants, 0),
+        admins: toNumberValue(data.usersByRole?.admins ?? data.admins, 0),
+      },
+      totalRentals: toNumberValue(data.totalRentals ?? data.total_rentals, 0),
+      totalLikes: toNumberValue(data.totalLikes ?? data.total_likes, 0),
+      totalLocks: toNumberValue(data.totalLocks ?? data.total_locks, 0),
+      totalBookings: toNumberValue(data.totalBookings ?? data.total_bookings, 0),
+      pendingReports: toNumberValue(data.pendingReports ?? data.pending_reports, 0),
+      resolvedReports: toNumberValue(data.resolvedReports ?? data.resolved_reports, 0),
+      totalTransactionRevenue: toNumberValue(data.totalTransactionRevenue ?? data.total_transaction_revenue, 0),
+    };
+  },
 };
 
 export const registerAdmin = async (payload: AdminRegisterPayload) => {
@@ -550,5 +584,10 @@ export const checkAuthStatus = async (): Promise<AuthMeResponse> => {
 
 export const logoutAdmin = async () => {
   const response = await api.post("/auth/logout");
+  return response.data;
+};
+
+export const fileReport = async (payload: ReportPayload) => {
+  const response = await api.post("/report", payload);
   return response.data;
 };

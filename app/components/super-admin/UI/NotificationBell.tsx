@@ -10,10 +10,10 @@ const NotificationBell = ({
   isLoading = false,
 }: NotificationBellProps) => {
   return (
-    <div className=" relative cursor-pointer">
-      <Bell width={30} />
+    <div className="relative cursor-pointer">
+      <Bell size={24} />
       {count > 0 && (
-        <span className=" absolute right-0 top-0 bg-[#FF4343] py-0.5 px-[3px] rounded-full h-[13px] w-[13px] flex items-center justify-center text-white text-xs">
+        <span className="absolute right-0 top-0 flex h-3 w-3 items-center justify-center rounded-full bg-[#FF4343] text-[9px] text-white">
           {count}
         </span>
       )}
