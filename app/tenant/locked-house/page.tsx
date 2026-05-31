@@ -282,7 +282,7 @@ const LockedRentalCard = ({ item }: { item: Rental }) => {
         {activeImage ? (
           <Image
             src={activeImage}
-            alt={`${item.title} view`}
+            alt={`${item.title} view`} 
             fill
             className="object-cover transition-all duration-500"
           />

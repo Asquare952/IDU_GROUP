@@ -13,6 +13,8 @@ import type {
   UpdateRentalPayload,
   RentalSearchParams,
 } from "./rental.api";
+import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
 // ========================
 // QUERIES (READ OPERATIONS)
@@ -132,12 +134,35 @@ export const useDeleteRental = (
 
   return useMutation<void, Error, string>({
     mutationFn: rentalApi.deleteRental,
-    onSuccess: () => {
+    ...options,
+    onSuccess: (...args) => {
+      toast.success("Property listing deleted successfully");
       // Invalidate all rental queries
       queryClient.invalidateQueries({
         queryKey: ["rentals"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["properties"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["landlord-listed-properties"],
+      });
+
+      Swal.fire({
+        title: "Deleted!",
+        text: "Property has been deleted.",
+        icon: "success",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#43A047",
+      });
+
+      options?.onSuccess?.(...args);
     },
-    ...options,
+    onError: (error: any, ...args) => {
+      toast.error(
+        error?.response?.data?.message || "Failed to delete property listing",
+      );
+      options?.onError?.(error, ...args);
+    },
   });
 };

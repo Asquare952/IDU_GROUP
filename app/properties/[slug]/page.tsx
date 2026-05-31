@@ -432,10 +432,8 @@ function PropertyDesktopViewContent() {
                 </p>
               </div>
 
-              <div className="bg-gray-50 p-6 rounded-[32px] flex items-center gap-4">
-                <div className="w-12 h-12 bg-gray-300 rounded-full overflow-hidden flex items-center justify-center text-white font-bold">
-                  {landlordName.charAt(0) || "L"}
-                </div>
+              <div className="bg-gray-50 p-6 rounded-[32px] flex flex-col gap-2">
+                <h2>Landloard</h2>
                 <div>
                   <p className="font-bold text-gray-900">{landlordName}</p>
                   <p className="text-xs text-gray-500">

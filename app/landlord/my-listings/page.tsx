@@ -8,6 +8,7 @@ import { getCurrentUserId } from "@/app/lib/auth";
 import { getPropertyDetailsPath } from "@/app/lib/property-routes";
 import { Plus, MapPin, Home, Loader2 } from "lucide-react";
 import Image from "next/image";
+import Swal from "sweetalert2";
 
 const tabs = ["All Properties", "Available", "Pending", "Rented"] as const;
 
@@ -45,7 +46,31 @@ const Page = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { mutate: deleteRentalMutation } = useDeleteRental();
+  const {
+    mutate: deleteRentalMutation,
+    isPending: isDeletingRental,
+    variables: deletingRentalId,
+  } = useDeleteRental();
+
+  const handleDeleteRental = async (rental: Rental) => {
+    const result = await Swal.fire({
+      title: "Delete property?",
+      text: `You are about to delete "${rental.title}". This action cannot be undone.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Yes, delete it",
+      cancelButtonText: "Cancel",
+      reverseButtons: true,
+    });
+
+    if (!result.isConfirmed) {
+      return;
+    }
+
+    deleteRentalMutation(rental.id);
+  };
 
   useEffect(() => {
     const fetchRentals = async () => {
@@ -198,10 +223,15 @@ const Page = () => {
                       </button>
                       <button
                         type="button"
-                        onClick={() => deleteRentalMutation(rental.id)}
-                        className="px-3 py-1.5 border bg-red-600 rounded-lg text-white text-[11px] font-bold hover:bg-red-700 transition-colors cursor-pointer"
+                        onClick={() => handleDeleteRental(rental)}
+                        disabled={
+                          isDeletingRental && deletingRentalId === rental.id
+                        }
+                        className="px-3 py-1.5 border bg-red-600 rounded-lg text-white text-[11px] font-bold hover:bg-red-700 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                       >
-                        Delete
+                        {isDeletingRental && deletingRentalId === rental.id
+                          ? "Deleting..."
+                          : "Delete"}
                       </button>
                       <button
                         type="button"
