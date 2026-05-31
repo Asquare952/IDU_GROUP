@@ -58,7 +58,7 @@ const NotificationMenu = ({ notificationPath }: NotificationMenuProps) => {
         aria-expanded={isOpen}
         aria-label="Open notifications"
       >
-        <Bell width={30} />
+        <Bell size={24} />
         {unreadCount > 0 ? (
           <span className="absolute right-0 top-0 flex h-[16px] min-w-[16px] items-center justify-center rounded-full bg-[#FF4343] px-1 text-[10px] font-bold text-white">
             {unreadCount > 9 ? "9+" : unreadCount}

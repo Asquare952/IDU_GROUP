@@ -73,6 +73,24 @@ export type AdminChatMessage = {
   updatedAt?: string;
 };
 
+// ==================== ANALYTICS TYPES ====================
+export type AdminAnalytics = {
+  totalUsers: number;
+  activeUsers: number;
+  suspendedUsers: number;
+  usersByRole: {
+    landlords: number;
+    tenants: number;
+    admins: number;
+  };
+  totalRentals: number;
+  totalLikes: number;
+  totalLocks: number;
+  totalBookings: number;
+  pendingReports: number;
+  resolvedReports: number;
+  totalTransactionRevenue: number;
+};
 
 // ==================== AUTH TYPES ====================
 export type AdminRegisterPayload = {
@@ -100,4 +118,12 @@ export type AdminLoginPayload = {
 export type AuthMeResponse = {
   isLoggedIn: boolean;
   userRole: string | null;
+};
+
+// ==================== REPORT TYPES ====================
+export type ReportPayload = {
+  report_message: string;
+  report_type: string;
+  search_name?: string;
+  report_user_id?: string;
 };

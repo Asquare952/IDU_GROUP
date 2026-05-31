@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { adminApi, checkAuthStatus, loginAdmin, logoutAdmin, registerAdmin, verifyAdminOTP, } from "./admin.api";
+import { adminApi, checkAuthStatus, loginAdmin, logoutAdmin, registerAdmin, verifyAdminOTP, fileReport, } from "./admin.api";
 import type { AdminReportStatus } from "./types";
 
 const adminQueryKeys = {
@@ -9,6 +9,7 @@ const adminQueryKeys = {
   reports: ["admin", "reports"] as const,
   chats: ["admin", "chats"] as const,
   chatMessages: (id: string) => ["admin", "chats", id, "messages"] as const,
+  analytics: ["admin", "analytics"] as const,
 };
 
 const invalidateAdminQueries = (queryClient: ReturnType<typeof useQueryClient>) => {
@@ -30,6 +31,24 @@ export const useToggleAdminUserStatus = () => {
 
   return useMutation({
     mutationFn: adminApi.toggleUserStatus,
+    onSuccess: () => invalidateAdminQueries(queryClient),
+  });
+};
+
+export const useSuspendUser = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: adminApi.suspendUser,
+    onSuccess: () => invalidateAdminQueries(queryClient),
+  });
+};
+
+export const useUnsuspendUser = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: adminApi.unsuspendUser,
     onSuccess: () => invalidateAdminQueries(queryClient),
   });
 };
@@ -92,6 +111,12 @@ export const useAdminChatMessages = (id: string | null) =>
     queryFn: () => adminApi.getChatMessages(id!),
     enabled: Boolean(id),
   });
+
+export const useAdminAnalytics = () =>
+  useQuery({
+    queryKey: adminQueryKeys.analytics,
+    queryFn: adminApi.getAnalytics,
+  });
   
   
 // ==================== AUTH QUERIES ====================
@@ -135,6 +160,17 @@ export const useLogoutAdmin = () => {
     mutationFn: logoutAdmin,
     onSuccess: () => {
       queryClient.clear();
+    },
+  });
+};
+
+export const useFileReport = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: fileReport,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.reports });
     },
   });
 };
