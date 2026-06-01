@@ -244,7 +244,7 @@ export const SafetyBannerData = {
   title: "Need Immediate Help?",
   description:
     "If you're in an unsafe situation or suspect fraud, contact us immediately.",
-  emergencyLine: "0800-RENTULO",
+  emergencyLine: "09058161216-RentULO",
   chatText: "Live Chat Support",
 };
 

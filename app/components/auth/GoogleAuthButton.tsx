@@ -45,7 +45,12 @@ export default function GoogleAuthButton({
       return;
     }
 
-    Cookies.set("ACCESS_TOKEN", accessToken, { expires: 7 });
+    Cookies.set("ACCESS_TOKEN", accessToken, {
+      expires: 7,
+      path: "/",
+      secure: window.location.protocol === "https:",
+      sameSite: "strict",
+    });
     toast.info(
       "Google account connected. Complete your profile before using rental actions.",
     );

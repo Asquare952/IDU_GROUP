@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -33,6 +33,7 @@ const Listing = () => {
   const [likedPropertyIds, setLikedPropertyIds] = useState<Set<string>>(
     () => new Set(),
   );
+  const hasInitializedRef = useRef(false);
   const { mutate: likeRental } = useLikeRental();
   const { mutate: unlikeRental } = useUnlikeRental();
   const {
@@ -43,14 +44,17 @@ const Listing = () => {
   } = useFetchProperties({ recentOnly: true });
 
   useEffect(() => {
-    setLikedPropertyIds(
-      new Set(
-        properties
-          .filter((property) => property.liked)
-          .map((property) => String(property.id)),
-      ),
-    );
-  }, [properties]);
+    if (properties.length > 0 && !hasInitializedRef.current) {
+      hasInitializedRef.current = true;
+      setLikedPropertyIds(
+        new Set(
+          properties
+            .filter((property) => property.liked)
+            .map((property) => String(property.id)),
+        ),
+      );
+    }
+  }, []);
 
   const handleLikeToggle = (propertyId: string) => {
     if (!hasAccessToken()) {
@@ -133,6 +137,7 @@ const Listing = () => {
           >
             {properties.slice(0, 10).map((item, i) => {
               const propertyPath = getPropertyDetailsPath(item);
+              const viewHref = isLoggedIn ? propertyPath : "/login";
               const isLiked = likedPropertyIds.has(String(item.id));
 
               return (
@@ -144,7 +149,7 @@ const Listing = () => {
                   className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
                 >
                   <div className="relative h-56 md:h-64 w-full overflow-hidden group">
-                    <Link href={propertyPath} className="block h-full w-full">
+                    <Link href={viewHref} className="block h-full w-full">
                       {item.images && item.images.length > 0 ? (
                         <Image
                           src={item.images[0]}
@@ -208,7 +213,7 @@ const Listing = () => {
                         </h3>
                       </div>
 
-                      <Link href={propertyPath}>
+                      <Link href={viewHref}>
                         <motion.button
                           whileTap={{ scale: 0.95 }}
                           whileHover={{ scale: 1.05 }}
