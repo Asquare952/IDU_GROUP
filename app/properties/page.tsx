@@ -208,107 +208,116 @@ export default function AllPropertiesPage() {
             >
               <AnimatePresence mode="popLayout">
                 {visibleProperties.length > 0 ? (
-                  visibleProperties.map((item) => (
-                    <motion.div
-                      layout
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      key={item.id}
-                      className="bg-white rounded-[35px] overflow-hidden shadow-sm border border-gray-100 hover:shadow-xl transition-all duration-300 group"
-                    >
-                      <div className="relative h-56 md:h-64 w-full overflow-hidden group bg-slate-100">
-                        {item.images[0] ? (
-                          <Image
-                            src={item.images[0]}
-                            alt={item.title}
-                            fill
-                            className="object-cover rounded-3xl p-2 transition-transform duration-500 group-hover:scale-110"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-slate-400">
-                            No image
-                          </div>
-                        )}
-                        <button
-                          type="button"
-                          className="absolute right-5 top-5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#162B4C] shadow-sm transition hover:text-red-500"
-                          aria-label={`Save ${item.title}`}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleLikeToggle(String(item.id));
-                          }}
-                        >
-                          {likedPropertyIds.has(String(item.id)) ? (
-                            <HiHeart
-                              size={22}
-                              className="text-red-500 transition-all duration-200"
-                            />
+                  visibleProperties.map((item) => {
+                    const propertyPath = getPropertyDetailsPath(item);
+                    const viewHref = isLoggedIn ? propertyPath : "/login";
+
+                    return (
+                      <motion.div
+                        key={item.id}
+                        layout
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        className="group overflow-hidden rounded-[35px] border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:shadow-xl"
+                      >
+                        <div className="relative h-56 w-full overflow-hidden bg-slate-100 md:h-64 group">
+                          {item.images[0] ? (
+                            <Link href={viewHref} className="block h-full w-full">
+                              <Image
+                                src={item.images[0]}
+                                alt={item.title}
+                                fill
+                                className="object-cover rounded-3xl p-2 transition-transform duration-500 group-hover:scale-110"
+                              />
+                            </Link>
                           ) : (
-                            <HiOutlineHeart
-                              size={22}
-                              className="transition-all duration-200"
-                            />
+                            <Link href={viewHref} className="block h-full w-full">
+                              <div className="flex h-full w-full items-center justify-center text-slate-400">
+                                No image
+                              </div>
+                            </Link>
                           )}
-                        </button>
-                      </div>
+                          <button
+                            type="button"
+                            className="absolute right-5 top-5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#162B4C] shadow-sm transition hover:text-red-500"
+                            aria-label={`Save ${item.title}`}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleLikeToggle(String(item.id));
+                            }}
+                          >
+                            {likedPropertyIds.has(String(item.id)) ? (
+                              <HiHeart
+                                size={22}
+                                className="text-red-500 transition-all duration-200"
+                              />
+                            ) : (
+                              <HiOutlineHeart
+                                size={22}
+                                className="transition-all duration-200"
+                              />
+                            )}
+                          </button>
+                        </div>
 
-                      <div className="p-5">
-                        <div className="flex justify-between items-start mb-2 gap-4">
-                          <div>
-                            <p className="text-gray-900 font-bold text-xl">
-                              N{Number(item.price).toLocaleString()}
-                              <span className="text-sm font-normal text-gray-400 capitalize">
-                                / {item.priceType}
+                        <div className="p-5">
+                          <div className="mb-2 flex items-start justify-between gap-4">
+                            <div>
+                              <p className="text-xl font-bold text-gray-900">
+                                N{Number(item.price).toLocaleString()}
+                                <span className="text-sm font-normal text-gray-400 capitalize">
+                                  / {item.priceType}
+                                </span>
+                              </p>
+                              <h3 className="text-lg font-semibold text-gray-800">
+                                {item.title}
+                              </h3>
+                            </div>
+                            <Link href={viewHref}>
+                              <motion.button
+                                whileTap={{ scale: 0.95 }}
+                                whileHover={{ scale: 1.05 }}
+                                className="cursor-pointer rounded-full bg-[#E8F5E9] px-4 py-1.5 text-xs font-bold text-[#43A047]"
+                              >
+                                View
+                              </motion.button>
+                            </Link>
+                          </div>
+
+                          <p className="mb-4 line-clamp-2 text-sm leading-relaxed text-gray-400">
+                            {item.description || "No description provided yet."}
+                          </p>
+
+                          <div className="flex flex-wrap gap-4 border-t border-gray-50 pt-4">
+                            <div className="flex items-center gap-2">
+                              <Image
+                                src="/shawer.png"
+                                alt="property type"
+                                width={16}
+                                height={16}
+                              />
+                              <span className="text-xs font-medium text-gray-500 capitalize">
+                                {item.propertyType}
                               </span>
-                            </p>
-                            <h3 className="text-gray-800 font-semibold text-lg">
-                              {item.title}
-                            </h3>
-                          </div>
-                          <Link href={getPropertyDetailsPath(item)}>
-                            <motion.button
-                              whileTap={{ scale: 0.95 }}
-                              whileHover={{ scale: 1.05 }}
-                              className="bg-[#E8F5E9] text-[#43A047] text-xs font-bold px-4 py-1.5 rounded-full cursor-pointer"
-                            >
-                              View
-                            </motion.button>
-                          </Link>
-                        </div>
-
-                        <p className="text-gray-400 text-sm mb-4 leading-relaxed line-clamp-2">
-                          {item.description || "No description provided yet."}
-                        </p>
-
-                        <div className="flex flex-wrap gap-4 border-t border-gray-50 pt-4">
-                          <div className="flex items-center gap-2">
-                            <Image
-                              src="/shawer.png"
-                              alt="property type"
-                              width={16}
-                              height={16}
-                            />
-                            <span className="text-xs text-gray-500 font-medium capitalize">
-                              {item.propertyType}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Image
-                              src="/bed.png"
-                              alt="location"
-                              width={16}
-                              height={16}
-                            />
-                            <span className="text-xs text-gray-500 font-medium">
-                              {item.location}
-                            </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Image
+                                src="/bed.png"
+                                alt="location"
+                                width={16}
+                                height={16}
+                              />
+                              <span className="text-xs font-medium text-gray-500">
+                                {item.location}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </motion.div>
-                  ))
+                      </motion.div>
+                    );
+                  })
                 ) : (
                   <div className="col-span-full py-20 text-center">
                     <p className="text-gray-400 text-lg font-medium">

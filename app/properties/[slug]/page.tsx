@@ -98,7 +98,7 @@ function PropertyDesktopViewContent() {
         <div className="flex items-center justify-center py-32">
           <Loader2 size={32} className="animate-spin text-[#4CAF50]" />
         </div>
-        <Footer />
+        {showFooter ? <Footer /> : null}
       </div>
     );
   }
@@ -119,7 +119,7 @@ function PropertyDesktopViewContent() {
             Back to listings
           </button>
         </div>
-        <Footer />
+        {showFooter ? <Footer /> : null}
       </div>
     );
   }
@@ -138,7 +138,7 @@ function PropertyDesktopViewContent() {
             Back to listings
           </button>
         </div>
-        <Footer />
+        {showFooter ? <Footer /> : null}
       </div>
     );
   }
@@ -153,6 +153,7 @@ function PropertyDesktopViewContent() {
   const landlordName = property.User
     ? `${property.User.first_name} ${property.User.last_name}`.trim()
     : "Verified Landlord";
+  const showFooter = !hasAccessToken();
 
   return (
     <div className="bg-white min-h-screen">
@@ -447,7 +448,7 @@ function PropertyDesktopViewContent() {
           </div>
         </div>
       </main>
-      <Footer />
+      {showFooter ? <Footer /> : null}
     </div>
   );
 }
