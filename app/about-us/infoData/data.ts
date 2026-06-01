@@ -124,7 +124,7 @@ export const teamData = {
       role: "Head of Product Design",
       image: "/rosheedah.jpeg",
     },
-    { name: "Prosper Okere.", role: "UI/UX Designer", image: "/Prosper .o.jpeg" },
+    { name: "Prosper Okere.", role: "UI/UX Designer", image: "/Prosper .O.jpeg" },
     {
       name: "Thomas Feranmi.",
       role: "Backend Engineer",

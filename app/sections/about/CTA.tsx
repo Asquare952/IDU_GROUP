@@ -1,4 +1,5 @@
 import { ctaData } from "@/app/about-us/infoData/data";
+import WaitlistButton from "@/app/components/waitlist/WaitlistButton";
 
 const CTA = () => {
   return (
@@ -14,9 +15,9 @@ const CTA = () => {
           {ctaData.description}
         </p>
 
-        <button className="cursor-pointer bg-amber-400 hover:bg-amber-300 text-emerald-950 font-bold py-4 px-10 rounded-full transition-all active:scale-95 text-lg shadow-lg shadow-amber-400/20">
+        <WaitlistButton className="cursor-pointer bg-amber-400 hover:bg-amber-300 text-emerald-950 font-bold py-4 px-10 rounded-full transition-all active:scale-95 text-lg shadow-lg shadow-amber-400/20">
           {ctaData.buttonText}
-        </button>
+        </WaitlistButton>
 
         <p className="mt-4 text-xs text-white/60 font-semibold uppercase tracking-widest">
           {ctaData.badgeText}
