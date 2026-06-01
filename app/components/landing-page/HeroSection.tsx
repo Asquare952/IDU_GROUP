@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { api } from "@/app/api";
-import { getCurrentUserRole } from "@/app/lib/auth";
+import { getCurrentUserRole, hasAccessToken } from "@/app/lib/auth";
 
 
 
@@ -85,31 +84,8 @@ const HeroSection = () => {
   const [location, setLocation] = useState("");
   const [propertyType, setPropertyType] = useState("");
   const [showTenantModal, setShowTenantModal] = useState(false);
-  const [auth, setAuth] = useState({
-    isLoggedIn: false,
-    userRole: null as "tenant" | "landlord" | null,
-    loading: true,
-  });
-
-  // Check auth from backend API (cookies)
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await api.get("/auth/me", {
-          withCredentials: true,
-        });
-        const data = await res.data;
-        setAuth({
-          isLoggedIn: data.isLoggedIn,
-          userRole: data.userRole,
-          loading: false,
-        });
-      } catch {
-        setAuth({ isLoggedIn: false, userRole: null, loading: false });
-      }
-    };
-    checkAuth();
-  }, []);
+  const isLoggedIn = hasAccessToken();
+  const userRole = getCurrentUserRole();
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -120,8 +96,7 @@ const HeroSection = () => {
   };
 
   const handleFindHouse = () => {
-    if (auth.loading) return;
-    if (!auth.isLoggedIn) {
+    if (!isLoggedIn) {
       router.push("/login");
     } else {
       router.push("/tenant/homepage");
@@ -129,25 +104,14 @@ const HeroSection = () => {
   };
 
   const handleListProperty = () => {
-    if (auth.loading) return;
-    if (!auth.isLoggedIn) {
+    if (!isLoggedIn) {
       router.push("/login");
-    } else if (auth.userRole === "tenant") {
+    } else if (userRole === "tenant") {
       setShowTenantModal(true);
     } else {
       router.push("/landlord/dashboard");
     }
   };
-
-  if (auth.loading) {
-    return (
-      <div className="relative w-full bg-white">
-        <section className="relative h-[85vh] md:h-[800px] w-full px-4 pt-4">
-          <div className="relative w-full h-full rounded-[32px] md:rounded-[40px] overflow-hidden bg-gray-100 animate-pulse" />
-        </section>
-      </div>
-    );
-  }
 
   return (
     <div className="relative w-full bg-white">
@@ -186,7 +150,7 @@ const HeroSection = () => {
               <button
                 onClick={() => {
                   setShowTenantModal(false);
-                  router.push("/register?role=landlord");
+                  router.push("/signup");
                 }}
                 className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-6 rounded-full transition-all active:scale-95"
               >
@@ -233,18 +197,18 @@ const HeroSection = () => {
             <div className="flex flex-row gap-4">
               <button
                 onClick={handleFindHouse}
-                className={`cursor-pointer bg-[#43A047] hover:bg-green-600 text-white font-semibold py-3 px-6 md:px-10 rounded-full transition-all active:scale-95 shadow-lg shadow-green-900/20 ${auth.loading ? "opacity-70 cursor-wait" : ""
-                  }`}
+                className="cursor-pointer bg-[#43A047] hover:bg-green-600 text-white font-semibold py-3 px-6 md:px-10 rounded-full transition-all active:scale-95 shadow-lg shadow-green-900/20"
               >
                 Find a house
               </button>
-              {getCurrentUserRole() === "tenant" ? " " : <button
-                onClick={handleListProperty}
-                className={`cursor-pointer bg-white/10 backdrop-blur-md border border-white/30 hover:bg-white/20 text-white font-semibold py-3 px-6 md:px-10 rounded-full transition-all active:scale-95 ${auth.loading ? "opacity-70 cursor-wait" : ""
-                  }`}
-              >
-                List a property
-              </button>}
+              {userRole === "tenant" ? null : (
+                <button
+                  onClick={handleListProperty}
+                  className="cursor-pointer bg-white/10 backdrop-blur-md border border-white/30 hover:bg-white/20 text-white font-semibold py-3 px-6 md:px-10 rounded-full transition-all active:scale-95"
+                >
+                  List a property
+                </button>
+              )}
 
             </div>
           </div>

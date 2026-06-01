@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { FaFacebookF, FaInstagram, FaTiktok } from "react-icons/fa";
 import { RiTwitterXFill } from "react-icons/ri";
 
@@ -47,12 +48,12 @@ const Footer = () => {
               Discover
             </h4>
             <nav className="flex flex-col gap-3 text-gray-500 text-base md:text-[19px]">
-              <a href="#" className="hover:text-green-600">
+              <Link href="/login" className="hover:text-green-600">
                 Find a house
-              </a>
-              <a href="#" className="hover:text-green-600">
+              </Link>
+              <Link href="/login" className="hover:text-green-600">
                 List a property
-              </a>
+              </Link>
               <a href="/faqs" className="hover:text-green-600">
                 FAQs
               </a>

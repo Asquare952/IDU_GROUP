@@ -106,34 +106,34 @@ export const teamData = {
     {
       name: "David Ugochukwu.",
       role: "CEO & Frontend Engineer",
-      image: "/peter.webp",
+      image: "/David.jpeg",
     },
     {
       name: "Peter Abahim.",
       role: "CTO & Lead Backend Engineer",
-      image: "/Ik.webp",
+      image: "/Abahim.jpeg",
     },
     {
       name: "AbdulAfeez O.",
       role: "Lead Frontend Engineer",
-      image: "/afeez.webp",
+      image: "/Abdull.jpeg",
     },
-    { name: "Promise Obi.", role: "Backend Engineer", image: "/promise.webp" },
+    { name: "Promise Obi.", role: "Backend Engineer", image: "/Obi.jpeg" },
     {
       name: "Rosheedah M.",
       role: "Head of Product Design",
-      image: "/rosh.webp",
+      image: "/rosheedah.jpeg",
     },
-    { name: "Prosper Okere.", role: "UI/UX Designer", image: "/prosper.jpeg" },
+    { name: "Prosper Okere.", role: "UI/UX Designer", image: "/Prosper .o.jpeg" },
     {
       name: "Thomas Feranmi.",
       role: "Backend Engineer",
-      image: "/Thomas.webp",
+      image: "/Tuchela.jpeg",
     },
     {
       name: "Ifeanyichukwu O.",
-      role: "Field Researcher",
-      image: "/ifeanyi.webp",
+      role: "CHIEF MARKETING OFFICER",
+      image: "/ify.jpeg",
     },
   ],
   message: {

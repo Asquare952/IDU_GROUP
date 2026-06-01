@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search } from "lucide-react";
@@ -36,6 +36,7 @@ export default function AllPropertiesPage() {
   const [likedPropertyIds, setLikedPropertyIds] = useState<Set<string>>(
     () => new Set(),
   );
+  const hasInitializedRef = useRef(false);
   const isLoggedIn = hasAccessToken();
   const recentOnly = !isLoggedIn;
   const { mutate: likeRental } = useLikeRental();
@@ -66,14 +67,17 @@ export default function AllPropertiesPage() {
   });
 
   useEffect(() => {
-    setLikedPropertyIds(
-      new Set(
-        properties
-          .filter((property) => property.liked)
-          .map((property) => String(property.id)),
-      ),
-    );
-  }, [properties]);
+    if (properties.length > 0 && !hasInitializedRef.current) {
+      hasInitializedRef.current = true;
+      setLikedPropertyIds(
+        new Set(
+          properties
+            .filter((property) => property.liked)
+            .map((property) => String(property.id)),
+        ),
+      );
+    }
+  }, []);
 
   const handleLikeToggle = (propertyId: string) => {
     if (!hasAccessToken()) {

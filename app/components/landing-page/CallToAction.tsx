@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 
 const CallToAction = () => {
   return (
@@ -15,9 +16,12 @@ const CallToAction = () => {
           ease.
         </p>
 
-        <button className="bg-white text-[#43A047] font-bold text-base py-3 px-8 rounded-full shadow-lg hover:bg-gray-100 transition-all active:scale-95 cursor-pointer">
+        <Link
+          href="/login"
+          className="inline-flex items-center justify-center bg-white text-[#43A047] font-bold text-base py-3 px-8 rounded-full shadow-lg hover:bg-gray-100 transition-all active:scale-95 cursor-pointer"
+        >
           Get started now
-        </button>
+        </Link>
       </div>
     </div>
   );

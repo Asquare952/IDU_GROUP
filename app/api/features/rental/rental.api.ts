@@ -49,6 +49,88 @@ const parseJsonSafely = (value: string): unknown => {
   }
 };
 
+const rentalResponseKeys = [
+  "data",
+  "rental",
+  "property",
+  "listing",
+  "item",
+  "result",
+] as const;
+
+const looksLikeRental = (value: unknown): value is RawRental => {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const candidate = value as Record<string, unknown>;
+
+  return (
+    "id" in candidate ||
+    "_id" in candidate ||
+    "title" in candidate ||
+    "propertyType" in candidate ||
+    "location" in candidate ||
+    "price" in candidate ||
+    "images" in candidate ||
+    "videos" in candidate
+  );
+};
+
+const extractRentalRecord = (payload: unknown): RawRental | null => {
+  if (!payload) {
+    return null;
+  }
+
+  if (Array.isArray(payload)) {
+    for (const item of payload) {
+      const rental = extractRentalRecord(item);
+      if (rental) {
+        return rental;
+      }
+    }
+
+    return null;
+  }
+
+  if (looksLikeRental(payload)) {
+    return payload;
+  }
+
+  if (typeof payload !== "object") {
+    return null;
+  }
+
+  const record = payload as Record<string, unknown>;
+
+  for (const key of rentalResponseKeys) {
+    const rental = extractRentalRecord(record[key]);
+
+    if (rental) {
+      return rental;
+    }
+  }
+
+  return null;
+};
+
+const buildFallbackRental = (
+  payload: CreateRentalPayload | UpdateRentalPayload,
+): RawRental => ({
+  id: "",
+  title: payload.title ?? "",
+  description: payload.description ?? "",
+  propertyType: payload.propertyType ?? "",
+  location: payload.location ?? "",
+  price: payload.price ?? "",
+  priceType: payload.priceType ?? "yearly",
+  status: payload.status ?? "available",
+  images: [],
+  videos: [],
+  UserId: getCurrentUserId() ?? "",
+  createdAt: new Date().toISOString(),
+});
+
 const normalizeMediaUrl = (value: string): string => {
   const trimmedValue = value.trim();
 
@@ -224,11 +306,8 @@ export const rentalApi = {
       { withCredentials: true },
     );
 
-    const data = response.data as ApiResponse<RawRental> & {
-      message?: string;
-    };
-
-    return normalizeRental(data.data);
+    const rental = extractRentalRecord(response.data) ?? buildFallbackRental(payload);
+    return normalizeRental(rental);
   },
 
   getAllRentals: async (options?: RentalRequestOptions): Promise<Rental[]> => {
@@ -315,7 +394,13 @@ export const rentalApi = {
         : undefined,
     );
 
-    return normalizeRental(response.data.data);
+    const rental = extractRentalRecord(response.data);
+
+    if (!rental) {
+      throw new Error("Unable to load rental details.");
+    }
+
+    return normalizeRental(rental);
   },
 
   updateRental: async (
@@ -333,11 +418,20 @@ export const rentalApi = {
       requestBody,
     );
 
-    const data = response.data as ApiResponse<RawRental> & {
-      message?: string;
-    };
+    const rental =
+      extractRentalRecord(response.data) ??
+      buildFallbackRental({
+        ...payload,
+        title: payload.title ?? "",
+        description: payload.description ?? "",
+        propertyType: payload.propertyType ?? "",
+        location: payload.location ?? "",
+        price: payload.price ?? "",
+        priceType: payload.priceType ?? "yearly",
+        status: payload.status ?? "available",
+      });
 
-    return normalizeRental(data.data);
+    return normalizeRental(rental);
   },
 
   deleteRental: async (id: string): Promise<void> => {

@@ -1,41 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { getCurrentUserRole, hasAccessToken } from "@/app/lib/auth";
 
 const Post = () => {
   const router = useRouter();
-  const [auth, setAuth] = useState({
-    isLoggedIn: false,
-    userRole: null as "tenant" | "landlord" | null,
-    loading: true,
-  });
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await fetch("/api/features/auth/me", {
-          credentials: "include",
-        });
-        const data = await res.json();
-        setAuth({
-          isLoggedIn: data.isLoggedIn,
-          userRole: data.userRole,
-          loading: false,
-        });
-      } catch {
-        setAuth({ isLoggedIn: false, userRole: null, loading: false });
-      }
-    };
-    checkAuth();
-  }, []);
+  const isLoggedIn = hasAccessToken();
+  const userRole = getCurrentUserRole();
 
   const handleListProperty = () => {
-    if (auth.loading) return;
-    if (!auth.isLoggedIn) {
+    if (!isLoggedIn) {
       router.push("/login");
-    } else if (auth.userRole === "landlord") {
+    } else if (userRole === "landlord") {
       router.push("/landlord/dashboard");
+    } else {
+      router.push("/login");
     }
   };
   return (
@@ -70,10 +50,7 @@ const Post = () => {
             </p>
             <button
               onClick={handleListProperty}
-              disabled={auth.loading}
-              className={`bg-[#34A853] hover:bg-green-700 text-white font-bold text-base py-2 px-8 rounded-full transition-all mt-10 shadow-lg flex items-center gap-2 mx-auto cursor-pointer active:scale-95 ${
-                auth.loading ? "opacity-70 cursor-wait" : ""
-              }`}
+              className="bg-[#34A853] hover:bg-green-700 text-white font-bold text-base py-2 px-8 rounded-full transition-all mt-10 shadow-lg flex items-center gap-2 mx-auto cursor-pointer active:scale-95"
             >
               Start Listing <span className="text-sm">&rarr;</span>
             </button>

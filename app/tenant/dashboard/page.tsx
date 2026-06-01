@@ -23,7 +23,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useFetchProperties } from "@/app/api/features/property/property.queries";
 import {
   useLikeRental,
@@ -44,6 +44,7 @@ const Page = () => {
   const [likedPropertyIds, setLikedPropertyIds] = useState<Set<string>>(
     () => new Set(),
   );
+  const hasInitializedRef = useRef(false);
   const { data: properties } = useFetchProperties({ recentOnly: false });
   const { data: lockedRentals } = useLockedRentals();
   const { mutate: createConversation } = useCreateConversation();
@@ -51,14 +52,17 @@ const Page = () => {
   const { mutate: unlikeRental } = useUnlikeRental();
 
   useEffect(() => {
-    setLikedPropertyIds(
-      new Set(
-        (properties ?? [])
-          .filter((property) => property.liked)
-          .map((property) => String(property.id)),
-      ),
-    );
-  }, [properties]);
+    if ((properties ?? []).length > 0 && !hasInitializedRef.current) {
+      hasInitializedRef.current = true;
+      setLikedPropertyIds(
+        new Set(
+          (properties ?? [])
+            .filter((property) => property.liked)
+            .map((property) => String(property.id)),
+        ),
+      );
+    }
+  }, []);
 
   const handleLikeToggle = (propertyId: string) => {
     if (!hasAccessToken()) {
