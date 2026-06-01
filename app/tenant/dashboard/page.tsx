@@ -4,12 +4,10 @@ import {
   DashMetrics,
   Safetytips,
   SafetyAction,
-  ActiveProperty,
 } from "@/app/components/Tenant-Dashboard/config/DashboardDatas";
 import DashboardLayout from "@/app/components/Tenant-Dashboard/DashboardLayout";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import properties from "@/app/components/properties";
 import { containerVariants, itemVariants } from "@/app/components/animation";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -22,6 +20,7 @@ import {
   Lock,
   ChevronLeft,
   ChevronRight,
+  Loader2,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useFetchProperties } from "@/app/api/features/property/property.queries";
@@ -31,10 +30,23 @@ import {
   useUnlikeRental,
 } from "@/app/api/features/progress/progress.queries";
 import { getPropertyDetailsPath } from "@/app/lib/property-routes";
-import { useCreateConversation } from "@/app/api/features/chat/chat.queries";
-import { sanitizeConversationId } from "@/app/api/features/chat/chat.api";
 import { hasAccessToken } from "@/app/lib/auth";
-import { toast } from "react-toastify";
+import type { Rental } from "@/app/api/features/rental";
+
+const formatRentPrice = (price: string | number) => {
+  const numericPrice = Number(price);
+
+  if (!Number.isFinite(numericPrice) || numericPrice <= 0) {
+    return String(price || "Price unavailable");
+  }
+
+  return `N${numericPrice.toLocaleString()}`;
+};
+
+const getRentPeriod = (priceType: string) =>
+  priceType ? `/${priceType}` : "/year";
+
+const getActiveLockProgress = (rental?: Rental) => (rental ? 100 : 0);
 
 const Page = () => {
   const router = useRouter();
@@ -46,10 +58,17 @@ const Page = () => {
   );
   const hasInitializedRef = useRef(false);
   const { data: properties } = useFetchProperties({ recentOnly: false });
-  const { data: lockedRentals } = useLockedRentals();
-  const { mutate: createConversation } = useCreateConversation();
+  const {
+    data: lockedRentals = [],
+    isLoading: isLoadingLockedRentals,
+    isError: isLockedRentalsError,
+    error: lockedRentalsError,
+  } = useLockedRentals();
   const { mutate: likeRental } = useLikeRental();
   const { mutate: unlikeRental } = useUnlikeRental();
+  const activeLockedRental = lockedRentals[0];
+  const activeLockImages = activeLockedRental?.images ?? [];
+  const activeLockProgress = getActiveLockProgress(activeLockedRental);
 
   useEffect(() => {
     if ((properties ?? []).length > 0 && !hasInitializedRef.current) {
@@ -62,7 +81,11 @@ const Page = () => {
         ),
       );
     }
-  }, []);
+  }, [properties]);
+
+  useEffect(() => {
+    setCurrentSlide(0);
+  }, [activeLockedRental?.id]);
 
   const handleLikeToggle = (propertyId: string) => {
     if (!hasAccessToken()) {
@@ -104,160 +127,214 @@ const Page = () => {
   };
 
   const nextSlide = () => {
+    if (activeLockImages.length <= 1) {
+      return;
+    }
+
     setCurrentSlide((prev) =>
-      prev === ActiveProperty.images.length - 1 ? 0 : prev + 1,
+      prev === activeLockImages.length - 1 ? 0 : prev + 1,
     );
   };
 
   const prevSlide = () => {
+    if (activeLockImages.length <= 1) {
+      return;
+    }
+
     setCurrentSlide((prev) =>
-      prev === 0 ? ActiveProperty.images.length - 1 : prev - 1,
+      prev === 0 ? activeLockImages.length - 1 : prev - 1,
     );
   };
 
   return (
     <DashboardLayout>
       <section className="flex flex-col gap-8 px-2.5 py-2.5">
-        <div className="flex flex-col lg:flex-row w-full bg-white rounded-[2rem] shadow-xl overflow-hidden border border-gray-50 group">
-          <div className="relative h-72 md:h-96 lg:h-auto lg:w-[45%] bg-gray-100 overflow-hidden">
-            <Link href={getPropertyDetailsPath(ActiveProperty)}>
-              <Image
-                src={ActiveProperty.images[currentSlide]}
-                alt="Active Property"
-                fill
-                className="object-cover transition-all duration-700 group-hover:scale-105"
-              />
-            </Link>
-
-            <div className="absolute top-4 right-4 bg-black/50 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1.5 rounded-full z-10 border border-white/10">
-              {currentSlide + 1} / {ActiveProperty.images.length}
-            </div>
-
-            <div className="absolute inset-0 flex items-center justify-between px-4 z-20 pointer-events-none">
-              <button
-                onClick={prevSlide}
-                className="pointer-events-auto bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-lg text-[#162B4C] hover:bg-white hover:scale-110 transition-all active:scale-95"
-              >
-                <ChevronLeft size={22} strokeWidth={2.5} />
-              </button>
-              <button
-                onClick={nextSlide}
-                className="pointer-events-auto bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-lg text-[#162B4C] hover:bg-white hover:scale-110 transition-all active:scale-95"
-              >
-                <ChevronRight size={22} strokeWidth={2.5} />
-              </button>
-            </div>
-            <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-20 bg-black/50 backdrop-blur-md px-3 py-1.5  rounded-full z-10">
-              {ActiveProperty.images.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentSlide(index)}
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    currentSlide === index
-                      ? "w-8 bg-[#43A047]"
-                      : "w-2 bg-white/60 hover:bg-white"
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-5 p-6 md:p-10 lg:w-[55%]">
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="bg-[#43A047] text-white py-2 px-4 rounded-xl flex items-center gap-2">
-                <Lock size={14} />
-                <span className="text-xs font-bold uppercase">Active Lock</span>
-              </div>
-              <div className="bg-red-50 text-red-600 py-1.5 px-4 rounded-xl border border-red-100">
-                <span className="text-xs font-bold uppercase">
-                  {ActiveProperty.hoursRemaining} remaining
-                </span>
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <Link href={getPropertyDetailsPath(ActiveProperty)}>
-                <h2 className="text-2xl md:text-4xl font-bold text-[#162B4C] leading-tight hover:text-[#43A047] transition-colors cursor-pointer">
-                  {ActiveProperty.title}
-                </h2>
-              </Link>
-              <p className="flex items-center gap-2 text-gray-500 font-medium">
-                <MapPin size={18} className="text-[#43A047]" />
-                {ActiveProperty.location}
+        {isLoadingLockedRentals ? (
+          <div className="flex min-h-[360px] w-full items-center justify-center rounded-[2rem] border border-gray-50 bg-white shadow-xl">
+            <div className="flex flex-col items-center gap-3 text-[#43A047]">
+              <Loader2 size={32} className="animate-spin" />
+              <p className="text-sm font-bold text-gray-500">
+                Loading your active lock...
               </p>
             </div>
-
-            <h3 className="text-[#43A047] text-4xl md:text-5xl font-extrabold">
-              {ActiveProperty.price}
-              <span className="text-gray-400 text-lg md:text-2xl font-normal ml-2">
-                /year
-              </span>
-            </h3>
-
-            {/* Progress Bar */}
-            <div className="mt-2">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-gray-400 text-xs font-bold uppercase tracking-widest">
-                  Lock Progress
-                </span>
-                <span className="text-[#1B401C] text-sm font-bold">
-                  {ActiveProperty.lockProgress}%
-                </span>
-              </div>
-              <div className="w-full bg-gray-100 h-2.5 rounded-full overflow-hidden">
-                <div
-                  className="bg-[#43A047] h-full rounded-full transition-all duration-1000"
-                  style={{ width: `${ActiveProperty.lockProgress}%` }}
-                />
-              </div>
+          </div>
+        ) : isLockedRentalsError ? (
+          <div className="flex min-h-[320px] w-full flex-col justify-center gap-4 rounded-[2rem] border border-red-100 bg-red-50 p-8 shadow-sm">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-red-600">
+              <AlertTriangle size={24} />
             </div>
-
-            <div className="flex flex-col sm:flex-row gap-3 mt-4">
-              <Link
-                href={getPropertyDetailsPath(ActiveProperty)}
-                className="w-full sm:w-auto"
-              >
-                <button className="w-full bg-[#43A047] text-white px-10 py-4 rounded-2xl font-bold hover:shadow-lg hover:shadow-green-100 transition-all active:scale-95 cursor-pointer">
-                  View Details
-                </button>
-              </Link>
-              {/* <button onClick={() => {
-                if (!hasAccessToken()) {
-                  router.push("/login");
-                  return;
-                }
-
-                if (!property.userId) {
-                  toast.error("Landlord contact is not available for this listing.");
-                  return;
-                }
-
-                createConversation({ other_user_id: String(property.userId) }, {
-                  onSuccess: (data) => {
-                    const conversationId = sanitizeConversationId(
-                      data.conversation_id ?? data._id ?? data.id,
-                    );
-
-                    if (!conversationId) {
-                      toast.error("Unable to open this conversation.");
-                      return;
-                    }
-
-                    router.push(`/tenant/messages/${conversationId}`);
-                  },
-                  onError: (conversationError) => {
-                    toast.error(
-                      conversationError.message ||
-                      "Unable to start chat. Please try again.",
-                    );
-                  },
-                });
-              }} className="w-full sm:w-auto bg-white border-2 border-gray-100 text-[#162B4C] px-10 py-4 rounded-2xl font-bold hover:bg-gray-50 transition-all active:scale-95 cursor-pointer">
-                Contact Landlord
-              </button> */}
+            <div>
+              <h2 className="text-2xl font-bold text-[#162B4C]">
+                Unable to load active lock
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm text-red-600">
+                {(lockedRentalsError as Error)?.message ||
+                  "Please refresh the page or try again shortly."}
+              </p>
             </div>
           </div>
-        </div>
+        ) : activeLockedRental ? (
+          <div className="flex w-full flex-col overflow-hidden rounded-[2rem] border border-gray-50 bg-white shadow-xl lg:flex-row group">
+            <div className="relative h-72 overflow-hidden bg-gray-100 md:h-96 lg:h-auto lg:w-[45%]">
+              <Link
+                href={getPropertyDetailsPath(activeLockedRental)}
+                className="block h-full w-full"
+              >
+                {activeLockImages[currentSlide] ? (
+                  <Image
+                    src={activeLockImages[currentSlide]}
+                    alt={activeLockedRental.title || "Locked property"}
+                    fill
+                    className="object-cover transition-all duration-700 group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-sm font-semibold text-gray-400">
+                    No image uploaded
+                  </div>
+                )}
+              </Link>
+
+              {activeLockImages.length > 0 && (
+                <div className="absolute top-4 right-4 z-10 rounded-full border border-white/10 bg-black/50 px-3 py-1.5 text-[10px] font-bold text-white backdrop-blur-md">
+                  {currentSlide + 1} / {activeLockImages.length}
+                </div>
+              )}
+
+              {activeLockImages.length > 1 && (
+                <>
+                  <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-between px-4">
+                    <button
+                      type="button"
+                      onClick={prevSlide}
+                      className="pointer-events-auto rounded-full bg-white/80 p-2 text-[#162B4C] shadow-lg backdrop-blur-sm transition-all hover:scale-110 hover:bg-white active:scale-95"
+                    >
+                      <ChevronLeft size={22} strokeWidth={2.5} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={nextSlide}
+                      className="pointer-events-auto rounded-full bg-white/80 p-2 text-[#162B4C] shadow-lg backdrop-blur-sm transition-all hover:scale-110 hover:bg-white active:scale-95"
+                    >
+                      <ChevronRight size={22} strokeWidth={2.5} />
+                    </button>
+                  </div>
+
+                  <div className="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 gap-2 rounded-full bg-black/50 px-3 py-1.5 backdrop-blur-md">
+                    {activeLockImages.map((_, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        onClick={() => setCurrentSlide(index)}
+                        className={`h-2 rounded-full transition-all duration-300 ${
+                          currentSlide === index
+                            ? "w-8 bg-[#43A047]"
+                            : "w-2 bg-white/60 hover:bg-white"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-5 p-6 md:p-10 lg:w-[55%]">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="flex items-center gap-2 rounded-xl bg-[#43A047] px-4 py-2 text-white">
+                  <Lock size={14} />
+                  <span className="text-xs font-bold uppercase">
+                    Active Lock
+                  </span>
+                </div>
+                <div className="rounded-xl border border-green-100 bg-green-50 px-4 py-1.5 text-green-700">
+                  <span className="text-xs font-bold uppercase">
+                    {lockedRentals.length > 1
+                      ? `${lockedRentals.length} locked houses`
+                      : "Current locked house"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <Link href={getPropertyDetailsPath(activeLockedRental)}>
+                  <h2 className="cursor-pointer text-2xl font-bold leading-tight text-[#162B4C] transition-colors hover:text-[#43A047] md:text-4xl">
+                    {activeLockedRental.title || "Locked property"}
+                  </h2>
+                </Link>
+                <p className="flex items-center gap-2 font-medium text-gray-500">
+                  <MapPin size={18} className="text-[#43A047]" />
+                  {activeLockedRental.location || "Location unavailable"}
+                </p>
+              </div>
+
+              <h3 className="text-4xl font-extrabold text-[#43A047] md:text-5xl">
+                {formatRentPrice(activeLockedRental.price)}
+                <span className="ml-2 text-lg font-normal text-gray-400 md:text-2xl">
+                  {getRentPeriod(activeLockedRental.priceType)}
+                </span>
+              </h3>
+
+              <div className="mt-2">
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-widest text-gray-400">
+                    Lock Status
+                  </span>
+                  <span className="text-sm font-bold text-[#1B401C]">
+                    {activeLockProgress}%
+                  </span>
+                </div>
+                <div className="h-2.5 w-full overflow-hidden rounded-full bg-gray-100">
+                  <div
+                    className="h-full rounded-full bg-[#43A047] transition-all duration-1000"
+                    style={{ width: `${activeLockProgress}%` }}
+                  />
+                </div>
+              </div>
+
+              <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href={getPropertyDetailsPath(activeLockedRental)}
+                  className="w-full sm:w-auto"
+                >
+                  <button className="w-full cursor-pointer rounded-2xl bg-[#43A047] px-10 py-4 font-bold text-white transition-all hover:shadow-lg hover:shadow-green-100 active:scale-95">
+                    View Details
+                  </button>
+                </Link>
+                <Link href="/tenant/locked-house" className="w-full sm:w-auto">
+                  <button className="w-full cursor-pointer rounded-2xl border-2 border-gray-100 bg-white px-10 py-4 font-bold text-[#162B4C] transition-all hover:bg-gray-50 active:scale-95">
+                    View My Locks
+                  </button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex min-h-[320px] w-full flex-col justify-center gap-5 rounded-[2rem] border border-gray-50 bg-white p-8 shadow-xl">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#E8F5E9] text-[#43A047]">
+              <Lock size={26} />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-[#162B4C]">
+                No active locked house yet
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm text-gray-500">
+                When you lock a property, the latest active lock will appear
+                here so you can jump back into it quickly.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Link href="/tenant/saved-house" className="w-full sm:w-auto">
+                <button className="w-full cursor-pointer rounded-2xl bg-[#43A047] px-6 py-3 text-sm font-bold text-white transition-all hover:bg-green-700 active:scale-95">
+                  View Saved Houses
+                </button>
+              </Link>
+              <Link href="/properties" className="w-full sm:w-auto">
+                <button className="w-full cursor-pointer rounded-2xl border border-gray-200 px-6 py-3 text-sm font-bold text-[#162B4C] transition-all hover:bg-gray-50 active:scale-95">
+                  Browse Properties
+                </button>
+              </Link>
+            </div>
+          </div>
+        )}
 
         {/* Metrics Section */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">

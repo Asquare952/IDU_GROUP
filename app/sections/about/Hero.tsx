@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { heroData } from "@/app/about-us/infoData/data";
+import WaitlistButton from "@/app/components/waitlist/WaitlistButton";
 
 const Hero = () => {
   return (
@@ -35,9 +36,9 @@ const Hero = () => {
               {heroData.description}
             </p>
             <div className="flex flex-wrap gap-4">
-              <button className="cursor-pointer bg-green-400 hover:bg-green-500 lg:bg-green-700 lg:hover:bg-green-600 text-white font-semibold py-3.5 px-8 rounded-full transition-all active:scale-95">
+              <WaitlistButton className="cursor-pointer bg-green-400 hover:bg-green-500 lg:bg-green-700 lg:hover:bg-green-600 text-white font-semibold py-3.5 px-8 rounded-full transition-all active:scale-95">
                 {heroData.primaryCta}
-              </button>
+              </WaitlistButton>
               <button className="cursor-pointer border border-white/30 hover:border-white/50 lg:border-gray-300 lg:hover:border-gray-400 text-white lg:text-gray-700 font-semibold py-3.5 px-8 rounded-full transition-all active:scale-95 bg-white/10 lg:bg-white backdrop-blur-sm lg:backdrop-blur-none">
                 {heroData.secondaryCta}
               </button>

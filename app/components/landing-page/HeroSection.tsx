@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { getCurrentUserRole, hasAccessToken } from "@/app/lib/auth";
@@ -84,8 +84,14 @@ const HeroSection = () => {
   const [location, setLocation] = useState("");
   const [propertyType, setPropertyType] = useState("");
   const [showTenantModal, setShowTenantModal] = useState(false);
-  const isLoggedIn = hasAccessToken();
-  const userRole = getCurrentUserRole();
+  const [isHydrated, setIsHydrated] = useState(false);
+  
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+  
+  const isLoggedIn = isHydrated ? hasAccessToken() : false;
+  const userRole = isHydrated ? getCurrentUserRole() : null;
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -201,7 +207,7 @@ const HeroSection = () => {
               >
                 Find a house
               </button>
-              {userRole === "tenant" ? null : (
+              {isHydrated && userRole === "tenant" ? null : (
                 <button
                   onClick={handleListProperty}
                   className="cursor-pointer bg-white/10 backdrop-blur-md border border-white/30 hover:bg-white/20 text-white font-semibold py-3 px-6 md:px-10 rounded-full transition-all active:scale-95"
