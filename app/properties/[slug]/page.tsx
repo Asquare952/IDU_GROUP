@@ -14,7 +14,7 @@ import {
   Lock,
   MessageSquare,
   User,
-  CalendarDays
+  CalendarDays,
 } from "lucide-react";
 import Image from "next/image";
 import Navbar from "@/app/components/Header";
@@ -49,10 +49,8 @@ function PropertyDesktopViewContent() {
   const { mutate: handleBook, isPending } = useBookProperty();
   const { mutate: createConversation } = useCreateConversation();
   const initializeLockPayment = useInitializeLockPayment();
-  const {
-    mutate: verifyPayment,
-    isPending: isVerifyingPayment,
-  } = useVerifyLockPayment();
+  const { mutate: verifyPayment, isPending: isVerifyingPayment } =
+    useVerifyLockPayment();
 
   const {
     data: property,
@@ -90,6 +88,8 @@ function PropertyDesktopViewContent() {
       },
     });
   }, [router, searchParams, slug, verifiedReference, verifyPayment]);
+
+  const showFooter = !hasAccessToken();
 
   if (isLoading) {
     return (
@@ -153,7 +153,6 @@ function PropertyDesktopViewContent() {
   const landlordName = property.User
     ? `${property.User.first_name} ${property.User.last_name}`.trim()
     : "Verified Landlord";
-  const showFooter = !hasAccessToken();
 
   return (
     <div className="bg-white min-h-screen">
@@ -222,10 +221,13 @@ function PropertyDesktopViewContent() {
             <div className=" grid grid-cols-2 gap-1.5">
               {property.videos.map((video, index) => (
                 <div key={index} className="rounded-xl">
-                  <video src={video} controls className="w-full h-full object-cover" />
+                  <video
+                    src={video}
+                    controls
+                    className="w-full h-full object-cover"
+                  />
                 </div>
               ))}
-
             </div>
 
             <div className="bg-gray-50 p-8 rounded-[32px] grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -257,11 +259,11 @@ function PropertyDesktopViewContent() {
               <h2 className="text-2xl font-black text-gray-900">Safety Tips</h2>
               {(showAllTips
                 ? [
-                  "Ensure you meet the landlord or agent in an open location.",
-                  "Always verify ownership before making any payment.",
-                  "Be cautious of deals that seem too good to be true.",
-                  "Use secure payment methods and keep your receipts.",
-                ]
+                    "Ensure you meet the landlord or agent in an open location.",
+                    "Always verify ownership before making any payment.",
+                    "Be cautious of deals that seem too good to be true.",
+                    "Use secure payment methods and keep your receipts.",
+                  ]
                 : ["Ensure you meet the landlord or agent in an open location."]
               ).map((tip, index) => (
                 <p
@@ -327,30 +329,35 @@ function PropertyDesktopViewContent() {
                       }
 
                       if (!property.userId) {
-                        toast.error("Landlord contact is not available for this listing.");
+                        toast.error(
+                          "Landlord contact is not available for this listing.",
+                        );
                         return;
                       }
 
-                      createConversation({ other_user_id: String(property.userId) }, {
-                        onSuccess: (data) => {
-                          const conversationId = sanitizeConversationId(
-                            data.conversation_id ?? data._id ?? data.id,
-                          );
+                      createConversation(
+                        { other_user_id: String(property.userId) },
+                        {
+                          onSuccess: (data) => {
+                            const conversationId = sanitizeConversationId(
+                              data.conversation_id ?? data._id ?? data.id,
+                            );
 
-                          if (!conversationId) {
-                            toast.error("Unable to open this conversation.");
-                            return;
-                          }
+                            if (!conversationId) {
+                              toast.error("Unable to open this conversation.");
+                              return;
+                            }
 
-                          router.push(`/tenant/messages/${conversationId}`);
+                            router.push(`/tenant/messages/${conversationId}`);
+                          },
+                          onError: (conversationError) => {
+                            toast.error(
+                              conversationError.message ||
+                                "Unable to start chat. Please try again.",
+                            );
+                          },
                         },
-                        onError: (conversationError) => {
-                          toast.error(
-                            conversationError.message ||
-                            "Unable to start chat. Please try again.",
-                          );
-                        },
-                      });
+                      );
                     }}
                     className="flex items-center justify-center gap-3 w-full bg-green-600 border-2 border-none text-white font-black py-5 rounded-[24px] hover:bg-green-700 transition-all active:scale-95 shadow-lg shadow-orange-100 uppercase mt-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
@@ -397,7 +404,7 @@ function PropertyDesktopViewContent() {
                           onError: (error) => {
                             toast.error(
                               error.message ||
-                              "Unable to start payment. Please try again.",
+                                "Unable to start payment. Please try again.",
                             );
                           },
                         },
@@ -412,8 +419,7 @@ function PropertyDesktopViewContent() {
                   >
                     <Lock className="inline-block mr-2" />
                     <span>
-                      {initializeLockPayment.isPending ||
-                        isVerifyingPayment
+                      {initializeLockPayment.isPending || isVerifyingPayment
                         ? "Processing..."
                         : "Lock This House"}
                     </span>
