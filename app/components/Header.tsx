@@ -9,16 +9,18 @@ import {
   HiX,
   HiOutlineViewGrid,
 } from "react-icons/hi";
+import { CiViewList } from "react-icons/ci";
 import { useRouter, usePathname } from "next/navigation";
 import { HiOutlineUser, HiOutlineCog, HiOutlineLogout } from "react-icons/hi";
 import NotificationMenu from "./shared/NotificationMenu";
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { useAuth } from "./context/AuthContext";
 import { useUserProfile } from "@/app/api/features/auth/auth.queries";
 import { AuthResponse } from "@/app/api/features/auth/types";
 import { readCachedProfile } from "@/app/api/features/auth/profile-cache";
 import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
+import { getCurrentUserRole } from "../lib/auth";
 
 
 type HeaderUser = NonNullable<AuthResponse["user"]>;
@@ -40,6 +42,7 @@ const Header = () => {
   const [decodedProfile, setDecodedProfile] = useState<Partial<HeaderUser>>({});
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const { isLoggedIn, logout } = useAuth();
@@ -47,6 +50,8 @@ const Header = () => {
   const showLoggedInUI = isLoggedIn && pathname !== "/login";
   const showJoinUs = !isLoggedIn;
   const isJoinUsPage = pathname === "/signup" || pathname === "/confirm-otp";
+  const userRole = isHydrated ? getCurrentUserRole() : null;
+
 
   useEffect(() => {
     const token = Cookies.get("ACCESS_TOKEN");
@@ -89,6 +94,72 @@ const Header = () => {
     `${displayFirstName[0] ?? ""}${displayLastName[0] ?? ""}`.trim() ||
     "U";
 
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  type ProfileMenuItem = {
+    label: string;
+    href?: string;
+    icon: ReactNode;
+  };
+
+  const landlordMenuItems: ProfileMenuItem[] = [
+    {
+      label: "Profile",
+      href: "/landlord/profile",
+      icon: <HiOutlineUser size={18} />,
+    },
+    {
+      label: "Dashboard",
+      href: "/landlord/dashboard",
+      icon: <HiOutlineViewGrid size={18} />,
+    },
+    {
+      label: "Settings",
+      href: "/landlord/settings",
+      icon: <HiOutlineCog size={18} />,
+    },
+    {
+      label: "My listings",
+      href: "/landlord/my-listings",
+      icon: <CiViewList size={18} />,
+    },
+  ];
+
+  const tenantMenuItems: ProfileMenuItem[] = [
+    {
+      label: "Profile",
+      href: "/tenant/profile",
+      icon: <HiOutlineUser size={18} />,
+    },
+    {
+      label: "Dashboard",
+      href: "/tenant/dashboard",
+      icon: <HiOutlineViewGrid size={18} />,
+    },
+    {
+      label: "Settings",
+      href: "/tenant/settings",
+      icon: <HiOutlineCog size={18} />,
+    },
+    {
+      label: "Locked house",
+      href: "/tenant/locked-house",
+      icon: <HiOutlineLockClosed size={18} />,
+    },
+    {
+      label: "Saved house",
+      href: "/tenant/saved-house",
+      icon: <HiOutlineHeart size={18} />,
+    },
+  ];
+
+  const profileMenuItems =
+    isHydrated && userRole === "landlord"
+      ? landlordMenuItems
+      : tenantMenuItems;
+
   const handleLogout = () => {
     setIsOpen(false);
     setIsProfileOpen(false);
@@ -98,7 +169,7 @@ const Header = () => {
   return (
     <>
       <nav className="z-[110] sticky top-0 left-0 right-0 flex md:grid md:grid-cols-3 items-center justify-between px-6 md:px-12 py-4 bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-100 transition-all duration-300">
-        <div className="flex items-center text-2xl font-bold text-gray-900 tracking-tight">
+        <Link href="/" className="flex items-center text-2xl font-bold text-gray-900 tracking-tight">
           <Image
             src="/IDU GROUP LOGO.png"
             alt="Logo"
@@ -107,7 +178,7 @@ const Header = () => {
             className="mr-2"
           />
           Rent<span className="text-[#4CAF50]">ULO</span>
-        </div>
+        </Link>
         <div className="hidden md:flex justify-center">
           <ul className="flex gap-7">
             <Link
@@ -203,52 +274,18 @@ const Header = () => {
                         </p>
                       </div>
                       <div className="p-2 flex flex-col gap-1">
-                        <button
-                          onClick={() => {
-                            setIsProfileOpen(false);
-                            router.push("/tenant/profile");
-                          }}
-                          className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
-                        >
-                          <HiOutlineUser size={18} /> Profile
-                        </button>
-                        <button
-                          onClick={() => {
-                            setIsProfileOpen(false);
-                            router.push("/tenant/settings");
-                            router.push("/tenant/dashboard");
-                          }}
-                          className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
-                        >
-                          <HiOutlineViewGrid size={18} /> Dashboard
-                        </button>
-                        <button
-                          onClick={() => {
-                            setIsProfileOpen(false);
-                            router.push("/tenant/dashboard/settings");
-                          }}
-                          className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
-                        >
-                          <HiOutlineCog size={18} /> Settings
-                        </button>
-                        <button
-                          onClick={() => {
-                            setIsProfileOpen(false);
-                            router.push("/tenant/dashboard/locked-house");
-                          }}
-                          className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
-                        >
-                          <HiOutlineLockClosed size={18} /> Locked house
-                        </button>
-                        <button
-                          onClick={() => {
-                            setIsProfileOpen(false);
-                            router.push("/tenant/dashboard/saved-house");
-                          }}
-                          className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
-                        >
-                          <HiOutlineHeart size={18} /> Saved house
-                        </button>
+                        {profileMenuItems.map((item) => (
+                          <Link
+                            key={item.label}
+                            href={item.href ?? "#"}
+                            onClick={() => setIsProfileOpen(false)}
+                            className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
+                          >
+                            {item.icon}
+                            {item.label}
+                          </Link>
+                        ))}
+
                         <button
                           onClick={() => {
                             setIsProfileOpen(false);
@@ -269,51 +306,18 @@ const Header = () => {
                         </p>
                       </div>
                       <div className="p-2 flex flex-col gap-1">
-                        <button
-                          onClick={() => {
-                            setIsProfileOpen(false);
-                            router.push("/tenant/dashboard/profile");
-                          }}
-                          className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
-                        >
-                          <HiOutlineUser size={18} /> Profile
-                        </button>
-                        <button
-                          onClick={() => {
-                            setIsProfileOpen(false);
-                            router.push("/tenant/dashboard");
-                          }}
-                          className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
-                        >
-                          <HiOutlineViewGrid size={18} /> Dashboard
-                        </button>
-                        <button
-                          onClick={() => {
-                            setIsProfileOpen(false);
-                            router.push("/tenant/dashboard/settings");
-                          }}
-                          className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
-                        >
-                          <HiOutlineCog size={18} /> Settings
-                        </button>
-                        <button
-                          onClick={() => {
-                            setIsProfileOpen(false);
-                            router.push("/tenant/locked-house");
-                          }}
-                          className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
-                        >
-                          <HiOutlineLockClosed size={18} /> Locked house
-                        </button>
-                        <button
-                          onClick={() => {
-                            setIsProfileOpen(false);
-                            router.push("/tenant/saved-house");
-                          }}
-                          className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
-                        >
-                          <HiOutlineHeart size={18} /> Saved house
-                        </button>
+                        {profileMenuItems.map((item) => (
+                          <Link
+                            key={item.label}
+                            href={item.href ?? "#"}
+                            onClick={() => setIsProfileOpen(false)}
+                            className="flex items-center gap-3 p-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-[#4CAF50] rounded-xl transition-all"
+                          >
+                            {item.icon}
+                            {item.label}
+                          </Link>
+                        ))}
+
                         <button
                           onClick={() => {
                             setIsProfileOpen(false);

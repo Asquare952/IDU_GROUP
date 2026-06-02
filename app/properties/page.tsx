@@ -18,6 +18,8 @@ import {
 import { getPropertyDetailsPath } from "@/app/lib/property-routes";
 import { hasAccessToken } from "@/app/lib/auth";
 import { useLikeRental, useUnlikeRental } from "@/app/api";
+import { House, MapPin } from 'lucide-react';
+
 
 const CATEGORIES = [
   "All",
@@ -292,23 +294,13 @@ export default function AllPropertiesPage() {
 
                           <div className="flex flex-wrap gap-4 border-t border-gray-50 pt-4">
                             <div className="flex items-center gap-2">
-                              <Image
-                                src="/shawer.png"
-                                alt="property type"
-                                width={16}
-                                height={16}
-                              />
+                              <House size={16} className="text-gray-400" />
                               <span className="text-xs font-medium text-gray-500 capitalize">
                                 {item.propertyType}
                               </span>
                             </div>
                             <div className="flex items-center gap-2">
-                              <Image
-                                src="/bed.png"
-                                alt="location"
-                                width={16}
-                                height={16}
-                              />
+                              <MapPin size={16} className="text-gray-400" />
                               <span className="text-xs font-medium text-gray-500">
                                 {item.location}
                               </span>

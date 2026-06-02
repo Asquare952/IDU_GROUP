@@ -21,6 +21,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
+  House,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useFetchProperties } from "@/app/api/features/property/property.queries";
@@ -455,23 +456,13 @@ const Page = () => {
 
                     <div className="flex flex-wrap gap-4 border-t border-gray-50 pt-4">
                       <div className="flex items-center gap-2">
-                        <Image
-                          src="/shawer.png"
-                          alt="property-type"
-                          width={16}
-                          height={16}
-                        />
+                        <House size={16} className="text-gray-400" />
                         <span className="text-xs text-gray-500 font-medium">
                           {item.propertyType}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Image
-                          src="/bed.png"
-                          alt="location"
-                          width={16}
-                          height={16}
-                        />
+                        <MapPin size={16} className="text-gray-400" />
                         <span className="text-xs text-gray-500 font-medium">
                           {item.location}
                         </span>

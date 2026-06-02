@@ -12,6 +12,7 @@ import { useLikeRental, useUnlikeRental } from "@/app/api";
 import { containerVariants, itemVariants } from "@/app/components/animation";
 import { getPropertyDetailsPath } from "@/app/lib/property-routes";
 import { hasAccessToken } from "@/app/lib/auth";
+import { House, MapPin } from 'lucide-react';
 
 const getStatusStyle = (status: string) => {
   switch (status) {
@@ -230,23 +231,13 @@ const Listing = () => {
 
                     <div className="flex flex-wrap gap-4 border-t border-gray-50 pt-4">
                       <div className="flex items-center gap-2">
-                        <Image
-                          src="/shawer.png"
-                          alt="property type"
-                          width={16}
-                          height={16}
-                        />
+                        <House size={16} />
                         <span className="text-sm md:text-xs text-gray-500 font-medium">
                           {item.propertyType}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Image
-                          src="/bed.png"
-                          alt="location"
-                          width={16}
-                          height={16}
-                        />
+                        <MapPin size={16} />
                         <span className="text-sm md:text-xs text-gray-500 font-medium">
                           {item.location}
                         </span>

@@ -13,6 +13,7 @@ import {
   AlertTriangle,
   X,
   ShieldAlert,
+  House
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
