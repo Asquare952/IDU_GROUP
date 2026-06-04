@@ -17,9 +17,9 @@ export default function Home() {
         <section>
           <Header />
           <HeroSection />
-          <Users />
-          <About />
           <Listing />
+          <About />
+          <Users />
           <Why />
           <Post />
           <Transparency />

@@ -32,7 +32,7 @@ const SearchItem = ({
     className={`w-full md:flex-1 flex flex-col px-6 md:px-8 py-4 md:py-2 ${!isLast ? "border-b md:border-b-0 md:border-r border-gray-100" : ""
       }`}
   >
-    <span className="text-xs md:text-[10px] uppercase font-bold text-gray-400 tracking-widest mb-1">
+    <span className="text-xs md:text-[10px] uppercase font-bold text-gray-400 tracking-widest">
       {title}
     </span>
     <div className="flex items-center justify-between gap-2">
@@ -182,7 +182,7 @@ const HeroSection = () => {
         </div>
       )}
 
-      <section className="relative h-[85vh] md:h-[800px] w-full px-4 pt-4">
+      <section className="relative h-[72vh] md:h-[630px] w-full px-4 pt-4">
         <div className="relative w-full h-full rounded-[32px] md:rounded-[40px] overflow-hidden">
           <Image
             src="/IDU GROUP HOME.webp"
@@ -255,7 +255,7 @@ const HeroSection = () => {
           </div>
         </div>
       </section>
-      <div className="h-24 md:h-32"></div>
+      <div className="h-36 md:h-28"></div>
     </div>
   );
 };
