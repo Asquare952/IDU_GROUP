@@ -5,8 +5,6 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { getCurrentUserRole, hasAccessToken } from "@/app/lib/auth";
 
-
-
 interface SearchItemProps {
   title: string;
   placeholder: string;
@@ -29,10 +27,11 @@ const SearchItem = ({
   onChange,
 }: SearchItemProps) => (
   <div
-    className={`w-full md:flex-1 flex flex-col px-6 md:px-8 py-4 md:py-2 ${!isLast ? "border-b md:border-b-0 md:border-r border-gray-100" : ""
-      }`}
+    className={`w-full md:flex-1 flex flex-col px-6 md:px-8 py-4 md:py-2 ${
+      !isLast ? "border-b md:border-b-0 md:border-r border-gray-100" : ""
+    }`}
   >
-    <span className="text-xs md:text-[10px] uppercase font-bold text-gray-400 tracking-widest mb-1">
+    <span className="text-xs md:text-[10px] uppercase font-bold text-gray-400 tracking-widest">
       {title}
     </span>
     <div className="flex items-center justify-between gap-2">
@@ -85,11 +84,11 @@ const HeroSection = () => {
   const [propertyType, setPropertyType] = useState("");
   const [showTenantModal, setShowTenantModal] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
-  
+
   useEffect(() => {
     setIsHydrated(true);
   }, []);
-  
+
   const isLoggedIn = isHydrated ? hasAccessToken() : false;
   const userRole = isHydrated ? getCurrentUserRole() : null;
 
@@ -182,7 +181,7 @@ const HeroSection = () => {
         </div>
       )}
 
-      <section className="relative h-[85vh] md:h-[800px] w-full px-4 pt-4">
+      <section className="relative h-[72vh] md:h-[630px] w-full px-4 pt-4">
         <div className="relative w-full h-full rounded-[32px] md:rounded-[40px] overflow-hidden">
           <Image
             src="/IDU GROUP HOME.webp"
@@ -215,12 +214,11 @@ const HeroSection = () => {
                   List a property
                 </button>
               )}
-
             </div>
           </div>
         </div>
-
-        <div className="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-1/2 w-[92%] max-w-6xl z-30">
+        {/* search item */}
+        <div className="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-1/2 w-[92%] max-w-6xl ">
           <div className="bg-white rounded-[24px] md:rounded-full shadow-2xl p-2 md:p-3 flex flex-col md:flex-row items-center border border-gray-100">
             <SearchItem
               title="Enter Keyword"
@@ -255,7 +253,7 @@ const HeroSection = () => {
           </div>
         </div>
       </section>
-      <div className="h-24 md:h-32"></div>
+      <div className="h-36 md:h-28"></div>
     </div>
   );
 };

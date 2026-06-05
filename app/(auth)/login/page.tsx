@@ -250,22 +250,10 @@ const Page = () => {
                 </div>
               </div>
 
-              <div className="flex gap-4">
                 <div className="flex-1">
                   <GoogleAuthButton mode="login" />
                 </div>
-                <button
-                  type="button"
-                  className="flex-1 flex items-center justify-center gap-2 bg-[#ECF5ED] py-3 rounded-2xl hover:bg-[#e2ede3] transition-all font-bold text-xs text-gray-700"
-                >
-                  <img
-                    src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg"
-                    className="w-4 h-4"
-                    alt="Apple"
-                  />
-                  Apple
-                </button>
-              </div>
+            
 
               <button
                 className="w-full bg-[#4CAF50] text-white py-4 rounded-2xl font-bold hover:bg-[#43A047] shadow-xl shadow-green-100 transition-all active:scale-[0.98] mt-2 cursor-pointer"
