@@ -8,14 +8,33 @@ import {
   DashMetrics,
   Inquiries,
 } from "../../components/Dashboard/config/DashboardDatas";
+import Cookies from "js-cookie";
+import { useUserProfile } from "@/app/api/features/auth/auth.queries";
+import { AuthResponse } from "@/app/api/features/auth/types";
+import { readCachedProfile } from "@/app/api/features/auth/profile-cache";
 import Image from "next/image";
 import { PenLine, Trash2, Loader2 } from "lucide-react";
 import ReviewGraph from "@/public/assets/income-overview-graph.webp";
 import SnapshotGraph from "@/public/assets/tenants-activity-snapshot-graph.png";
 import { getCurrentUserId } from "@/app/lib/auth";
 import Swal from "sweetalert2";
+import { jwtDecode } from "jwt-decode";
+
+type HeaderUser = NonNullable<AuthResponse["user"]>;
+
+type DecodedToken = {
+  id?: string;
+  sub?: string;
+  userId?: string;
+  _id?: string;
+  first_name?: string;
+};
 
 export default function Page() {
+  const [userId, setUserId] = useState<string>();
+    const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
+    const [cachedProfile, setCachedProfile] = useState<HeaderUser>();
+    const [decodedProfile, setDecodedProfile] = useState<Partial<HeaderUser>>({});
   const router = useRouter();
   const [rentals, setRentals] = useState<Rental[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,6 +43,33 @@ export default function Page() {
   useEffect(() => {
     fetchRentals();
   }, []);
+
+  useEffect(() => {
+    const token = Cookies.get("ACCESS_TOKEN");
+    setCachedProfile(readCachedProfile() as HeaderUser | undefined);
+
+    if (!token) {
+      setHasCheckedAuth(true);
+      return;
+    }
+
+    try {
+      const decoded = jwtDecode<DecodedToken>(token);
+      setUserId(decoded.id ?? decoded.userId ?? decoded._id ?? decoded.sub);
+      setDecodedProfile({
+        first_name: decoded.first_name,
+      });
+    } catch {
+      setUserId(undefined);
+      setDecodedProfile({});
+    } finally {
+      setHasCheckedAuth(true);
+    }
+  }, []);
+
+  const { data: user, isLoading } = useUserProfile(userId, hasCheckedAuth);
+  const displayFirstName =
+    cachedProfile?.first_name ?? user?.first_name ?? decodedProfile.first_name ?? "";
 
   const fetchRentals = async () => {
     try {
@@ -113,7 +159,7 @@ export default function Page() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-xl md:text-3xl font-extrabold text-[#162B4C]">
-              Welcome back, Daniel
+              Welcome back, {displayFirstName}
             </h1>
             <p className="text-sm md:text-base text-slate-500 font-medium">
               Here is how your properties are performing today.

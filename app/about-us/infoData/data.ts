@@ -126,7 +126,7 @@ export const teamData = {
     },
     { name: "Prosper Okere.", role: "UI/UX Designer", image: "/Prosper .O.jpeg" },
     {
-      name: "Thomas Feranmi.",
+      name: "Thomas Fahanmi.",
       role: "Backend Engineer",
       image: "/Tuchela.jpeg",
     },

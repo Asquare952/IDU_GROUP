@@ -22,6 +22,7 @@ import Footer from "@/app/components/Footer";
 import {
   fetchPropertyBySlug,
   useBookProperty,
+  useFetchPropertyBySlug,
 } from "@/app/api/features/property";
 import {
   useInitializeLockPayment,
@@ -35,11 +36,13 @@ import {
   storePendingLockPayment,
 } from "@/app/lib/lock-payment";
 import { toast } from "react-toastify";
+import { useAuth } from "@/app/components/context/AuthContext";
 
 function PropertyDesktopViewContent() {
   const params = useParams<{ slug: string }>();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { isLoggedIn } = useAuth();
   const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showAllTips, setShowAllTips] = useState(false);
@@ -52,16 +55,18 @@ function PropertyDesktopViewContent() {
   const { mutate: verifyPayment, isPending: isVerifyingPayment } =
     useVerifyLockPayment();
 
-  const {
-    data: property,
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
-    queryKey: ["property", slug],
-    queryFn: () => fetchPropertyBySlug(slug!),
-    enabled: Boolean(slug),
-  });
+  // const {
+  //   data: property,
+  //   isLoading,
+  //   isError,
+  //   error,
+  // } = useQuery({
+  //   queryKey: ["property", slug],
+  //   queryFn: () => fetchPropertyBySlug(slug!),
+  //   enabled: Boolean(slug),
+  // });
+
+  const { data: property, isLoading, isError, error } = useFetchPropertyBySlug(slug!);
 
   useEffect(() => {
     setCurrentImageIndex(0);
@@ -89,7 +94,7 @@ function PropertyDesktopViewContent() {
     });
   }, [router, searchParams, slug, verifiedReference, verifyPayment]);
 
-  const showFooter = !hasAccessToken();
+  const showFooter = !isLoggedIn;
 
   if (isLoading) {
     return (
@@ -146,9 +151,9 @@ function PropertyDesktopViewContent() {
   const activeImage = property.images[currentImageIndex] ?? property.images[0];
   const galleryImages = activeImage
     ? [
-        activeImage,
-        ...property.images.filter((_, index) => index !== currentImageIndex),
-      ].slice(0, 5)
+      activeImage,
+      ...property.images.filter((_, index) => index !== currentImageIndex),
+    ].slice(0, 5)
     : [];
   const landlordName = property.User
     ? `${property.User.first_name} ${property.User.last_name}`.trim()
@@ -255,15 +260,26 @@ function PropertyDesktopViewContent() {
               </p>
             </div>
 
+            <div className="space-y-4">
+              <h2 className="text-3xl font-black text-gray-900">Amenities</h2>
+              <ul className="flex flex-col gap-2 list-disc list-inside">
+                {property.amenities.map((amenity, index) => (
+                  <li key={index} className="text-gray-600 leading-relaxed text-lg">
+                    {amenity}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
             <div className="space-y-4 bg-blue-50 p-6 rounded-[32px] border border-blue-100">
               <h2 className="text-2xl font-black text-gray-900">Safety Tips</h2>
               {(showAllTips
                 ? [
-                    "Ensure you meet the landlord or agent in an open location.",
-                    "Always verify ownership before making any payment.",
-                    "Be cautious of deals that seem too good to be true.",
-                    "Use secure payment methods and keep your receipts.",
-                  ]
+                  "Ensure you meet the landlord or agent in an open location.",
+                  "Always verify ownership before making any payment.",
+                  "Be cautious of deals that seem too good to be true.",
+                  "Use secure payment methods and keep your receipts.",
+                ]
                 : ["Ensure you meet the landlord or agent in an open location."]
               ).map((tip, index) => (
                 <p
@@ -353,7 +369,7 @@ function PropertyDesktopViewContent() {
                           onError: (conversationError) => {
                             toast.error(
                               conversationError.message ||
-                                "Unable to start chat. Please try again.",
+                              "Unable to start chat. Please try again.",
                             );
                           },
                         },
@@ -404,7 +420,7 @@ function PropertyDesktopViewContent() {
                           onError: (error) => {
                             toast.error(
                               error.message ||
-                                "Unable to start payment. Please try again.",
+                              "Unable to start payment. Please try again.",
                             );
                           },
                         },
