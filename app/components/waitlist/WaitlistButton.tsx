@@ -47,9 +47,16 @@ const WaitlistButton = ({
   const [email, setEmail] = useState("");
   const { mutate: joinWaitlist, isPending } = useJoinWaitlist();
 
+  const openModal = () => {
+    setIsWaitlistOpen(true);document.documentElement.style.overflow = "";
+    document.documentElement.style.paddingRight = "";
+  };
+
   const closeModal = () => {
     if (!isPending) {
       setIsWaitlistOpen(false);
+      document.documentElement.style.overflow = "";
+      document.documentElement.style.paddingRight = "";
     }
   };
 
@@ -67,6 +74,7 @@ const WaitlistButton = ({
         toast.success(data.message || "Successfully joined the waitlist!");
         setEmail("");
         setIsWaitlistOpen(false);
+        document.body.style.overflow = "";
       },
       onError: (error) => {
         toast.error(getWaitlistErrorMessage(error));
@@ -76,17 +84,19 @@ const WaitlistButton = ({
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setIsWaitlistOpen(true)}
-        className={className}
-      >
+      <button type="button" onClick={openModal} className={className}>
         {children}
       </button>
 
       {isWaitlistOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-xl">
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+          onClick={closeModal}
+        >
+          <div
+            className="w-full max-w-md rounded-lg bg-white p-8 shadow-xl relative z-50"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="mb-6 flex items-center justify-between">
               <h3 className="text-2xl font-bold text-gray-900">{title}</h3>
               <button
@@ -96,7 +106,7 @@ const WaitlistButton = ({
                 disabled={isPending}
                 aria-label="Close waitlist modal"
               >
-                <X size={24} />
+                <X size={24} className="cursor-pointer" />
               </button>
             </div>
 
@@ -116,7 +126,7 @@ const WaitlistButton = ({
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   placeholder="you@example.com"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 outline-none focus:border-transparent focus:ring-2 focus:ring-[#43A047]"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 bg-white placeholder:text-gray-400 outline-none focus:border-transparent focus:ring-2 focus:ring-[#43A047]"
                   disabled={isPending}
                   autoComplete="email"
                   required
@@ -126,7 +136,7 @@ const WaitlistButton = ({
               <button
                 type="submit"
                 disabled={isPending}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#43A047] px-4 py-2 font-bold text-white transition-all hover:bg-[#3a8a3d] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#43A047] px-4 py-2 font-bold text-white transition-all hover:bg-[#3a8a3d] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
               >
                 {isPending && <Loader2 size={18} className="animate-spin" />}
                 {isPending ? "Joining..." : "Join Waitlist"}
@@ -136,7 +146,7 @@ const WaitlistButton = ({
                 type="button"
                 onClick={closeModal}
                 disabled={isPending}
-                className="w-full rounded-lg border border-gray-300 px-4 py-2 font-bold text-gray-700 transition-all hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2 font-bold text-gray-700 transition-all hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
               >
                 Cancel
               </button>

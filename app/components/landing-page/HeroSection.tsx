@@ -5,8 +5,6 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { getCurrentUserRole, hasAccessToken } from "@/app/lib/auth";
 
-
-
 interface SearchItemProps {
   title: string;
   placeholder: string;
@@ -29,8 +27,9 @@ const SearchItem = ({
   onChange,
 }: SearchItemProps) => (
   <div
-    className={`w-full md:flex-1 flex flex-col px-6 md:px-8 py-4 md:py-2 ${!isLast ? "border-b md:border-b-0 md:border-r border-gray-100" : ""
-      }`}
+    className={`w-full md:flex-1 flex flex-col px-6 md:px-8 py-4 md:py-2 ${
+      !isLast ? "border-b md:border-b-0 md:border-r border-gray-100" : ""
+    }`}
   >
     <span className="text-xs md:text-[10px] uppercase font-bold text-gray-400 tracking-widest">
       {title}
@@ -85,11 +84,11 @@ const HeroSection = () => {
   const [propertyType, setPropertyType] = useState("");
   const [showTenantModal, setShowTenantModal] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
-  
+
   useEffect(() => {
     setIsHydrated(true);
   }, []);
-  
+
   const isLoggedIn = isHydrated ? hasAccessToken() : false;
   const userRole = isHydrated ? getCurrentUserRole() : null;
 
@@ -215,12 +214,11 @@ const HeroSection = () => {
                   List a property
                 </button>
               )}
-
             </div>
           </div>
         </div>
-
-        <div className="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-1/2 w-[92%] max-w-6xl z-30">
+        {/* search item */}
+        <div className="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-1/2 w-[92%] max-w-6xl ">
           <div className="bg-white rounded-[24px] md:rounded-full shadow-2xl p-2 md:p-3 flex flex-col md:flex-row items-center border border-gray-100">
             <SearchItem
               title="Enter Keyword"

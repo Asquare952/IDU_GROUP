@@ -373,17 +373,6 @@ const page = () => {
                 <div className="flex-1">
                   <GoogleAuthButton mode="signup" />
                 </div>
-                <button
-                  type="button"
-                  className="flex-1 flex items-center justify-center gap-2 bg-[#ECF5ED] py-3 rounded-2xl hover:bg-[#e2ede3] transition-all font-bold text-xs text-gray-700"
-                >
-                  <img
-                    src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg"
-                    className="w-4 h-4"
-                    alt="Apple"
-                  />
-                  Apple
-                </button>
               </div>
 
               <button
