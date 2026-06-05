@@ -18,6 +18,10 @@ export interface Rental {
   propertyType: string;
   location: string;
   price: string | number;
+  legalFee: number;
+  cautionFee: number;
+  brokeFee: number;
+  mgtServiceCharge: number;
   priceType: string;
   status: RentalStatus;
   liked?: boolean;
@@ -25,6 +29,7 @@ export interface Rental {
   booked?: boolean;
   images: string[];
   videos: string[];
+  amenities: string[];
   createdAt: string;
   slug?: string;
   UserId: string;
@@ -48,10 +53,15 @@ export interface CreateRentalPayload {
   propertyType: string;
   location: string;
   price: string | number;
+  legalFee: number;
+  cautionFee: number;
+  brokeFee: number;
+  mgtServiceCharge: number;
   priceType: string;
   status: string;
   images: File[];
   videos?: File[];
+  amenities?: string[];
 }
 
 export interface UpdateRentalPayload {
@@ -60,10 +70,15 @@ export interface UpdateRentalPayload {
   propertyType?: string;
   location?: string;
   price?: string | number;
+  legalFee?: number;
+  cautionFee?: number;
+  brokeFee?: number;
+  mgtServiceCharge?: number;
   priceType?: string;
   status?: string;
   images?: File[];
   videos?: File[];
+  amenities?: string[];
 }
 
 export interface ProfileCompletionError {

@@ -13,7 +13,7 @@ import {
   X,
   Loader2,
 } from "lucide-react";
-import { rentalApi } from "@/app/api/features/rental";
+import { rentalApi, type CreateRentalPayload } from "@/app/api/features/rental";
 import { toast } from "react-toastify";
 
 interface FormData {
@@ -23,10 +23,18 @@ interface FormData {
   type: string;
   status: string;
   basicRent: number;
-  serviceCharge: number;
   legalFee: number;
   cautionFee: number;
+  brokeFee: number;
+  mgtServiceCharge: number; 
+  amenities: string[];
 }
+
+const toMoneyNumber = (value: unknown): number => {
+  const numberValue = Number(value);
+
+  return Number.isFinite(numberValue) ? numberValue : 0;
+};
 
 const page = () => {
   const router = useRouter();
@@ -51,20 +59,28 @@ const page = () => {
       type: "apartment",
       status: "available",
       basicRent: 0,
-      serviceCharge: 0,
       legalFee: 0,
       cautionFee: 0,
+      brokeFee: 0,
+      mgtServiceCharge: 0,
+      amenities: [],
     },
   });
 
-  const fees = watch(["basicRent", "serviceCharge", "legalFee", "cautionFee"]);
+  const fees = watch([
+    "basicRent",
+    "legalFee",
+    "cautionFee",
+    "brokeFee",
+    "mgtServiceCharge",
+  ]);
 
   useEffect(() => {
-    const sum = fees.reduce((acc, curr) => acc + (Number(curr) || 0), 0);
+    const sum = fees.reduce((acc, curr) => acc + toMoneyNumber(curr), 0);
     setTotalPackages(sum);
   }, [fees]);
 
-  // Handle image selection
+  // Handle image selection 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
@@ -118,17 +134,22 @@ const page = () => {
 
     try {
       // Build payload matching CreateRentalPayload expected by rentalApi
-      const payload = {
+      const payload: CreateRentalPayload = {
         title: data.title,
         description: data.description,
         propertyType: data.type,
         location: data.location,
-        price: Number(data.basicRent),
+        price: totalPackages,
+        legalFee: toMoneyNumber(data.legalFee),
+        cautionFee: toMoneyNumber(data.cautionFee),
+        brokeFee: toMoneyNumber(data.brokeFee),
+        mgtServiceCharge: toMoneyNumber(data.mgtServiceCharge),
         priceType: "yearly",
         status: data.status,
         images: images,
         videos: videos,
-      } as any;
+        amenities: data.amenities,
+      };
 
       await rentalApi.createRental(payload);
       
@@ -220,13 +241,17 @@ const page = () => {
                       <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
                         Location / City *
                       </label>
-                      <input
+                      <select
                         {...register("location", {
                           required: "Location is required",
                         })}
-                        placeholder="e.g. Lagos, Nigeria"
                         className="w-full p-4 bg-[#F8FAFC] rounded-2xl border-none"
-                      />
+                      >
+                        <option value="">Select a location</option>
+                        <option value="lagos">Lagos</option>
+                        <option value="abuja">Abuja</option>
+                        <option value="port-harcourt">Port Harcourt</option>
+                      </select>
                       {errors.location && (
                         <p className="text-red-500 text-xs ml-1">
                           {errors.location.message}
@@ -239,7 +264,7 @@ const page = () => {
                       </label>
                       <select
                         {...register("type")}
-                        className="w-full p-4 bg-[#F8FAFC] rounded-2xl border-none appearance-none"
+                        className="w-full p-4 bg-[#F8FAFC] rounded-2xl border-none "
                       >
                         <option value="apartment">Apartment</option>
                         <option value="house">House</option>
@@ -255,7 +280,7 @@ const page = () => {
                     </label>
                     <select
                       {...register("status")}
-                      className="w-full p-4 bg-[#F8FAFC] rounded-2xl border-none appearance-none"
+                      className="w-full p-4 bg-[#F8FAFC] rounded-2xl border-none"
                     >
                       <option value="available">Available</option>
                       <option value="pending">Pending</option>
@@ -292,7 +317,9 @@ const page = () => {
                       className="flex flex-col items-center justify-center p-4 bg-[#F8FAFC] rounded-2xl cursor-pointer hover:bg-slate-100 transition-colors"
                     >
                       <input
+                      {...register("amenities")}
                         type="checkbox"
+                        value={item}
                         className="mb-2 accent-[#4CAF50]"
                       />
                       <span className="text-[10px] font-bold text-slate-500 text-center uppercase">
@@ -323,6 +350,7 @@ const page = () => {
                     <input
                       type="number"
                       {...register("basicRent", {
+                        valueAsNumber: true,
                         required: "Rent is required",
                         min: { value: 1, message: "Must be greater than 0" },
                       })}
@@ -337,11 +365,14 @@ const page = () => {
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
-                        Service Charge
+                        Mgt Service Charge
                       </label>
                       <input
                         type="number"
-                        {...register("serviceCharge")}
+                        step="0.01"
+                        {...register("mgtServiceCharge", {
+                          valueAsNumber: true,
+                        })}
                         className="w-full p-3 bg-[#F8FAFC] rounded-xl"
                       />
                     </div>
@@ -351,7 +382,8 @@ const page = () => {
                       </label>
                       <input
                         type="number"
-                        {...register("legalFee")}
+                        step="0.01"
+                        {...register("legalFee", { valueAsNumber: true })}
                         className="w-full p-3 bg-[#F8FAFC] rounded-xl"
                       />
                     </div>
@@ -362,7 +394,19 @@ const page = () => {
                     </label>
                     <input
                       type="number"
-                      {...register("cautionFee")}
+                      step="0.01"
+                      {...register("cautionFee", { valueAsNumber: true })}
+                      className="w-full p-3 bg-[#F8FAFC] rounded-xl"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
+                      Broke Fee
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      {...register("brokeFee", { valueAsNumber: true })}
                       className="w-full p-3 bg-[#F8FAFC] rounded-xl"
                     />
                   </div>

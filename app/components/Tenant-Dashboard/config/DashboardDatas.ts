@@ -123,7 +123,7 @@ export const steps = [
 export const ImportantNoticeData = {
   title: "Important Notice",
   message:
-    "Your lock will expire in 36 hours. Complete your inspection and submit your application to secure this property. The ₦5,000 lock fee is refundable if the landlord accepts another application.",
+    "Your lock will expire in 24 hours. Complete your inspection and submit your application to secure this property. The ₦5,000 lock fee is refundable if the landlord accepts another application.",
   icon: AlertTriangle,
 };
 

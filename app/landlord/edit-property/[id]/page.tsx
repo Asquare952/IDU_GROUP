@@ -23,10 +23,12 @@ interface FormData {
   location: string;
   propertyType: string;
   basicRent: number;
-  serviceCharge: number;
   legalFee: number;
   cautionFee: number;
+  brokeFee: number;
+  mgtServiceCharge: number;
   status: string;
+  amenities: string[];
 }
 
 const defaultValues: FormData = {
@@ -35,10 +37,18 @@ const defaultValues: FormData = {
   location: "",
   propertyType: "apartment",
   basicRent: 0,
-  serviceCharge: 0,
   legalFee: 0,
   cautionFee: 0,
-  status: "available",
+  brokeFee: 0,
+  mgtServiceCharge: 0,
+  status: "",
+  amenities: [],
+};
+
+const toMoneyNumber = (value: unknown): number => {
+  const numberValue = Number(value);
+
+  return Number.isFinite(numberValue) ? numberValue : 0;
 };
 
 const Page = () => {
@@ -73,16 +83,25 @@ const Page = () => {
       return;
     }
 
+    const legalFee = toMoneyNumber(rentalData.legalFee);
+    const cautionFee = toMoneyNumber(rentalData.cautionFee);
+    const brokeFee = toMoneyNumber(rentalData.brokeFee);
+    const mgtServiceCharge = toMoneyNumber(rentalData.mgtServiceCharge);
+    const totalFees = legalFee + cautionFee + brokeFee + mgtServiceCharge;
+    const basicRent = Math.max(toMoneyNumber(rentalData.price) - totalFees, 0);
+
     reset({
       title: rentalData.title,
       description: rentalData.description,
       location: rentalData.location,
       propertyType: rentalData.propertyType || "apartment",
-      basicRent: Number(rentalData.price) || 0,
-      serviceCharge: 0,
-      legalFee: 0,
-      cautionFee: 0,
-      status: rentalData.status || "available",
+      basicRent,
+      legalFee,
+      cautionFee,
+      brokeFee,
+      mgtServiceCharge,
+      status: rentalData.status,
+      amenities: rentalData.amenities || [],
     });
   }, [rentalData, reset]);
 
@@ -93,9 +112,15 @@ const Page = () => {
     };
   }, [imagePreviews, videoPreviews]);
 
-  const fees = watch(["basicRent", "serviceCharge", "legalFee", "cautionFee"]);
+  const fees = watch([
+    "basicRent",
+    "legalFee",
+    "cautionFee",
+    "brokeFee",
+    "mgtServiceCharge",
+  ]);
   const totalPackages = useMemo(
-    () => fees.reduce((acc, curr) => acc + (Number(curr) || 0), 0),
+    () => fees.reduce((acc, curr) => acc + toMoneyNumber(curr), 0),
     [fees],
   );
 
@@ -147,9 +172,14 @@ const Page = () => {
       description: data.description,
       propertyType: data.propertyType,
       location: data.location,
-      price: Number(data.basicRent),
+      price: totalPackages,
       priceType: rentalData?.priceType || "yearly",
       status: data.status,
+      amenities: data.amenities,
+      legalFee: toMoneyNumber(data.legalFee),
+      cautionFee: toMoneyNumber(data.cautionFee),
+      brokeFee: toMoneyNumber(data.brokeFee),
+      mgtServiceCharge: toMoneyNumber(data.mgtServiceCharge),
     };
 
     if (images.length > 0) {
@@ -295,13 +325,17 @@ const Page = () => {
                       <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
                         Location / City *
                       </label>
-                      <input
+                      <select
                         {...register("location", {
                           required: "Location is required",
                         })}
-                        placeholder="e.g. Lagos, Nigeria"
-                        className="w-full p-4 bg-[#F8FAFC] rounded-2xl border-none"
-                      />
+                        className="w-full p-4 bg-[#F8FAFC] rounded-2xl border-none outline-none"
+                      >
+                        <option value="">Select a location</option>
+                        <option value="lagos">Lagos</option>
+                        <option value="abuja">Abuja</option>
+                        <option value="port-harcourt">Port Harcourt</option>
+                      </select>
                       {errors.location && (
                         <p className="text-red-500 text-xs ml-1">
                           {errors.location.message}
@@ -314,7 +348,7 @@ const Page = () => {
                       </label>
                       <select
                         {...register("propertyType")}
-                        className="w-full p-4 bg-[#F8FAFC] rounded-2xl border-none appearance-none"
+                        className="w-full p-4 bg-[#F8FAFC] rounded-2xl border-none outline-none"
                       >
                         <option value="apartment">Apartment</option>
                         <option value="house">House</option>
@@ -331,7 +365,7 @@ const Page = () => {
                     </label>
                     <select
                       {...register("status")}
-                      className="w-full p-4 bg-[#F8FAFC] rounded-2xl border-none appearance-none"
+                      className="w-full p-4 bg-[#F8FAFC] rounded-2xl border-none outline-none"
                     >
                       <option value="available">Available</option>
                       <option value="pending">Pending</option>
@@ -367,7 +401,9 @@ const Page = () => {
                       className="flex flex-col items-center justify-center p-4 bg-[#F8FAFC] rounded-2xl cursor-pointer hover:bg-slate-100 transition-colors"
                     >
                       <input
+                        {...register("amenities")}
                         type="checkbox"
+                        value={item}
                         className="mb-2 accent-[#4CAF50]"
                       />
                       <span className="text-[10px] font-bold text-slate-500 text-center uppercase">
@@ -397,10 +433,11 @@ const Page = () => {
                     <input
                       type="number"
                       {...register("basicRent", {
+                        valueAsNumber: true,
                         required: "Rent is required",
                         min: { value: 1, message: "Must be greater than 0" },
                       })}
-                      className="w-full p-3 bg-[#F8FAFC] rounded-xl"
+                      className="w-full p-3 bg-[#F8FAFC] rounded-xl border-none outline-none"
                     />
                     {errors.basicRent && (
                       <p className="text-red-500 text-xs ml-1">
@@ -412,11 +449,14 @@ const Page = () => {
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
-                        Service Charge
+                        Mgt Service Charge
                       </label>
                       <input
                         type="number"
-                        {...register("serviceCharge")}
+                        step="0.01"
+                        {...register("mgtServiceCharge", {
+                          valueAsNumber: true,
+                        })}
                         className="w-full p-3 bg-[#F8FAFC] rounded-xl"
                       />
                     </div>
@@ -426,7 +466,8 @@ const Page = () => {
                       </label>
                       <input
                         type="number"
-                        {...register("legalFee")}
+                        step="0.01"
+                        {...register("legalFee", { valueAsNumber: true })}
                         className="w-full p-3 bg-[#F8FAFC] rounded-xl"
                       />
                     </div>
@@ -438,7 +479,20 @@ const Page = () => {
                     </label>
                     <input
                       type="number"
-                      {...register("cautionFee")}
+                      step="0.01"
+                      {...register("cautionFee", { valueAsNumber: true })}
+                      className="w-full p-3 bg-[#F8FAFC] rounded-xl"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
+                      Broker Fee
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      {...register("brokeFee", { valueAsNumber: true })}
                       className="w-full p-3 bg-[#F8FAFC] rounded-xl"
                     />
                   </div>

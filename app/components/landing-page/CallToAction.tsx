@@ -23,9 +23,9 @@ const CallToAction = () => {
           >
             Get started now
           </Link>
-          <WaitlistButton className="inline-flex items-center justify-center bg-transparent border-2 border-white text-white font-bold text-base py-3 px-8 rounded-full hover:bg-white hover:text-[#43A047] transition-all active:scale-95 cursor-pointer">
+          <Link href="/waitlist" className="inline-flex items-center justify-center bg-transparent border-2 border-white text-white font-bold text-base py-3 px-8 rounded-full hover:bg-white hover:text-[#43A047] transition-all active:scale-95 cursor-pointer">
             Join our waitlist
-          </WaitlistButton>
+          </Link>
         </div>
       </div>
     </div>

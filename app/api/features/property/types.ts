@@ -9,6 +9,7 @@ export type Property = Omit<Rental, "price"> & {
   price: number;
   bedrooms?: number;
   bathrooms?: number;
+
   added?: string;
   userId: string;
 };

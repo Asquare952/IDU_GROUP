@@ -49,6 +49,12 @@ const parseJsonSafely = (value: string): unknown => {
   }
 };
 
+const normalizeMoneyValue = (value: unknown): number => {
+  const numberValue = Number(value);
+
+  return Number.isFinite(numberValue) ? numberValue : 0;
+};
+
 const rentalResponseKeys = [
   "data",
   "rental",
@@ -123,10 +129,15 @@ const buildFallbackRental = (
   propertyType: payload.propertyType ?? "",
   location: payload.location ?? "",
   price: payload.price ?? "",
+  legalFee: payload.legalFee ?? 0,
+  cautionFee: payload.cautionFee ?? 0,
+  brokeFee: payload.brokeFee ?? 0,
+  mgtServiceCharge: payload.mgtServiceCharge ?? 0,
   priceType: payload.priceType ?? "yearly",
   status: payload.status ?? "available",
   images: [],
   videos: [],
+  amenities: payload.amenities ?? [],
   UserId: getCurrentUserId() ?? "",
   createdAt: new Date().toISOString(),
 });
@@ -197,6 +208,34 @@ const normalizeMediaList = (value: unknown): string[] => {
   return [];
 };
 
+const normalizeStringList = (value: unknown): string[] => {
+  if (!value) {
+    return [];
+  }
+
+  if (Array.isArray(value)) {
+    return value
+      .flatMap((item) => normalizeStringList(item))
+      .filter((item): item is string => Boolean(item));
+  }
+
+  if (typeof value === "string") {
+    const trimmedValue = value.trim();
+
+    if (!trimmedValue) {
+      return [];
+    }
+
+    if (trimmedValue.startsWith("[") || trimmedValue.startsWith("{")) {
+      return normalizeStringList(parseJsonSafely(trimmedValue));
+    }
+
+    return [trimmedValue];
+  }
+
+  return [];
+};
+
 export const normalizeRental = (rental: RawRental): Rental => ({
   id: String(rental.id ?? rental._id ?? ""),
   title: rental.title ?? "",
@@ -204,10 +243,15 @@ export const normalizeRental = (rental: RawRental): Rental => ({
   propertyType: rental.propertyType ?? "",
   location: rental.location ?? "",
   price: rental.price ?? "",
+  legalFee: normalizeMoneyValue(rental.legalFee),
+  cautionFee: normalizeMoneyValue(rental.cautionFee),
+  brokeFee: normalizeMoneyValue(rental.brokeFee),
+  mgtServiceCharge: normalizeMoneyValue(rental.mgtServiceCharge),
   priceType: rental.priceType ?? "yearly",
   status: rental.status ?? "available",
   images: normalizeMediaList(rental.images),
   videos: normalizeMediaList(rental.videos),
+  amenities: normalizeStringList(rental.amenities),
   UserId: rental.UserId ?? rental.userId ?? "",
   createdAt: rental.createdAt ?? "",
   slug: rental.slug,
@@ -276,6 +320,13 @@ const buildRentalFormData = (
       key !== "images" &&
       key !== "videos"
     ) {
+      if (Array.isArray(value)) {
+        value.forEach((item) => {
+          formData.append(key, String(item));
+        });
+        return;
+      }
+
       formData.append(key, String(value));
     }
   });
