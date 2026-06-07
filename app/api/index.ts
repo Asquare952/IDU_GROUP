@@ -11,6 +11,7 @@ export {
   login,
   googleAuth,
   forgotPasswordApi,
+  confirmVerifyOtpApi,
   confirmOtpApi,
   resetPasswordApi,
 } from "./features/auth/auth.api";
@@ -19,6 +20,8 @@ export type {
   RegisterPayload,
   LoginPayload,
   AuthResponse,
+  ConfirmOtpRequest,
+  VerifyRegistrationOtpResponse,
 } from "./features/auth/types";
 
 // ============================================

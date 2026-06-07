@@ -18,6 +18,7 @@ import { useAuth } from "./context/AuthContext";
 import { useUserProfile } from "@/app/api/features/auth/auth.queries";
 import { AuthResponse } from "@/app/api/features/auth/types";
 import { readCachedProfile } from "@/app/api/features/auth/profile-cache";
+import { getProfileDisplayFields } from "@/app/api/features/auth/profile-display";
 import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
 import { getCurrentUserRole } from "../lib/auth";
@@ -33,6 +34,10 @@ type DecodedToken = {
   email?: string;
   first_name?: string;
   last_name?: string;
+  firstName?: string;
+  lastName?: string;
+  fullName?: string;
+  name?: string;
 };
 
 const Header = () => {
@@ -69,6 +74,10 @@ const Header = () => {
         email: decoded.email,
         first_name: decoded.first_name,
         last_name: decoded.last_name,
+        firstName: decoded.firstName,
+        lastName: decoded.lastName,
+        fullName: decoded.fullName,
+        name: decoded.name,
       });
     } catch {
       setUserId(undefined);
@@ -83,15 +92,29 @@ const Header = () => {
     ...user,
     ...cachedProfile,
   };
+  const cachedDisplay = getProfileDisplayFields(cachedProfile);
+  const userDisplay = getProfileDisplayFields(user);
+  const decodedDisplay = getProfileDisplayFields(decodedProfile);
   const displayFirstName =
-    cachedProfile?.first_name ?? user?.first_name ?? decodedProfile.first_name ?? "";
+    cachedDisplay.firstName || userDisplay.firstName || decodedDisplay.firstName;
   const displayLastName =
-    cachedProfile?.last_name ?? user?.last_name ?? decodedProfile.last_name ?? "";
+    cachedDisplay.lastName || userDisplay.lastName || decodedDisplay.lastName;
+  const displayName =
+    [displayFirstName, displayLastName].filter(Boolean).join(" ").trim() ||
+    cachedDisplay.fullName ||
+    userDisplay.fullName ||
+    decodedDisplay.fullName;
   const displayEmail =
-    cachedProfile?.email ?? user?.email ?? decodedProfile.email ?? "";
-  const displayProfileImage = cachedProfile?.profileImage ?? user?.profileImage;
+    cachedDisplay.email || userDisplay.email || decodedDisplay.email;
+  const displayProfileImage =
+    cachedDisplay.profileImage || userDisplay.profileImage;
   const initials =
-    `${displayFirstName[0] ?? ""}${displayLastName[0] ?? ""}`.trim() ||
+    displayName
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((part) => part[0])
+      .join("")
+      .toUpperCase() ||
     "U";
 
   useEffect(() => {
@@ -250,7 +273,7 @@ const Header = () => {
                     )}
                     <div className="hidden lg:block text-left">
                       <p className="text-xs font-bold text-gray-900 leading-none">
-                        {displayFirstName} {displayLastName}
+                        {displayName}
                       </p>
                       <p className="text-[10px] text-gray-500">
                         {displayEmail}
@@ -268,7 +291,7 @@ const Header = () => {
                     {/* MOBILE DROPDOWN: fixed to top-right of viewport, pushed down below header */}
                     <div className="fixed right-4 top-20 w-60 bg-white rounded-2xl shadow-2xl border border-gray-100 z-20 overflow-hidden md:hidden">
                       <div className="p-4 border-b border-gray-50 bg-gray-50/50">
-                        <p className="text-sm font-bold text-gray-900">{displayFirstName} {displayLastName}</p>
+                        <p className="text-sm font-bold text-gray-900">{displayName}</p>
                         <p className="text-[10px] text-gray-500 truncate">
                           {displayEmail}
                         </p>
@@ -300,7 +323,7 @@ const Header = () => {
                     {/* DESKTOP DROPDOWN: absolute positioned relative to parent */}
                     <div className="hidden md:block absolute right-0 top-14 w-60 bg-white rounded-2xl shadow-2xl border border-gray-100 z-20 overflow-hidden">
                       <div className="p-4 border-b border-gray-50 bg-gray-50/50">
-                        <p className="text-sm font-bold text-gray-900">{displayFirstName} {displayLastName}</p>
+                        <p className="text-sm font-bold text-gray-900">{displayName}</p>
                         <p className="text-[10px] text-gray-500 truncate">
                           {displayEmail}
                         </p>

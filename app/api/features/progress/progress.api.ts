@@ -10,6 +10,9 @@ import type {
   LockPaymentInitializePayload,
   LockPaymentInitializeResponse,
   LockPaymentVerifyResponse,
+  RentPaymentInitializePayload,
+  RentPaymentInitializeResponse,
+  RentPaymentVerifyResponse
 } from "./types";
 
 type ProgressContainer = Record<string, unknown>;
@@ -245,14 +248,80 @@ const verifyLockPayment = async (
   }
 };
 
+const initializeRentPayment = async (
+  payload: RentPaymentInitializePayload,
+): Promise<RentPaymentInitializeResponse> => {
+  const response = await api.post("/progress/rent/initialize", payload);
+  const authorizationUrl = findStringByKeys(response.data, [
+    "authorization_url",
+    "authorizationUrl",
+    "payment_url",
+    "paymentUrl",
+    "checkout_url",
+    "checkoutUrl",
+    "url",
+  ]);
+
+  if (!authorizationUrl) {
+    throw new Error("Payment checkout link was not returned.");
+  }
+
+  return {
+    authorizationUrl,
+    reference: findStringByKeys(response.data, [
+      "reference",
+      "trxref",
+      "transaction_reference",
+    ]),
+    raw: response.data,
+  };
+};
+
+const verifyRentPayment = async (
+  reference: string,
+): Promise<RentPaymentVerifyResponse> => {
+  const cleanedReference = reference.trim();
+
+  try {
+    const response = await api.get(
+      `/progress/rent/verify?reference=${encodeURIComponent(cleanedReference)}`,
+    );
+
+    return {
+      success: true,
+      message:
+        typeof response.data?.message === "string"
+          ? response.data.message
+          : undefined,
+      raw: response.data,
+    };
+  } catch {
+    const response = await api.post("/progress/rent/verify", {
+      reference: cleanedReference,
+    });
+
+    return {
+      success: true,
+      message:
+        typeof response.data?.message === "string"
+          ? response.data.message
+          : undefined,
+      raw: response.data,
+    };
+  }
+};
+
 export const progressApi = {
   getLikedRentals: () => getProgressList("like"),
   getLockedRentals: () => getProgressList("lock"),
   getBookedRentals: () => getProgressList("book"),
   likeRental: (rentalId: string) => addProgressItem("like", rentalId),
   lockRental: (rentalId: string) => addProgressItem("lock", rentalId),
+  rentRental: (rentalId: string) => addProgressItem("rent", rentalId),
   initializeLockPayment,
   verifyLockPayment,
+  initializeRentPayment,
+  verifyRentPayment,
   bookRental: (rentalId: string) => addProgressItem("book", rentalId),
   unlikeRental: (rentalId: string) => removeProgressItem("like", rentalId),
   unlockRental: (rentalId: string) => removeProgressItem("lock", rentalId),

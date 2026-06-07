@@ -4,16 +4,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { HiArrowLeft } from "react-icons/hi";
 import { useSearchParams } from "next/navigation";
-import { useConfirmOtp } from "../../api/features/auth/auth.queries";
+import { useConfirmVerifyOtp } from "../../api/features/auth/auth.queries";
 import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
 
 const ConfirmOtpContent = () => {
   const searchParams = useSearchParams();
-  const email = searchParams.get("email") || "your email";
+  const email = searchParams.get("email") || "";
+  const displayEmail = email || "your email";
   const [timer, setTimer] = useState(120);
   const [canResend, setCanResend] = useState(false);
-  const router = useRouter();
 
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const inputRefs = useRef<HTMLInputElement[]>([]);
@@ -54,22 +53,18 @@ const ConfirmOtpContent = () => {
       inputRefs.current[index - 1].focus();
     }
   };
-  const { mutate: verifyOtp, isPending } = useConfirmOtp();
+  const { mutate: verifyOtp, isPending } = useConfirmVerifyOtp();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email) {
+      toast.error("Please register again so we can confirm your email.");
+      return;
+    }
+
     const otpCode = otp.join("");
     if (otpCode.length === 6) {
-      verifyOtp({ email, otpCode }, {
-        onSuccess: () =>{
-          toast.success("Email verified successfully!");
-          router.push("/login");
-        },
-
-        onError: () =>{
-          toast.error("Email verified successfully!");
-        }
-      });
+      verifyOtp({ email, otpCode });
     } else {
       toast.error("Please enter the complete 6-digit OTP");
     }
@@ -94,7 +89,7 @@ const ConfirmOtpContent = () => {
         </div>
         <div className="relative z-10 w-full flex flex-col items-center mt-6 md:mt-0">
           <Link
-            href="/forgot-password"
+            href="/signup"
             className="self-start mb-6 flex items-center gap-2 text-sm font-medium text-white/80 hover:text-white transition-colors md:fixed md:top-8 md:left-8"
           >
             <HiArrowLeft /> Go Back
@@ -116,11 +111,11 @@ const ConfirmOtpContent = () => {
                 Verify your account
               </h1>
               <p className="text-gray-500 text-sm leading-relaxed px-2">
-                We've sent an OTP to 
-                 <span className="text-[#4CAF50] font-semibold break-all">
-                  {email} 
-                </span>
-                to verify your email .
+                We've sent an OTP to{" "}
+                <span className="text-[#4CAF50] font-semibold break-all">
+                  {displayEmail}
+                </span>{" "}
+                to verify your email.
               </p>
             </div>
 
@@ -170,7 +165,7 @@ const ConfirmOtpContent = () => {
                 "Resend OTP"
               ) : (
                 <>
-                  Resend OTP i
+                  Resend OTP in{" "}
                   <span className="text-[#4CAF50]">{formatTimer(timer)}</span>
                 </>
               )}

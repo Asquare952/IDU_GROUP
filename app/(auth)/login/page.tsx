@@ -15,6 +15,7 @@ import { useAuth } from "@/app/components/context/AuthContext";
 import Cookies from "js-cookie";
 import { AuthResponse } from "../../api/features/auth/types";
 import GoogleAuthButton from "@/app/components/auth/GoogleAuthButton";
+import { writeCachedProfile } from "@/app/api/features/auth/profile-cache";
 
 const Page = () => {
   const { login } = useAuth();
@@ -70,10 +71,7 @@ const Page = () => {
         }
 
         if (response.user) {
-          Cookies.set("USER_PROFILE", JSON.stringify(response.user), {
-            expires: data.remember ? 7 : 1,
-            path: "/",
-          });
+          writeCachedProfile(response.user, data.remember ? 7 : 1);
         }
 
         login(accessToken, role, data.remember);

@@ -11,6 +11,8 @@ import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { useUserProfile } from "@/app/api/features/auth/auth.queries";
 import { AuthResponse } from "@/app/api/features/auth/types";
+import { getProfileDisplayFields } from "@/app/api/features/auth/profile-display";
+import { readCachedProfile } from "@/app/api/features/auth/profile-cache";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -28,6 +30,10 @@ type DecodedToken = {
   email?: string;
   first_name?: string;
   last_name?: string;
+  firstName?: string;
+  lastName?: string;
+  fullName?: string;
+  name?: string;
 };
 
 const Header: FC<HeaderProp> = ({ onMenuClick }) => {
@@ -45,15 +51,7 @@ const Header: FC<HeaderProp> = ({ onMenuClick }) => {
 
   useEffect(() => {
     const token = Cookies.get("ACCESS_TOKEN");
-    const storedProfile = Cookies.get("USER_PROFILE");
-
-    if (storedProfile) {
-      try {
-        setCachedProfile(JSON.parse(storedProfile) as HeaderUser);
-      } catch {
-        setCachedProfile(undefined);
-      }
-    }
+    setCachedProfile(readCachedProfile() as HeaderUser | undefined);
 
     if (!token) {
       setHasCheckedAuth(true);
@@ -67,6 +65,10 @@ const Header: FC<HeaderProp> = ({ onMenuClick }) => {
         email: decoded.email,
         first_name: decoded.first_name,
         last_name: decoded.last_name,
+        firstName: decoded.firstName,
+        lastName: decoded.lastName,
+        fullName: decoded.fullName,
+        name: decoded.name,
       });
     } catch {
       setUserId(undefined);
@@ -78,21 +80,29 @@ const Header: FC<HeaderProp> = ({ onMenuClick }) => {
 
   const { data: user, isLoading } = useUserProfile(userId, hasCheckedAuth);
   const displayUser = user ?? cachedProfile;
+  const userDisplay = getProfileDisplayFields(user);
+  const cachedDisplay = getProfileDisplayFields(cachedProfile);
+  const decodedDisplay = getProfileDisplayFields(decodedProfile);
   const displayFirstName =
-    user?.first_name ??
-    cachedProfile?.first_name ??
-    decodedProfile.first_name ??
-    "";
+    userDisplay.firstName || cachedDisplay.firstName || decodedDisplay.firstName;
   const displayLastName =
-    user?.last_name ??
-    cachedProfile?.last_name ??
-    decodedProfile.last_name ??
-    "";
+    userDisplay.lastName || cachedDisplay.lastName || decodedDisplay.lastName;
+  const displayName =
+    [displayFirstName, displayLastName].filter(Boolean).join(" ").trim() ||
+    userDisplay.fullName ||
+    cachedDisplay.fullName ||
+    decodedDisplay.fullName;
   const displayEmail =
-    user?.email ?? cachedProfile?.email ?? decodedProfile.email ?? "";
-  const displayProfileImage = user?.profileImage ?? cachedProfile?.profileImage;
+    userDisplay.email || cachedDisplay.email || decodedDisplay.email;
+  const displayProfileImage =
+    userDisplay.profileImage || cachedDisplay.profileImage;
   const initials =
-    `${displayFirstName[0] ?? ""}${displayLastName[0] ?? ""}`.trim() || "L";
+    displayName
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((part) => part[0])
+      .join("")
+      .toUpperCase() || "L";
 
   const handleMobileSearchSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -155,25 +165,29 @@ const Header: FC<HeaderProp> = ({ onMenuClick }) => {
                 <p className="text-sm text-[#999EA5]">Loading...</p>
               ) : displayUser ? (
                 displayProfileImage ? (
-                  <img
-                    src={displayProfileImage}
-                    alt="Landlord profile"
-                    className="h-10 w-10 rounded-full object-cover"
-                  />
+                  <Link href="/landlord/profile">
+                    <img
+                      src={displayProfileImage}
+                      alt="Landlord profile"
+                      className="h-10 w-10 rounded-full object-cover"
+                    />
+                  </Link>
                 ) : (
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#43A047] text-sm font-semibold text-white">
+
+                  <Link href="/landlord/profile" className="flex h-10 w-10 items-center justify-center rounded-full bg-[#43A047] text-sm font-semibold text-white">
                     {initials}
-                  </div>
+                  </Link>
                 )
               ) : (
-                <Image
-                  src={AdminProfileImg}
-                  alt="Landlord profile"
-                  width={40}
-                  height={40}
-                  className="h-10 w-10 rounded-full object-cover"
-                />
-              )}
+                <Link href="/landlord/profile" className="flex items-center gap-1.5 cursor-pointer">
+                  <Image
+                    src={AdminProfileImg}
+                    alt="Landlord profile"
+                    width={40}
+                    height={40}
+                    className="h-10 w-10 rounded-full object-cover"
+                  />
+                </Link>)}
             </div>
           </div>
         )}
@@ -212,7 +226,7 @@ const Header: FC<HeaderProp> = ({ onMenuClick }) => {
 
                 <div className="hidden gap-0.5 lg:flex lg:flex-col">
                   <h3 className="font-semibold text-[12px] text-[#3D3F42]">
-                    {displayFirstName} {displayLastName}
+                    {displayName}
                   </h3>
                   <p className="font-normal text-[11px] text-[#999EA5]">
                     {displayEmail}

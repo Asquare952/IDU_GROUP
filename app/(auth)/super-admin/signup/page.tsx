@@ -19,8 +19,7 @@ import { toast } from "react-toastify";
 import { useRegisterAdmin, useVerifyAdminOTP } from "@/app/api/features/admin";
 
 interface SuperAdminSignupForm {
-  firstName: string;
-  lastName: string;
+  full_name: string;
   gender: "male" | "female" | "others";
   phone_no: string;
   email: string;
@@ -58,8 +57,7 @@ export default function SuperAdminSignupPage() {
 
     try {
       const payload = {
-        first_name: data.firstName,
-        last_name: data.lastName,
+        full_name: data.full_name,
         gender: data.gender,
         phone_no: data.phone_no,
         email: data.email,
@@ -176,52 +174,27 @@ export default function SuperAdminSignupPage() {
                 onSubmit={handleSubmit(onSubmitStep1)}
                 className="space-y-4 mt-4"
               >
-                {/* Two-column layout for name fields */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
-                      First Name
-                    </label>
-                    <div className="relative">
-                      <User
-                        size={16}
-                        className="absolute left-3 top-1/2 -translate-y-1/2 text-[#4CAF50]"
-                      />
-                      <input
-                        {...register("firstName", { required: "Required" })}
-                        type="text"
-                        placeholder="Admin"
-                        className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#4CAF50]/20 focus:border-[#4CAF50] text-sm bg-gray-50/50"
-                      />
-                    </div>
-                    {errors.firstName && (
-                      <p className="text-red-500 text-xs mt-0.5">
-                        {errors.firstName.message}
-                      </p>
-                    )}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+                    Full Name
+                  </label>
+                  <div className="relative">
+                    <User
+                      size={16}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-[#4CAF50]"
+                    />
+                    <input
+                      {...register("full_name", { required: "Required" })}
+                      type="text"
+                      placeholder="Admin Ace"
+                      className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#4CAF50]/20 focus:border-[#4CAF50] text-sm bg-gray-50/50"
+                    />
                   </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
-                      Last Name
-                    </label>
-                    <div className="relative">
-                      <User
-                        size={16}
-                        className="absolute left-3 top-1/2 -translate-y-1/2 text-[#4CAF50]"
-                      />
-                      <input
-                        {...register("lastName", { required: "Required" })}
-                        type="text"
-                        placeholder="Ace"
-                        className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#4CAF50]/20 focus:border-[#4CAF50] text-sm bg-gray-50/50"
-                      />
-                    </div>
-                    {errors.lastName && (
-                      <p className="text-red-500 text-xs mt-0.5">
-                        {errors.lastName.message}
-                      </p>
-                    )}
-                  </div>
+                  {errors.full_name && (
+                    <p className="text-red-500 text-xs mt-0.5">
+                      {errors.full_name.message}
+                    </p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   login,
   register,
+  confirmVerifyOtpApi,
   forgotPasswordApi,
   confirmOtpApi,
   resetPasswordApi,
@@ -25,6 +26,7 @@ import {
   GoogleAuthPayload,
   userProfile,
   updateUserPayload,
+  VerifyRegistrationOtpResponse,
 } from "./types";
 import { writeCachedProfile } from "./profile-cache";
 
@@ -47,16 +49,43 @@ export const useGoogleAuth = () =>
 // ==============================
 // REGISTER
 // ==============================
-export const useRegister = () =>
-  useMutation<unknown, Error, RegisterPayload>({
+export const useRegister = () => {
+  const router = useRouter();
+
+  return useMutation<unknown, Error, RegisterPayload>({
     mutationFn: register,
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       toast.success("Account created successfully");
+      router.push(
+        `/confirm-registration-otp?email=${encodeURIComponent(variables.email)}`,
+      );
     },
     onError: (error: any) => {
       toast.error(error?.response?.data?.message || "Registration failed");
     },
   });
+};
+
+// ==============================
+// VERIFY REGISTRATION OTP
+// ==============================
+
+export const useConfirmVerifyOtp = () => {
+  const router = useRouter();
+
+  return useMutation<VerifyRegistrationOtpResponse, Error, ConfirmOtpRequest>({
+    mutationFn: confirmVerifyOtpApi,
+    onSuccess: (data) => {
+      toast.success(data?.message || "Email verified successfully!");
+      router.push("/login");
+    },
+    onError: (error: any) => {
+      toast.error(
+        error?.response?.data?.message || "Invalid or expired OTP code",
+      );
+    },
+  });
+};
 
 // ==============================
 // USER PROFILE

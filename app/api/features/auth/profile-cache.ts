@@ -2,6 +2,7 @@
 
 import Cookies from "js-cookie";
 import type { AuthResponse, userProfile } from "./types";
+import { normalizeProfileForCache } from "./profile-display";
 
 type CachedProfile = Partial<NonNullable<AuthResponse["user"]> & userProfile>;
 
@@ -55,19 +56,19 @@ export const readCachedProfile = (): CachedProfile | undefined => {
   };
 };
 
-export const writeCachedProfile = (profile: CachedProfile) => {
+export const writeCachedProfile = (profile: CachedProfile, expires = 1) => {
   if (!isBrowser()) {
     return;
   }
 
-  const nextProfile = {
+  const nextProfile = normalizeProfileForCache({
     ...readCachedProfile(),
     ...profile,
-  };
+  });
 
   window.localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(nextProfile));
   Cookies.set("USER_PROFILE", JSON.stringify(toCookieSafeProfile(nextProfile)), {
-    expires: 1,
+    expires,
   });
 };
 

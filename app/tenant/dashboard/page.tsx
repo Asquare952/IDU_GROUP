@@ -309,32 +309,33 @@ const Page = () => {
             </div>
           </div>
         ) : (
-          <div className="flex min-h-[320px] w-full flex-col justify-center gap-5 rounded-[2rem] border border-gray-50 bg-white p-8 shadow-xl">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#E8F5E9] text-[#43A047]">
-              <Lock size={26} />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-[#162B4C]">
-                No active locked house yet
-              </h2>
-              <p className="mt-2 max-w-2xl text-sm text-gray-500">
-                When you lock a property, the latest active lock will appear
-                here so you can jump back into it quickly.
-              </p>
-            </div>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Link href="/tenant/saved-house" className="w-full sm:w-auto">
-                <button className="w-full cursor-pointer rounded-2xl bg-[#43A047] px-6 py-3 text-sm font-bold text-white transition-all hover:bg-green-700 active:scale-95">
-                  View Saved Houses
-                </button>
-              </Link>
-              <Link href="/properties" className="w-full sm:w-auto">
-                <button className="w-full cursor-pointer rounded-2xl border border-gray-200 px-6 py-3 text-sm font-bold text-[#162B4C] transition-all hover:bg-gray-50 active:scale-95">
-                  Browse Properties
-                </button>
-              </Link>
-            </div>
-          </div>
+          null
+          // <div className="flex min-h-[320px] w-full flex-col justify-center gap-5 rounded-[2rem] border border-gray-50 bg-white p-8 shadow-xl">
+          //   <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#E8F5E9] text-[#43A047]">
+          //     <Lock size={26} />
+          //   </div>
+          //   <div>
+          //     <h2 className="text-2xl font-bold text-[#162B4C]">
+          //       No active locked house yet
+          //     </h2>
+          //     <p className="mt-2 max-w-2xl text-sm text-gray-500">
+          //       When you lock a property, the latest active lock will appear
+          //       here so you can jump back into it quickly.
+          //     </p>
+          //   </div>
+          //   <div className="flex flex-col gap-3 sm:flex-row">
+          //     <Link href="/tenant/saved-house" className="w-full sm:w-auto">
+          //       <button className="w-full cursor-pointer rounded-2xl bg-[#43A047] px-6 py-3 text-sm font-bold text-white transition-all hover:bg-green-700 active:scale-95">
+          //         View Saved Houses
+          //       </button>
+          //     </Link>
+          //     <Link href="/properties" className="w-full sm:w-auto">
+          //       <button className="w-full cursor-pointer rounded-2xl border border-gray-200 px-6 py-3 text-sm font-bold text-[#162B4C] transition-all hover:bg-gray-50 active:scale-95">
+          //         Browse Properties
+          //       </button>
+          //     </Link>
+          //   </div>
+          // </div>
         )}
 
         {/* Metrics Section */}
