@@ -250,9 +250,9 @@ const Page = () => {
                 </div>
               </div>
 
-                <div className="flex-1">
+                {/* <div className="flex-1">
                   <GoogleAuthButton mode="login" />
-                </div>
+                </div> */}
             
 
               <button

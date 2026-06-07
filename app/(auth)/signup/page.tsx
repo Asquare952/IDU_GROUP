@@ -369,11 +369,11 @@ const page = () => {
                 </div>
               </div>
 
-              <div className="flex gap-4">
+              {/* <div className="flex gap-4">
                 <div className="flex-1">
                   <GoogleAuthButton mode="signup" />
                 </div>
-              </div>
+              </div> */}
 
               <button
                 className="w-full bg-[#4CAF50] text-white py-4 rounded-2xl font-bold hover:bg-[#43A047] shadow-xl shadow-green-100 transition-all active:scale-[0.98] cursor-pointer"
