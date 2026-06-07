@@ -112,6 +112,8 @@ const page = () => {
     }
   }, [user, cachedProfile]);
 
+    // const cachedDisplay = getProfileDisplayFields(cachedProfile);
+
   const displayUser = user ?? cachedProfile;
   const displayFirstName =
     user?.first_name ??
@@ -159,6 +161,8 @@ const page = () => {
                 <Image
                   src={displayUser.profileImage}
                   alt="User profile"
+                  width={100}
+                  height={100}
                   className="h-[50px] w-[50px] rounded-full object-cover"
                 />
               ) : (
@@ -248,30 +252,6 @@ const page = () => {
                   </p>
                 </div>
               </div>
-
-              <div className="flex gap-1">
-                <div className="bg-[#E8F5E9] p-2 rounded-lg">
-                  <Building2 size={25} className="text-gray-400" />
-                </div>
-                <div className=" flex flex-col gap-1">
-                  <p className="text-sm font-bold text-[#162B4C]">
-                    Company Name
-                  </p>
-                  <p className="text-gray-500">{displayEmail}</p>
-                </div>
-              </div>
-
-              <div className="flex gap-1">
-                <div className="bg-[#E8F5E9] p-2 rounded-lg">
-                  <Shield size={25} className="text-gray-400" />
-                </div>
-                <div className=" flex flex-col gap-1">
-                  <p className="text-sm font-bold text-[#162B4C]">
-                    Phone Number
-                  </p>
-                  <p className="text-gray-500">{displayPhone}</p>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -288,20 +268,24 @@ const page = () => {
                 if (!prop.images?.length) return null;
 
                 return (
-                  <div key={prop.id} className="flex gap-1.5">
-                    <div>
+                  <div key={prop.id} className="flex items-center justify-between gap-1.5">
+                    <div className="flex gap-2">
                       <Image
                         src={prop.images[0]}
                         alt="Property Image"
+                        width={100}
+                        height={100}
                         className="h-[50px] w-[50px] rounded-lg object-cover"
                       />
                       <div className="flex flex-col gap-1">
-                        <p className="text-sm font-bold text-gray-900">
-                          {prop.title}
-                        </p>
-                        <p className="text-xs text-gray-500">{prop.location}</p>
-                        <p className="text-lg font-bold text-[#43A047] mt-1">
-                          ${Number(prop.price).toFixed(2)}/month
+                        <div className="flex flex-col">
+                          <p className="text-sm font-bold text-gray-900">
+                            {prop.title}
+                          </p>
+                          <p className="text-xs text-gray-500">{prop.location}</p>
+                        </div>
+                        <p className="text-sm font-bold text-[#43A047] mt-1">
+                          ${Number(prop.price).toFixed(0)}/month
                         </p>
                       </div>
                     </div>
@@ -317,7 +301,7 @@ const page = () => {
           </div>
 
           {/* Recent Reviews */}
-          <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-50">
+          {/* <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-50">
             <div className=" mb-10">
               <h4 className="text-xl font-semibold text-[#162B4C]">
                 Recent Reviews
@@ -349,7 +333,7 @@ const page = () => {
                 <p className="text-gray-500">{displayPhone}</p>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </section>
     </DashboardLayout>

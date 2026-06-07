@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import { useGoogleAuth } from "@/app/api/features/auth/auth.queries";
 import { AuthResponse } from "@/app/api/features/auth/types";
 import { useAuth } from "@/app/components/context/AuthContext";
+import { writeCachedProfile } from "@/app/api/features/auth/profile-cache";
 
 const getRedirectPath = (role?: string) => {
   if (role === "landlord") {
@@ -40,6 +41,10 @@ export default function GoogleAuthButton({
     }
 
     if (role) {
+      if (response.user) {
+        writeCachedProfile(response.user, 7);
+      }
+
       login(accessToken, role, true);
       router.push(getRedirectPath(role));
       return;

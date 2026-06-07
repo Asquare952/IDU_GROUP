@@ -8,6 +8,7 @@ import { Menu, Search, X } from "lucide-react";
 import { useUserProfile } from "@/app/api/features/auth/auth.queries";
 import { AuthResponse } from "@/app/api/features/auth/types";
 import { readCachedProfile } from "@/app/api/features/auth/profile-cache";
+import { getProfileDisplayFields } from "@/app/api/features/auth/profile-display";
 import DesktopSearch from "./UI/search/DesktopSearch";
 import NotificationBell from "./UI/NotificationBell";
 import Link from "next/link";
@@ -26,6 +27,10 @@ type DecodedToken = {
   email?: string;
   first_name?: string;
   last_name?: string;
+  firstName?: string;
+  lastName?: string;
+  fullName?: string;
+  name?: string;
 };
 
 const Header: FC<HeaderProps> = ({ onMenuClick }) => {
@@ -52,6 +57,10 @@ const Header: FC<HeaderProps> = ({ onMenuClick }) => {
         email: decoded.email,
         first_name: decoded.first_name,
         last_name: decoded.last_name,
+        firstName: decoded.firstName,
+        lastName: decoded.lastName,
+        fullName: decoded.fullName,
+        name: decoded.name,
       });
     } catch {
       setUserId(undefined);
@@ -66,15 +75,29 @@ const Header: FC<HeaderProps> = ({ onMenuClick }) => {
     ...user,
     ...cachedProfile,
   };
+  const cachedDisplay = getProfileDisplayFields(cachedProfile);
+  const userDisplay = getProfileDisplayFields(user);
+  const decodedDisplay = getProfileDisplayFields(decodedProfile);
   const displayFirstName =
-    cachedProfile?.first_name ?? user?.first_name ?? decodedProfile.first_name ?? "";
+    cachedDisplay.firstName || userDisplay.firstName || decodedDisplay.firstName;
   const displayLastName =
-    cachedProfile?.last_name ?? user?.last_name ?? decodedProfile.last_name ?? "";
+    cachedDisplay.lastName || userDisplay.lastName || decodedDisplay.lastName;
+  const displayName =
+    [displayFirstName, displayLastName].filter(Boolean).join(" ").trim() ||
+    cachedDisplay.fullName ||
+    userDisplay.fullName ||
+    decodedDisplay.fullName;
   const displayEmail =
-    cachedProfile?.email ?? user?.email ?? decodedProfile.email ?? "";
-  const displayProfileImage = cachedProfile?.profileImage ?? user?.profileImage;
+    cachedDisplay.email || userDisplay.email || decodedDisplay.email;
+  const displayProfileImage =
+    cachedDisplay.profileImage || userDisplay.profileImage;
   const initials =
-    `${displayFirstName[0] ?? ""}${displayLastName[0] ?? ""}`.trim() ||
+    displayName
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((part) => part[0])
+      .join("")
+      .toUpperCase() ||
     "U";
 
   const handleMobileSearchSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -179,7 +202,7 @@ const Header: FC<HeaderProps> = ({ onMenuClick }) => {
 
               <div className="hidden gap-0.5 xl:flex xl:flex-col">
                 <h3 className="font-semibold text-[12px] text-[#3D3F42]">
-                  {displayFirstName} {displayLastName}
+                  {displayName}
                 </h3>
                 <p className="text-[11px] font-normal text-[#999EA5]">
                   {displayEmail}

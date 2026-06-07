@@ -13,14 +13,11 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useRegister } from "../../api/features/auth/auth.queries";
 import { useForm } from "react-hook-form";
-import { toast } from "react-toastify";
 import GoogleAuthButton from "@/app/components/auth/GoogleAuthButton";
 
 const page = () => {
-  const router = useRouter();
   const { mutate: registerUser, isPending } = useRegister();
   const [showPassword, setShowPassword] = useState(false);
 
@@ -43,15 +40,7 @@ const page = () => {
       phone_no: phone,
     };
 
-    registerUser(payload, {
-      onSuccess: () => {
-        toast.success("Account created successfully! Please login.");
-        router.push("/login");
-      },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || "Registration failed");
-      },
-    });
+    registerUser(payload);
   };
 
   return (
@@ -121,49 +110,25 @@ const page = () => {
               onSubmit={handleSubmit(onSubmit)}
               className="space-y-4 text-left overflow-y-auto pr-2 max-h-[550px]"
             >
-              <div className="grid gap-4">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
-                    First Name
-                  </label>
-                  <div className="relative">
-                    <span className="absolute inset-y-0 left-4 flex items-center text-[#4CAF50]">
-                      <User size={16} />
-                    </span>
-                    <input
-                      {...register("first_name", {
-                        required: "First name is required",
-                      })}
-                      placeholder="First Name"
-                      className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:border-[#4CAF50] transition-all"
-                    />
-                  </div>
-                  {errors.first_name && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.first_name.message as string}
-                    </p>
-                  )}
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
+                  Full Name
+                </label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-4 flex items-center text-[#4CAF50]">
+                    <User size={16} />
+                  </span>
+                  <input
+                    {...register("full_name", {
+                      required: "Full name is required",
+                    })}
+                    placeholder="John Doe"
+                    className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:border-[#4CAF50] transition-all"
+                  />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
-                    Last Name
-                  </label>
-                  <div className="relative">
-                    <span className="absolute inset-y-0 left-4 flex items-center text-[#4CAF50]">
-                      <User size={16} />
-                    </span>
-                    <input
-                      {...register("last_name", {
-                        required: "Last name is required",
-                      })}
-                      placeholder="Last Name"
-                      className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:border-[#4CAF50] transition-all"
-                    />
-                  </div>
-                </div>
-                {errors.last_name && (
+                {errors.full_name && (
                   <p className="text-red-500 text-xs mt-1">
-                    {errors.last_name.message as string}
+                    {errors.full_name.message as string}
                   </p>
                 )}
               </div>

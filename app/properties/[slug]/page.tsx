@@ -2,7 +2,7 @@
 
 import React, { Suspense, useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+
 import {
   MapPin,
   Home,
@@ -20,13 +20,14 @@ import Image from "next/image";
 import Navbar from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 import {
-  fetchPropertyBySlug,
   useBookProperty,
   useFetchPropertyBySlug,
 } from "@/app/api/features/property";
 import {
   useInitializeLockPayment,
   useVerifyLockPayment,
+  useInitializeRentPayment,
+  useVerifyRentPayment,
 } from "@/app/api/features/progress/progress.queries";
 import { useCreateConversation } from "@/app/api/features/chat/chat.queries";
 import { sanitizeConversationId } from "@/app/api/features/chat/chat.api";
@@ -35,6 +36,10 @@ import {
   buildLockPaymentPayload,
   storePendingLockPayment,
 } from "@/app/lib/lock-payment";
+import {
+  buildRentPaymentPayload,
+  storePendingRentPayment,
+} from "@/app/lib/rent-payment";
 import { toast } from "react-toastify";
 import { useAuth } from "@/app/components/context/AuthContext";
 
@@ -52,8 +57,11 @@ function PropertyDesktopViewContent() {
   const { mutate: handleBook, isPending } = useBookProperty();
   const { mutate: createConversation } = useCreateConversation();
   const initializeLockPayment = useInitializeLockPayment();
+  const initializeRentPayment = useInitializeRentPayment();
   const { mutate: verifyPayment, isPending: isVerifyingPayment } =
     useVerifyLockPayment();
+  const { mutate: verifyRentPayment, isPending: isVerifyingRentPayment } =
+    useVerifyRentPayment();
 
   // const {
   //   data: property,
@@ -93,6 +101,28 @@ function PropertyDesktopViewContent() {
       },
     });
   }, [router, searchParams, slug, verifiedReference, verifyPayment]);
+
+  useEffect(() => {
+    const reference =
+      searchParams.get("reference") ||
+      searchParams.get("trxref") ||
+      searchParams.get("transaction_reference");
+
+    if (!reference || reference === verifiedReference || !hasAccessToken()) {
+      return;
+    }
+
+    setVerifiedReference(reference);
+    verifyRentPayment(reference, {
+      onSuccess: (data) => {
+        toast.success(data.message || "Payment verified successfully.");
+        router.replace("/tenant/payment-success");
+      },
+      onError: (error) => {
+        toast.error(error.message || "Payment verification failed.");
+      },
+    });
+  }, [router, searchParams, slug, verifiedReference, verifyRentPayment]);
 
   const showFooter = !isLoggedIn;
 
@@ -344,6 +374,52 @@ function PropertyDesktopViewContent() {
                         return;
                       }
 
+                      const rentalId = String(property.id);
+
+                      initializeRentPayment.mutate(
+                        buildRentPaymentPayload(rentalId),
+                        {
+                          onSuccess: (data) => {
+                            storePendingRentPayment({
+                              reference: data.reference,
+                              rentalId,
+                            });
+
+                            window.location.href = data.authorizationUrl;
+                          },
+                          onError: (error) => {
+                            toast.error(
+                              error.message ||
+                              "Unable to start payment. Please try again.",
+                            );
+                          },
+                        },
+                      );
+                    }}
+                    disabled={
+                      isPending ||
+                      initializeRentPayment.isPending ||
+                      isVerifyingPayment
+                    }
+                    className="flex items-center justify-center gap-3 w-full bg-green-600 border-2 border-none text-white font-black py-5 rounded-[24px] hover:bg-green-700 transition-all active:scale-95 shadow-lg shadow-orange-100 uppercase mt-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Lock className="inline-block mr-2" />
+                    <span>
+                      {initializeRentPayment.isPending || isVerifyingPayment
+                        ? "Processing..."
+                        : "Rent This House"}
+                    </span>
+                  </button>
+
+                  {/*  */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!hasAccessToken()) {
+                        router.push("/login");
+                        return;
+                      }
+
                       if (!property.userId) {
                         toast.error(
                           "Landlord contact is not available for this listing.",
@@ -380,6 +456,8 @@ function PropertyDesktopViewContent() {
                     <MessageSquare />
                     <span>Chat Landloard</span>
                   </button>
+
+                  {/*  */}
                   <button
                     type="button"
                     onClick={() => {
@@ -394,8 +472,10 @@ function PropertyDesktopViewContent() {
                     className="flex items-center justify-center gap-3 w-full bg-green-600 border-2 border-none text-white font-black py-5 rounded-[24px] hover:bg-green-700 transition-all active:scale-95 shadow-lg shadow-orange-100 uppercase mt-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <CalendarDays />
-                    {isPending ? "Processing..." : "Book This House"}
+                    {isPending ? "Processing..." : "Book Inspection"}
                   </button>
+
+                  {/*  */}
                   <button
                     type="button"
                     onClick={() => {
@@ -440,6 +520,8 @@ function PropertyDesktopViewContent() {
                         : "Lock This House"}
                     </span>
                   </button>
+
+                  {/*  */}
                   <button
                     type="button"
                     onClick={() => router.push("/properties")}

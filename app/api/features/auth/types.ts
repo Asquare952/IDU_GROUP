@@ -1,6 +1,5 @@
 export interface RegisterPayload {
-  first_name: string;
-  last_name: string;
+  full_name: string;
   gender: string;
   role: string;
   phone_no: string;
@@ -17,8 +16,13 @@ export interface LoginPayload {
 
 export interface userProfile {
   id: string;
-  first_name: string;
-  last_name: string;
+  full_name?: string;
+  first_name?: string;
+  last_name?: string;
+  firstName?: string;
+  lastName?: string;
+  fullName?: string;
+  name?: string;
   phone_no: string;
   email: string;
   address: string;
@@ -45,8 +49,13 @@ export interface AuthResponse {
     id: string;
     role: "landlord" | "tenant";
     email: string;
+    full_name?: string;
     first_name?: string;
     last_name?: string;
+    firstName?: string;
+    lastName?: string;
+    fullName?: string;
+    name?: string;
     phone_no?: string;
     address?: string;
     state?: string;
@@ -72,6 +81,11 @@ export interface ForgotPasswordResponse {
 export interface ConfirmOtpRequest {
   email: string;
   otpCode: string;
+}
+
+export interface VerifyRegistrationOtpResponse {
+  message?: string;
+  status?: string;
 }
 
 export interface ResetPasswordRequest {

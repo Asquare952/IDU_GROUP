@@ -5,6 +5,9 @@ import type {
   LockPaymentInitializePayload,
   LockPaymentInitializeResponse,
   LockPaymentVerifyResponse,
+  RentPaymentInitializePayload,
+  RentPaymentInitializeResponse,
+  RentPaymentVerifyResponse,
 } from "./types";
 
 const progressQueryKeys = {
@@ -58,6 +61,35 @@ export const useVerifyLockPayment = () => {
 
   return useMutation<LockPaymentVerifyResponse, Error, string>({
     mutationFn: progressApi.verifyLockPayment,
+    onSuccess: () => invalidateProgressQueries(queryClient),
+  });
+};
+
+// rent rental
+export const useRentRental = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: progressApi.rentRental,
+    onSuccess: () => invalidateProgressQueries(queryClient),
+  });
+};
+
+export const useInitializeRentPayment = () => {
+  return useMutation<
+    RentPaymentInitializeResponse,
+    Error,
+    RentPaymentInitializePayload
+  >({
+    mutationFn: progressApi.initializeRentPayment,
+  });
+};
+
+export const useVerifyRentPayment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<RentPaymentVerifyResponse, Error, string>({
+    mutationFn: progressApi.verifyRentPayment,
     onSuccess: () => invalidateProgressQueries(queryClient),
   });
 };

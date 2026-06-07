@@ -7,6 +7,7 @@ import {
   ForgotPasswordRequest,
   ForgotPasswordResponse,
   ConfirmOtpRequest,
+  VerifyRegistrationOtpResponse,
   ResetPasswordRequest,
   ChangePasswordPayload,
   userProfile,
@@ -19,23 +20,39 @@ const CHANGE_PASSWORD_ENDPOINT =
   process.env.NEXT_PUBLIC_CHANGE_PASSWORD_ENDPOINT ?? "/auth/change-password";
 
 const normalizeProfileResponse = (data: any): userProfile => {
-  if (data?.data) {
-    return data.data;
+  const raw = data?.data ?? data?.profile ?? data?.user ?? data;
+
+  if (!raw || typeof raw !== "object") {
+    return raw;
   }
 
-  if (data?.profile) {
-    return data.profile;
+  const fullName =
+    (typeof raw.full_name === "string" && raw.full_name.trim()) ||
+    (typeof raw.fullName === "string" && raw.fullName.trim()) ||
+    "";
+
+  if (fullName && (!raw.first_name || !raw.last_name)) {
+    const parts = fullName.split(/\s+/).filter(Boolean);
+
+    return {
+      ...raw,
+      first_name: raw.first_name ?? parts[0] ?? "",
+      last_name: raw.last_name ?? parts.slice(1).join(" ") ?? "",
+    };
   }
 
-  if (data?.user) {
-    return data.user;
-  }
-
-  return data;
+  return raw;
 };
 
 export const register = async (data: RegisterPayload) => {
   const response = await api.post("/auth/register", data);
+  return response.data;
+};
+
+export const confirmVerifyOtpApi = async (
+  data: ConfirmOtpRequest,
+): Promise<VerifyRegistrationOtpResponse> => {
+  const response = await api.post("/auth/verify-registration", data);
   return response.data;
 };
 
