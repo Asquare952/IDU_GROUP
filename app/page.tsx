@@ -5,6 +5,7 @@ import Users from "./components/landing-page/Users";
 import About from "./components/landing-page/About";
 import Listing from "./components/landing-page/Listing";
 import Why from "./components/landing-page/Why";
+import Testimonials from "./components/landing-page/Testimonials";
 import Post from "./components/landing-page/Post";
 import Transparency from "./components/landing-page/Transparency";
 import CallToAction from "./components/landing-page/CallToAction";
@@ -21,6 +22,7 @@ export default function Home() {
           <About />
           <Users />
           <Why />
+          <Testimonials />
           <Post />
           <Transparency />
           <CallToAction />

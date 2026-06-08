@@ -79,7 +79,7 @@ const SearchItem = ({
 
 const HeroSection = () => {
   const router = useRouter();
-  const [keyword, setKeyword] = useState("");
+  const [price, setPrice] = useState("");
   const [location, setLocation] = useState("");
   const [propertyType, setPropertyType] = useState("");
   const [showTenantModal, setShowTenantModal] = useState(false);
@@ -94,7 +94,7 @@ const HeroSection = () => {
 
   const handleSearch = () => {
     const params = new URLSearchParams();
-    if (keyword) params.append("keyword", keyword);
+    if (price) params.append("price", price);
     if (location) params.append("search", location);
     if (propertyType) params.append("category", propertyType);
     router.push(`/tenant/homepage?${params.toString()}`);
@@ -221,10 +221,20 @@ const HeroSection = () => {
         <div className="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-1/2 w-[92%] max-w-6xl ">
           <div className="bg-white rounded-[24px] md:rounded-full shadow-2xl p-2 md:p-3 flex flex-col md:flex-row items-center border border-gray-100">
             <SearchItem
-              title="Enter Keyword"
-              placeholder="e.g. Pool"
-              value={keyword}
-              onChange={setKeyword}
+              title="Price Range"
+              placeholder="Select price"
+              isDropdown={true}
+              options={[
+                "200,000",
+                "300,000",
+                "400,000",
+                "500,000",
+                "600,000",
+                "700,000",
+                "1,000,000+",
+              ]}
+              value={price}
+              onChange={setPrice}
             />
             <SearchItem
               title="Location"
