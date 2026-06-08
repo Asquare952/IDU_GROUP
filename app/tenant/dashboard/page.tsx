@@ -378,6 +378,7 @@ const Page = () => {
               {properties?.slice(0, 3).map((item, i) => (
                 <motion.div
                   key={item.id}
+                  onClick={() => (getPropertyDetailsPath(item))}
                   custom={i}
                   variants={itemVariants}
                   whileHover={{ y: -10 }}
@@ -438,13 +439,6 @@ const Page = () => {
                       <motion.button
                         whileTap={{ scale: 0.95 }}
                         whileHover={{ scale: 1.05 }}
-                        onClick={() =>
-                          router.push(
-                            isLoggedIn
-                              ? getPropertyDetailsPath(item)
-                              : "/login",
-                          )
-                        }
                         className="bg-[#E8F5E9] text-[#43A047] text-xs font-bold px-4 py-1.5 rounded-full cursor-pointer"
                       >
                         View

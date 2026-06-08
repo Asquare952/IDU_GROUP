@@ -120,7 +120,7 @@ const LockedHouseContent = () => {
           ))
         )}
 
-        <div className="flex flex-col bg-white rounded-2xl shadow-sm border border-gray-100 p-8 gap-8">
+        {/* <div className="flex flex-col bg-white rounded-2xl shadow-sm border border-gray-100 p-8 gap-8">
           <h2 className="font-bold text-2xl text-[#162B4C]">
             Application Progress
           </h2>
@@ -167,9 +167,10 @@ const LockedHouseContent = () => {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+
+        {/* {lockedRentals.length === 0 ? "" : <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
           <button className="flex items-center justify-center gap-3 bg-[#43A047] border-2 border-[#43A047] text-white py-4 px-6 rounded-xl cursor-pointer hover:bg-white hover:text-green-600">
             <Calendar size={20} />
             <span>Continue Application</span>
@@ -184,7 +185,8 @@ const LockedHouseContent = () => {
             <MessageSquare size={20} />
             <span>Chat with Landlord</span>
           </button>
-        </div>
+        </div>} */}
+        
 
         <div className="mt-4 p-6 bg-[#fff9E6] border border-[#ffd966] rounded-[1.5rem] flex gap-4 items-start shadow-sm">
           <div className="text-[#b45309] mt-1">

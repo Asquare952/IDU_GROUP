@@ -144,13 +144,14 @@ const Listing = () => {
               return (
                 <motion.div
                   key={item.id}
+                  onClick={() => router.push(getPropertyDetailsPath(item))}
                   custom={i}
                   variants={itemVariants}
                   whileHover={{ y: -10 }}
                   className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
                 >
                   <div className="relative h-56 md:h-64 w-full overflow-hidden group">
-                    <Link href={viewHref} className="block h-full w-full">
+                    <div className="block h-full w-full">
                       {item.images && item.images.length > 0 ? (
                         <Image
                           src={item.images[0]}
@@ -165,7 +166,7 @@ const Listing = () => {
                           </span>
                         </div>
                       )}
-                    </Link>
+                    </div>
 
                     <div
                       className={`absolute top-5 left-5 z-10 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold capitalize shadow-sm ${getStatusStyle(
@@ -214,15 +215,15 @@ const Listing = () => {
                         </h3>
                       </div>
 
-                      <Link href={viewHref}>
-                        <motion.button
-                          whileTap={{ scale: 0.95 }}
-                          whileHover={{ scale: 1.05 }}
-                          className="bg-[#E8F5E9] text-[#43A047] text-sm md:text-xs font-bold px-4 py-1.5 rounded-full cursor-pointer"
-                        >
-                          View
-                        </motion.button>
-                      </Link>
+
+                      <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        whileHover={{ scale: 1.05 }}
+                        className="bg-[#E8F5E9] text-[#43A047] text-sm md:text-xs font-bold px-4 py-1.5 rounded-full cursor-pointer"
+                      >
+                        View
+                      </motion.button>
+
                     </div>
 
                     <p className="text-gray-400 text-base md:text-sm mb-4 leading-relaxed">

@@ -212,11 +212,12 @@ export default function AllPropertiesPage() {
                 {visibleProperties.length > 0 ? (
                   visibleProperties.map((item) => {
                     const propertyPath = getPropertyDetailsPath(item);
-                    const viewHref = isLoggedIn ? propertyPath : "/login";
+                    // const viewHref = isLoggedIn ? propertyPath : "/login";
 
                     return (
                       <motion.div
                         key={item.id}
+                        onClick={() => router.push(getPropertyDetailsPath(item))}
                         layout
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -225,20 +226,20 @@ export default function AllPropertiesPage() {
                       >
                         <div className="relative h-56 w-full overflow-hidden bg-slate-100 md:h-64 group">
                           {item.images[0] ? (
-                            <Link href={viewHref} className="block h-full w-full">
+                            <div   className="block h-full w-full">
                               <Image
                                 src={item.images[0]}
                                 alt={item.title}
                                 fill
                                 className="object-cover rounded-3xl p-2 transition-transform duration-500 group-hover:scale-110"
                               />
-                            </Link>
+                            </div>
                           ) : (
-                            <Link href={viewHref} className="block h-full w-full">
+                            <div className="block h-full w-full">
                               <div className="flex h-full w-full items-center justify-center text-slate-400">
                                 No image
                               </div>
-                            </Link>
+                            </div>
                           )}
                           <button
                             type="button"
@@ -277,7 +278,7 @@ export default function AllPropertiesPage() {
                                 {item.title}
                               </h3>
                             </div>
-                            <Link href={viewHref}>
+                        
                               <motion.button
                                 whileTap={{ scale: 0.95 }}
                                 whileHover={{ scale: 1.05 }}
@@ -285,7 +286,7 @@ export default function AllPropertiesPage() {
                               >
                                 View
                               </motion.button>
-                            </Link>
+                            
                           </div>
 
                           <p className="mb-4 line-clamp-2 text-sm leading-relaxed text-gray-400">

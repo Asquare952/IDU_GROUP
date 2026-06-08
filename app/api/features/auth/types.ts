@@ -34,6 +34,9 @@ export interface userProfile {
 export interface updateUserPayload {
   bio?: string;
   profileImage?: string;
+  phone_no?: string;
+  address?: string;
+  state?: string;
 }
 
 export interface ChangePasswordPayload {

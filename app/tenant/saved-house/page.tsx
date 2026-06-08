@@ -238,7 +238,7 @@ const SavedHouseContent = () => {
           <AlertTriangle size={32} />
         </button>
 
-        {getLikedRentals?.length === 0 && (
+        {getLikedRentals?.length === 0 ? "" : (
           <div className=" flex justify-center items-center" onClick={() => clearLikedRentals()}>
             <button className="bg-[#43A047] text-white px-6 py-3 rounded-xl font-bold hover:bg-green-700 transition-all active:scale-95 shadow-md cursor-pointer">
               Clear All Saved Houses
