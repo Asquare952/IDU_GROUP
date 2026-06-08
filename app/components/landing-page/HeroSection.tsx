@@ -97,14 +97,14 @@ const HeroSection = () => {
     if (keyword) params.append("keyword", keyword);
     if (location) params.append("search", location);
     if (propertyType) params.append("category", propertyType);
-    router.push(`/tenant/homepage?${params.toString()}`);
+    router.push(`/properties?${params.toString()}`);
   };
 
   const handleFindHouse = () => {
     if (!isLoggedIn) {
       router.push("/login");
     } else {
-      router.push("/tenant/homepage");
+      router.push("/properties");
     }
   };
 

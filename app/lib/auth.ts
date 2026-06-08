@@ -7,6 +7,7 @@ type DecodedAuthToken = {
   userId?: string;
   sub?: string;
   role?: "tenant" | "landlord";
+  is_verified?: boolean;
 };
 
 export const getAccessToken = (): string | null => {
