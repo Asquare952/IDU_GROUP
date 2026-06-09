@@ -357,7 +357,7 @@ const Page = () => {
           { keepDirty: false },
         );
       }
-      router.push("/tenant/profile");
+      router.push("/tenant/dashboard");
     } catch {
       // Mutation hooks already handle user-facing errors.
     }
