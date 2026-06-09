@@ -15,7 +15,7 @@ export type SidebarItems = {
 export type DashboardMetrics = {
   id: number;
   name: string;
-  figure: string;
+  figure: number | string;
   icon: LucideIcon;
 };
 

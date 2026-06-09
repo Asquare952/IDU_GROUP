@@ -36,7 +36,14 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
       setIsAuthenticated(loggedIn);
       setIsSuperAdmin(data?.userRole === "admin");
       setUserRole(data?.userRole || null);
-      setIsLoading(false);
+
+      // Delay setting isLoading to false to prevent race conditions
+      // with rapid redirects on mount
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 100);
+
+      return () => clearTimeout(timer);
     }
   }, [data, queryLoading]);
 

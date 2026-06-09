@@ -32,12 +32,7 @@ type DecodedToken = {
   userId?: string;
   _id?: string;
   email?: string;
-  first_name?: string;
-  last_name?: string;
-  firstName?: string;
-  lastName?: string;
-  fullName?: string;
-  name?: string;
+  full_name?: string;
 };
 
 const Header = () => {
@@ -72,12 +67,7 @@ const Header = () => {
       setUserId(decoded.id ?? decoded.userId ?? decoded._id ?? decoded.sub);
       setDecodedProfile({
         email: decoded.email,
-        first_name: decoded.first_name,
-        last_name: decoded.last_name,
-        firstName: decoded.firstName,
-        lastName: decoded.lastName,
-        fullName: decoded.fullName,
-        name: decoded.name,
+        full_name: decoded.full_name,
       });
     } catch {
       setUserId(undefined);
@@ -95,24 +85,26 @@ const Header = () => {
   const cachedDisplay = getProfileDisplayFields(cachedProfile);
   const userDisplay = getProfileDisplayFields(user);
   const decodedDisplay = getProfileDisplayFields(decodedProfile);
+
   const displayFirstName =
-    cachedDisplay.firstName || userDisplay.firstName || decodedDisplay.firstName;
+    userDisplay.firstName || cachedDisplay.firstName || decodedDisplay.firstName;
   const displayLastName =
-    cachedDisplay.lastName || userDisplay.lastName || decodedDisplay.lastName;
+    userDisplay.lastName || cachedDisplay.lastName || decodedDisplay.lastName;
   const displayName =
     [displayFirstName, displayLastName].filter(Boolean).join(" ").trim() ||
-    cachedDisplay.fullName ||
     userDisplay.fullName ||
+    cachedDisplay.fullName ||
     decodedDisplay.fullName;
   const displayEmail =
-    cachedDisplay.email || userDisplay.email || decodedDisplay.email;
-  const displayProfileImage =
-    cachedDisplay.profileImage || userDisplay.profileImage;
+    userDisplay.email || cachedDisplay.email || decodedDisplay.email;
+  const displayProfileImage = user
+    ? userDisplay.profileImage
+    : cachedDisplay.profileImage || decodedDisplay.profileImage;
   const initials =
-    displayName
+    (displayName || "")
       .split(/\s+/)
       .slice(0, 2)
-      .map((part) => part[0])
+      .map((part) => part.charAt(0))
       .join("")
       .toUpperCase() ||
     "U";

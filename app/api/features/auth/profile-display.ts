@@ -24,9 +24,7 @@ const splitName = (name: string) => {
 export const getProfileDisplayFields = (profile?: unknown) => {
   if (!profile || typeof profile !== "object") {
     return {
-      firstName: "",
-      lastName: "",
-      fullName: "",
+      full_name: "",
       email: "",
       profileImage: "",
     };
@@ -52,9 +50,14 @@ export const getProfileDisplayFields = (profile?: unknown) => {
   return {
     firstName,
     lastName,
-    fullName: fullName || combinedName || email,
+    fullName,
+    full_name: fullName,
     email,
-    profileImage: readString(record, ["profileImage", "profile_image", "avatar"]),
+    profileImage: readString(record, [
+      "profileImage",
+      "profile_image",
+      "avatar",
+    ]),
   };
 };
 
@@ -63,9 +66,9 @@ export const normalizeProfileForCache = <T extends object>(profile: T) => {
 
   return {
     ...profile,
-    first_name: display.firstName,
-    last_name: display.lastName,
+    full_name: display.full_name,
     email: display.email,
-    profileImage: display.profileImage || (profile as ProfileRecord).profileImage,
+    profileImage:
+      display.profileImage || (profile as ProfileRecord).profileImage,
   };
 };

@@ -26,22 +26,40 @@ const normalizeProfileResponse = (data: any): userProfile => {
     return raw;
   }
 
+  const profile = raw.profile ?? {};
   const fullName =
     (typeof raw.full_name === "string" && raw.full_name.trim()) ||
     (typeof raw.fullName === "string" && raw.fullName.trim()) ||
+    (typeof profile.full_name === "string" && profile.full_name.trim()) ||
+    (typeof profile.fullName === "string" && profile.fullName.trim()) ||
     "";
 
-  if (fullName && (!raw.first_name || !raw.last_name)) {
-    const parts = fullName.split(/\s+/).filter(Boolean);
+  const normalized = {
+    ...raw,
+    first_name:
+      raw.first_name ??
+      raw.firstName ??
+      profile.first_name ??
+      profile.firstName ??
+      (fullName ? (fullName.split(/\s+/).filter(Boolean)[0] ?? "") : ""),
+    last_name:
+      raw.last_name ??
+      raw.lastName ??
+      profile.last_name ??
+      profile.lastName ??
+      (fullName
+        ? (fullName.split(/\s+/).filter(Boolean).slice(1).join(" ") ?? "")
+        : ""),
+    phone_no:
+      raw.phone_no ?? raw.phone ?? profile.phone_no ?? profile.phone ?? "",
+    address: raw.address ?? profile.address ?? "",
+    state: raw.state ?? profile.state ?? profile.location ?? "",
+    bio: raw.bio ?? profile.bio ?? "",
+    profileImage:
+      raw.profileImage ?? profile.image ?? profile.profileImage ?? "",
+  };
 
-    return {
-      ...raw,
-      first_name: raw.first_name ?? parts[0] ?? "",
-      last_name: raw.last_name ?? parts.slice(1).join(" ") ?? "",
-    };
-  }
-
-  return raw;
+  return normalized;
 };
 
 export const register = async (data: RegisterPayload) => {
