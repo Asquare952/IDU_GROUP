@@ -22,17 +22,20 @@ import {
   ChevronRight,
   Loader2,
   House,
+  Heart,
 } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useFetchProperties } from "@/app/api/features/property/property.queries";
 import {
   useLikeRental,
   useLockedRentals,
   useUnlikeRental,
+  useLikedRentals
 } from "@/app/api/features/progress/progress.queries";
 import { getPropertyDetailsPath } from "@/app/lib/property-routes";
 import { hasAccessToken } from "@/app/lib/auth";
 import type { Rental } from "@/app/api/features/rental";
+import type { DashboardMetrics as DashboardMetricsType } from "@/app/components/Tenant-Dashboard/types";
 
 const formatRentPrice = (price: string | number) => {
   const numericPrice = Number(price);
@@ -65,11 +68,27 @@ const Page = () => {
     isError: isLockedRentalsError,
     error: lockedRentalsError,
   } = useLockedRentals();
+  const { data: likedRentals = [] } = useLikedRentals();
   const { mutate: likeRental } = useLikeRental();
   const { mutate: unlikeRental } = useUnlikeRental();
   const activeLockedRental = lockedRentals[0];
   const activeLockImages = activeLockedRental?.images ?? [];
   const activeLockProgress = getActiveLockProgress(activeLockedRental);
+
+  const dashMetrics = useMemo<DashboardMetricsType[]>(() => [
+    {
+      id: 1,
+      name: "Saved house",
+      figure: likedRentals?.length || 0,
+      icon: Heart,
+    },
+    {
+      id: 4,
+      name: "Active Locks",
+      figure: lockedRentals?.length || 0,
+      icon: Lock,
+    },
+  ], [likedRentals, lockedRentals]);
 
   useEffect(() => {
     if ((properties ?? []).length > 0 && !hasInitializedRef.current) {
@@ -226,11 +245,10 @@ const Page = () => {
                         key={index}
                         type="button"
                         onClick={() => setCurrentSlide(index)}
-                        className={`h-2 rounded-full transition-all duration-300 ${
-                          currentSlide === index
-                            ? "w-8 bg-[#43A047]"
-                            : "w-2 bg-white/60 hover:bg-white"
-                        }`}
+                        className={`h-2 rounded-full transition-all duration-300 ${currentSlide === index
+                          ? "w-8 bg-[#43A047]"
+                          : "w-2 bg-white/60 hover:bg-white"
+                          }`}
                       />
                     ))}
                   </div>
@@ -339,8 +357,8 @@ const Page = () => {
         )}
 
         {/* Metrics Section */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-          {DashMetrics.map((item) => {
+        <div className="grid grid-cols-2 gap-2">
+          {dashMetrics.map((item) => {
             const { id, name, figure, icon: Icon } = item;
             return (
               <div
@@ -382,11 +400,11 @@ const Page = () => {
                   custom={i}
                   variants={itemVariants}
                   whileHover={{ y: -10 }}
-                  className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group"
+                  className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group cursor-pointer"
                 >
                   <div className="relative h-56 md:h-64 w-full overflow-hidden cursor-pointer">
-                    <Link
-                      href={getPropertyDetailsPath(item)}
+                    <div
+                      // href={getPropertyDetailsPath(item)}
                       className="block h-full w-full"
                     >
                       {item.images && item.images.length > 0 ? (
@@ -401,7 +419,7 @@ const Page = () => {
                           No Image
                         </div>
                       )}
-                    </Link>
+                    </div>
                     <button
                       type="button"
                       className="absolute top-5 right-5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#162B4C] shadow-sm transition hover:text-red-500 cursor-pointer"
@@ -516,14 +534,13 @@ const Page = () => {
                 {SafetyAction.map((action) => (
                   <button
                     key={action.id}
-                    className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                      action.variant === "danger"
-                        ? "bg-[#FF3B30] text-white hover:bg-red-700"
-                        : action.variant === "Success" ||
-                            action.variant === "success"
-                          ? "bg-[#43A047] text-white hover:bg-green-700"
-                          : "bg-[#F2F2F7] text-[#162B4C] hover:bg-gray-200"
-                    }`}
+                    className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${action.variant === "danger"
+                      ? "bg-[#FF3B30] text-white hover:bg-red-700"
+                      : action.variant === "Success" ||
+                        action.variant === "success"
+                        ? "bg-[#43A047] text-white hover:bg-green-700"
+                        : "bg-[#F2F2F7] text-[#162B4C] hover:bg-gray-200"
+                      }`}
                   >
                     <action.icon size={20} />
                     {action.label}

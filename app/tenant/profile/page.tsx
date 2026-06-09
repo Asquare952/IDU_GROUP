@@ -8,6 +8,7 @@ import { SquarePen, User, Mail, Phone, MapPin, Calendar } from 'lucide-react';
 import Link from "next/link";
 import { useUserProfile } from "@/app/api/features/auth/auth.queries";
 import { AuthResponse } from "@/app/api/features/auth/types";
+import { getProfileDisplayFields } from "@/app/api/features/auth/profile-display";
 import { readCachedProfile } from "@/app/api/features/auth/profile-cache";
 import { useState, useEffect } from "react";
 
@@ -66,23 +67,27 @@ const page = () => {
   }, []);
 
   const { data: user } = useUserProfile(userId, hasCheckedAuth);
-  const displayUser = {
-    ...user,
-    ...cachedProfile,
-  };
+  const cachedDisplay = getProfileDisplayFields(cachedProfile);
+  const userDisplay = getProfileDisplayFields(user);
+  const decodedDisplay = getProfileDisplayFields(decodedProfile);
+
   const displayFirstName =
-    cachedProfile?.first_name ?? user?.first_name ?? decodedProfile.first_name ?? "";
+    userDisplay.firstName || cachedDisplay.firstName || decodedDisplay.firstName || "";
   const displayLastName =
-    cachedProfile?.last_name ?? user?.last_name ?? decodedProfile.last_name ?? "";
+    userDisplay.lastName || cachedDisplay.lastName || decodedDisplay.lastName || "";
   const displayEmail =
-    cachedProfile?.email ?? user?.email ?? decodedProfile.email ?? "";
+    userDisplay.email || cachedDisplay.email || decodedDisplay.email || "";
   const displayPhone =
     cachedProfile?.phone_no ?? user?.phone_no ?? decodedProfile.phone_no ?? "";
   const displayAddress =
     cachedProfile?.address ?? user?.address ?? decodedProfile.address ?? "";
+  const displayState =
+    cachedProfile?.state ?? user?.state ?? decodedProfile.state ?? "";
   const displayBio = cachedProfile?.bio ?? user?.bio ?? "";
   const displayMembershipYear = user?.createdAt ? new Date(user.createdAt).getFullYear() : cachedProfile?.createdAt ? new Date(cachedProfile.createdAt).getFullYear() : "";
-  const displayProfileImage = cachedProfile?.profileImage ?? user?.profileImage;
+  const displayProfileImage = user
+    ? userDisplay.profileImage
+    : cachedDisplay.profileImage || decodedDisplay.profileImage || "";
   const initials =
     `${displayFirstName[0] ?? ""}${displayLastName[0] ?? ""}`.trim() ||
     "U";
@@ -166,7 +171,17 @@ const page = () => {
                 </div>
                 <div className="flex flex-col ">
                   <p className="text-sm text-gray-500 ">Address</p>
-                  <p className="font-bold text-[#162B4C]">{displayAddress}</p>
+                  <p className="font-bold text-[#162B4C]">{displayAddress || "N/A"}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <div className="bg-[#E8F5E9] p-2 rounded-lg">
+                  <MapPin size={25} className="text-gray-400" />
+                </div>
+                <div className="flex flex-col ">
+                  <p className="text-sm text-gray-500 ">State</p>
+                  <p className="font-bold text-[#162B4C]">{displayState || "N/A"}</p>
                 </div>
               </div>
             </div>

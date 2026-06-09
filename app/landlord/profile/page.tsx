@@ -17,6 +17,7 @@ import {
 import Link from "next/link";
 import { useUserProfile } from "@/app/api/features/auth/auth.queries";
 import { AuthResponse } from "@/app/api/features/auth/types";
+import { getProfileDisplayFields } from "@/app/api/features/auth/profile-display";
 import { useFetchLandlordListedProperties } from "@/app/api/features/rental";
 import { useState, useEffect } from "react";
 // import { property } from "zod";
@@ -112,26 +113,31 @@ const page = () => {
     }
   }, [user, cachedProfile]);
 
-    // const cachedDisplay = getProfileDisplayFields(cachedProfile);
+  const cachedDisplay = getProfileDisplayFields(cachedProfile);
+  const userDisplay = getProfileDisplayFields(user);
+  const decodedDisplay = getProfileDisplayFields(decodedProfile);
 
   const displayUser = user ?? cachedProfile;
   const displayFirstName =
-    user?.first_name ??
-    cachedProfile?.first_name ??
-    decodedProfile.first_name ??
+    userDisplay.firstName ||
+    cachedDisplay.firstName ||
+    decodedDisplay.firstName ||
     "";
   const displayLastName =
-    user?.last_name ??
-    cachedProfile?.last_name ??
-    decodedProfile.last_name ??
+    userDisplay.lastName ||
+    cachedDisplay.lastName ||
+    decodedDisplay.lastName ||
     "";
   const displayEmail =
-    user?.email ?? cachedProfile?.email ?? decodedProfile.email ?? "";
+    userDisplay.email || cachedDisplay.email || decodedDisplay.email || "";
   const displayPhone =
     user?.phone_no ?? cachedProfile?.phone_no ?? decodedProfile.phone_no ?? "";
   const displayAddress =
     user?.address ?? cachedProfile?.address ?? decodedProfile.address ?? "";
   const displayBio = user?.bio ?? cachedProfile?.bio ?? "";
+  const displayProfileImage = user
+    ? userDisplay.profileImage
+    : cachedDisplay.profileImage || decodedDisplay.profileImage || displayUser?.profileImage || "";
   const displayMembershipYear = user?.createdAt
     ? new Date(user.createdAt).getFullYear()
     : cachedProfile?.createdAt
@@ -157,9 +163,9 @@ const page = () => {
         <div className="flex flex-col md:flex-row items-center justify-between bg-white rounded-3xl p-6 md:p-8 mb-8 shadow-sm border border-gray-50 text-center md:text-left gap-6 md:gap-0">
           <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
             <div className="relative">
-              {displayUser?.profileImage ? (
+              {displayProfileImage ? (
                 <Image
-                  src={displayUser.profileImage}
+                  src={displayProfileImage}
                   alt="User profile"
                   width={100}
                   height={100}

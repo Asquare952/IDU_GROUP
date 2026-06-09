@@ -13,7 +13,9 @@ import {
   useUpdateUserProfile,
   useUserProfile,
 } from "@/app/api/features/auth/auth.queries";
+import { getProfileDisplayFields } from "@/app/api/features/auth/profile-display";
 import { AuthResponse, updateUserPayload } from "@/app/api/features/auth/types";
+import { readCachedProfile } from "@/app/api/features/auth/profile-cache";
 import { toast } from "react-toastify";
 
 type DecodedToken = {
@@ -57,7 +59,7 @@ const defaultValues: EditProfileFormValues = {
   confirmPassword: "",
 };
 
-type CachedUserProfile = AuthResponse["user"];
+type CachedUserProfile = Partial<AuthResponse["user"]>;
 
 const MAX_IMAGE_DIMENSION = 800;
 const MAX_IMAGE_BYTES = 700 * 1024;
@@ -175,16 +177,7 @@ const page = () => {
       setHasCheckedAuth(true);
     }
 
-    const savedProfile = Cookies.get("USER_PROFILE");
-    if (!savedProfile) {
-      return;
-    }
-
-    try {
-      setCachedProfile(JSON.parse(savedProfile) as CachedUserProfile);
-    } catch {
-      setCachedProfile(undefined);
-    }
+    setCachedProfile(readCachedProfile() as CachedUserProfile | undefined);
   }, []);
 
   const { data: profile, isLoading: isProfileLoading } = useUserProfile(
@@ -197,13 +190,19 @@ const page = () => {
     useChangePassword();
 
   useEffect(() => {
+    const cachedDisplay = getProfileDisplayFields(cachedProfile);
+    const profileDisplay = getProfileDisplayFields(profile);
+    const decodedDisplay = getProfileDisplayFields(decodedProfile);
+
     if (!profile) {
       reset({
         ...defaultValues,
-        first_name: cachedProfile?.first_name ?? decodedProfile.first_name ?? "",
-        last_name: cachedProfile?.last_name ?? decodedProfile.last_name ?? "",
+        first_name:
+          cachedDisplay.firstName ?? decodedDisplay.firstName ?? "",
+        last_name:
+          cachedDisplay.lastName ?? decodedDisplay.lastName ?? "",
         phone_no: cachedProfile?.phone_no ?? decodedProfile.phone_no ?? "",
-        email: cachedProfile?.email ?? decodedProfile.email ?? "",
+        email: cachedDisplay.email ?? decodedDisplay.email ?? "",
         address: cachedProfile?.address ?? decodedProfile.address ?? "",
         state: cachedProfile?.state ?? decodedProfile.state ?? "",
         bio: cachedProfile?.bio ?? "",
@@ -217,26 +216,28 @@ const page = () => {
     reset({
       ...defaultValues,
       first_name:
-        profile.first_name ??
-        cachedProfile?.first_name ??
-        decodedProfile.first_name ??
+        profileDisplay.firstName ??
+        cachedDisplay.firstName ??
+        decodedDisplay.firstName ??
         "",
       last_name:
-        profile.last_name ??
-        cachedProfile?.last_name ??
-        decodedProfile.last_name ??
+        profileDisplay.lastName ??
+        cachedDisplay.lastName ??
+        decodedDisplay.lastName ??
         "",
       phone_no:
         profile.phone_no ?? cachedProfile?.phone_no ?? decodedProfile.phone_no ?? "",
-      email: profile.email ?? cachedProfile?.email ?? decodedProfile.email ?? "",
+      email:
+        profileDisplay.email ?? cachedDisplay.email ?? decodedDisplay.email ?? "",
       address:
         profile.address ?? cachedProfile?.address ?? decodedProfile.address ?? "",
       state: profile.state ?? cachedProfile?.state ?? decodedProfile.state ?? "",
       bio: profile.bio ?? cachedProfile?.bio ?? "",
-      profileImage: profile.profileImage ?? cachedProfile?.profileImage ?? "",
+      profileImage:
+        profile.profileImage || cachedProfile?.profileImage ?? "",
     });
 
-    setPreview(profile.profileImage ?? cachedProfile?.profileImage ?? null);
+    setPreview(profile.profileImage || cachedProfile?.profileImage ?? null);
   }, [cachedProfile, decodedProfile, profile, reset]);
 
   const handleButtonClick = () => {
@@ -319,6 +320,12 @@ const page = () => {
     try {
       if (shouldUpdateProfile) {
         await updateProfile(payload);
+        setCachedProfile((current) => ({
+          ...(current ?? {}),
+          bio,
+          profileImage,
+        }));
+        setPreview(profileImage || null);
       }
 
       if (shouldChangePassword) {

@@ -84,9 +84,21 @@ api.interceptors.response.use(
 
     // 403 — Profile Completion Required
     if (status === 403 && responseData?.needsProfileCompletion === true) {
-      if (currentPath !== "/profile/complete") {
+      // Redirect based on user role to appropriate profile completion page
+      const userRole = Cookies.get("USER_ROLE");
+
+      if (userRole === "landlord" && currentPath !== "/landlord/edit-profile") {
         sessionStorage.setItem("redirectAfterProfile", currentPath);
-        window.location.href = "/profile/complete";
+        window.location.href = "/landlord/edit-profile";
+      } else if (userRole === "tenant" && currentPath !== "/tenant/edit-profile") {
+        sessionStorage.setItem("redirectAfterProfile", currentPath);
+        window.location.href = "/tenant/edit-profile";
+      } else if (
+        userRole === "admin" &&
+        currentPath !== "/super-admin/settings"
+      ) {
+        sessionStorage.setItem("redirectAfterProfile", currentPath);
+        window.location.href = "/super-admin/settings";
       }
     }
 

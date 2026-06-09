@@ -2,10 +2,7 @@ export interface RegisterPayload {
   full_name: string;
   gender: string;
   role: string;
-  phone_no: string;
   email: string;
-  address: string;
-  state: string;
   password: string;
 }
 
@@ -23,13 +20,14 @@ export interface userProfile {
   lastName?: string;
   fullName?: string;
   name?: string;
-  phone_no: string;
+  phone_no?: string;
   email: string;
-  address: string;
+  address?: string;
   state?: string;
   bio?: string;
   profileImage?: string;
   createdAt?: string;
+  is_verified?: boolean;
 }
 export interface updateUserPayload {
   bio?: string;
@@ -37,6 +35,9 @@ export interface updateUserPayload {
   phone_no?: string;
   address?: string;
   state?: string;
+  full_name?: string;
+  first_name?: string;
+  last_name?: string;
 }
 
 export interface ChangePasswordPayload {
@@ -65,6 +66,7 @@ export interface AuthResponse {
     bio?: string;
     profileImage?: string;
     createdAt?: string;
+    is_verified?: boolean;
   };
 }
 

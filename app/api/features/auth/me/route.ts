@@ -24,7 +24,14 @@ export async function GET() {
 
     const data = await res.json();
 
+    // If backend returns 403 with needsProfileCompletion, return it as-is
+    // so client interceptor can handle it
+    if (res.status === 403 && data?.needsProfileCompletion) {
+      return NextResponse.json(data, { status: 403 });
+    }
+
     if (!res.ok) {
+      // For any other non-200 response, return unauthorized
       return NextResponse.json(
         {
           isLoggedIn: false,
@@ -35,7 +42,14 @@ export async function GET() {
       );
     }
 
-    return NextResponse.json(data, { status: res.status });
+    // Success case - return the user data with isLoggedIn flag
+    return NextResponse.json(
+      {
+        ...data,
+        isLoggedIn: true,
+      },
+      { status: 200 },
+    );
   } catch {
     return NextResponse.json(
       { isLoggedIn: false, userRole: null },

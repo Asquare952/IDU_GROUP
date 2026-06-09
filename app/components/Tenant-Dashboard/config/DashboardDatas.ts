@@ -10,7 +10,7 @@ import {
   MapPin,
   Search,
   Banknote,
-  BadgeCheck
+  BadgeCheck,
 } from "lucide-react";
 
 export const ActiveProperty = {
@@ -35,21 +35,21 @@ export const DashMetrics: DashboardMetrics[] = [
   {
     id: 1,
     name: "Saved house",
-    figure: "12",
+    figure: 0,
     icon: Heart,
   },
-  {
-    id: 2,
-    name: "Upcoming Inspections",
-    figure: "3",
-    icon: Calendar,
-  },
-  {
-    id: 3,
-    name: "Total Houses Viewed",
-    figure: "47",
-    icon: Eye,
-  },
+  // {
+  //   id: 2,
+  //   name: "Upcoming Inspections",
+  //   figure: "3",
+  //   icon: Calendar,
+  // },
+  // {
+  //   id: 3,
+  //   name: "Total Houses Viewed",
+  //   figure: "47",
+  //   icon: Eye,
+  // },
   {
     id: 4,
     name: "Active Locks",
@@ -91,12 +91,7 @@ export const LockedPropertyData = [
     progress: 60,
     landlord: "Mr. Ibrahim Adeyemi",
     isVerified: true,
-    images: [
-      "/flat3.webp",
-      "/flat4.webp",
-      "/flat5.webp",
-      "/flat6.webp",
-    ],
+    images: ["/flat3.webp", "/flat4.webp", "/flat5.webp", "/flat6.webp"],
   },
 ];
 
@@ -124,6 +119,13 @@ export const ImportantNoticeData = {
   title: "Important Notice",
   message:
     "Your lock will expire in 24 hours. Complete your inspection and submit your application to secure this property. The ₦5,000 lock fee is refundable if the landlord accepts another application.",
+  icon: AlertTriangle,
+};
+
+export const ImportantNoticeData2 = {
+  title: "Important Notice",
+  message:
+    "Please complete your profile details (phone number, address and state) to enhance your chances of securing a apartment. Landlords prefer tenants with complete profiles.",
   icon: AlertTriangle,
 };
 

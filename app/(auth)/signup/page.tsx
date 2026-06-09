@@ -28,16 +28,15 @@ const page = () => {
   } = useForm();
 
   const onSubmit = (data: any) => {
-    let phone = data.phone_no;
-    if (/^0\d{10}$/.test(phone)) {
-      phone = "+234" + phone.slice(1);
-    } else if (/^\d{10}$/.test(phone)) {
-      phone = "+234" + phone;
-    }
+    // let phone = data.phone_no;
+    // if (/^0\d{10}$/.test(phone)) {
+    //   phone = "+234" + phone.slice(1);
+    // } else if (/^\d{10}$/.test(phone)) {
+    //   phone = "+234" + phone;
+    // }
 
     const payload = {
-      ...data,
-      phone_no: phone,
+      ...data
     };
 
     registerUser(payload);
@@ -121,6 +120,10 @@ const page = () => {
                   <input
                     {...register("full_name", {
                       required: "Full name is required",
+                      minLength: {
+                        value: 5,
+                        message: "Full name must be at least 5 characters",
+                      },
                     })}
                     placeholder="John Doe"
                     className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:border-[#4CAF50] transition-all"
@@ -154,29 +157,6 @@ const page = () => {
                     />
                   </div>
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
-                    Phone No
-                  </label>
-                  <div className="relative">
-                    <span className="absolute inset-y-0 left-4 flex items-center text-[#4CAF50]">
-                      <Phone size={16} />
-                    </span>
-                    <input
-                      {...register("phone_no", {
-                        required: "Phone number is required",
-                      })}
-                      type="tel"
-                      placeholder="+234 905."
-                      className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:border-[#4CAF50]"
-                    />
-                  </div>
-                  {errors.phone_no && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.phone_no.message as string}
-                    </p>
-                  )}
-                </div>
               </div>
 
               <div className="space-y-1">
@@ -205,45 +185,6 @@ const page = () => {
                     {errors.email.message as string}
                   </p>
                 )}
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
-                    Address
-                  </label>
-                  <div className="relative">
-                    <span className="absolute inset-y-0 left-4 flex items-center text-[#4CAF50]">
-                      <MapPin size={16} />
-                    </span>
-                    <input
-                      {...register("address", {
-                        required: "Address is required",
-                      })}
-                      type="text"
-                      placeholder="123 Street"
-                      className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none"
-                    />
-                  </div>
-                  {errors.address && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.address.message as string}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
-                    State
-                  </label>
-                  <input
-                    {...register("state", {
-                      required: "State is required",
-                    })}
-                    type="text"
-                    placeholder="Lagos"
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none"
-                  />
-                </div>
               </div>
 
               <div className="space-y-1">
@@ -334,11 +275,11 @@ const page = () => {
                 </div>
               </div>
 
-              {/* <div className="flex gap-4">
+              <div className="flex gap-4">
                 <div className="flex-1">
                   <GoogleAuthButton mode="signup" />
                 </div>
-              </div> */}
+              </div>
 
               <button
                 className="w-full bg-[#4CAF50] text-white py-4 rounded-2xl font-bold hover:bg-[#43A047] shadow-xl shadow-green-100 transition-all active:scale-[0.98] cursor-pointer"

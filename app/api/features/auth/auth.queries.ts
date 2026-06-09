@@ -55,7 +55,7 @@ export const useRegister = () => {
   return useMutation<unknown, Error, RegisterPayload>({
     mutationFn: register,
     onSuccess: (_data, variables) => {
-      toast.success("Account created successfully");
+      // toast.success("Account created successfully");
       router.push(
         `/confirm-registration-otp?email=${encodeURIComponent(variables.email)}`,
       );

@@ -79,18 +79,19 @@ const Header: FC<HeaderProps> = ({ onMenuClick }) => {
   const userDisplay = getProfileDisplayFields(user);
   const decodedDisplay = getProfileDisplayFields(decodedProfile);
   const displayFirstName =
-    cachedDisplay.firstName || userDisplay.firstName || decodedDisplay.firstName;
+    userDisplay.firstName || cachedDisplay.firstName || decodedDisplay.firstName;
   const displayLastName =
-    cachedDisplay.lastName || userDisplay.lastName || decodedDisplay.lastName;
+    userDisplay.lastName || cachedDisplay.lastName || decodedDisplay.lastName;
   const displayName =
     [displayFirstName, displayLastName].filter(Boolean).join(" ").trim() ||
-    cachedDisplay.fullName ||
     userDisplay.fullName ||
+    cachedDisplay.fullName ||
     decodedDisplay.fullName;
   const displayEmail =
-    cachedDisplay.email || userDisplay.email || decodedDisplay.email;
-  const displayProfileImage =
-    cachedDisplay.profileImage || userDisplay.profileImage;
+    userDisplay.email || cachedDisplay.email || decodedDisplay.email;
+  const displayProfileImage = user
+    ? userDisplay.profileImage
+    : cachedDisplay.profileImage || decodedDisplay.profileImage;
   const initials =
     displayName
       .split(/\s+/)
@@ -181,7 +182,7 @@ const Header: FC<HeaderProps> = ({ onMenuClick }) => {
         <DesktopSearch />
 
         <div className="flex items-center gap-2">
-            <NotificationBell />
+          <NotificationBell />
           {isLoading && !displayUser ? (
             <p>Loading...</p>
           ) : displayUser ? (

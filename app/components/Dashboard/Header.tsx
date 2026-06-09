@@ -95,7 +95,7 @@ const Header: FC<HeaderProp> = ({ onMenuClick }) => {
   const displayEmail =
     userDisplay.email || cachedDisplay.email || decodedDisplay.email;
   const displayProfileImage =
-    userDisplay.profileImage || cachedDisplay.profileImage;
+    user ? userDisplay.profileImage : cachedDisplay.profileImage;
   const initials =
     displayName
       .split(/\s+/)
