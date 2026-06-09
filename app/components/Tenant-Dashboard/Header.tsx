@@ -86,7 +86,8 @@ const Header: FC<HeaderProps> = ({ onMenuClick }) => {
     [displayFirstName, displayLastName].filter(Boolean).join(" ").trim() ||
     userDisplay.fullName ||
     cachedDisplay.fullName ||
-    decodedDisplay.fullName;
+    decodedDisplay.fullName ||
+    "";
   const displayEmail =
     userDisplay.email || cachedDisplay.email || decodedDisplay.email;
   const displayProfileImage = user
