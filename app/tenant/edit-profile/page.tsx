@@ -19,6 +19,7 @@ import { getProfileDisplayFields } from "@/app/api/features/auth/profile-display
 import { AuthResponse, updateUserPayload } from "@/app/api/features/auth/types";
 import { readCachedProfile } from "@/app/api/features/auth/profile-cache";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 type DecodedToken = {
   id?: string;
@@ -128,6 +129,7 @@ const compressImage = async (file: File) => {
 };
 
 const Page = () => {
+  const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | undefined>(undefined);
@@ -355,6 +357,7 @@ const Page = () => {
           { keepDirty: false },
         );
       }
+      router.push("/tenant/profile");
     } catch {
       // Mutation hooks already handle user-facing errors.
     }
@@ -369,20 +372,7 @@ const Page = () => {
     <DashboardLayout>
       <section className="min-h-screen bg-[#F8F9FA] p-8">
         <div className="mx-auto flex max-w-325 flex-col gap-3.5">
-          {profile?.is_verified === false ? <div className="mt-4 p-6 bg-[#fff9E6] border border-[#ffd966] rounded-[1.5rem] flex gap-4 items-start shadow-sm">
-            <div className="text-[#b45309] mt-1">
-              <ImportantNoticeData2.icon size={24} />
-            </div>
-            <div className="flex flex-col gap-1">
-              <h4 className="font-bold text-[#92400E] mb-1">
-                {ImportantNoticeData2.title}
-              </h4>
 
-              <p className="text-[#B45309] leading-relaxed font-medium">
-                {ImportantNoticeData2.message}
-              </p>
-            </div>
-          </div> : ""}
 
 
           <div className="flex flex-col gap-3.5">
@@ -394,6 +384,20 @@ const Page = () => {
                 <MoveLeft />
                 <span>Back to Profile</span>
               </Link>
+              {profile?.is_verified === false ? <div className="mt-4 p-6 bg-[#fff9E6] border border-[#ffd966] rounded-[1.5rem] flex gap-4 items-start shadow-sm">
+                <div className="text-[#b45309] mt-1">
+                  <ImportantNoticeData2.icon size={24} />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <h4 className="font-bold text-[#92400E] mb-1">
+                    {ImportantNoticeData2.title}
+                  </h4>
+
+                  <p className="text-[#B45309] leading-relaxed font-medium">
+                    {ImportantNoticeData2.message}
+                  </p>
+                </div>
+              </div> : ""}
               <div className="flex flex-col gap-1">
                 <h1 className="text-4xl font-semibold text-gray-900">
                   Edit Profile
