@@ -234,10 +234,10 @@ const page = () => {
       state: profile.state ?? cachedProfile?.state ?? decodedProfile.state ?? "",
       bio: profile.bio ?? cachedProfile?.bio ?? "",
       profileImage:
-        profile.profileImage || cachedProfile?.profileImage ?? "",
+        (profile.profileImage || cachedProfile?.profileImage) ?? "",
     });
 
-    setPreview(profile.profileImage || cachedProfile?.profileImage ?? null);
+    setPreview((profile.profileImage || cachedProfile?.profileImage) ?? null);
   }, [cachedProfile, decodedProfile, profile, reset]);
 
   const handleButtonClick = () => {
