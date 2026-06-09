@@ -101,6 +101,8 @@ export const useUserProfile = (userId?: string, enabled = true) => {
 export const useUpdateUserProfile = (userId?: string) => {
   const queryClient = useQueryClient();
 
+    const router = useRouter();
+
   return useMutation<userProfile, Error, updateUserPayload>({
     mutationFn: (payload) => updateUserProfile(payload, userId as string),
     onSuccess: (data: any, variables) => {

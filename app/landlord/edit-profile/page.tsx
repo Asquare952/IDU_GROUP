@@ -9,6 +9,9 @@ import { MoveLeft, Upload } from "lucide-react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import DashboardLayout from "@/app/components/Dashboard/DashboardLayout";
 import {
+  ImportantNoticeData2,
+} from "@/app/components/Tenant-Dashboard/config/DashboardDatas";
+import {
   useChangePassword,
   useUpdateUserProfile,
   useUserProfile,
@@ -17,6 +20,7 @@ import { getProfileDisplayFields } from "@/app/api/features/auth/profile-display
 import { AuthResponse, updateUserPayload } from "@/app/api/features/auth/types";
 import { readCachedProfile } from "@/app/api/features/auth/profile-cache";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 type DecodedToken = {
   id?: string;
@@ -29,6 +33,7 @@ type DecodedToken = {
   phone_no?: string;
   address?: string;
   state?: string;
+  is_verified?: boolean;
 };
 
 type EditProfileFormValues = {
@@ -128,6 +133,7 @@ const compressImage = async (file: File) => {
 };
 
 const page = () => {
+  const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | undefined>(undefined);
@@ -170,6 +176,7 @@ const page = () => {
         email: decoded.email ?? "",
         address: decoded.address ?? "",
         state: decoded.state ?? "",
+
       });
     } catch {
       setUserId(undefined);
@@ -344,6 +351,7 @@ const page = () => {
           { keepDirty: false },
         );
       }
+      router.push("/landlord/profile");
     } catch {
       // Mutation hooks already handle user-facing errors.
     }
@@ -368,6 +376,20 @@ const page = () => {
                 <MoveLeft />
                 <span>Back to Profile</span>
               </Link>
+              {profile?.is_verified === false ? <div className="mt-4 p-6 bg-[#fff9E6] border border-[#ffd966] rounded-[1.5rem] flex gap-4 items-start shadow-sm">
+                <div className="text-[#b45309] mt-1">
+                  <ImportantNoticeData2.icon size={24} />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <h4 className="font-bold text-[#92400E] mb-1">
+                    {ImportantNoticeData2.title}
+                  </h4>
+
+                  <p className="text-[#B45309] leading-relaxed font-medium">
+                    {ImportantNoticeData2.message}
+                  </p>
+                </div>
+              </div> : ""}
               <div className="flex flex-col gap-1">
                 <h1 className="text-4xl font-semibold text-gray-900">
                   Edit Profile
