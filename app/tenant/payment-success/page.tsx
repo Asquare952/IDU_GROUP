@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo } from "react";
+import { Suspense, useMemo,  } from "react";
 import { CheckCircle, Home, List, ArrowRight } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-const page = () => {
+const PaymentSuccessContent = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -75,4 +75,10 @@ const page = () => {
   );
 };
 
-export default page;
+export default function page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PaymentSuccessContent />
+    </Suspense>
+  );
+}
