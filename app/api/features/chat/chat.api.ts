@@ -110,12 +110,11 @@ const normalizeUser = (value: unknown): User => {
       "participant_id",
       "participantId",
     ]) || "";
-  const firstName =
+  const fullName =
     findStringByKeys(record, [
-      "first_name",
-      "firstName",
-      "name",
+      "full_name",
       "fullName",
+      "name",
       "username",
       "email",
     ]) || "";
@@ -123,11 +122,8 @@ const normalizeUser = (value: unknown): User => {
   return {
     _id: id,
     id,
-    first_name: firstName,
-    last_name: findStringByKeys(record, ["last_name", "lastName"]),
-    name: findStringByKeys(record, ["name"]),
+    full_name: fullName,
     fullName: findStringByKeys(record, ["fullName"]),
-    firstName: findStringByKeys(record, ["firstName"]),
     email: findStringByKeys(record, ["email"]),
     role: findStringByKeys(record, ["role"]) as User["role"],
   };
@@ -186,7 +182,7 @@ const uniqueUsers = (users: User[]) => {
   const seen = new Set<string>();
 
   return users.filter((user) => {
-    const key = user._id || user.id || user.first_name || user.name;
+    const key = user._id || user.id || user.full_name;
 
     if (!key || seen.has(key)) {
       return false;

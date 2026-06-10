@@ -28,8 +28,7 @@ type DecodedToken = {
   userId?: string;
   _id?: string;
   email?: string;
-  first_name?: string;
-  last_name?: string;
+  full_name?: string;
   phone_no?: string;
   address?: string;
   state?: string;
@@ -37,8 +36,7 @@ type DecodedToken = {
 };
 
 type EditProfileFormValues = {
-  first_name: string;
-  last_name: string;
+  full_name: string;
   phone_no: string;
   email: string;
   address: string;
@@ -51,8 +49,7 @@ type EditProfileFormValues = {
 };
 
 const defaultValues: EditProfileFormValues = {
-  first_name: "",
-  last_name: "",
+  full_name: "",
   phone_no: "",
   email: "",
   address: "",
@@ -155,8 +152,7 @@ const page = () => {
     defaultValues,
   });
 
-  const firstName = watch("first_name");
-  const lastName = watch("last_name");
+  const fullName = watch("full_name");
 
   useEffect(() => {
     const token = Cookies.get("ACCESS_TOKEN");
@@ -170,13 +166,11 @@ const page = () => {
       const decoded = jwtDecode<DecodedToken>(token);
       setUserId(decoded.id ?? decoded.userId ?? decoded._id ?? decoded.sub);
       setDecodedProfile({
-        first_name: decoded.first_name ?? "",
-        last_name: decoded.last_name ?? "",
+        full_name: decoded.full_name ?? "",
         phone_no: decoded.phone_no ?? "",
         email: decoded.email ?? "",
         address: decoded.address ?? "",
         state: decoded.state ?? "",
-
       });
     } catch {
       setUserId(undefined);
@@ -197,54 +191,53 @@ const page = () => {
     useChangePassword();
 
   useEffect(() => {
-    const cachedDisplay = getProfileDisplayFields(cachedProfile);
-    const profileDisplay = getProfileDisplayFields(profile);
-    const decodedDisplay = getProfileDisplayFields(decodedProfile);
+    const mergedProfile = {
+      ...profile,
+      ...cachedProfile,
+    };
 
-    if (!profile) {
+    const profileDisplay = getProfileDisplayFields(profile);
+    const cachedDisplay = getProfileDisplayFields(cachedProfile);
+    const decodedDisplay = getProfileDisplayFields(decodedProfile);
+    const displayFullName =
+      profileDisplay.fullName ||
+      cachedDisplay.fullName ||
+      decodedDisplay.fullName ||
+      "";
+    const displayEmail =
+      profileDisplay.email || cachedDisplay.email || decodedDisplay.email || "";
+
+    if (!profile && !cachedProfile) {
       reset({
         ...defaultValues,
-        first_name:
-          cachedDisplay.firstName ?? decodedDisplay.firstName ?? "",
-        last_name:
-          cachedDisplay.lastName ?? decodedDisplay.lastName ?? "",
-        phone_no: cachedProfile?.phone_no ?? decodedProfile.phone_no ?? "",
-        email: cachedDisplay.email ?? decodedDisplay.email ?? "",
-        address: cachedProfile?.address ?? decodedProfile.address ?? "",
-        state: cachedProfile?.state ?? decodedProfile.state ?? "",
-        bio: cachedProfile?.bio ?? "",
-        profileImage: cachedProfile?.profileImage ?? "",
+        full_name: displayFullName,
+        phone_no: decodedProfile.phone_no ?? "",
+        email: displayEmail,
+        address: decodedProfile.address ?? "",
+        state: decodedProfile.state ?? "",
+        bio: "",
+        profileImage: "",
       });
 
-      setPreview(cachedProfile?.profileImage ?? null);
+      setPreview(null);
       return;
     }
 
     reset({
       ...defaultValues,
-      first_name:
-        profileDisplay.firstName ??
-        cachedDisplay.firstName ??
-        decodedDisplay.firstName ??
-        "",
-      last_name:
-        profileDisplay.lastName ??
-        cachedDisplay.lastName ??
-        decodedDisplay.lastName ??
-        "",
-      phone_no:
-        profile.phone_no ?? cachedProfile?.phone_no ?? decodedProfile.phone_no ?? "",
-      email:
-        profileDisplay.email ?? cachedDisplay.email ?? decodedDisplay.email ?? "",
-      address:
-        profile.address ?? cachedProfile?.address ?? decodedProfile.address ?? "",
-      state: profile.state ?? cachedProfile?.state ?? decodedProfile.state ?? "",
-      bio: profile.bio ?? cachedProfile?.bio ?? "",
+      full_name: displayFullName,
+      phone_no: profile?.phone_no ?? cachedProfile?.phone_no ?? decodedProfile.phone_no ?? "",
+      email: displayEmail,
+      address: profile?.address ?? cachedProfile?.address ?? decodedProfile.address ?? "",
+      state: profile?.state ?? cachedProfile?.state ?? decodedProfile.state ?? "",
+      bio: profile?.bio ?? cachedProfile?.bio ?? "",
       profileImage:
-        (profile.profileImage || cachedProfile?.profileImage) ?? "",
+        profile?.profileImage || cachedProfile?.profileImage || "",
     });
 
-    setPreview((profile.profileImage || cachedProfile?.profileImage) ?? null);
+    setPreview(
+      profile?.profileImage || cachedProfile?.profileImage || null,
+    );
   }, [cachedProfile, decodedProfile, profile, reset]);
 
   const handleButtonClick = () => {
@@ -285,6 +278,9 @@ const page = () => {
   };
 
   const onSubmit: SubmitHandler<EditProfileFormValues> = async ({
+    state,
+    address,
+    phone_no,
     bio,
     profileImage,
     currentPassword,
@@ -292,13 +288,21 @@ const page = () => {
     confirmPassword,
   }) => {
     const payload: updateUserPayload = {
+      phone_no,
+      address,
+      state,
       bio,
       profileImage,
     };
 
+    const originalPhone = profile?.phone_no ?? cachedProfile?.phone_no ?? "";
+    const originalState = profile?.state ?? cachedProfile?.state ?? "";
+    const originalAddress = profile?.address ?? cachedProfile?.address ?? "";
     const originalBio = profile?.bio ?? cachedProfile?.bio ?? "";
     const originalProfileImage = profile?.profileImage ?? cachedProfile?.profileImage ?? "";
-    const shouldUpdateProfile =
+    const shouldUpdateProfile = phone_no !== originalPhone ||
+      state !== originalState ||
+      address !== originalAddress ||
       bio !== originalBio || profileImage !== originalProfileImage;
     const shouldChangePassword =
       !!currentPassword || !!newPassword || !!confirmPassword;
@@ -329,6 +333,9 @@ const page = () => {
         await updateProfile(payload);
         setCachedProfile((current) => ({
           ...(current ?? {}),
+          state,
+          address,
+          phone_no,
           bio,
           profileImage,
         }));
@@ -357,20 +364,22 @@ const page = () => {
     }
   };
 
-  const initials = `${firstName?.[0] ?? ""}${lastName?.[0] ?? ""}`.trim() || "U";
+  const initials = `${fullName?.[0] ?? ""}`.trim() || "U";
   const imageSrc = preview || null;
   const isBusy =
     isProfileLoading || isUpdating || isChangingPassword || isSubmitting;
-
 
   return (
     <DashboardLayout>
       <section className="min-h-screen bg-[#F8F9FA] p-8">
         <div className="mx-auto flex max-w-325 flex-col gap-3.5">
+
+
+
           <div className="flex flex-col gap-3.5">
             <div className="flex flex-col gap-4">
               <Link
-                href="/tenant/dashboard/profile"
+                href="/landlord/profile"
                 className="flex items-center gap-1.5"
               >
                 <MoveLeft />
@@ -447,38 +456,22 @@ const page = () => {
                   Personal Information
                 </h2>
 
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <div className="flex flex-col gap-1">
-                    <label
-                      htmlFor="first_name"
-                      className="mb-2 block text-sm font-medium text-gray-700"
-                    >
-                      First Name
-                    </label>
-                    <input
-                      id="first_name"
-                      type="text"
-                      {...register("first_name")}
-                      readOnly
-                      className="w-full rounded-lg border border-gray-200 bg-gray-100 px-4 py-3 text-gray-600 outline-none"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label
-                      htmlFor="last_name"
-                      className="mb-2 block text-sm font-medium text-gray-700"
-                    >
-                      Last Name
-                    </label>
-                    <input
-                      id="last_name"
-                      type="text"
-                      {...register("last_name")}
-                      readOnly
-                      className="w-full rounded-lg border border-gray-200 bg-gray-100 px-4 py-3 text-gray-600 outline-none"
-                    />
-                  </div>
+                <div className="flex flex-col gap-1">
+                  <label
+                    htmlFor="first_name"
+                    className="mb-2 block text-sm font-medium text-gray-700"
+                  >
+                    Full Name
+                  </label>
+                  <input
+                    id="full_name"
+                    type="text"
+                    {...register("full_name")}
+                    readOnly
+                    className="w-full rounded-lg border border-gray-200 bg-gray-100 px-4 py-3 text-gray-600 outline-none"
+                  />
                 </div>
+
                 <div className="flex flex-col gap-2">
                   <label
                     htmlFor="bio"
@@ -528,7 +521,20 @@ const page = () => {
                       id="phone_no"
                       type="text"
                       {...register("phone_no")}
-                      readOnly
+                      className="w-full rounded-lg border border-gray-200 bg-gray-100 px-4 py-3 text-gray-600 outline-none"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label
+                      htmlFor="state"
+                      className="mb-2 block text-sm font-medium text-gray-700"
+                    >
+                      State of Residence
+                    </label>
+                    <input
+                      id="state"
+                      type="text"
+                      {...register("state")}
                       className="w-full rounded-lg border border-gray-200 bg-gray-100 px-4 py-3 text-gray-600 outline-none"
                     />
                   </div>
@@ -543,7 +549,6 @@ const page = () => {
                       id="address"
                       type="text"
                       {...register("address")}
-                      readOnly
                       className="w-full rounded-lg border border-gray-200 bg-gray-100 px-4 py-3 text-gray-600 outline-none"
                     />
                   </div>

@@ -1,11 +1,8 @@
 export interface User {
   _id: string;
   id?: string;
-  first_name: string;
-  last_name?: string;
-  name?: string;
+  full_name: string;
   fullName?: string;
-  firstName?: string;
   email?: string;
   role?: "tenant" | "landlord";
 }

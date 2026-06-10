@@ -188,7 +188,7 @@ function PropertyDesktopViewContent() {
     ].slice(0, 5)
     : [];
   const landlordName = property.User
-    ? `${property.User.first_name} ${property.User.last_name}`.trim()
+    ? `${property.User.full_name}`.trim()
     : "Verified Landlord";
 
   const access = hasAccessToken() as any;
@@ -220,10 +220,10 @@ function PropertyDesktopViewContent() {
                   </div>
                 )}
 
-                <div className="absolute left-5 top-5 rounded bg-white px-4 py-3 text-sm font-black text-gray-900 shadow-lg">
+                {/* <div className="absolute left-5 top-5 rounded bg-white px-4 py-3 text-sm font-black text-gray-900 shadow-lg">
                   From N{Number(property.price).toLocaleString()} /{" "}
                   <span className="lowercase">{property.priceType}</span>
-                </div>
+                </div> */}
               </div>
 
               {galleryImages.length > 1 && (

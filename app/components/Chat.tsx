@@ -27,15 +27,11 @@ const getParticipantId = (participant: User) =>
   participant._id ?? participant.id ?? "";
 
 const getParticipantName = (participant: User) => {
-  const firstName = participant.first_name ?? participant.firstName ?? "";
-  const lastName = participant.last_name ?? "";
-  const combinedName = `${firstName} ${lastName}`.trim();
-  const initials = firstName && lastName ? `${firstName[0]}${lastName[0]}` : "";
+  const fullName = participant.full_name ?? participant.fullName ?? "";
+  const initials = fullName ? `${fullName[0]}` : "";
 
   return (
-    participant.fullName ||
-    participant.name ||
-    combinedName ||
+    fullName ||
     initials ||
     participant.email ||
     getParticipantId(participant) ||
@@ -54,8 +50,8 @@ const getConversationTitle = (
   const participants = conversation.participants ?? [];
   const otherParticipants = currentUserId
     ? participants.filter(
-        (participant) => getParticipantId(participant) !== currentUserId,
-      )
+      (participant) => getParticipantId(participant) !== currentUserId,
+    )
     : participants;
   const displayParticipants =
     otherParticipants.length > 0 ? otherParticipants : participants;
@@ -64,7 +60,7 @@ const getConversationTitle = (
     .filter(Boolean)
     .join(", ");
 
-  return names || "Conversation";
+  return names || "";
 };
 
 const getConversationInitial = (
@@ -124,8 +120,8 @@ const Chat = () => {
     .map((conversation) =>
       sanitizeConversationId(
         (conversation as any).conversation_id ??
-          (conversation as any)._id ??
-          (conversation as any).id,
+        (conversation as any)._id ??
+        (conversation as any).id,
       ),
     )
     .filter(Boolean);
@@ -230,10 +226,10 @@ const Chat = () => {
             conversations: oldData.conversations.map((conversation) =>
               conversation.conversation_id === msg.conversation_id
                 ? {
-                    ...conversation,
-                    lastMessage: msg,
-                    updatedAt: msg.createdAt || conversation.updatedAt,
-                  }
+                  ...conversation,
+                  lastMessage: msg,
+                  updatedAt: msg.createdAt || conversation.updatedAt,
+                }
                 : conversation,
             ),
           };
@@ -313,7 +309,7 @@ const Chat = () => {
           );
           const lastMessagePreview = getLastMessagePreview(
             lastMessageByConversationId.get(convId) ??
-              conversation.lastMessage,
+            conversation.lastMessage,
           );
           const lastMessageTime = formatMessageTime(
             (lastMessageByConversationId.get(convId) ?? conversation.lastMessage)
@@ -352,7 +348,7 @@ const Chat = () => {
                   {lastMessagePreview}
                 </span>
               </div>
-              
+
             </button>
           );
         })}
