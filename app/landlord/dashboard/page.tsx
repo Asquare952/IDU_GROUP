@@ -14,8 +14,8 @@ import { AuthResponse } from "@/app/api/features/auth/types";
 import { readCachedProfile } from "@/app/api/features/auth/profile-cache";
 import Image from "next/image";
 import { PenLine, Trash2, Loader2 } from "lucide-react";
-import ReviewGraph from "@/public/assets/income-overview-graph.webp";
-import SnapshotGraph from "@/public/assets/tenants-activity-snapshot-graph.png";
+// import ReviewGraph from "@/public/assets/income-overview-graph.webp";
+// import SnapshotGraph from "@/public/assets/tenants-activity-snapshot-graph.png";
 import { getCurrentUserId } from "@/app/lib/auth";
 import Swal from "sweetalert2";
 import { jwtDecode } from "jwt-decode";
@@ -27,14 +27,14 @@ type DecodedToken = {
   sub?: string;
   userId?: string;
   _id?: string;
-  first_name?: string;
+  full_name?: string;
 };
 
 export default function Page() {
   const [userId, setUserId] = useState<string>();
-    const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
-    const [cachedProfile, setCachedProfile] = useState<HeaderUser>();
-    const [decodedProfile, setDecodedProfile] = useState<Partial<HeaderUser>>({});
+  const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
+  const [cachedProfile, setCachedProfile] = useState<HeaderUser>();
+  const [decodedProfile, setDecodedProfile] = useState<Partial<HeaderUser>>({});
   const router = useRouter();
   const [rentals, setRentals] = useState<Rental[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,7 +57,7 @@ export default function Page() {
       const decoded = jwtDecode<DecodedToken>(token);
       setUserId(decoded.id ?? decoded.userId ?? decoded._id ?? decoded.sub);
       setDecodedProfile({
-        first_name: decoded.first_name,
+        full_name: decoded.full_name,
       });
     } catch {
       setUserId(undefined);
@@ -68,8 +68,8 @@ export default function Page() {
   }, []);
 
   const { data: user, isLoading } = useUserProfile(userId, hasCheckedAuth);
-  const displayFirstName =
-    cachedProfile?.first_name ?? user?.first_name ?? decodedProfile.first_name ?? "";
+  const displayName =
+    cachedProfile?.full_name ?? user?.full_name ?? decodedProfile.full_name ?? "";
 
   const fetchRentals = async () => {
     try {
@@ -159,7 +159,7 @@ export default function Page() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-xl md:text-3xl font-extrabold text-[#162B4C]">
-              Welcome back, {displayFirstName}
+              Welcome back, {displayName}
             </h1>
             <p className="text-sm md:text-base text-slate-500 font-medium">
               Here is how your properties are performing today.
@@ -352,7 +352,7 @@ export default function Page() {
           </div>
 
           {/* Income Overview */}
-          <div className="bg-white p-6 rounded-[1.5rem] md:rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-4">
+          {/* <div className="bg-white p-6 rounded-[1.5rem] md:rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-4">
             <div className="flex flex-col md:flex-row justify-between gap-4">
               <div>
                 <h3 className="font-bold text-[#162B4C]">Income Overview</h3>
@@ -376,10 +376,10 @@ export default function Page() {
                 className="w-full h-auto"
               />
             </div>
-          </div>
+          </div> */}
 
           {/* Tenant Activity Snapshots */}
-          <div className="bg-white p-6 rounded-[1.5rem] md:rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-6">
+          {/* <div className="bg-white p-6 rounded-[1.5rem] md:rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-6">
             <h3 className="font-bold text-[#162B4C]">
               Tenants Activity Snapshots
             </h3>
@@ -426,7 +426,7 @@ export default function Page() {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </section>
     </DashboardLayout>

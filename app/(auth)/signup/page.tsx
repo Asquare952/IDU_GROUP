@@ -136,28 +136,9 @@ const page = () => {
                 )}
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
-                    Gender
-                  </label>
-                  <div className="relative">
-                    <select
-                      {...register("gender", {
-                        required: "Gender is required",
-                      })}
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none appearance-none cursor-pointer"
-                    >
-                      <option value="male">Male</option>
-                      <option value="female">Female</option>
-                    </select>
-                    <ChevronDown
-                      size={14}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-                    />
-                  </div>
-                </div>
-              </div>
+
+
+
 
               <div className="space-y-1">
                 <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
@@ -185,6 +166,27 @@ const page = () => {
                     {errors.email.message as string}
                   </p>
                 )}
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
+                  Gender
+                </label>
+                <div className="relative">
+                  <select
+                    {...register("gender", {
+                      required: "Gender is required",
+                    })}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none appearance-none cursor-pointer"
+                  >
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                  </select>
+                  <ChevronDown
+                    size={14}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                  />
+                </div>
               </div>
 
               <div className="space-y-1">
@@ -264,7 +266,7 @@ const page = () => {
                 </Link>
               </p>
 
-              <div className="relative py-2">
+              {/* <div className="relative py-2">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-100"></div>
                 </div>
@@ -279,7 +281,7 @@ const page = () => {
                 <div className="flex-1">
                   <GoogleAuthButton mode="signup" />
                 </div>
-              </div>
+              </div> */}
 
               <button
                 className="w-full bg-[#4CAF50] text-white py-4 rounded-2xl font-bold hover:bg-[#43A047] shadow-xl shadow-green-100 transition-all active:scale-[0.98] cursor-pointer"

@@ -2,8 +2,7 @@ export type RentalStatus = "available" | "pending" | "locked" | "rented" | strin
 
 export interface RentalUser {
   id: string;
-  first_name: string;
-  last_name: string;
+  full_name: string;
   phone_no: string;
   Profile?: {
     image: string;
@@ -106,8 +105,7 @@ export type LandlordProfile = {
 
 export type LandlordListedProperties = {
   id: string;
-  first_name: string;
-  last_name: string;
+  full_name: string;
   gender: string;
   phone_no: string;
   address: string;
