@@ -265,7 +265,7 @@ const LockedRentalCard = ({ item }: { item: Rental }) => {
   const images = item.images.length > 0 ? item.images : [];
   const activeImage = images[currentSlide];
   const landlordName = item.User
-    ? `${item.User.first_name} ${item.User.last_name}`.trim()
+    ? `${item.User.full_name}`.trim()
     : "Landlord";
 
   const nextSlide = () => {
