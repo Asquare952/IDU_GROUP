@@ -289,8 +289,7 @@ export const fetchLandlordListedProperties =
 
     return {
       id: String(user?.id ?? userId),
-      first_name: String(user?.first_name ?? ""),
-      last_name: String(user?.last_name ?? ""),
+      full_name: String(user?.full_name ?? ""),
       gender: typeof user?.gender === "string" ? user.gender : "",
       phone_no: String(user?.phone_no ?? ""),
       address: typeof user?.address === "string" ? user.address : "",
