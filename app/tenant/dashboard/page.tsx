@@ -30,7 +30,7 @@ import {
   useLikeRental,
   useLockedRentals,
   useUnlikeRental,
-  useLikedRentals
+  useLikedRentals,
 } from "@/app/api/features/progress/progress.queries";
 import { getPropertyDetailsPath } from "@/app/lib/property-routes";
 import { hasAccessToken } from "@/app/lib/auth";
@@ -75,20 +75,23 @@ const Page = () => {
   const activeLockImages = activeLockedRental?.images ?? [];
   const activeLockProgress = getActiveLockProgress(activeLockedRental);
 
-  const dashMetrics = useMemo<DashboardMetricsType[]>(() => [
-    {
-      id: 1,
-      name: "Saved house",
-      figure: likedRentals?.length || 0,
-      icon: Heart,
-    },
-    {
-      id: 4,
-      name: "Active Locks",
-      figure: lockedRentals?.length || 0,
-      icon: Lock,
-    },
-  ], [likedRentals, lockedRentals]);
+  const dashMetrics = useMemo<DashboardMetricsType[]>(
+    () => [
+      {
+        id: 1,
+        name: "Saved house",
+        figure: likedRentals?.length || 0,
+        icon: Heart,
+      },
+      {
+        id: 4,
+        name: "Active Locks",
+        figure: lockedRentals?.length || 0,
+        icon: Lock,
+      },
+    ],
+    [likedRentals, lockedRentals],
+  );
 
   useEffect(() => {
     if ((properties ?? []).length > 0 && !hasInitializedRef.current) {
@@ -245,10 +248,11 @@ const Page = () => {
                         key={index}
                         type="button"
                         onClick={() => setCurrentSlide(index)}
-                        className={`h-2 rounded-full transition-all duration-300 ${currentSlide === index
-                          ? "w-8 bg-[#43A047]"
-                          : "w-2 bg-white/60 hover:bg-white"
-                          }`}
+                        className={`h-2 rounded-full transition-all duration-300 ${
+                          currentSlide === index
+                            ? "w-8 bg-[#43A047]"
+                            : "w-2 bg-white/60 hover:bg-white"
+                        }`}
                       />
                     ))}
                   </div>
@@ -326,35 +330,34 @@ const Page = () => {
               </div>
             </div>
           </div>
-        ) : (
-          null
-          // <div className="flex min-h-[320px] w-full flex-col justify-center gap-5 rounded-[2rem] border border-gray-50 bg-white p-8 shadow-xl">
-          //   <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#E8F5E9] text-[#43A047]">
-          //     <Lock size={26} />
-          //   </div>
-          //   <div>
-          //     <h2 className="text-2xl font-bold text-[#162B4C]">
-          //       No active locked house yet
-          //     </h2>
-          //     <p className="mt-2 max-w-2xl text-sm text-gray-500">
-          //       When you lock a property, the latest active lock will appear
-          //       here so you can jump back into it quickly.
-          //     </p>
-          //   </div>
-          //   <div className="flex flex-col gap-3 sm:flex-row">
-          //     <Link href="/tenant/saved-house" className="w-full sm:w-auto">
-          //       <button className="w-full cursor-pointer rounded-2xl bg-[#43A047] px-6 py-3 text-sm font-bold text-white transition-all hover:bg-green-700 active:scale-95">
-          //         View Saved Houses
-          //       </button>
-          //     </Link>
-          //     <Link href="/properties" className="w-full sm:w-auto">
-          //       <button className="w-full cursor-pointer rounded-2xl border border-gray-200 px-6 py-3 text-sm font-bold text-[#162B4C] transition-all hover:bg-gray-50 active:scale-95">
-          //         Browse Properties
-          //       </button>
-          //     </Link>
-          //   </div>
-          // </div>
-        )}
+        ) : null
+        // <div className="flex min-h-[320px] w-full flex-col justify-center gap-5 rounded-[2rem] border border-gray-50 bg-white p-8 shadow-xl">
+        //   <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#E8F5E9] text-[#43A047]">
+        //     <Lock size={26} />
+        //   </div>
+        //   <div>
+        //     <h2 className="text-2xl font-bold text-[#162B4C]">
+        //       No active locked house yet
+        //     </h2>
+        //     <p className="mt-2 max-w-2xl text-sm text-gray-500">
+        //       When you lock a property, the latest active lock will appear
+        //       here so you can jump back into it quickly.
+        //     </p>
+        //   </div>
+        //   <div className="flex flex-col gap-3 sm:flex-row">
+        //     <Link href="/tenant/saved-house" className="w-full sm:w-auto">
+        //       <button className="w-full cursor-pointer rounded-2xl bg-[#43A047] px-6 py-3 text-sm font-bold text-white transition-all hover:bg-green-700 active:scale-95">
+        //         View Saved Houses
+        //       </button>
+        //     </Link>
+        //     <Link href="/properties" className="w-full sm:w-auto">
+        //       <button className="w-full cursor-pointer rounded-2xl border border-gray-200 px-6 py-3 text-sm font-bold text-[#162B4C] transition-all hover:bg-gray-50 active:scale-95">
+        //         Browse Properties
+        //       </button>
+        //     </Link>
+        //   </div>
+        // </div>
+        }
 
         {/* Metrics Section */}
         <div className="grid grid-cols-2 gap-2">
@@ -393,97 +396,107 @@ const Page = () => {
               viewport={{ once: true, margin: "-100px" }}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
             >
-              {properties?.slice(0, 3).map((item, i) => (
-                <motion.div
-                  key={item.id}
-                  onClick={() => (getPropertyDetailsPath(item))}
-                  custom={i}
-                  variants={itemVariants}
-                  whileHover={{ y: -10 }}
-                  className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group cursor-pointer"
-                >
-                  <div className="relative h-56 md:h-64 w-full overflow-hidden cursor-pointer">
-                    <div
-                      // href={getPropertyDetailsPath(item)}
-                      className="block h-full w-full"
-                    >
-                      {item.images && item.images.length > 0 ? (
-                        <Image
-                          src={item.images[0]}
-                          alt={item.title}
-                          fill
-                          className="object-cover rounded-3xl p-3 transition-transform duration-500 group-hover:scale-110"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gray-200 rounded-3xl p-3 flex items-center justify-center text-gray-400 text-sm">
-                          No Image
-                        </div>
-                      )}
-                    </div>
-                    <button
-                      type="button"
-                      className="absolute top-5 right-5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#162B4C] shadow-sm transition hover:text-red-500 cursor-pointer"
-                      aria-label={`Save ${item.title}`}
-                      onClick={(event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        handleLikeToggle(String(item.id));
-                      }}
-                    >
-                      {likedPropertyIds.has(String(item.id)) ? (
-                        <HiHeart size={22} className="text-red-500" />
-                      ) : (
-                        <HiOutlineHeart size={22} />
-                      )}
-                    </button>
-                  </div>
+              {properties?.slice(0, 3).map((item, i) => {
+                const handleCardClick = () => {
+                  router.push(getPropertyDetailsPath(item));
+                };
 
-                  <div className="p-5">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <p className="text-gray-900 font-bold text-xl">
-                          ₦{Number(item.price).toLocaleString()}
-                          <span className="text-sm font-normal text-gray-400">
-                            {" "}
-                            / {item.priceType}
-                          </span>
-                        </p>
-                        <div>
-                          <h3 className="text-gray-800 font-semibold text-lg hover:text-[#43A047] transition-colors cursor-pointer">
-                            {item.title}
-                          </h3>
-                        </div>
-                      </div>
-                      <motion.button
-                        whileTap={{ scale: 0.95 }}
-                        whileHover={{ scale: 1.05 }}
-                        className="bg-[#E8F5E9] text-[#43A047] text-xs font-bold px-4 py-1.5 rounded-full cursor-pointer"
+                return (
+                  <motion.div
+                    key={item.id}
+                    onClick={handleCardClick}
+                    custom={i}
+                    variants={itemVariants}
+                    whileHover={{ y: -10 }}
+                    className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group cursor-pointer"
+                  >
+                    <div className="relative h-56 md:h-64 w-full overflow-hidden cursor-pointer">
+                      <div
+                        // href={getPropertyDetailsPath(item)}
+                        className="block h-full w-full"
                       >
-                        View
-                      </motion.button>
+                        {item.images && item.images.length > 0 ? (
+                          <Image
+                            src={item.images[0]}
+                            alt={item.title}
+                            fill
+                            className="object-cover rounded-3xl p-3 transition-transform duration-500 group-hover:scale-110"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gray-200 rounded-3xl p-3 flex items-center justify-center text-gray-400 text-sm">
+                            No Image
+                          </div>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        className="absolute top-5 right-5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#162B4C] shadow-sm transition hover:text-red-500 cursor-pointer"
+                        aria-label={`Save ${item.title}`}
+                        onClick={(event) => {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          handleLikeToggle(String(item.id));
+                        }}
+                      >
+                        {likedPropertyIds.has(String(item.id)) ? (
+                          <HiHeart size={22} className="text-red-500" />
+                        ) : (
+                          <HiOutlineHeart size={22} />
+                        )}
+                      </button>
                     </div>
 
-                    <p className="text-gray-400 text-sm mb-4 leading-relaxed line-clamp-2">
-                      {item.description}
-                    </p>
-
-                    <div className="flex flex-wrap gap-4 border-t border-gray-50 pt-4">
-                      <div className="flex items-center gap-2">
-                        <House size={16} className="text-gray-400" />
-                        <span className="text-xs text-gray-500 font-medium">
-                          {item.propertyType}
-                        </span>
+                    <div className="p-5">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <p className="text-gray-900 font-bold text-xl">
+                            ₦{Number(item.price).toLocaleString()}
+                            <span className="text-sm font-normal text-gray-400">
+                              {" "}
+                              / {item.priceType}
+                            </span>
+                          </p>
+                          <div>
+                            <h3 className="text-gray-800 font-semibold text-lg hover:text-[#43A047] transition-colors cursor-pointer">
+                              {item.title}
+                            </h3>
+                          </div>
+                        </div>
+                        <motion.button
+                          whileTap={{ scale: 0.95 }}
+                          whileHover={{ scale: 1.05 }}
+                          className="bg-[#E8F5E9] text-[#43A047] text-xs font-bold px-4 py-1.5 rounded-full cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCardClick();
+                          }}
+                        >
+                          View
+                        </motion.button>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <MapPin size={16} className="text-gray-400" />
-                        <span className="text-xs text-gray-500 font-medium">
-                          {item.location}
-                        </span>
+
+                      <p className="text-gray-400 text-sm mb-4 leading-relaxed line-clamp-2">
+                        {item.description}
+                      </p>
+
+                      <div className="flex flex-wrap gap-4 border-t border-gray-50 pt-4">
+                        <div className="flex items-center gap-2">
+                          <House size={16} className="text-gray-400" />
+                          <span className="text-xs text-gray-500 font-medium">
+                            {item.propertyType}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <MapPin size={16} className="text-gray-400" />
+                          <span className="text-xs text-gray-500 font-medium">
+                            {item.location}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                );
+              })}
             </motion.div>
           )}
         </div>
@@ -534,13 +547,14 @@ const Page = () => {
                 {SafetyAction.map((action) => (
                   <button
                     key={action.id}
-                    className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${action.variant === "danger"
-                      ? "bg-[#FF3B30] text-white hover:bg-red-700"
-                      : action.variant === "Success" ||
-                        action.variant === "success"
-                        ? "bg-[#43A047] text-white hover:bg-green-700"
-                        : "bg-[#F2F2F7] text-[#162B4C] hover:bg-gray-200"
-                      }`}
+                    className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                      action.variant === "danger"
+                        ? "bg-[#FF3B30] text-white hover:bg-red-700"
+                        : action.variant === "Success" ||
+                            action.variant === "success"
+                          ? "bg-[#43A047] text-white hover:bg-green-700"
+                          : "bg-[#F2F2F7] text-[#162B4C] hover:bg-gray-200"
+                    }`}
                   >
                     <action.icon size={20} />
                     {action.label}
