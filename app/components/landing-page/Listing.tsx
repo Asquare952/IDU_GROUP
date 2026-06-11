@@ -12,7 +12,7 @@ import { useLikeRental, useUnlikeRental } from "@/app/api";
 import { containerVariants, itemVariants } from "@/app/components/animation";
 import { getPropertyDetailsPath } from "@/app/lib/property-routes";
 import { hasAccessToken } from "@/app/lib/auth";
-import { House, MapPin } from 'lucide-react';
+import { House, MapPin } from "lucide-react";
 
 const getStatusStyle = (status: string) => {
   switch (status) {
@@ -137,18 +137,24 @@ const Listing = () => {
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
             {properties.slice(0, 10).map((item, i) => {
-              const propertyPath = getPropertyDetailsPath(item);
-              const viewHref = isLoggedIn ? propertyPath : "/login";
               const isLiked = likedPropertyIds.has(String(item.id));
+
+              const handleCardClick = () => {
+                if (isLoggedIn) {
+                  router.push(getPropertyDetailsPath(item));
+                } else {
+                  router.push("/login");
+                }
+              };
 
               return (
                 <motion.div
                   key={item.id}
-                  onClick={() => router.push(getPropertyDetailsPath(item))}
+                  onClick={handleCardClick}
                   custom={i}
                   variants={itemVariants}
                   whileHover={{ y: -10 }}
-                  className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
+                  className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer"
                 >
                   <div className="relative h-56 md:h-64 w-full overflow-hidden group">
                     <div className="block h-full w-full">
@@ -215,15 +221,17 @@ const Listing = () => {
                         </h3>
                       </div>
 
-
                       <motion.button
                         whileTap={{ scale: 0.95 }}
                         whileHover={{ scale: 1.05 }}
                         className="bg-[#E8F5E9] text-[#43A047] text-sm md:text-xs font-bold px-4 py-1.5 rounded-full cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCardClick();
+                        }}
                       >
                         View
                       </motion.button>
-
                     </div>
 
                     <p className="text-gray-400 text-base md:text-sm mb-4 leading-relaxed">
