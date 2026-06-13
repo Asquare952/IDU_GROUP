@@ -30,8 +30,13 @@ const Page = () => {
   useEffect(() => {
     const token = Cookies.get("ACCESS_TOKEN");
     const role = Cookies.get("USER_ROLE");
+    const isPaymentReturn = typeof window !== "undefined" && (
+      new URL(window.location.href).searchParams.has("reference") ||
+      new URL(window.location.href).searchParams.has("trxref")
+    );
 
-    if (token) {
+    // Don't redirect if returning from payment — let the payment-success page handle it
+    if (token && !isPaymentReturn) {
       if (role === "landlord") {
         router.replace("/landlord/dashboard");
       } else if (role === "tenant") {
@@ -105,7 +110,7 @@ const Page = () => {
         </div>
       )}
       <div className="relative min-h-screen w-full flex items-center justify-center p-4 md:p-10 overflow-hidden">
-         <div className="absolute top-8 left-8 z-20">
+        <div className="absolute top-8 left-8 z-20">
           <Link
             href="/"
             className="flex items-center gap-2 text-white hover:text-[#4CAF50] transition-colors font-medium text-sm"
@@ -248,10 +253,10 @@ const Page = () => {
                 </div>
               </div>
 
-                {/* <div className="flex-1">
+              {/* <div className="flex-1">
                   <GoogleAuthButton mode="login" />
                 </div> */}
-            
+
 
               <button
                 className="w-full bg-[#4CAF50] text-white py-4 rounded-2xl font-bold hover:bg-[#43A047] shadow-xl shadow-green-100 transition-all active:scale-[0.98] mt-2 cursor-pointer"

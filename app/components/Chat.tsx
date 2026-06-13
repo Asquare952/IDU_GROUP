@@ -280,10 +280,10 @@ const Chat = () => {
       <div className="relative">
         <input
           type="text"
-          className="w-full rounded-md bg-[#ddd] py-1.5 pl-9 pr-6 text-black outline-none"
+          className="w-full rounded-md bg-slate-100 py-1.5 pl-9 pr-6 text-black outline-none border-slate-200"
           placeholder="Search conversations..."
         />
-        <Search className="absolute left-1.5 top-1.5 text-gray-400" size={18} />
+        <Search className="absolute left-1.5 top-2 text-gray-400" size={18} />
       </div>
       <div className="mt-3 border-b border-white/20 md:border-[#ffffff33]" />
       <div className="mt-3 flex-1 space-y-2 overflow-y-auto">
@@ -321,10 +321,10 @@ const Chat = () => {
               key={convId}
               type="button"
               onClick={() => handleConversationSelect(convId)}
-              className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition ${isActive ? "bg-white text-[#43A047]" : "bg-white/10 hover:bg-white/20"}`}
+              className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition cursor-pointer ${isActive ? "bg-[#E8F5E9] text-[#162B4C]" : "bg-white hover:bg-slate-100 text-[#43A047]"}`}
             >
               <div
-                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-black ${isActive ? "bg-[#43A047] text-white" : "bg-white text-[#43A047]"}`}
+                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-black ${isActive ? "bg-[#162B4C] text-white" : "bg-[#F8FAFC] text-[#43A047]"}`}
                 aria-hidden="true"
               >
                 {participantInitial}
@@ -336,14 +336,14 @@ const Chat = () => {
                   </span>
                   {lastMessageTime && (
                     <span
-                      className={`shrink-0 text-[10px] ${isActive ? "text-slate-500" : "text-white/70"}`}
+                      className={`shrink-0 text-[10px] ${isActive ? "text-slate-500" : ""}`}
                     >
                       {lastMessageTime}
                     </span>
                   )}
                 </div>
                 <span
-                  className={`mt-1 block truncate text-xs ${isActive ? "text-slate-500" : "text-white/70"}`}
+                  className={`mt-1 block truncate text-xs ${isActive ? "text-slate-500" : ""}`}
                 >
                   {lastMessagePreview}
                 </span>
@@ -358,7 +358,7 @@ const Chat = () => {
 
   const chatPanel = (
     <>
-      <header className="sticky top-0 z-10 border-b border-[#EBECED] bg-[#43A047] px-4 py-4 text-white md:py-8">
+      <header className="sticky top-0 z-10 border-b border-[#EBECED] bg-[#162B4C] px-4 py-4 text-white md:py-8">
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -370,7 +370,7 @@ const Chat = () => {
           </button>
           <div className=" flex min-w-0 items-center gap-3">
             <div
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-sm font-black text-[#43A047]"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-sm font-black text-[#162B4C]"
               aria-hidden="true"
             >
               {selectedConversationInitial}
@@ -397,7 +397,7 @@ const Chat = () => {
             return (
               <div
                 key={msg._id ?? `message-${idx}`}
-                className={`mb-2 max-w-[85%] rounded-2xl px-4 py-2 md:max-w-[60%] ${isMe ? "self-end bg-green-500 text-white" : "self-start bg-white text-black"} ${msg.isOptimistic ? "opacity-80" : ""}`}
+                className={`mb-2 max-w-[85%] rounded-2xl px-4 py-2 md:max-w-[60%] ${isMe ? "self-end bg-[#43A047] text-white" : "self-start bg-white border border-slate-200 text-[#162B4C]"} ${msg.isOptimistic ? "opacity-80" : ""}`}
               >
                 <p className="whitespace-pre-wrap break-words text-sm">
                   {msg.content}
@@ -439,7 +439,7 @@ const Chat = () => {
   return (
     <section className="relative h-[calc(100dvh-73px)] overflow-hidden bg-white md:h-[88.5vh] md:rounded-2xl md:border md:border-[#EBECED]">
       <div className="hidden h-full md:flex">
-        <div className="flex h-full w-[30%] shrink-0 flex-col border-r bg-[#43A047] p-2.5 text-white">
+        <div className="flex h-full w-[30%] shrink-0 flex-col border-r bg-[#F8FAFC] p-2.5 text-white">
           {conversationList}
         </div>
         <div className="flex h-full flex-1 flex-col bg-white">{chatPanel}</div>

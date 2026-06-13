@@ -171,7 +171,7 @@ const Page = () => {
 
   return (
     <DashboardLayout>
-      <section className="flex flex-col gap-8 px-2.5 py-2.5">
+      <section className="flex flex-col gap-8 px-7 py-2.5">
         {isLoadingLockedRentals ? (
           <div className="flex min-h-[360px] w-full items-center justify-center rounded-[2rem] border border-gray-50 bg-white shadow-xl">
             <div className="flex flex-col items-center gap-3 text-[#43A047]">

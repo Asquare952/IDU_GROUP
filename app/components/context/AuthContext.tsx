@@ -14,10 +14,10 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
-  
+
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  
+
 
   useEffect(() => {
     const token = Cookies.get("ACCESS_TOKEN");
@@ -25,15 +25,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const login = (token: string, role: string, remember?: boolean) => {
+    const secureCookie = window.location.protocol === "https:";
+
     Cookies.set("ACCESS_TOKEN", token, {
       expires: remember ? 7 : 1,
-      secure: window.location.protocol === "https:",
-      sameSite: "strict",
+      secure: secureCookie,
+      sameSite: "lax",
       path: "/",
     });
 
     Cookies.set("USER_ROLE", role, {
       expires: remember ? 7 : 1,
+      secure: secureCookie,
+      sameSite: "lax",
       path: "/",
     });
 
