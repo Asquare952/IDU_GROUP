@@ -358,7 +358,7 @@ const Chat = () => {
 
   const chatPanel = (
     <>
-      <header className="sticky top-0 z-10 border-b border-[#EBECED] bg-[#162B4C] px-4 py-4 text-white md:py-8">
+      <header className="sticky top-0 z-10 border-b border-[#EBECED] bg-[#43A047] px-4 py-4 text-white md:py-8">
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -443,10 +443,11 @@ const Chat = () => {
           {conversationList}
         </div>
         <div className="flex h-full flex-1 flex-col bg-white">{chatPanel}</div>
+        {/* #43A047 */}
       </div>
 
       <div className="relative h-full md:hidden">
-        <div className="absolute inset-0 flex flex-col bg-[#43A047] p-2.5 text-white">
+        <div className="absolute inset-0 flex flex-col bg-[#F8FAFC] p-2.5 text-white">
           {conversationList}
         </div>
 

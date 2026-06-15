@@ -25,9 +25,7 @@ import {
 } from "@/app/api/features/property";
 import {
   useInitializeLockPayment,
-  useVerifyLockPayment,
   useInitializeRentPayment,
-  useVerifyRentPayment,
 } from "@/app/api/features/progress/progress.queries";
 import { useCreateConversation } from "@/app/api/features/chat/chat.queries";
 import { sanitizeConversationId } from "@/app/api/features/chat/chat.api";
@@ -52,18 +50,11 @@ function PropertyDesktopViewContent() {
   const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showAllTips, setShowAllTips] = useState(false);
-  const [verifiedReference, setVerifiedReference] = useState<string | null>(
-    null,
-  );
   const [isCompleteAccDetailsOpen, setisCompleteAccDetailsOpen] = useState(false)
   const { mutate: handleBook, isPending } = useBookProperty();
   const { mutate: createConversation } = useCreateConversation();
   const initializeLockPayment = useInitializeLockPayment();
   const initializeRentPayment = useInitializeRentPayment();
-  const { mutate: verifyPayment, isPending: isVerifyingPayment } =
-    useVerifyLockPayment();
-  const { mutate: verifyRentPayment, isPending: isVerifyingRentPayment } =
-    useVerifyRentPayment();
 
   // const {
   //   data: property,
@@ -81,50 +72,6 @@ function PropertyDesktopViewContent() {
   useEffect(() => {
     setCurrentImageIndex(0);
   }, [slug]);
-
-  useEffect(() => {
-    const reference =
-      searchParams.get("reference") ||
-      searchParams.get("trxref") ||
-      searchParams.get("transaction_reference");
-
-    if (!reference || reference === verifiedReference || !hasAccessToken()) {
-      return;
-    }
-
-    setVerifiedReference(reference);
-    verifyPayment(reference, {
-      onSuccess: (data) => {
-        toast.success(data.message || "Payment verified successfully.");
-        router.replace("/tenant/locked-house");
-      },
-      onError: (error) => {
-        toast.error(error.message || "Payment verification failed.");
-      },
-    });
-  }, [router, searchParams, slug, verifiedReference, verifyPayment]);
-
-  useEffect(() => {
-    const reference =
-      searchParams.get("reference") ||
-      searchParams.get("trxref") ||
-      searchParams.get("transaction_reference");
-
-    if (!reference || reference === verifiedReference || !hasAccessToken()) {
-      return;
-    }
-
-    setVerifiedReference(reference);
-    verifyRentPayment(reference, {
-      onSuccess: (data) => {
-        toast.success(data.message || "Payment verified successfully.");
-        router.replace("/tenant/payment-success");
-      },
-      onError: (error) => {
-        toast.error(error.message || "Payment verification failed.");
-      },
-    });
-  }, [router, searchParams, slug, verifiedReference, verifyRentPayment]);
 
   const showFooter = !isLoggedIn;
 
@@ -378,11 +325,6 @@ function PropertyDesktopViewContent() {
                         return;
                       }
 
-                      if (access?.is_verified === false) {
-                        setisCompleteAccDetailsOpen(true);
-                        return false;
-                      }
-
                       const rentalId = String(property.id);
 
                       initializeRentPayment.mutate(
@@ -407,14 +349,13 @@ function PropertyDesktopViewContent() {
                     }}
                     disabled={
                       isPending ||
-                      initializeRentPayment.isPending ||
-                      isVerifyingPayment
+                      initializeRentPayment.isPending
                     }
                     className="flex items-center justify-center gap-3 w-full bg-green-600 border-2 border-none text-white font-black py-5 rounded-[24px] hover:bg-green-700 transition-all active:scale-95 shadow-lg shadow-orange-100 uppercase mt-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Lock className="inline-block mr-2" />
                     <span>
-                      {initializeRentPayment.isPending || isVerifyingPayment
+                      {initializeRentPayment.isPending
                         ? "Processing..."
                         : "Rent This House"}
                     </span>
@@ -527,14 +468,13 @@ function PropertyDesktopViewContent() {
                     }}
                     disabled={
                       isPending ||
-                      initializeLockPayment.isPending ||
-                      isVerifyingPayment
+                      initializeLockPayment.isPending
                     }
                     className="flex items-center justify-center gap-3 w-full bg-green-600 border-2 border-none text-white font-black py-5 rounded-[24px] hover:bg-green-700 transition-all active:scale-95 shadow-lg shadow-orange-100 uppercase mt-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Lock className="inline-block mr-2" />
                     <span>
-                      {initializeLockPayment.isPending || isVerifyingPayment
+                      {initializeLockPayment.isPending
                         ? "Processing..."
                         : "Lock This House"}
                     </span>

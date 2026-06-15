@@ -30,17 +30,35 @@ const Page = () => {
   useEffect(() => {
     const token = Cookies.get("ACCESS_TOKEN");
     const role = Cookies.get("USER_ROLE");
-    const isPaymentReturn = typeof window !== "undefined" && (
-      new URL(window.location.href).searchParams.has("reference") ||
-      new URL(window.location.href).searchParams.has("trxref")
-    );
+    const searchParams = new URL(window.location.href).searchParams;
+    const redirectTo = searchParams.get("redirectTo");
 
-    // Don't redirect if returning from payment — let the payment-success page handle it
-    if (token && !isPaymentReturn) {
-      if (role === "landlord") {
-        router.replace("/landlord/dashboard");
-      } else if (role === "tenant") {
-        router.replace("/tenant/dashboard");
+    // Check if the current page has a payment reference, or if the redirect target does
+    let hasPaymentRef =
+      searchParams.has("reference") || searchParams.has("trxref");
+    if (!hasPaymentRef && redirectTo) {
+      try {
+        const redirectToUrl = new URL(redirectTo, window.location.origin);
+        hasPaymentRef =
+          redirectToUrl.searchParams.has("reference") ||
+          redirectToUrl.searchParams.has("trxref");
+      } catch {
+        hasPaymentRef =
+          redirectTo.includes("reference=") || redirectTo.includes("trxref=");
+      }
+    }
+
+    const isPaymentReturn = typeof window !== "undefined" && hasPaymentRef;
+
+    if (token) {
+      if (isPaymentReturn && redirectTo) {
+        router.replace(redirectTo);
+      } else if (!isPaymentReturn) {
+        if (role === "landlord") {
+          router.replace("/landlord/dashboard");
+        } else if (role === "tenant") {
+          router.replace("/tenant/dashboard");
+        }
       }
     }
   }, [router]);

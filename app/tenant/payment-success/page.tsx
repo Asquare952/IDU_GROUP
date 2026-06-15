@@ -1,12 +1,55 @@
 "use client";
 
-import { Suspense, useMemo,  } from "react";
-import { CheckCircle, Home, List, ArrowRight } from "lucide-react";
+import { Suspense, useMemo, useState, useEffect } from "react";
+import { CheckCircle, Home, List, ArrowRight, Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "react-toastify";
+import { useVerifyRentPayment } from "@/app/api/features/progress/progress.queries";
+import { hasAccessToken } from "@/app/lib/auth";
+import {
+  clearPendingRentPayment,
+  getPendingRentPaymentReference,
+} from "@/app/lib/rent-payment";
 
 const PaymentSuccessContent = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [verifiedReference, setVerifiedReference] = useState<string | null>(
+    null,
+  );
+
+  const getPaymentReference = (params: URLSearchParams) =>
+    params.get("reference") ||
+    params.get("trxref") ||
+    params.get("transaction_reference") ||
+    getPendingRentPaymentReference();
+
+  const { mutate: verifyRentPayment, isPending: isVerifyingPayment } =
+    useVerifyRentPayment();
+
+  useEffect(() => {
+    const reference = getPaymentReference(searchParams);
+
+    if (!reference || reference === verifiedReference || !hasAccessToken()) {
+      return;
+    }
+
+    setVerifiedReference(reference);
+    verifyRentPayment(reference, {
+      onSuccess: (data) => {
+        clearPendingRentPayment();
+        toast.success(data.message || "Payment verified successfully.");
+      },
+      onError: (error) => {
+        toast.error(error.message || "Payment verification failed.");
+        router.push(
+          `/tenant/payment-failed?error=${encodeURIComponent(
+            error.message || "Verification failed",
+          )}`,
+        );
+      },
+    });
+  }, [router, searchParams, verifiedReference, verifyRentPayment]);
 
   const reference = useMemo(
     () => searchParams.get("reference") || searchParams.get("trxref") || null,
@@ -16,6 +59,12 @@ const PaymentSuccessContent = () => {
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-8 text-slate-900">
       <div className="mx-auto flex max-w-3xl flex-col gap-6 rounded-3xl bg-white p-8 shadow-xl shadow-slate-200/80 ring-1 ring-slate-200">
+        {isVerifyingPayment && (
+          <div className="flex items-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50 p-4 text-sm font-semibold text-emerald-700">
+            <Loader2 size={18} className="animate-spin" />
+            Verifying your payment...
+          </div>
+        )}
         <div className="flex items-center gap-4 rounded-3xl bg-emerald-50 p-6">
           <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-emerald-500 text-white">
             <CheckCircle size={36} />
