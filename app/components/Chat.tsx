@@ -5,7 +5,7 @@ import { useQueries, useQueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import { AnimatePresence, motion } from "framer-motion";
 import { jwtDecode } from "jwt-decode";
-import { ArrowLeft, Search, SendHorizontal } from "lucide-react";
+import { ArrowLeft, Search, SendHorizontal, MessageCircle } from "lucide-react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import {
   useChatConversations,
@@ -287,7 +287,11 @@ const Chat = () => {
       </div>
       <div className="mt-3 border-b border-white/20 md:border-[#ffffff33]" />
       <div className="mt-3 flex-1 space-y-2 overflow-y-auto">
-        {(conversations ?? []).map((conversation) => {
+        {(conversations ?? []).length === 0 ? <div className=" flex flex-col justify-center items-center gap-1.5 self-center mt-24">
+          <MessageCircle size={40} className=" text-black"/>
+          <h2 className=" font-semibold text-lg text-black text-center">You don't have any conversations</h2>
+          <p className=" font-medium text-center text-gray-400">Once you start chatting with landlords, your conversations will appear here.</p>
+        </div> : (conversations ?? []).map((conversation) => {
           const convId = sanitizeConversationId(
             (conversation as any).conversation_id ??
             (conversation as any)._id ??
