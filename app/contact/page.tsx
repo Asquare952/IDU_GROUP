@@ -83,7 +83,7 @@ const Page = () => {
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-500">
                     <Phone className="w-4 h-4 text-[#4CAF50]" />
-                    <span>+234 800 123 4567</span>
+                    <span>+234 905 816 1216, +234 903 792 3637</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-500">
                     <MailIcon className="w-4 h-4 text-[#4CAF50]" />

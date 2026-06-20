@@ -143,5 +143,5 @@ export const footerData = {
     Company: ["About Us", "Careers", "Press", "Contact"],
     Resources: ["Blog", "FAQs", "Help Center", "Terms of Service"],
   },
-  copyright: "© 2026 RentULO, IDU GROUP. All rights reserved.",
+  copyright: "© 2026 RentULO. All rights reserved.",
 };

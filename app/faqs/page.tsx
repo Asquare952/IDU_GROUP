@@ -19,7 +19,6 @@ import {
 } from "./questions/faqs";
 import Header from "../components/Header";
 
-
 const Page = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
@@ -140,7 +139,10 @@ const Page = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {trustData.features.map((feature, index) => (
-                    <div key={index} className="flex items-center gap-3  text-white">
+                    <div
+                      key={index}
+                      className="flex items-center gap-3  text-white"
+                    >
                       <div className="w-2 h-2 bg-white rounded-full" />
                       <span className="text-white/90 text-sm">{feature}</span>
                     </div>
@@ -172,7 +174,12 @@ const Page = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <button className="inline-flex items-center gap-2 bg-[#4CAF50] hover:bg-[#43A047] text-white font-semibold py-3 px-8 rounded-full transition-all active:scale-95 shadow-lg shadow-[#4CAF50]/20 cursor-pointer">
+            <button
+              onClick={() =>
+                window.open("https://wa.me/2349058161216", "_blank")
+              }
+              className="inline-flex items-center gap-2 bg-[#4CAF50] hover:bg-[#43A047] text-white font-semibold py-3 px-8 rounded-full transition-all active:scale-95 shadow-lg shadow-[#4CAF50]/20 cursor-pointer"
+            >
               <MessageCircle className="w-5 h-5" />
               {ctaData.primaryLabel}
             </button>

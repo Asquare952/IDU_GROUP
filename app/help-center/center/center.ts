@@ -30,6 +30,7 @@ export interface ContactOption {
   icon: LucideIcon;
   label: string;
   variant: "primary" | "secondary";
+  href: string;
 }
 
 export const heroData = {
@@ -136,11 +137,13 @@ export const contactData = {
       icon: MessageCircle,
       label: "Chat with Us",
       variant: "primary" as const,
+      href: "https://wa.me/2349058161216",
     },
     {
       icon: Mail,
       label: "Email Support",
       variant: "secondary" as const,
+      href: "mailto:rentulonigeria@gmail.com",
     },
   ] as ContactOption[],
 };

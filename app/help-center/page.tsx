@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import {
   heroData,
@@ -167,6 +169,7 @@ const Page = () => {
               return (
                 <button
                   key={index}
+                  onClick={() => window.open(option.href, "_blank")}
                   className={`inline-flex items-center gap-2 font-semibold py-3 px-8 rounded-full transition-all active:scale-95 ${
                     isPrimary
                       ? "bg-[#4CAF50] hover:bg-[#43A047] text-white shadow-lg shadow-[#4CAF50]/20 cursor-pointer"
