@@ -215,7 +215,12 @@ const Page = () => {
                 </h3>
                 <p className="text-sm text-gray-500">{ctaData.description}</p>
               </div>
-              <button className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-all active:scale-95 text-sm flex-shrink-0 cursor-pointer">
+              <button
+                onClick={() =>
+                  window.open("https://wa.me/2349058161216", "_blank")
+                }
+                className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-all active:scale-95 text-sm flex-shrink-0 cursor-pointer"
+              >
                 <HelpCircle className="w-4 h-4" />
                 {ctaData.buttonLabel}
               </button>
