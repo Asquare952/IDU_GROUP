@@ -207,7 +207,7 @@ const Page = () => {
               </div>
             </div>
 
-            {/* CTA */}
+            {/* CTAS */}
             <div className="bg-gray-50 rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <h3 className="font-bold text-gray-900 mb-1">
@@ -215,7 +215,12 @@ const Page = () => {
                 </h3>
                 <p className="text-sm text-gray-500">{ctaData.description}</p>
               </div>
-              <button className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-all active:scale-95 text-sm flex-shrink-0 cursor-pointer">
+              <button
+                onClick={() =>
+                  window.open("https://wa.me/2349058161216", "_blank")
+                }
+                className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-all active:scale-95 text-sm flex-shrink-0 cursor-pointer"
+              >
                 <HelpCircle className="w-4 h-4" />
                 {ctaData.buttonLabel}
               </button>

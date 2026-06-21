@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import {
   heroData,
@@ -9,6 +11,7 @@ import {
 import { Shield, CheckCircle } from "lucide-react";
 import Header from "../components/Header";
 import Image from "next/image";
+import Link from "next/link"; 
 
 const Page = () => {
   return (
@@ -122,9 +125,7 @@ const Page = () => {
                     <p className="text-white font-semibold text-sm">
                       RentULO Secure
                     </p>
-                    <p className="text-white/80 text-xs">
-                      Verified Property
-                    </p>
+                    <p className="text-white/80 text-xs">Verified Property</p>
                   </div>
                 </div>
                 <div className="space-y-3">
@@ -165,8 +166,13 @@ const Page = () => {
               const Icon = option.icon;
               const isPrimary = option.variant === "primary";
               return (
-                <button
+                <Link
                   key={index}
+                  href={option.href}
+                  target={
+                    option.href.startsWith("mailto:") ? "_self" : "_blank"
+                  }
+                  rel="noopener noreferrer"
                   className={`inline-flex items-center gap-2 font-semibold py-3 px-8 rounded-full transition-all active:scale-95 ${
                     isPrimary
                       ? "bg-[#4CAF50] hover:bg-[#43A047] text-white shadow-lg shadow-[#4CAF50]/20 cursor-pointer"
@@ -175,7 +181,7 @@ const Page = () => {
                 >
                   <Icon className="w-5 h-5" />
                   {option.label}
-                </button>
+                </Link>
               );
             })}
           </div>

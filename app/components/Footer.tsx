@@ -128,7 +128,7 @@ const Footer = () => {
               </button>
             </div>
             <p className="text-right text-gray-400 text-sm md:text-[16px] mt-8">
-              2025, RentULO, IDU GROUP
+              © 2026 RentULO. All rights reserved.
             </p>
           </div>
         </div>
