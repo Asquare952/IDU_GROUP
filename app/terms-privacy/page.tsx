@@ -207,7 +207,7 @@ const Page = () => {
               </div>
             </div>
 
-            {/* CTA */}
+            {/* CTAS */}
             <div className="bg-gray-50 rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <h3 className="font-bold text-gray-900 mb-1">
