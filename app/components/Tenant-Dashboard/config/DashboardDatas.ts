@@ -236,10 +236,10 @@ export const PrivacySecurityData = [
 ];
 
 export const SupportLinks = [
-  { id: 1, label: "Help Center" },
-  { id: 2, label: "Contact Support" },
-  { id: 3, label: "Terms of Service" },
-  { id: 4, label: "Privacy Policy" },
+  { id: 1, label: "Help Center", href: "/help-center" },
+  { id: 2, label: "Contact Support", href: "/contact-support" },
+  { id: 3, label: "Terms of Service", href: "/terms-privacy" },
+  { id: 4, label: "Privacy Policy", href: "/terms-privacy" },
 ];
 
 export const SafetyBannerData = {
