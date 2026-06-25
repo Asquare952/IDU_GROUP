@@ -1,8 +1,7 @@
 "use client";
 
-
 import React from "react";
-// import Link from "next/link";
+import Link from "next/link";
 import DashboardLayout from "@/app/components/Tenant-Dashboard/DashboardLayout";
 import { useState } from "react";
 
@@ -37,8 +36,7 @@ const page = () => {
             Manage your account preferences and settings
           </p>
         </div>
-        
-        
+
         <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-50 mt-8">
           <div className="flex items-center gap-3 mb-10">
             <div className="bg-[#E8F5E9] p-2 rounded-lg">
@@ -70,8 +68,7 @@ const page = () => {
           </div>
         </div>
 
-
-        <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-50 mt-8">
+        {/* <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-50 mt-8">
           <div className="flex items-center gap-3 mb-10">
             <div className="bg-[#E8F5E9] p-2 rounded-lg">
               <ShieldCheck className="text-[#43A047]" size={20} />
@@ -101,7 +98,7 @@ const page = () => {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
 
         <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-50 mt-8">
           <div className="flex items-center gap-3 mb-6">
@@ -113,13 +110,14 @@ const page = () => {
 
           <div className="flex flex-col">
             {SupportLinks.map((link) => (
-              <div
+              <Link
                 key={link.id}
+                href={link.href}
                 className="flex justify-between items-center py-5 border-b border-gray-50 last:border-0 cursor-pointer hover:bg-gray-50 px-2 rounded-xl transition-all"
               >
                 <span className="font-medium text-[#162B4C]">{link.label}</span>
                 <span className="text-gray-400">→</span>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -164,13 +162,14 @@ const page = () => {
                     <button
                       key={action.id}
                       className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer
-                ${action.variant === "danger"
-                          ? "bg-[#FF3B30] text-white hover:bg-red-700"
-                          : action.variant === "Success" ||
-                            action.variant === "success"
-                            ? "bg-[#43A047] text-white hover:bg-green-700"
-                            : "bg-[#F2F2F7] text-[#162B4C] hover:bg-gray-200"
-                        }`}
+                ${
+                  action.variant === "danger"
+                    ? "bg-[#FF3B30] text-white hover:bg-red-700"
+                    : action.variant === "Success" ||
+                        action.variant === "success"
+                      ? "bg-[#43A047] text-white hover:bg-green-700"
+                      : "bg-[#F2F2F7] text-[#162B4C] hover:bg-gray-200"
+                }`}
                     >
                       <action.icon size={20} />
                       {action.label}
