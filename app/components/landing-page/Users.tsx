@@ -21,16 +21,16 @@ const Users = () => {
   } = useGlobalStatistics();
 
   return (
-    <section className="bg-white pt-32 pb-20">
+    <section className="bg-white pt-22 pb-5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 items-center">
+        <div className="grid grid-cols-2 md:grid-cols-4 items-center">
           {statItems.map((item, index) => (
             <div
               key={item.key}
-              className={`flex flex-col items-center md:items-start md:pl-10 py-8 ${
-                index < statItems.length - 1
-                  ? "md:border-r border-gray-200"
-                  : ""
+              className={`flex flex-col items-center py-8 ${
+                index % 2 === 0 ? "border-r border-gray-200" : ""
+              } ${
+                index < 2 ? "border-b border-gray-200" : ""
               }`}
             >
               <h2
@@ -51,7 +51,6 @@ const Users = () => {
             Live platform statistics are unavailable right now.
           </p>
         ) : null}
-        <hr className="mt-20 border-gray-100" />
       </div>
     </section>
   );
