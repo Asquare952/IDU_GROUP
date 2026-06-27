@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
+import Image from "next/image";
 import { hasAccessToken } from "@/app/lib/auth";
 import {
   Star,
@@ -33,7 +34,7 @@ const StarRating = ({ rating }: { rating: number }) => (
         size={14}
         className={
           star <= rating
-            ? "fill-[#F59E0B] text-[#F59E0B]" // amber/orange stars like Track3r
+            ? "fill-[#F59E0B] text-[#F59E0B]"
             : "text-gray-200 fill-gray-200"
         }
       />
@@ -75,40 +76,6 @@ const StarPicker = ({
   );
 };
 
-/* ---------- Avatar (initials only) ---------- */
-const Avatar = ({ user }: { user?: Testimonial["user"] | null }) => {
-  if (!user) {
-    return (
-      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center text-gray-400 font-bold text-xs ring-2 ring-white shadow-sm">
-        ?
-      </div>
-    );
-  }
-
-  const initials =
-    `${user.first_name?.[0] ?? ""}${user.last_name?.[0] ?? ""}`.toUpperCase();
-
-  const colors = [
-    "from-[#22C55E] to-[#16A34A]",
-    "from-[#3B82F6] to-[#2563EB]",
-    "from-[#8B5CF6] to-[#7C3AED]",
-    "from-[#F59E0B] to-[#D97706]",
-    "from-[#EF4444] to-[#DC2626]",
-    "from-[#06B6D4] to-[#0891B2]",
-    "from-[#EC4899] to-[#DB2777]",
-  ];
-  const colorIndex = (user.first_name?.charCodeAt(0) || 0) % colors.length;
-  const gradient = colors[colorIndex];
-
-  return (
-    <div
-      className={`w-10 h-10 rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center text-white font-bold text-xs ring-2 ring-white shadow-sm`}
-    >
-      {initials || "?"}
-    </div>
-  );
-};
-
 /* ---------- Format Date ---------- */
 const formatDate = (dateString?: string) => {
   if (!dateString) return "";
@@ -120,7 +87,7 @@ const formatDate = (dateString?: string) => {
   });
 };
 
-/* ---------- Testimonial Card (Track3r exact style) ---------- */
+/* ---------- Testimonial Card ---------- */
 const TestimonialCard = ({
   testimonial,
   isOwner,
@@ -132,27 +99,71 @@ const TestimonialCard = ({
   onEdit?: () => void;
   onDelete?: () => void;
 }) => {
-  if (!testimonial || !testimonial.user) return null;
+  if (!testimonial) return null;
+
+  // Get display name from API response (user_name) or fallback to user object
+  const displayName =
+    testimonial.user_name ||
+    `${testimonial.user?.first_name ?? ""} ${testimonial.user?.last_name ?? ""}`.trim() ||
+    "Unknown User";
+
+  // Get display image from API response (user_image) or fallback to user object
+  const displayImage = testimonial.user_image || testimonial.user?.profileImage;
+
+  // Get initials for avatar fallback
+  const initials =
+    displayName
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase() || "?";
+
+  // Avatar colors
+  const colors = [
+    "from-[#22C55E] to-[#16A34A]",
+    "from-[#3B82F6] to-[#2563EB]",
+    "from-[#8B5CF6] to-[#7C3AED]",
+    "from-[#F59E0B] to-[#D97706]",
+    "from-[#EF4444] to-[#DC2626]",
+    "from-[#06B6D4] to-[#0891B2]",
+    "from-[#EC4899] to-[#DB2777]",
+  ];
+  const colorIndex = (displayName.charCodeAt(0) || 0) % colors.length;
+  const gradient = colors[colorIndex];
 
   return (
     <div className="relative bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 flex flex-col gap-3 min-w-[300px] max-w-[340px]">
       {/* Top row: Quote icon left, Stars right */}
       <div className="flex items-start justify-between">
-        <Quote size={20} className="text-[#8B5CF6] fill-[#8B5CF6]" />{" "}
-        {/* Purple quote like Track3r */}
+        <Quote size={20} className="text-[#8B5CF6] fill-[#8B5CF6]" />
         <StarRating rating={testimonial.rating} />
       </div>
 
       {/* User info row: Avatar + Name/Role */}
       <div className="flex items-center gap-3">
-        <Avatar user={testimonial.user} />
+        {/* Avatar - image or initials */}
+        {displayImage ? (
+          <Image
+            src={displayImage}
+            alt={displayName}
+            width={40}
+            height={40}
+            className="w-10 h-10 rounded-full object-cover ring-2 ring-white shadow-sm"
+          />
+        ) : (
+          <div
+            className={`w-10 h-10 rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center text-white font-bold text-xs ring-2 ring-white shadow-sm`}
+          >
+            {initials}
+          </div>
+        )}
+
         <div className="flex flex-col">
           <div className="flex items-center gap-1">
             <span className="text-sm font-bold text-gray-900">
-              {testimonial.user.first_name ?? "Unknown"}{" "}
-              {testimonial.user.last_name ?? "User"}
+              {displayName}
             </span>
-            {/* Verified badge - optional */}
+            {/* Verified badge */}
             <svg
               className="w-3.5 h-3.5 text-blue-500 fill-blue-500"
               viewBox="0 0 24 24"
@@ -161,7 +172,7 @@ const TestimonialCard = ({
             </svg>
           </div>
           <span className="text-xs text-[#8B5CF6] capitalize">
-            {testimonial.user.role ?? "User"}
+            {testimonial.user?.role ?? "User"}
           </span>
         </div>
       </div>
