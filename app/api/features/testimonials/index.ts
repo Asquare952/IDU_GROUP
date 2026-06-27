@@ -1,13 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "../../axios";
 
-// ---- Types ----
+// ---- Types (matching API response) ----
 export interface Testimonial {
   id: string;
+  user_id?: string;
+  user_name?: string;
+  user_image?: string;
   rating: number;
   message: string;
   createdAt: string;
   updatedAt?: string;
+  // Keep user object for backward compatibility
   user?: {
     first_name?: string;
     last_name?: string;
@@ -26,29 +30,26 @@ export const useGetTestimonials = () =>
   useQuery({
     queryKey: ["testimonials"],
     queryFn: async (): Promise<Testimonial[]> => {
-      const res = await api.get("/testimonials/");
+      const res = await api.get("/api/testimonials/"); // ✅ Added /api
       return res.data?.data ?? res.data ?? [];
     },
   });
 
-// ---- GET my testimonial (auth - cookie handled by axios) ----
+// ---- GET my testimonial (auth required) ----
 export const useGetMyTestimonial = () =>
   useQuery({
     queryKey: ["testimonials", "me"],
     queryFn: async (): Promise<Testimonial | null> => {
       try {
-        const res = await api.get("/testimonials/me");
+        const res = await api.get("/api/testimonials/me"); // ✅ Added /api
         return res.data?.data ?? res.data ?? null;
       } catch (err: any) {
-        // 404 = user has no testimonial yet
         if (err.response?.status === 404) return null;
-        // 401 = not logged in, also return null gracefully
         if (err.response?.status === 401) return null;
         throw err;
       }
     },
     retry: false,
-    // No staleTime so it refreshes when auth state changes
   });
 
 // ---- POST new testimonial ----
@@ -56,7 +57,7 @@ export const useCreateTestimonial = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload: TestimonialPayload) => {
-      const res = await api.post("/testimonials/", payload);
+      const res = await api.post("/api/testimonials/", payload); // ✅ Added /api
       return res.data;
     },
     onSuccess: () => {
@@ -71,7 +72,7 @@ export const useUpdateTestimonial = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload: Partial<TestimonialPayload>) => {
-      const res = await api.put("/testimonials/", payload);
+      const res = await api.put("/api/testimonials/", payload); // ✅ Added /api
       return res.data;
     },
     onSuccess: () => {
@@ -86,7 +87,7 @@ export const useDeleteTestimonial = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {
-      const res = await api.delete("/testimonials/");
+      const res = await api.delete("/api/testimonials/"); // ✅ Added /api
       return res.data;
     },
     onSuccess: () => {

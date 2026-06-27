@@ -184,7 +184,10 @@ const Header = () => {
   return (
     <>
       <nav className="z-[110] sticky top-0 left-0 right-0 flex md:grid md:grid-cols-3 items-center justify-between px-6 md:px-12 py-4 bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-100 transition-all duration-300">
-        <Link href="/" className="flex items-center text-2xl font-bold text-gray-900 tracking-tight">
+        <Link
+          href="/"
+          className="flex items-center text-2xl font-bold text-gray-900 tracking-tight"
+        >
           <Image
             src="/IDU GROUP LOGO.png"
             alt="Logo"
@@ -205,10 +208,11 @@ const Header = () => {
 
             <Link
               href="/#listing"
-              className={`text-[15px] font-medium transition-all ${pathname === "/tenant/homepage" || pathname === "/#listing"
-                ? "text-[#4CAF50] font-bold"
-                : "text-gray-700 hover:text-[#4CAF50]"
-                }`}
+              className={`text-[15px] font-medium transition-all ${
+                pathname === "/tenant/homepage" || pathname === "/#listing"
+                  ? "text-[#4CAF50] font-bold"
+                  : "text-gray-700 hover:text-[#4CAF50]"
+              }`}
             >
               Property
             </Link>
@@ -223,10 +227,11 @@ const Header = () => {
             {showJoinUs && (
               <Link
                 href="/signup"
-                className={`text-[15px] font-medium transition-all ${isJoinUsPage
-                  ? "text-[#4CAF50] font-bold"
-                  : "text-gray-700 hover:text-[#4CAF50]"
-                  }`}
+                className={`text-[15px] font-medium transition-all ${
+                  isJoinUsPage
+                    ? "text-[#4CAF50] font-bold"
+                    : "text-gray-700 hover:text-[#4CAF50]"
+                }`}
               >
                 Join us
               </Link>
@@ -271,7 +276,8 @@ const Header = () => {
                         {displayEmail}
                       </p>
                     </div>
-                  </div>) : null}
+                  </div>
+                ) : null}
 
                 {/* Dropdown — fixed positioning for mobile, absolute for desktop */}
                 {isProfileOpen && (
@@ -283,7 +289,9 @@ const Header = () => {
                     {/* MOBILE DROPDOWN: fixed to top-right of viewport, pushed down below header */}
                     <div className="fixed right-4 top-20 w-60 bg-white rounded-2xl shadow-2xl border border-gray-100 z-20 overflow-hidden md:hidden">
                       <div className="p-4 border-b border-gray-50 bg-gray-50/50">
-                        <p className="text-sm font-bold text-gray-900">{displayName}</p>
+                        <p className="text-sm font-bold text-gray-900">
+                          {displayName}
+                        </p>
                         <p className="text-[10px] text-gray-500 truncate">
                           {displayEmail}
                         </p>
@@ -315,7 +323,9 @@ const Header = () => {
                     {/* DESKTOP DROPDOWN: absolute positioned relative to parent */}
                     <div className="hidden md:block absolute right-0 top-14 w-60 bg-white rounded-2xl shadow-2xl border border-gray-100 z-20 overflow-hidden">
                       <div className="p-4 border-b border-gray-50 bg-gray-50/50">
-                        <p className="text-sm font-bold text-gray-900">{displayName}</p>
+                        <p className="text-sm font-bold text-gray-900">
+                          {displayName}
+                        </p>
                         <p className="text-[10px] text-gray-500 truncate">
                           {displayEmail}
                         </p>
@@ -366,62 +376,90 @@ const Header = () => {
           </button>
         </div>
       </nav>
-      <div
-        className={`fixed inset-0 bg-white z-[105] flex flex-col items-center justify-center transition-transform duration-500 ease-in-out md:hidden ${isOpen ? "translate-x-0" : "translate-x-full"}`}
-      >
-        <div className="flex flex-col items-center space-y-8 w-full px-10">
-          <Link
-            href="/"
+      {isOpen && (
+        <>
+          {/* BACKDROP — click outside to close */}
+          <div
+            className="fixed inset-0 bg-black/40 z-[104] md:hidden backdrop-blur-sm"
             onClick={() => setIsOpen(false)}
-            className="text-2xl font-semibold text-gray-800"
-          >
-            Home
-          </Link>
-          <Link
-            href={isLoggedIn ? "/tenant/homepage" : "/#listing"}
-            onClick={() => setIsOpen(false)}
-            className="text-2xl font-semibold text-gray-800"
-          >
-            Property
-          </Link>
-          <Link
-            href="/about-us"
-            onClick={() => setIsOpen(false)}
-            className="text-2xl font-semibold text-gray-800"
-          >
-            About Us
-          </Link>
-          {showJoinUs && (
-            <Link
-              href="/signup"
-              onClick={() => setIsOpen(false)}
-              className="text-2xl font-semibold text-gray-800"
-            >
-              Join us
-            </Link>
-          )}
+          />
 
-          {isLoggedIn ? (
-            <button
-              onClick={() => {
-                setIsOpen(false);
-                handleLogout();
-              }}
-              className="w-full py-4 bg-red-500 text-white font-bold rounded-2xl shadow-lg"
-            >
-              Logout
-            </button>
-          ) : (
-            <Link
-              href="/login"
-              onClick={() => setIsOpen(false)}
-              className="w-full inline-flex items-center justify-center py-4 bg-[#4CAF50] text-white font-bold rounded-2xl shadow-lg"
-            >
-              Log in
-            </Link>
-          )}
-        </div>
-      </div>
+          {/* SLIDE-IN MENU */}
+          <div
+            className={`fixed top-0 right-0 h-full w-[280px] max-w-[75vw] bg-white z-[105] shadow-[-4px_0_24px_rgba(0,0,0,0.1)] md:hidden flex flex-col transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "translate-x-full"}`}
+          >
+            {/* Header with logo + close button */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-100">
+              <span className="text-lg font-bold text-gray-900">
+                Rent<span className="text-[#4CAF50]">ULO</span>
+              </span>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <HiX size={24} className="text-gray-600" />
+              </button>
+            </div>
+
+            {/* Menu links — smaller text, left-aligned, active state */}
+            <div className="flex flex-col p-4 gap-1">
+              <Link
+                href="/"
+                onClick={() => setIsOpen(false)}
+                className={`text-base font-medium px-4 py-3 rounded-xl transition-all ${pathname === "/" ? "text-[#4CAF50] bg-green-50" : "text-gray-700 hover:bg-gray-50"}`}
+              >
+                Home
+              </Link>
+              <Link
+                href={isLoggedIn ? "/tenant/homepage" : "/#listing"}
+                onClick={() => setIsOpen(false)}
+                className={`text-base font-medium px-4 py-3 rounded-xl transition-all ${pathname === "/tenant/homepage" || pathname === "/#listing" ? "text-[#4CAF50] bg-green-50" : "text-gray-700 hover:bg-gray-50"}`}
+              >
+                Property
+              </Link>
+              <Link
+                href="/about-us"
+                onClick={() => setIsOpen(false)}
+                className={`text-base font-medium px-4 py-3 rounded-xl transition-all ${pathname.includes("about-us") ? "text-[#4CAF50] bg-green-50" : "text-gray-700 hover:bg-gray-50"}`}
+              >
+                About Us
+              </Link>
+              {showJoinUs && (
+                <Link
+                  href="/signup"
+                  onClick={() => setIsOpen(false)}
+                  className={`text-base font-medium px-4 py-3 rounded-xl transition-all ${isJoinUsPage ? "text-[#4CAF50] bg-green-50" : "text-gray-700 hover:bg-gray-50"}`}
+                >
+                  Join us
+                </Link>
+              )}
+            </div>
+
+            {/* Bottom button */}
+            <div className="mt-auto p-4 border-t border-gray-100">
+              {isLoggedIn ? (
+                <button
+                  onClick={() => {
+                    setIsOpen(false);
+                    handleLogout();
+                  }}
+                  className="w-full py-3 bg-red-500 text-white font-semibold rounded-xl hover:bg-red-600 transition-colors"
+                >
+                  Logout
+                </button>
+              ) : (
+                <Link
+                  href="/login"
+                  onClick={() => setIsOpen(false)}
+                  className="w-full inline-flex items-center justify-center py-3 bg-[#4CAF50] text-white font-semibold rounded-xl hover:bg-green-600 transition-colors"
+                >
+                  Log in
+                </Link>
+              )}
+            </div>
+          </div>
+        </>
+      )}
     </>
   );
 };

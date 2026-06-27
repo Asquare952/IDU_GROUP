@@ -1,9 +1,31 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import { FaFacebookF, FaInstagram, FaTiktok } from "react-icons/fa";
 import { RiTwitterXFill } from "react-icons/ri";
+import { useSubscribe } from "@/app/api/features/subscribe/useSubscribe";
 
 const Footer = () => {
+  const [email, setEmail] = useState("");
+  const { mutate: subscribe, isPending } = useSubscribe();
+
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) {
+      return;
+    }
+
+    // If backend still requires auth (current), pass no args
+    // If backend is updated to open subscribe, pass: subscribe(email)
+    subscribe(undefined, {
+      onSuccess: () => {
+        setEmail("");
+      },
+    });
+  };
+
   return (
     <footer className="relative w-full bg-white pt-16 pb-12 overflow-hidden">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 relative">
@@ -117,16 +139,26 @@ const Footer = () => {
           </div>
 
           <div className="w-full max-w-md">
-            <div className="relative flex items-center border border-gray-100 rounded-full bg-white p-1 shadow-sm">
+            <form
+              onSubmit={handleSubscribe}
+              className="relative flex items-center border border-gray-100 rounded-full bg-white p-1 shadow-sm"
+            >
               <input
                 type="email"
                 placeholder="enter email"
-                className="w-full pl-6 pr-4 py-3 text-base focus:outline-none bg-transparent"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={isPending}
+                className="w-full pl-6 pr-4 py-3 text-base focus:outline-none bg-transparent disabled:opacity-50"
               />
-              <button className="bg-[#4CAF50] text-white px-8 py-2.5 rounded-full text-base cursor-pointer font-medium hover:bg-green-700 transition">
-                Subscribe
+              <button
+                type="submit"
+                disabled={isPending}
+                className="bg-[#4CAF50] text-white px-8 py-2.5 rounded-full text-base cursor-pointer font-medium hover:bg-green-700 transition disabled:opacity-60 disabled:cursor-not-allowed shrink-0"
+              >
+                {isPending ? "Subscribing..." : "Subscribe"}
               </button>
-            </div>
+            </form>
             <p className="text-right text-gray-400 text-sm md:text-[16px] mt-8">
               © 2026 RentULO. All rights reserved.
             </p>
