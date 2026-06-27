@@ -143,7 +143,7 @@ export const contactData = {
       icon: Mail,
       label: "Email Support",
       variant: "secondary" as const,
-      href: "mailto:rentulonigeria@gmail.com",
+      href: "https://mail.google.com/mail/?view=cm&fs=1&to=rentulonigeria@gmail.com",
     },
   ] as ContactOption[],
 };
