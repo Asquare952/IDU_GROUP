@@ -34,7 +34,7 @@ export const contactCards: ContactCard[] = [
     title: "Support",
     description:
       "Need help with your account, listings, or tenant verification? We've got you.",
-    email: "rentulonigeria@gmail.com",
+    email: "rentulonigeria+support@gmail.com",
     actionLabel: "Help Center",
   },
   {
@@ -42,7 +42,7 @@ export const contactCards: ContactCard[] = [
     title: "Partnerships",
     description:
       "For real estate agents and developers looking to list verified properties.",
-    email: "partners@rentulonigeria@gmail.com",
+    email: "rentulonigeria+partnerships@gmail.com",
     actionLabel: "Partner With Us",
   },
   {
@@ -50,7 +50,7 @@ export const contactCards: ContactCard[] = [
     title: "Careers",
     description:
       "Want to help us build something legendary? Join our growing team.",
-    email: "rentulonigeria@gmail.com",
+    email: "rentulonigeria+careers@gmail.com",
     actionLabel: "View Openings",
   },
 ];
