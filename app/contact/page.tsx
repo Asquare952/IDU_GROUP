@@ -1,5 +1,9 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import { MapPin, Phone, Mail as MailIcon, ArrowRight } from "lucide-react";
+import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
 import {
   heroData,
   contactCards,
@@ -10,7 +14,50 @@ import {
 import Header from "../components/Header";
 import Image from "next/image";
 
+const FORMSPREE_URL = "https://formspree.io/f/xlgybaja";
+
 const Page = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    try {
+      const res = await fetch(FORMSPREE_URL, {
+        method: "POST",
+        body: formData,
+        headers: { Accept: "application/json" },
+      });
+
+      if (res.ok) {
+        Swal.fire({
+          icon: "success",
+          title: "Message Sent!",
+          text: "RentULO will receive your message shortly.",
+          confirmButtonColor: "#4CAF50",
+          timer: 5000,
+          timerProgressBar: true,
+        });
+        form.reset();
+      } else {
+        throw new Error("Failed to send");
+      }
+    } catch {
+      Swal.fire({
+        icon: "error",
+        title: "Oops!",
+        text: "Something went wrong. Please try again.",
+        confirmButtonColor: "#4CAF50",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900">
       <Header />
@@ -46,7 +93,9 @@ const Page = () => {
                     {card.description}
                   </p>
                   <a
-                    href={`mailto:${card.email}`}
+                    href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(card.email)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-sm font-medium text-[#4CAF50] hover:text-[#43A047] transition-colors"
                   >
                     {card.actionLabel}
@@ -58,6 +107,7 @@ const Page = () => {
           </div>
         </div>
       </div>
+
       <div className="py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
@@ -94,7 +144,7 @@ const Page = () => {
             </div>
 
             <div className="bg-white rounded-2xl border border-gray-100 p-6 sm:p-8 shadow-sm">
-              <form className="space-y-5">
+              <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
                     <label
@@ -105,7 +155,9 @@ const Page = () => {
                     </label>
                     <input
                       id="contact-first-name"
+                      name="firstName"
                       type="text"
+                      required
                       placeholder={formData.fields.firstName.placeholder}
                       className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-transparent placeholder:text-gray-400"
                     />
@@ -119,7 +171,9 @@ const Page = () => {
                     </label>
                     <input
                       id="contact-last-name"
+                      name="lastName"
                       type="text"
+                      required
                       placeholder={formData.fields.lastName.placeholder}
                       className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-transparent placeholder:text-gray-400"
                     />
@@ -136,7 +190,9 @@ const Page = () => {
                     </label>
                     <input
                       id="contact-email"
+                      name="email"
                       type="email"
+                      required
                       placeholder={formData.fields.email.placeholder}
                       className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-transparent placeholder:text-gray-400"
                     />
@@ -150,6 +206,8 @@ const Page = () => {
                     </label>
                     <select
                       id="contact-subject"
+                      name="subject"
+                      required
                       className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-transparent text-gray-600 bg-white"
                     >
                       {formData.fields.subject.options.map((opt, i) => (
@@ -170,7 +228,9 @@ const Page = () => {
                   </label>
                   <textarea
                     id="contact-message"
+                    name="message"
                     rows={5}
+                    required
                     placeholder={formData.fields.message.placeholder}
                     className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-transparent placeholder:text-gray-400 resize-none"
                   />
@@ -178,9 +238,10 @@ const Page = () => {
 
                 <button
                   type="submit"
-                  className="w-full bg-[#4CAF50] hover:bg-[#43A047] text-white font-semibold py-3 px-6 rounded-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
+                  disabled={isSubmitting}
+                  className="w-full bg-[#4CAF50] hover:bg-[#43A047] disabled:bg-gray-300 text-white font-semibold py-3 px-6 rounded-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed"
                 >
-                  {formData.submitLabel}
+                  {isSubmitting ? "Sending..." : formData.submitLabel}
                   <ArrowRight className="w-4 h-4" />
                 </button>
 
