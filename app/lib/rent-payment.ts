@@ -3,8 +3,8 @@ const RENT_PAYMENT_RENTAL_KEY = "pendingRentPaymentRentalId";
 
 export const getRentPaymentReturnUrl = () =>
   typeof window === "undefined"
-    ? "/tenant/payment-success"
-    : `${window.location.origin}/tenant/payment-success`;
+    ? "/tenant/payment-success?type=rent"
+    : `${window.location.origin}/tenant/payment-success?type=rent`;
 
 export const buildRentPaymentPayload = (rentalId: string) => {
   const returnUrl = getRentPaymentReturnUrl();
@@ -42,6 +42,13 @@ export const getPendingRentPaymentReference = () =>
   typeof window === "undefined"
     ? null
     : sessionStorage.getItem(RENT_PAYMENT_REFERENCE_KEY);
+
+export const hasPendingRentPayment = () =>
+  typeof window !== "undefined" &&
+  Boolean(
+    sessionStorage.getItem(RENT_PAYMENT_REFERENCE_KEY) ||
+    sessionStorage.getItem(RENT_PAYMENT_RENTAL_KEY),
+  );
 
 export const clearPendingRentPayment = () => {
   if (typeof window === "undefined") {

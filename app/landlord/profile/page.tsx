@@ -18,6 +18,7 @@ import Link from "next/link";
 import { useUserProfile } from "@/app/api/features/auth/auth.queries";
 import { AuthResponse } from "@/app/api/features/auth/types";
 import { getProfileDisplayFields } from "@/app/api/features/auth/profile-display";
+import { readCachedProfile } from "@/app/api/features/auth/profile-cache";
 import { useFetchLandlordListedProperties } from "@/app/api/features/rental";
 import { useState, useEffect } from "react";
 // import { property } from "zod";
@@ -65,15 +66,7 @@ const page = () => {
 
   useEffect(() => {
     const token = Cookies.get("ACCESS_TOKEN");
-    const storedProfile = Cookies.get("USER_PROFILE");
-
-    if (storedProfile) {
-      try {
-        setCachedProfile(JSON.parse(storedProfile) as CachedUserProfile);
-      } catch {
-        setCachedProfile(undefined);
-      }
-    }
+    setCachedProfile(readCachedProfile() as CachedUserProfile | undefined);
 
     if (!token) {
       setHasCheckedAuth(true);
@@ -135,9 +128,12 @@ const page = () => {
   const displayAddress =
     user?.address ?? cachedProfile?.address ?? decodedProfile.address ?? "";
   const displayBio = user?.bio ?? cachedProfile?.bio ?? "";
-  const displayProfileImage = user
-    ? userDisplay.profileImage
-    : cachedDisplay.profileImage || decodedDisplay.profileImage || displayUser?.profileImage || "";
+  const displayProfileImage =
+    cachedDisplay.profileImage ||
+    userDisplay.profileImage ||
+    decodedDisplay.profileImage ||
+    displayUser?.profileImage ||
+    "";
   const displayMembershipYear = user?.createdAt
     ? new Date(user.createdAt).getFullYear()
     : cachedProfile?.createdAt
@@ -274,7 +270,10 @@ const page = () => {
                 if (!prop.images?.length) return null;
 
                 return (
-                  <div key={prop.id} className="flex items-center justify-between gap-1.5">
+                  <div
+                    key={prop.id}
+                    className="flex items-center justify-between gap-1.5"
+                  >
                     <div className="flex gap-2">
                       <Image
                         src={prop.images[0]}
@@ -288,7 +287,9 @@ const page = () => {
                           <p className="text-sm font-bold text-gray-900">
                             {prop.title}
                           </p>
-                          <p className="text-xs text-gray-500">{prop.location}</p>
+                          <p className="text-xs text-gray-500">
+                            {prop.location}
+                          </p>
                         </div>
                         <p className="text-sm font-bold text-[#43A047] mt-1">
                           ${Number(prop.price).toFixed(0)}/month

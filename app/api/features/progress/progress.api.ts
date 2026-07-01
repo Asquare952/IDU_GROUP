@@ -12,7 +12,7 @@ import type {
   LockPaymentVerifyResponse,
   RentPaymentInitializePayload,
   RentPaymentInitializeResponse,
-  RentPaymentVerifyResponse
+  RentPaymentVerifyResponse,
 } from "./types";
 
 type ProgressContainer = Record<string, unknown>;
@@ -222,6 +222,7 @@ const verifyLockPayment = async (
   try {
     const response = await api.get(
       `/progress/lock/verify?reference=${encodeURIComponent(cleanedReference)}`,
+      { skipAuthRedirect: true } as any,
     );
 
     return {
@@ -285,6 +286,7 @@ const verifyRentPayment = async (
   try {
     const response = await api.get(
       `/progress/rent/verify?reference=${encodeURIComponent(cleanedReference)}`,
+      { skipAuthRedirect: true } as any,
     );
 
     return {

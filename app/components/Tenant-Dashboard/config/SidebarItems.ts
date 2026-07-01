@@ -5,6 +5,7 @@ import {
   Heart,
   ClipboardList,
   MessageCircleMore,
+  ClipboardCheck,
   Shield,
   Settings,
   LogOut,
@@ -44,17 +45,23 @@ export const sidebarItems: SidebarItems[] = [
   {
     id: 6,
     name: "Safety Center",
+    path: "/tenant/inspections",
+    icon: ClipboardCheck,
+  },
+  {
+    id: 7,
+    name: "Safety Center",
     path: "/tenant/safety-center",
     icon: Shield,
   },
   {
-    id: 7,
+    id: 8,
     name: "Settings",
     path: "/tenant/settings",
     icon: Settings,
   },
   {
-    id: 8,
+    id: 9,
     name: "Logout",
     action: "logout",
     icon: LogOut,

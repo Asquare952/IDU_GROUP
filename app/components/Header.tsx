@@ -23,7 +23,6 @@ import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
 import { getCurrentUserRole } from "../lib/auth";
 
-
 type HeaderUser = NonNullable<AuthResponse["user"]>;
 
 type DecodedToken = {
@@ -51,7 +50,6 @@ const Header = () => {
   const showJoinUs = !isLoggedIn;
   const isJoinUsPage = pathname === "/signup" || pathname === "/confirm-otp";
   const userRole = isHydrated ? getCurrentUserRole() : null;
-
 
   useEffect(() => {
     const token = Cookies.get("ACCESS_TOKEN");
@@ -87,7 +85,9 @@ const Header = () => {
   const decodedDisplay = getProfileDisplayFields(decodedProfile);
 
   const displayFirstName =
-    userDisplay.firstName || cachedDisplay.firstName || decodedDisplay.firstName;
+    userDisplay.firstName ||
+    cachedDisplay.firstName ||
+    decodedDisplay.firstName;
   const displayLastName =
     userDisplay.lastName || cachedDisplay.lastName || decodedDisplay.lastName;
   const displayName =
@@ -97,17 +97,17 @@ const Header = () => {
     decodedDisplay.fullName;
   const displayEmail =
     userDisplay.email || cachedDisplay.email || decodedDisplay.email;
-  const displayProfileImage = user
-    ? userDisplay.profileImage
-    : cachedDisplay.profileImage || decodedDisplay.profileImage;
+  const displayProfileImage =
+    cachedDisplay.profileImage ||
+    userDisplay.profileImage ||
+    decodedDisplay.profileImage;
   const initials =
     (displayName || "")
       .split(/\s+/)
       .slice(0, 2)
       .map((part) => part.charAt(0))
       .join("")
-      .toUpperCase() ||
-    "U";
+      .toUpperCase() || "U";
 
   useEffect(() => {
     setIsHydrated(true);
@@ -171,9 +171,7 @@ const Header = () => {
   ];
 
   const profileMenuItems =
-    isHydrated && userRole === "landlord"
-      ? landlordMenuItems
-      : tenantMenuItems;
+    isHydrated && userRole === "landlord" ? landlordMenuItems : tenantMenuItems;
 
   const handleLogout = () => {
     setIsOpen(false);

@@ -19,6 +19,27 @@ const UPDATE_PROFILE_ENDPOINT = "/profile/update";
 const CHANGE_PASSWORD_ENDPOINT =
   process.env.NEXT_PUBLIC_CHANGE_PASSWORD_ENDPOINT ?? "/auth/change-password";
 
+const firstImageString = (...values: unknown[]) => {
+  for (const value of values) {
+    if (typeof value === "string" && value.trim()) {
+      return value.trim();
+    }
+
+    if (Array.isArray(value)) {
+      const match = value.find(
+        (item): item is string =>
+          typeof item === "string" && item.trim() !== "",
+      );
+
+      if (match) {
+        return match.trim();
+      }
+    }
+  }
+
+  return "";
+};
+
 const normalizeProfileResponse = (data: any): userProfile => {
   const raw = data?.data ?? data?.profile ?? data?.user ?? data;
 
@@ -27,6 +48,16 @@ const normalizeProfileResponse = (data: any): userProfile => {
   }
 
   const profile = raw.profile ?? {};
+  const profileImage = firstImageString(
+    raw.profileImage,
+    raw.profile_image,
+    raw.image,
+    raw.avatar,
+    profile.profileImage,
+    profile.profile_image,
+    profile.image,
+    profile.avatar,
+  );
   const fullName =
     (typeof raw.full_name === "string" && raw.full_name.trim()) ||
     (typeof raw.fullName === "string" && raw.fullName.trim()) ||
@@ -55,8 +86,7 @@ const normalizeProfileResponse = (data: any): userProfile => {
     address: raw.address ?? profile.address ?? "",
     state: raw.state ?? profile.state ?? profile.location ?? "",
     bio: raw.bio ?? profile.bio ?? "",
-    profileImage:
-      raw.profileImage ?? profile.image ?? profile.profileImage ?? "",
+    profileImage,
   };
 
   return normalized;

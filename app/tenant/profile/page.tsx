@@ -1,17 +1,16 @@
-"use client"
+"use client";
 
 import Image from "next/image";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
-import DashboardLayout from "@/app/components/Tenant-Dashboard/DashboardLayout"
-import { SquarePen, User, Mail, Phone, MapPin, Calendar } from 'lucide-react';
+import DashboardLayout from "@/app/components/Tenant-Dashboard/DashboardLayout";
+import { SquarePen, User, Mail, Phone, MapPin, Calendar } from "lucide-react";
 import Link from "next/link";
 import { useUserProfile } from "@/app/api/features/auth/auth.queries";
 import { AuthResponse } from "@/app/api/features/auth/types";
 import { getProfileDisplayFields } from "@/app/api/features/auth/profile-display";
 import { readCachedProfile } from "@/app/api/features/auth/profile-cache";
 import { useState, useEffect } from "react";
-
 
 type SettingsUser = NonNullable<AuthResponse["user"]>;
 
@@ -35,7 +34,9 @@ const page = () => {
   const [userId, setUserId] = useState<string>();
   const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
   const [cachedProfile, setCachedProfile] = useState<CachedUserProfile>();
-  const [decodedProfile, setDecodedProfile] = useState<Partial<CachedUserProfile>>({});
+  const [decodedProfile, setDecodedProfile] = useState<
+    Partial<CachedUserProfile>
+  >({});
 
   useEffect(() => {
     const token = Cookies.get("ACCESS_TOKEN");
@@ -72,9 +73,15 @@ const page = () => {
   const decodedDisplay = getProfileDisplayFields(decodedProfile);
 
   const displayFirstName =
-    userDisplay.firstName || cachedDisplay.firstName || decodedDisplay.firstName || "";
+    userDisplay.firstName ||
+    cachedDisplay.firstName ||
+    decodedDisplay.firstName ||
+    "";
   const displayLastName =
-    userDisplay.lastName || cachedDisplay.lastName || decodedDisplay.lastName || "";
+    userDisplay.lastName ||
+    cachedDisplay.lastName ||
+    decodedDisplay.lastName ||
+    "";
   const displayEmail =
     userDisplay.email || cachedDisplay.email || decodedDisplay.email || "";
   const displayPhone =
@@ -84,20 +91,30 @@ const page = () => {
   const displayState =
     cachedProfile?.state ?? user?.state ?? decodedProfile.state ?? "";
   const displayBio = cachedProfile?.bio ?? user?.bio ?? "";
-  const displayMembershipYear = user?.createdAt ? new Date(user.createdAt).getFullYear() : cachedProfile?.createdAt ? new Date(cachedProfile.createdAt).getFullYear() : "";
-  const displayProfileImage = user
-    ? userDisplay.profileImage
-    : cachedDisplay.profileImage || decodedDisplay.profileImage || "";
+  const displayMembershipYear = user?.createdAt
+    ? new Date(user.createdAt).getFullYear()
+    : cachedProfile?.createdAt
+      ? new Date(cachedProfile.createdAt).getFullYear()
+      : "";
+  const displayProfileImage =
+    cachedDisplay.profileImage ||
+    userDisplay.profileImage ||
+    decodedDisplay.profileImage ||
+    "";
   const initials =
-    `${displayFirstName[0] ?? ""}${displayLastName[0] ?? ""}`.trim() ||
-    "U";
+    `${displayFirstName[0] ?? ""}${displayLastName[0] ?? ""}`.trim() || "U";
 
   return (
     <DashboardLayout>
       <section className="p-8 bg-[#F8F9FA] min-h-screen">
         <div className=" flex justify-between items-center mb-6">
-          <h2 className="text-2xl  md:text-4xl font-bold text-[#162B4C]">My Profile</h2>
-          <Link href="/tenant/edit-profile" className=" flex items-center gap-1.5 py-2.5 px-3.5 rounded-md bg-[#43A047] text-white">
+          <h2 className="text-2xl  md:text-4xl font-bold text-[#162B4C]">
+            My Profile
+          </h2>
+          <Link
+            href="/tenant/edit-profile"
+            className=" flex items-center gap-1.5 py-2.5 px-3.5 rounded-md bg-[#43A047] text-white"
+          >
             <SquarePen size={15} className=" text-md" />
             <span>Edit Profile</span>
           </Link>
@@ -171,7 +188,9 @@ const page = () => {
                 </div>
                 <div className="flex flex-col ">
                   <p className="text-sm text-gray-500 ">Address</p>
-                  <p className="font-bold text-[#162B4C]">{displayAddress || "N/A"}</p>
+                  <p className="font-bold text-[#162B4C]">
+                    {displayAddress || "N/A"}
+                  </p>
                 </div>
               </div>
 
@@ -181,7 +200,9 @@ const page = () => {
                 </div>
                 <div className="flex flex-col ">
                   <p className="text-sm text-gray-500 ">State</p>
-                  <p className="font-bold text-[#162B4C]">{displayState || "N/A"}</p>
+                  <p className="font-bold text-[#162B4C]">
+                    {displayState || "N/A"}
+                  </p>
                 </div>
               </div>
             </div>
@@ -201,20 +222,22 @@ const page = () => {
                   <Calendar size={25} className="text-gray-400" />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <p className="text-sm font-bold text-[#162B4C]">Memeber Since</p>
+                  <p className="text-sm font-bold text-[#162B4C]">
+                    Memeber Since
+                  </p>
                   <p className="text-gray-500">
-                    {displayMembershipYear ? `Since ${displayMembershipYear}` : "N/A"}
+                    {displayMembershipYear
+                      ? `Since ${displayMembershipYear}`
+                      : "N/A"}
                   </p>
                 </div>
               </div>
             </div>
           </div>
         </div>
-
       </section>
     </DashboardLayout>
+  );
+};
 
-  )
-}
-
-export default page
+export default page;

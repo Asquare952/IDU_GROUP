@@ -79,7 +79,9 @@ const Header: FC<HeaderProps> = ({ onMenuClick }) => {
   const userDisplay = getProfileDisplayFields(user);
   const decodedDisplay = getProfileDisplayFields(decodedProfile);
   const displayFirstName =
-    userDisplay.firstName || cachedDisplay.firstName || decodedDisplay.firstName;
+    userDisplay.firstName ||
+    cachedDisplay.firstName ||
+    decodedDisplay.firstName;
   const displayLastName =
     userDisplay.lastName || cachedDisplay.lastName || decodedDisplay.lastName;
   const displayName =
@@ -90,17 +92,17 @@ const Header: FC<HeaderProps> = ({ onMenuClick }) => {
     "";
   const displayEmail =
     userDisplay.email || cachedDisplay.email || decodedDisplay.email;
-  const displayProfileImage = user
-    ? userDisplay.profileImage
-    : cachedDisplay.profileImage || decodedDisplay.profileImage;
+  const displayProfileImage =
+    cachedDisplay.profileImage ||
+    userDisplay.profileImage ||
+    decodedDisplay.profileImage;
   const initials =
     displayName
       .split(/\s+/)
       .slice(0, 2)
       .map((part) => part[0])
       .join("")
-      .toUpperCase() ||
-    "U";
+      .toUpperCase() || "U";
 
   const handleMobileSearchSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -158,7 +160,10 @@ const Header: FC<HeaderProps> = ({ onMenuClick }) => {
               {isLoading && !displayUser ? (
                 <p className="text-sm text-[#999EA5]">Loading...</p>
               ) : displayUser ? (
-                <Link href="/tenant/profile" className="flex items-center gap-1.5 cursor-pointer">
+                <Link
+                  href="/tenant/profile"
+                  className="flex items-center gap-1.5 cursor-pointer"
+                >
                   {displayProfileImage ? (
                     <Image
                       src={displayProfileImage}
@@ -187,7 +192,10 @@ const Header: FC<HeaderProps> = ({ onMenuClick }) => {
           {isLoading && !displayUser ? (
             <p>Loading...</p>
           ) : displayUser ? (
-            <Link href="/tenant/profile" className="flex items-center gap-1.5 cursor-pointer">
+            <Link
+              href="/tenant/profile"
+              className="flex items-center gap-1.5 cursor-pointer"
+            >
               {displayProfileImage ? (
                 <Image
                   src={displayProfileImage}

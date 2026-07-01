@@ -29,12 +29,21 @@ import {
   clearPendingLockPayment,
   getPendingLockPaymentReference,
 } from "@/app/lib/lock-payment";
+import {
+  getPendingRentPaymentReference,
+  hasPendingRentPayment,
+} from "@/app/lib/rent-payment";
 
-const getPaymentReference = (searchParams: URLSearchParams) =>
-  searchParams.get("reference") ||
-  searchParams.get("trxref") ||
-  searchParams.get("transaction_reference") ||
-  getPendingLockPaymentReference();
+// const getPaymentReference = (searchParams: URLSearchParams) =>
+//   searchParams.get("reference") ||
+//   searchParams.get("trxref") ||
+//   searchParams.get("transaction_reference") ||
+//   getPendingLockPaymentReference();
+
+// const getUrlPaymentReference = (searchParams: URLSearchParams) =>
+//   searchParams.get("reference") ||
+//   searchParams.get("trxref") ||
+//   searchParams.get("transaction_reference");
 
 const LockedHouseContent = () => {
   const router = useRouter();
@@ -50,30 +59,43 @@ const LockedHouseContent = () => {
     isError,
     error,
   } = useLockedRentals();
-  const {
-    mutate: verifyPayment,
-    isPending: isVerifyingPayment,
-  } = useVerifyLockPayment();
+  const { mutate: verifyPayment, isPending: isVerifyingPayment } =
+    useVerifyLockPayment();
 
-  useEffect(() => {
-    const reference = getPaymentReference(searchParams);
+  // useEffect(() => {
+  //   const urlReference = getUrlPaymentReference(searchParams);
 
-    if (!reference || reference === verifiedReference) {
-      return;
-    }
+  //   if (urlReference) {
+  //     const type =
+  //       urlReference === getPendingRentPaymentReference() ||
+  //       hasPendingRentPayment()
+  //         ? "rent"
+  //         : "lock";
+  //     const params = new URLSearchParams(searchParams.toString());
 
-    setVerifiedReference(reference);
-    verifyPayment(reference, {
-      onSuccess: (data) => {
-        clearPendingLockPayment();
-        toast.success(data.message || "Payment verified successfully.");
-        router.replace("/tenant/locked-house");
-      },
-      onError: (verifyError) => {
-        toast.error(verifyError.message || "Payment verification failed.");
-      },
-    });
-  }, [router, searchParams, verifiedReference, verifyPayment]);
+  //     params.set("type", type);
+  //     router.replace(`/tenant/payment-success?${params.toString()}`);
+  //     return;
+  //   }
+
+  //   const reference = getPaymentReference(searchParams);
+
+  //   if (!reference || reference === verifiedReference) {
+  //     return;
+  //   }
+
+  //   setVerifiedReference(reference);
+  //   verifyPayment(reference, {
+  //     onSuccess: (data) => {
+  //       clearPendingLockPayment();
+  //       toast.success(data.message || "Payment verified successfully.");
+  //       router.replace("/tenant/locked-house");
+  //     },
+  //     onError: (verifyError) => {
+  //       toast.error(verifyError.message || "Payment verification failed.");
+  //     },
+  //   });
+  // }, [router, searchParams, verifiedReference, verifyPayment]);
 
   return (
     <DashboardLayout>
@@ -83,12 +105,12 @@ const LockedHouseContent = () => {
           <p className="text-gray-500">Track your reservation and next steps</p>
         </div>
 
-        {isVerifyingPayment && (
+        {/* {isVerifyingPayment && (
           <div className="flex items-center gap-3 rounded-2xl border border-green-100 bg-green-50 p-4 text-sm font-semibold text-green-700">
             <Loader2 size={18} className="animate-spin" />
             Verifying your payment...
           </div>
-        )}
+        )} */}
 
         {isLoading ? (
           <div className="flex justify-center py-16">
@@ -169,7 +191,6 @@ const LockedHouseContent = () => {
           </div>
         </div> */}
 
-
         {/* {lockedRentals.length === 0 ? "" : <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
           <button className="flex items-center justify-center gap-3 bg-[#43A047] border-2 border-[#43A047] text-white py-4 px-6 rounded-xl cursor-pointer hover:bg-white hover:text-green-600">
             <Calendar size={20} />
@@ -186,7 +207,6 @@ const LockedHouseContent = () => {
             <span>Chat with Landlord</span>
           </button>
         </div>} */}
-        
 
         <div className="mt-4 p-6 bg-[#fff9E6] border border-[#ffd966] rounded-[1.5rem] flex gap-4 items-start shadow-sm">
           <div className="text-[#b45309] mt-1">
@@ -264,9 +284,7 @@ const LockedRentalCard = ({ item }: { item: Rental }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const images = item.images.length > 0 ? item.images : [];
   const activeImage = images[currentSlide];
-  const landlordName = item.User
-    ? `${item.User.full_name}`.trim()
-    : "Landlord";
+  const landlordName = item.User ? `${item.User.full_name}`.trim() : "Landlord";
 
   const nextSlide = () => {
     if (images.length <= 1) return;
@@ -284,7 +302,7 @@ const LockedRentalCard = ({ item }: { item: Rental }) => {
         {activeImage ? (
           <Image
             src={activeImage}
-            alt={`${item.title} view`} 
+            alt={`${item.title} view`}
             fill
             className="object-cover transition-all duration-500"
           />

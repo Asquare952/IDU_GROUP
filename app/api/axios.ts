@@ -66,18 +66,17 @@ api.interceptors.response.use(
 
     // 401 — Unauthorized
     if (status === 401) {
-      Cookies.remove("ACCESS_TOKEN");
-
       // DON'T redirect if on public pages
       const isPublicPage =
         PUBLIC_PATHS.includes(currentPath) ||
         currentPath.startsWith("/properties/");
-
-      if (
+      const shouldHandleAuthFailure =
         !requestConfig?.skipAuthRedirect &&
         !isPublicPage &&
-        currentPath !== "/login"
-      ) {
+        currentPath !== "/login";
+
+      if (shouldHandleAuthFailure) {
+        Cookies.remove("ACCESS_TOKEN");
         window.location.href = "/login";
       }
     }
@@ -90,7 +89,10 @@ api.interceptors.response.use(
       if (userRole === "landlord" && currentPath !== "/landlord/edit-profile") {
         sessionStorage.setItem("redirectAfterProfile", currentPath);
         window.location.href = "/landlord/edit-profile";
-      } else if (userRole === "tenant" && currentPath !== "/tenant/edit-profile") {
+      } else if (
+        userRole === "tenant" &&
+        currentPath !== "/tenant/edit-profile"
+      ) {
         sessionStorage.setItem("redirectAfterProfile", currentPath);
         window.location.href = "/tenant/edit-profile";
       } else if (
