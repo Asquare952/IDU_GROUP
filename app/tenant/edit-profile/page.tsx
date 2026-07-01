@@ -60,6 +60,7 @@ const defaultValues: EditProfileFormValues = {
 
 type CachedUserProfile = Partial<AuthResponse["user"]>;
 
+// 
 const MAX_IMAGE_DIMENSION = 800;
 const MAX_IMAGE_BYTES = 700 * 1024;
 
@@ -125,6 +126,7 @@ const compressImage = async (file: File) => {
 
   return output;
 };
+// 
 
 const Page = () => {
   const router = useRouter();
@@ -364,7 +366,7 @@ const Page = () => {
           { keepDirty: false },
         );
       }
-      router.push("/tenant/dashboard");
+      router.push("/tenant/profile");
     } catch {
       // Mutation hooks already handle user-facing errors.
     }
@@ -456,7 +458,7 @@ const Page = () => {
                       onChange={handleFileChange}
                       className="hidden"
                     />
-                    <p className="text-sm text-gray-500">JPG or PNG.</p>
+                    <p className="text-sm text-gray-500">JPG or PNG image size must be less than 10MB</p>
                   </div>
                 </div>
               </div>
