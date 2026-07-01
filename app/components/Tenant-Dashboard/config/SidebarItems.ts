@@ -44,7 +44,7 @@ export const sidebarItems: SidebarItems[] = [
   },
   {
     id: 6,
-    name: "Safety Center",
+    name: "Inspections",
     path: "/tenant/inspections",
     icon: ClipboardCheck,
   },
