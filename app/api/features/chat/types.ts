@@ -37,7 +37,7 @@ export interface Conversation {
   _id?: string;
   id?: string;
 
-  type: "user" | "support";
+  // type: "user" | "support";
 
   participants: User[]; // very important
   lastMessage?: Message;
