@@ -101,8 +101,6 @@ export const useUserProfile = (userId?: string, enabled = true) => {
 export const useUpdateUserProfile = (userId?: string) => {
   const queryClient = useQueryClient();
 
-    const router = useRouter();
-
   return useMutation<userProfile, Error, updateUserPayload>({
     mutationFn: (payload) => updateUserProfile(payload, userId as string),
     onSuccess: (data: any, variables) => {
@@ -110,10 +108,7 @@ export const useUpdateUserProfile = (userId?: string) => {
       const existingProfile =
         queryClient.getQueryData<Partial<userProfile>>(queryKey);
       const hasProfileShape =
-        !!data &&
-        (typeof data?.id === "string" ||
-          typeof data?.email === "string" ||
-          typeof data?.first_name === "string");
+        !!data && typeof data === "object" && !Array.isArray(data);
 
       const mergedProfile = {
         ...existingProfile,
@@ -124,16 +119,21 @@ export const useUpdateUserProfile = (userId?: string) => {
       queryClient.setQueryData(queryKey, mergedProfile);
 
       const storedProfile = Cookies.get("USER_PROFILE");
-      const parsedStoredProfile = storedProfile
-        ? JSON.parse(storedProfile)
-        : {};
+      let parsedStoredProfile = {};
+
+      if (storedProfile) {
+        try {
+          parsedStoredProfile = JSON.parse(storedProfile);
+        } catch {
+          parsedStoredProfile = {};
+        }
+      }
       const nextProfile = {
         ...parsedStoredProfile,
         ...(hasProfileShape ? data : {}),
         ...variables,
       };
 
-      Cookies.set("USER_PROFILE", JSON.stringify(nextProfile), { expires: 1 });
       writeCachedProfile(nextProfile);
 
       toast.success("Profile updated successfully");

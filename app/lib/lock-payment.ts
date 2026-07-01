@@ -3,8 +3,8 @@ const LOCK_PAYMENT_RENTAL_KEY = "pendingLockPaymentRentalId";
 
 export const getLockPaymentReturnUrl = () =>
   typeof window === "undefined"
-    ? "/tenant/locked-house"
-    : `${window.location.origin}/tenant/locked-house`;
+    ? "/tenant/payment-success?type=lock"
+    : `${window.location.origin}/tenant/payment-success?type=lock`;
 
 export const buildLockPaymentPayload = (rentalId: string) => {
   const returnUrl = getLockPaymentReturnUrl();

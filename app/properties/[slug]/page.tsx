@@ -40,7 +40,7 @@ import {
 } from "@/app/lib/rent-payment";
 import { toast } from "react-toastify";
 import { useAuth } from "@/app/components/context/AuthContext";
-import CompleteAccInfoModal from "@/app/components/CompleteAccInfoModal";
+import BookInspectionModal from "@/app/components/BookInspectionModal";
 
 function PropertyDesktopViewContent() {
   const params = useParams<{ slug: string }>();
@@ -50,7 +50,7 @@ function PropertyDesktopViewContent() {
   const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showAllTips, setShowAllTips] = useState(false);
-  const [isCompleteAccDetailsOpen, setisCompleteAccDetailsOpen] = useState(false)
+  const [isBookInspectionsOpen, setisBookInspectionOpen] = useState(false)
   const { mutate: handleBook, isPending } = useBookProperty();
   const { mutate: createConversation } = useCreateConversation();
   const initializeLockPayment = useInitializeLockPayment();
@@ -142,7 +142,6 @@ function PropertyDesktopViewContent() {
   return (
     <div className="bg-white min-h-screen">
       <Navbar />
-      <CompleteAccInfoModal isOpen={isCompleteAccDetailsOpen} onClose={() => setisCompleteAccDetailsOpen(false)} />
 
       <main className="max-w-[1280px] mx-auto px-6 py-10">
         <div className="mb-6 text-sm text-gray-500 font-medium">
@@ -371,7 +370,7 @@ function PropertyDesktopViewContent() {
                       }
 
                       if (access?.is_verified === false) {
-                        setisCompleteAccDetailsOpen(true);
+
                         return false;
                       }
 
@@ -420,8 +419,7 @@ function PropertyDesktopViewContent() {
                         router.push("/login");
                         return;
                       }
-
-                      handleBook(String(property.id));
+                      setisBookInspectionOpen(true);
                     }}
                     disabled={isPending}
                     className="flex items-center justify-center gap-3 w-full bg-green-600 border-2 border-none text-white font-black py-5 rounded-[24px] hover:bg-green-700 transition-all active:scale-95 shadow-lg shadow-orange-100 uppercase mt-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
@@ -437,11 +435,6 @@ function PropertyDesktopViewContent() {
                       if (!hasAccessToken()) {
                         router.push("/login");
                         return;
-                      }
-
-                      if (access?.is_verified === false) {
-                        setisCompleteAccDetailsOpen(true);
-                        return false;
                       }
 
                       const rentalId = String(property.id);
@@ -517,6 +510,7 @@ function PropertyDesktopViewContent() {
             </div>
           </div>
         </div>
+        <BookInspectionModal isOpen={isBookInspectionsOpen} onClose={() => setisBookInspectionOpen(false)} id={property.id}/>
       </main>
       {showFooter ? <Footer /> : null}
     </div>

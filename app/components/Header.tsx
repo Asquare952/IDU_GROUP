@@ -23,7 +23,6 @@ import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
 import { getCurrentUserRole } from "../lib/auth";
 
-
 type HeaderUser = NonNullable<AuthResponse["user"]>;
 
 type DecodedToken = {
@@ -51,7 +50,6 @@ const Header = () => {
   const showJoinUs = !isLoggedIn;
   const isJoinUsPage = pathname === "/signup" || pathname === "/confirm-otp";
   const userRole = isHydrated ? getCurrentUserRole() : null;
-
 
   useEffect(() => {
     const token = Cookies.get("ACCESS_TOKEN");
@@ -87,7 +85,9 @@ const Header = () => {
   const decodedDisplay = getProfileDisplayFields(decodedProfile);
 
   const displayFirstName =
-    userDisplay.firstName || cachedDisplay.firstName || decodedDisplay.firstName;
+    userDisplay.firstName ||
+    cachedDisplay.firstName ||
+    decodedDisplay.firstName;
   const displayLastName =
     userDisplay.lastName || cachedDisplay.lastName || decodedDisplay.lastName;
   const displayName =
@@ -97,17 +97,17 @@ const Header = () => {
     decodedDisplay.fullName;
   const displayEmail =
     userDisplay.email || cachedDisplay.email || decodedDisplay.email;
-  const displayProfileImage = user
-    ? userDisplay.profileImage
-    : cachedDisplay.profileImage || decodedDisplay.profileImage;
+  const displayProfileImage =
+    cachedDisplay.profileImage ||
+    userDisplay.profileImage ||
+    decodedDisplay.profileImage;
   const initials =
     (displayName || "")
       .split(/\s+/)
       .slice(0, 2)
       .map((part) => part.charAt(0))
       .join("")
-      .toUpperCase() ||
-    "U";
+      .toUpperCase() || "U";
 
   useEffect(() => {
     setIsHydrated(true);
@@ -171,9 +171,7 @@ const Header = () => {
   ];
 
   const profileMenuItems =
-    isHydrated && userRole === "landlord"
-      ? landlordMenuItems
-      : tenantMenuItems;
+    isHydrated && userRole === "landlord" ? landlordMenuItems : tenantMenuItems;
 
   const handleLogout = () => {
     setIsOpen(false);
@@ -184,7 +182,10 @@ const Header = () => {
   return (
     <>
       <nav className="z-[110] sticky top-0 left-0 right-0 flex md:grid md:grid-cols-3 items-center justify-between px-6 md:px-12 py-4 bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-100 transition-all duration-300">
-        <Link href="/" className="flex items-center text-2xl font-bold text-gray-900 tracking-tight">
+        <Link
+          href="/"
+          className="flex items-center text-2xl font-bold text-gray-900 tracking-tight"
+        >
           <Image
             src="/IDU GROUP LOGO.png"
             alt="Logo"
@@ -205,10 +206,11 @@ const Header = () => {
 
             <Link
               href="/#listing"
-              className={`text-[15px] font-medium transition-all ${pathname === "/tenant/homepage" || pathname === "/#listing"
-                ? "text-[#4CAF50] font-bold"
-                : "text-gray-700 hover:text-[#4CAF50]"
-                }`}
+              className={`text-[15px] font-medium transition-all ${
+                pathname === "/tenant/homepage" || pathname === "/#listing"
+                  ? "text-[#4CAF50] font-bold"
+                  : "text-gray-700 hover:text-[#4CAF50]"
+              }`}
             >
               Property
             </Link>
@@ -223,10 +225,11 @@ const Header = () => {
             {showJoinUs && (
               <Link
                 href="/signup"
-                className={`text-[15px] font-medium transition-all ${isJoinUsPage
-                  ? "text-[#4CAF50] font-bold"
-                  : "text-gray-700 hover:text-[#4CAF50]"
-                  }`}
+                className={`text-[15px] font-medium transition-all ${
+                  isJoinUsPage
+                    ? "text-[#4CAF50] font-bold"
+                    : "text-gray-700 hover:text-[#4CAF50]"
+                }`}
               >
                 Join us
               </Link>
@@ -271,7 +274,8 @@ const Header = () => {
                         {displayEmail}
                       </p>
                     </div>
-                  </div>) : null}
+                  </div>
+                ) : null}
 
                 {/* Dropdown — fixed positioning for mobile, absolute for desktop */}
                 {isProfileOpen && (
@@ -283,7 +287,9 @@ const Header = () => {
                     {/* MOBILE DROPDOWN: fixed to top-right of viewport, pushed down below header */}
                     <div className="fixed right-4 top-20 w-60 bg-white rounded-2xl shadow-2xl border border-gray-100 z-20 overflow-hidden md:hidden">
                       <div className="p-4 border-b border-gray-50 bg-gray-50/50">
-                        <p className="text-sm font-bold text-gray-900">{displayName}</p>
+                        <p className="text-sm font-bold text-gray-900">
+                          {displayName}
+                        </p>
                         <p className="text-[10px] text-gray-500 truncate">
                           {displayEmail}
                         </p>
@@ -315,7 +321,9 @@ const Header = () => {
                     {/* DESKTOP DROPDOWN: absolute positioned relative to parent */}
                     <div className="hidden md:block absolute right-0 top-14 w-60 bg-white rounded-2xl shadow-2xl border border-gray-100 z-20 overflow-hidden">
                       <div className="p-4 border-b border-gray-50 bg-gray-50/50">
-                        <p className="text-sm font-bold text-gray-900">{displayName}</p>
+                        <p className="text-sm font-bold text-gray-900">
+                          {displayName}
+                        </p>
                         <p className="text-[10px] text-gray-500 truncate">
                           {displayEmail}
                         </p>

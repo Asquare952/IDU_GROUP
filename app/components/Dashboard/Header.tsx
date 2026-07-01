@@ -84,7 +84,9 @@ const Header: FC<HeaderProp> = ({ onMenuClick }) => {
   const cachedDisplay = getProfileDisplayFields(cachedProfile);
   const decodedDisplay = getProfileDisplayFields(decodedProfile);
   const displayFirstName =
-    userDisplay.firstName || cachedDisplay.firstName || decodedDisplay.firstName;
+    userDisplay.firstName ||
+    cachedDisplay.firstName ||
+    decodedDisplay.firstName;
   const displayLastName =
     userDisplay.lastName || cachedDisplay.lastName || decodedDisplay.lastName;
   const displayName =
@@ -96,7 +98,7 @@ const Header: FC<HeaderProp> = ({ onMenuClick }) => {
   const displayEmail =
     userDisplay.email || cachedDisplay.email || decodedDisplay.email;
   const displayProfileImage =
-    user ? userDisplay.profileImage : cachedDisplay.profileImage;
+    cachedDisplay.profileImage || userDisplay.profileImage;
   const initials =
     displayName
       .split(/\s+/)
@@ -148,7 +150,9 @@ const Header: FC<HeaderProp> = ({ onMenuClick }) => {
               >
                 <Menu />
               </button>
-              <h2 className="text-2xl font-bold text-[#999EA5] hidden md:block">Dashboard</h2>
+              <h2 className="text-2xl font-bold text-[#999EA5] hidden md:block">
+                Dashboard
+              </h2>
             </div>
 
             <div className="flex items-center gap-3">
@@ -174,13 +178,18 @@ const Header: FC<HeaderProp> = ({ onMenuClick }) => {
                     />
                   </Link>
                 ) : (
-
-                  <Link href="/landlord/profile" className="flex h-10 w-10 items-center justify-center rounded-full bg-[#43A047] text-sm font-semibold text-white">
+                  <Link
+                    href="/landlord/profile"
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-[#43A047] text-sm font-semibold text-white"
+                  >
                     {initials}
                   </Link>
                 )
               ) : (
-                <Link href="/landlord/profile" className="flex items-center gap-1.5 cursor-pointer">
+                <Link
+                  href="/landlord/profile"
+                  className="flex items-center gap-1.5 cursor-pointer"
+                >
                   <Image
                     src={AdminProfileImg}
                     alt="Landlord profile"
@@ -188,7 +197,8 @@ const Header: FC<HeaderProp> = ({ onMenuClick }) => {
                     height={40}
                     className="h-10 w-10 rounded-full object-cover"
                   />
-                </Link>)}
+                </Link>
+              )}
             </div>
           </div>
         )}

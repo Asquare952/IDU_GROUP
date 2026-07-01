@@ -7,6 +7,17 @@ const readString = (profile: ProfileRecord, keys: string[]) => {
     if (typeof value === "string" && value.trim()) {
       return value.trim();
     }
+
+    if (Array.isArray(value)) {
+      const match = value.find(
+        (item): item is string =>
+          typeof item === "string" && item.trim() !== "",
+      );
+
+      if (match) {
+        return match.trim();
+      }
+    }
   }
 
   return "";
@@ -56,6 +67,7 @@ export const getProfileDisplayFields = (profile?: unknown) => {
     profileImage: readString(record, [
       "profileImage",
       "profile_image",
+      "image",
       "avatar",
     ]),
   };

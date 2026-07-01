@@ -10,6 +10,7 @@ import Post from "./components/landing-page/Post";
 import Transparency from "./components/landing-page/Transparency";
 import CallToAction from "./components/landing-page/CallToAction";
 import Footer from "./components/Footer";
+// import Support from "./components/Support";
 
 export default function Home() {
   return (
@@ -26,6 +27,7 @@ export default function Home() {
           <Post />
           <Transparency />
           <CallToAction />
+          {/* <Support/> */}
           <Footer />
         </section>
       </main>
