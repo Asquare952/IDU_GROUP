@@ -4,36 +4,35 @@ import {
   RecentInquiries,
 } from "../types";
 
-export const DashMetrics: DashboardMetrics[] = [
-  {
-    id: 1,
-    name: "Active Listings",
-    percentage: 3,
-    figure: "24",
-    image: "/assets/dashboard-metrics-img-1.png",
-  },
-  // {
-  //   id: 2,
-  //   name: "Inquiries Received",
-  //   percentage: 8,
-  //   figure: "45",
-  //   image: "/assets/dashboard-metrics-img-2.png",
-  // },
-  // {
-  //   id: 3,
-  //   name: "Total views",
-  //   percentage: 12,
-  //   figure: "245K",
-  //   image: "/assets/dashboard-metrics-img-3.png",
-  // },
-  {
-    id: 4,
-    name: "Estimated rent value",
-    percentage: 8,
-    figure: "$250K",
-    image: "/assets/dashboard-metrics-img-4.png",
-  },
-];
+// export const DashMetrics: DashboardMetrics[] = [
+//   {
+//     id: 1,
+//     name: "Active Listings",
+//     figure: "24",
+//     image: "/assets/dashboard-metrics-img-1.png",
+//   },
+//   {
+//     id: 2,
+//     name: "Inquiries Received",
+//     percentage: 8,
+//     figure: "45",
+//     image: "/assets/dashboard-metrics-img-2.png",
+//   },
+//   {
+//     id: 3,
+//     name: "Total views",
+//     percentage: 12,
+//     figure: "245K",
+//     image: "/assets/dashboard-metrics-img-3.png",
+//   },
+//   {
+//     id: 4,
+//     name: "Estimated rent value",
+//     percentage: 8,
+//     figure: "$250K",
+//     image: "/assets/dashboard-metrics-img-4.png",
+//   },
+// ];
 
 export const DashboardListings: DashboardpropListings[] = [
   {
