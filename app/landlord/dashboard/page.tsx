@@ -6,7 +6,6 @@ import DashboardLayout from "../../components/Dashboard/DashboardLayout";
 import { DashboardMetrics } from "../../components/Dashboard/types";
 import { rentalApi, Rental } from "@/app/api/features/rental";
 import {
-  DashMetrics,
   Inquiries,
 } from "../../components/Dashboard/config/DashboardDatas";
 import Cookies from "js-cookie";
