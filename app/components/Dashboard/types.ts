@@ -16,7 +16,7 @@ export type DashboardMetrics = {
   id: number;
   name: string;
   figure: string;
-  percentage: number;
+  // percentage: number;
   image: string;
 };
 

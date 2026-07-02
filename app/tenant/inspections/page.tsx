@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 
 const Page = () => {
   const router = useRouter()
-  const { data: inspections = [] } = useGetInspections();
+  const { data: inspections = [], isPending, isError } = useGetInspections();
 
   return (
     <DashboardLayout>
@@ -31,41 +31,52 @@ const Page = () => {
               <Plus size={16} /> Schedule New
             </button>
           </div>
-          <div className="space-y-6">
-            {inspections?.map((item) => (
-              <div
-                key={item.id}
-                className="flex flex-col md:flex-row md:items-center justify-between p-6 rounded-[1.5rem] border border-gray-50 bg-[#FBFBFC]/40 hover:bg-white hover:shadow-xl hover:shadow-gray-100/50 hover:border-green-100 transition-all duration-300 group"
-              >
-                <div className="flex flex-col gap-2">
-                  <h4 className="font-bold text-[#162B4C] text-[16px] group-hover:text-[#43A047] transition-colors">
-                    {item.rental.title}
-                  </h4>
-                  <div className="flex items-center gap-1.5 text-slate-400 text-[12px] mb-1">
-                    <MapPin size={13} className="text-[#43A047]/60" />{" "}
-                    {item.rental.location}
-                  </div>
-                  <div className="flex flex-wrap items-center gap-4">
-                    <div className="flex items-center gap-2 bg-green-50/50 text-[#43A047] px-3 py-1 rounded-lg text-[11px] font-bold">
-                      <Calendar size={13} /> {item.date}
-                    </div>
-                    <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-medium border-l border-gray-200 pl-4">
-                      <Clock size={13} /> {item.time}
-                    </div>
-                    <span className="bg-gray-100 text-gray-400 px-2.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest">
-                      {/* {item.data.rental.} */}
-                    </span>
-                  </div>
+          {isPending ? (
+            <div className="text-center py-10 text-[#43A047] font-bold text-lg">
+              Loading inspections...
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {inspections.length === 0 && (
+                <div className="text-center py-10 text-[#43A047] font-bold text-lg">
+                  No inspections found.
                 </div>
+              )}
+              {inspections?.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex flex-col md:flex-row md:items-center justify-between p-6 rounded-[1.5rem] border border-gray-50 bg-[#FBFBFC]/40 hover:bg-white hover:shadow-xl hover:shadow-gray-100/50 hover:border-green-100 transition-all duration-300 group"
+                >
+                  <div className="flex flex-col gap-2">
+                    <h4 className="font-bold text-[#162B4C] text-[16px] group-hover:text-[#43A047] transition-colors">
+                      {item.rental.title}
+                    </h4>
+                    <div className="flex items-center gap-1.5 text-slate-400 text-[12px] mb-1">
+                      <MapPin size={13} className="text-[#43A047]/60" />{" "}
+                      {item.rental.location}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-4">
+                      <div className="flex items-center gap-2 bg-green-50/50 text-[#43A047] px-3 py-1 rounded-lg text-[11px] font-bold">
+                        <Calendar size={13} /> {item.date}
+                      </div>
+                      <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-medium border-l border-gray-200 pl-4">
+                        <Clock size={13} /> {item.time}
+                      </div>
+                      <span className="bg-gray-100 text-gray-400 px-2.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest">
+                        {/* {item.data.rental.} */}
+                      </span>
+                    </div>
+                  </div>
 
-                <div className="mt-6 md:mt-0" onClick={() => router.push(getInspectionDetailsPath(item))}>
-                  <button className="w-full md:w-auto px-8 py-3 border border-gray-100 rounded-2xl text-slate-500 text-[12px] font-bold hover:bg-[#162B4C] hover:text-white hover:border-[#162B4C] hover:shadow-lg transition-all duration-300 cursor-pointer">
-                    View Details
-                  </button>
+                  <div className="mt-6 md:mt-0" onClick={() => router.push(getInspectionDetailsPath(item))}>
+                    <button className="w-full md:w-auto px-8 py-3 border border-gray-100 rounded-2xl text-slate-500 text-[12px] font-bold hover:bg-[#162B4C] hover:text-white hover:border-[#162B4C] hover:shadow-lg transition-all duration-300 cursor-pointer">
+                      View Details
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </DashboardLayout>
