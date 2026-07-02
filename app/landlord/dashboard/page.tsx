@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import DashboardLayout from "../../components/Dashboard/DashboardLayout";
+import { DashboardMetrics } from "../../components/Dashboard/types";
 import { rentalApi, Rental } from "@/app/api/features/rental";
 import {
   DashMetrics,
@@ -147,9 +148,27 @@ export default function Page() {
 
   // Calculate metrics from real data
   const activeListings = rentals.filter((r) => r.status === "available").length;
-  const totalViews = rentals.reduce(
-    (acc, r) => acc + Math.floor(Math.random() * 1000),
+  const totalValue = rentals.reduce(
+    (sum, property) => sum + Number(property.price),
     0,
+  );
+
+  const dashMetrics = useMemo<DashboardMetrics[]>(
+    () => [
+      {
+        id: 1,
+        name: "Active Listings",
+        figure: activeListings.toString(),
+        image: "/assets/dashboard-metrics-img-1.png",
+      },
+      {
+        id: 4,
+        name: "Estimated rent value",
+        figure: totalValue ? `₦${totalValue.toLocaleString()}` : "₦0",
+        image: "/assets/dashboard-metrics-img-4.png",
+      },
+    ],
+    [activeListings, totalValue],
   ); // Replace with real view count when available
 
   return (
@@ -171,8 +190,8 @@ export default function Page() {
         </div>
 
         {/* Metrics Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
-          {DashMetrics.map((item) => (
+        <div className="grid grid-cols-2  gap-3 md:gap-6">
+          {dashMetrics.map((item) => (
             <div
               key={item.id}
               className="bg-white p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] border border-slate-100 shadow-sm"
