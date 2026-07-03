@@ -240,7 +240,7 @@ const HeroSection = () => {
               title="Location"
               placeholder="Select location"
               isDropdown={true}
-              options={["Lagos", "Abuja", "Port Harcourt", "Ibadan", "Enugu"]}
+              options={["Lagos", "Abuja", "Imo", "Ibadan", "Enugu"]}
               showLocationIcon={true}
               value={location}
               onChange={setLocation}
