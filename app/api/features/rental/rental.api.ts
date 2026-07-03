@@ -1,5 +1,6 @@
 import api from "../../axios";
 import { API_BASE_URL } from "../../axios";
+import type { AxiosError } from "axios";
 import { getCurrentUserId } from "@/app/lib/auth";
 import type {
   ApiResponse,
@@ -356,7 +357,8 @@ export const rentalApi = {
       { withCredentials: true },
     );
 
-    const rental = extractRentalRecord(response.data) ?? buildFallbackRental(payload);
+    const rental =
+      extractRentalRecord(response.data) ?? buildFallbackRental(payload);
     return normalizeRental(rental);
   },
 
@@ -380,12 +382,38 @@ export const rentalApi = {
       return normalizeRentalListResponse(data.data);
     }
 
-    // For authenticated requests, use the api instance
-    const response =
-      await api.get<ApiResponse<RawRental[] | { rentals?: RawRental[] }>>(
-        "/rental/all",
-      );
-    return normalizeRentalListResponse(response.data.data);
+    // For authenticated requests, use the api instance first.
+    // If the authenticated endpoint is unavailable, fall back to the public recent rentals route.
+    try {
+      const response =
+        await api.get<ApiResponse<RawRental[] | { rentals?: RawRental[] }>>(
+          "/rental/all",
+        );
+      return normalizeRentalListResponse(response.data.data);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      const status = axiosError.response?.status;
+
+      if (status === 404 || status === 401) {
+        const fallbackResponse = await fetch(`${API_BASE_URL}/rental/recent`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!fallbackResponse.ok) {
+          throw error;
+        }
+
+        const data = (await fallbackResponse.json()) as ApiResponse<
+          RawRental[] | { rentals?: RawRental[] }
+        >;
+        return normalizeRentalListResponse(data.data);
+      }
+
+      throw error;
+    }
   },
 
   searchRentals: async (
