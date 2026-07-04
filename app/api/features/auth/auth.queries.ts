@@ -28,7 +28,7 @@ import {
   updateUserPayload,
   VerifyRegistrationOtpResponse,
 } from "./types";
-import { writeCachedProfile } from "./profile-cache";
+import { readCachedProfile, writeCachedProfile } from "./profile-cache";
 
 // ==============================
 // LOGIN
@@ -118,23 +118,18 @@ export const useUpdateUserProfile = (userId?: string) => {
 
       queryClient.setQueryData(queryKey, mergedProfile);
 
-      const storedProfile = Cookies.get("USER_PROFILE");
-      let parsedStoredProfile = {};
-
-      if (storedProfile) {
-        try {
-          parsedStoredProfile = JSON.parse(storedProfile);
-        } catch {
-          parsedStoredProfile = {};
-        }
-      }
+      const resolvedUserId =
+        (data as Partial<userProfile> | undefined)?.id ??
+        userId ??
+        (existingProfile as Partial<userProfile> | undefined)?.id;
+      const currentCachedProfile = readCachedProfile(resolvedUserId);
       const nextProfile = {
-        ...parsedStoredProfile,
+        ...(currentCachedProfile ?? {}),
         ...(hasProfileShape ? data : {}),
         ...variables,
       };
 
-      writeCachedProfile(nextProfile);
+      writeCachedProfile(nextProfile, 1, resolvedUserId);
 
       toast.success("Profile updated successfully");
     },
