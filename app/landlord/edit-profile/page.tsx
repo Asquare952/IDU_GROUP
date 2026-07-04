@@ -295,7 +295,9 @@ const page = () => {
       address,
       state,
       bio,
-      profileImage,
+      profileImage: profileImage.startsWith("data:")
+        ? profileImage
+        : profileImage || undefined,
     };
 
     const originalPhone = profile?.phone_no ?? cachedProfile?.phone_no ?? "";

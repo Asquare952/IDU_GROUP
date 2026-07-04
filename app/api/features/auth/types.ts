@@ -31,7 +31,7 @@ export interface userProfile {
 }
 export interface updateUserPayload {
   bio?: string;
-  profileImage?: string;
+  profileImage?: string | File;
   phone_no?: string;
   address?: string;
   state?: string;

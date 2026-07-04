@@ -11,7 +11,10 @@ import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { useUserProfile } from "@/app/api/features/auth/auth.queries";
 import { AuthResponse } from "@/app/api/features/auth/types";
-import { getProfileDisplayFields } from "@/app/api/features/auth/profile-display";
+import {
+  getProfileDisplayFields,
+  useStableProfileImage,
+} from "@/app/api/features/auth/profile-display";
 import { readCachedProfile } from "@/app/api/features/auth/profile-cache";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -97,7 +100,15 @@ const Header: FC<HeaderProp> = ({ onMenuClick }) => {
     "";
   const displayEmail =
     userDisplay.email || cachedDisplay.email || decodedDisplay.email;
-  const displayProfileImage = userDisplay.profileImage || cachedDisplay.profileImage;
+  const [avatarSrc, setAvatarSrc] = useState("");
+  const fallbackImage = userDisplay.profileImage || cachedDisplay.profileImage || "";
+  const displayProfileImage = useStableProfileImage(fallbackImage);
+
+  useEffect(() => {
+    if (fallbackImage) {
+      setAvatarSrc(fallbackImage);
+    }
+  }, [fallbackImage]);
   const initials =
     displayName
       .split(/\s+/)
@@ -168,10 +179,10 @@ const Header: FC<HeaderProp> = ({ onMenuClick }) => {
               {isLoading && !displayUser ? (
                 <p className="text-sm text-[#999EA5]">Loading...</p>
               ) : displayUser ? (
-                displayProfileImage ? (
+                avatarSrc || displayProfileImage ? (
                   <Link href="/landlord/profile">
                     <img
-                      src={displayProfileImage}
+                      src={avatarSrc || displayProfileImage}
                       alt="Landlord profile"
                       className="h-10 w-10 rounded-full object-cover"
                     />
@@ -222,9 +233,9 @@ const Header: FC<HeaderProp> = ({ onMenuClick }) => {
                 href="/landlord/profile"
                 className="flex items-center gap-1.5 cursor-pointer"
               >
-                {displayProfileImage ? (
+                {avatarSrc || displayProfileImage ? (
                   <img
-                    src={displayProfileImage}
+                    src={avatarSrc || displayProfileImage}
                     alt="Landlord profile"
                     className="h-10 w-10 rounded-full object-cover"
                   />
