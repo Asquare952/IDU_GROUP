@@ -18,7 +18,10 @@ import { useAuth } from "./context/AuthContext";
 import { useUserProfile } from "@/app/api/features/auth/auth.queries";
 import { AuthResponse } from "@/app/api/features/auth/types";
 import { readCachedProfile } from "@/app/api/features/auth/profile-cache";
-import { getProfileDisplayFields } from "@/app/api/features/auth/profile-display";
+import {
+  getProfileDisplayFields,
+  useStableProfileImage,
+} from "@/app/api/features/auth/profile-display";
 import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
 import { getCurrentUserRole } from "../lib/auth";
@@ -97,10 +100,19 @@ const Header = () => {
     decodedDisplay.fullName;
   const displayEmail =
     userDisplay.email || cachedDisplay.email || decodedDisplay.email;
-  const displayProfileImage =
+  const [avatarSrc, setAvatarSrc] = useState("");
+  const fallbackImage =
     userDisplay.profileImage ||
     cachedDisplay.profileImage ||
-    decodedDisplay.profileImage;
+    decodedDisplay.profileImage ||
+    "";
+  const displayProfileImage = useStableProfileImage(fallbackImage);
+
+  useEffect(() => {
+    if (fallbackImage) {
+      setAvatarSrc(fallbackImage);
+    }
+  }, [fallbackImage]);
   const initials =
     (displayName || "")
       .split(/\s+/)
@@ -206,11 +218,10 @@ const Header = () => {
 
             <Link
               href="/#listing"
-              className={`text-[15px] font-medium transition-all ${
-                pathname === "/tenant/homepage" || pathname === "/#listing"
-                  ? "text-[#4CAF50] font-bold"
-                  : "text-gray-700 hover:text-[#4CAF50]"
-              }`}
+              className={`text-[15px] font-medium transition-all ${pathname === "/tenant/homepage" || pathname === "/#listing"
+                ? "text-[#4CAF50] font-bold"
+                : "text-gray-700 hover:text-[#4CAF50]"
+                }`}
             >
               Property
             </Link>
@@ -225,11 +236,10 @@ const Header = () => {
             {showJoinUs && (
               <Link
                 href="/signup"
-                className={`text-[15px] font-medium transition-all ${
-                  isJoinUsPage
-                    ? "text-[#4CAF50] font-bold"
-                    : "text-gray-700 hover:text-[#4CAF50]"
-                }`}
+                className={`text-[15px] font-medium transition-all ${isJoinUsPage
+                  ? "text-[#4CAF50] font-bold"
+                  : "text-gray-700 hover:text-[#4CAF50]"
+                  }`}
               >
                 Join us
               </Link>
@@ -253,9 +263,9 @@ const Header = () => {
                     className="flex items-center gap-2 cursor-pointer md:border-l md:pl-3 md:border-gray-200 active:scale-95 transition-all"
                     onClick={() => setIsProfileOpen(!isProfileOpen)}
                   >
-                    {displayProfileImage ? (
+                    {avatarSrc || displayProfileImage ? (
                       <Image
-                        src={displayProfileImage}
+                        src={avatarSrc || displayProfileImage}
                         alt="Profile"
                         width={32}
                         height={32}

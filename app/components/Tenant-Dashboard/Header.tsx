@@ -8,7 +8,10 @@ import { Menu, Search, X } from "lucide-react";
 import { useUserProfile } from "@/app/api/features/auth/auth.queries";
 import { AuthResponse } from "@/app/api/features/auth/types";
 import { readCachedProfile } from "@/app/api/features/auth/profile-cache";
-import { getProfileDisplayFields } from "@/app/api/features/auth/profile-display";
+import {
+  getProfileDisplayFields,
+  useStableProfileImage,
+} from "@/app/api/features/auth/profile-display";
 import DesktopSearch from "./UI/search/DesktopSearch";
 import NotificationBell from "./UI/NotificationBell";
 import Link from "next/link";
@@ -92,10 +95,19 @@ const Header: FC<HeaderProps> = ({ onMenuClick }) => {
     "";
   const displayEmail =
     userDisplay.email || cachedDisplay.email || decodedDisplay.email;
-  const displayProfileImage =
+  const [avatarSrc, setAvatarSrc] = useState("");
+  const fallbackImage =
     userDisplay.profileImage ||
     cachedDisplay.profileImage ||
-    decodedDisplay.profileImage;
+    decodedDisplay.profileImage ||
+    "";
+  const displayProfileImage = useStableProfileImage(fallbackImage);
+
+  useEffect(() => {
+    if (fallbackImage) {
+      setAvatarSrc(fallbackImage);
+    }
+  }, [fallbackImage]);
   const initials =
     displayName
       .split(/\s+/)
@@ -164,9 +176,9 @@ const Header: FC<HeaderProps> = ({ onMenuClick }) => {
                   href="/tenant/profile"
                   className="flex items-center gap-1.5 cursor-pointer"
                 >
-                  {displayProfileImage ? (
+                  {avatarSrc || displayProfileImage ? (
                     <Image
-                      src={displayProfileImage}
+                      src={avatarSrc || displayProfileImage}
                       alt="User profile"
                       width={40}
                       height={40}
@@ -196,9 +208,9 @@ const Header: FC<HeaderProps> = ({ onMenuClick }) => {
               href="/tenant/profile"
               className="flex items-center gap-1.5 cursor-pointer"
             >
-              {displayProfileImage ? (
+              {avatarSrc || displayProfileImage ? (
                 <Image
-                  src={displayProfileImage}
+                  src={avatarSrc || displayProfileImage}
                   alt="User profile"
                   width={40}
                   height={40}

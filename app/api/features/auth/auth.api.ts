@@ -40,6 +40,20 @@ const firstImageString = (...values: unknown[]) => {
   return "";
 };
 
+const dataUrlToFile = (dataUrl: string, filename = "profile-image.jpg") => {
+  const [header, base64] = dataUrl.split(",");
+  const mimeMatch = header?.match(/:(.*?);/);
+  const mime = mimeMatch?.[1] ?? "image/jpeg";
+  const binary = atob(base64 ?? "");
+  const bytes = new Uint8Array(binary.length);
+
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+
+  return new File([bytes], filename, { type: mime });
+};
+
 const normalizeProfileResponse = (data: any): userProfile => {
   const raw = data?.data ?? data?.profile ?? data?.user ?? data;
 
@@ -118,7 +132,57 @@ export const updateUserProfile = async (
   payload: updateUserPayload,
   _userId: string,
 ): Promise<userProfile> => {
-  const res = await api.put(UPDATE_PROFILE_ENDPOINT, payload);
+  const formData = new FormData();
+
+  if (payload.phone_no !== undefined) {
+    formData.append("phone_no", payload.phone_no);
+  }
+
+  if (payload.address !== undefined) {
+    formData.append("address", payload.address);
+  }
+
+  if (payload.state !== undefined) {
+    formData.append("state", payload.state);
+  }
+
+  if (payload.bio !== undefined) {
+    formData.append("bio", payload.bio);
+  }
+
+  if (payload.full_name !== undefined) {
+    formData.append("full_name", payload.full_name);
+  }
+
+  if (payload.first_name !== undefined) {
+    formData.append("first_name", payload.first_name);
+  }
+
+  if (payload.last_name !== undefined) {
+    formData.append("last_name", payload.last_name);
+  }
+
+  if (payload.profileImage instanceof File) {
+    formData.append("profileImage", payload.profileImage);
+  } else if (
+    typeof payload.profileImage === "string" &&
+    payload.profileImage.trim()
+  ) {
+    const trimmed = payload.profileImage.trim();
+
+    if (trimmed.startsWith("data:")) {
+      formData.append("profileImage", dataUrlToFile(trimmed));
+    } else {
+      formData.append("profileImage", trimmed);
+    }
+  }
+
+  const res = await api.put(UPDATE_PROFILE_ENDPOINT, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
   return normalizeProfileResponse(res.data);
 };
 

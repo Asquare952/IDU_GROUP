@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 type ProfileRecord = Record<string, unknown>;
 
 const readString = (profile: ProfileRecord, keys: string[]) => {
@@ -73,14 +75,34 @@ export const getProfileDisplayFields = (profile?: unknown) => {
   };
 };
 
-export const normalizeProfileForCache = <T extends object>(profile: T) => {
+export const useStableProfileImage = (image?: string) => {
+  const [stableImage, setStableImage] = useState<string>(image?.trim() ?? "");
+
+  useEffect(() => {
+    const nextImage = image?.trim();
+
+    if (nextImage) {
+      setStableImage(nextImage);
+    }
+  }, [image]);
+
+  return stableImage;
+};
+
+export const normalizeProfileForCache = <T extends object>(
+  profile: T,
+  fallbackProfile?: unknown,
+) => {
   const display = getProfileDisplayFields(profile);
+  const fallbackDisplay = getProfileDisplayFields(fallbackProfile);
 
   return {
     ...profile,
-    full_name: display.full_name,
-    email: display.email,
+    full_name: display.full_name || fallbackDisplay.full_name,
+    email: display.email || fallbackDisplay.email,
     profileImage:
-      display.profileImage || (profile as ProfileRecord).profileImage,
+      display.profileImage ||
+      fallbackDisplay.profileImage ||
+      (profile as ProfileRecord).profileImage,
   };
 };

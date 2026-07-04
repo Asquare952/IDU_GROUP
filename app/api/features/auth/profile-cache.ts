@@ -123,12 +123,14 @@ export const writeCachedProfile = (
 
   const resolvedUserId =
     userId?.trim() || getUserIdFromProfile(profile) || getUserIdFromToken();
+  const previousProfile = readCachedProfile(resolvedUserId);
   const storageKey = getStorageKey(resolvedUserId);
   const cookieKey = getCookieKey(resolvedUserId);
-  const nextProfile = normalizeProfileForCache({
-    ...readCachedProfile(resolvedUserId),
+  const mergedProfile = {
+    ...(previousProfile ?? {}),
     ...profile,
-  });
+  };
+  const nextProfile = normalizeProfileForCache(mergedProfile, previousProfile);
 
   window.localStorage.setItem(storageKey, JSON.stringify(nextProfile));
   Cookies.set(cookieKey, JSON.stringify(toCookieSafeProfile(nextProfile)), {

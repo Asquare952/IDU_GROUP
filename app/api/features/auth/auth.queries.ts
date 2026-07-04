@@ -141,7 +141,20 @@ export const useUpdateUserProfile = (userId?: string) => {
         ...variables,
       };
 
-      writeCachedProfile(nextProfile, 1, resolvedUserId);
+      const profileImage =
+        typeof variables.profileImage === "string" &&
+        variables.profileImage.trim()
+          ? variables.profileImage
+          : (nextProfile as Partial<userProfile>).profileImage;
+
+      writeCachedProfile(
+        {
+          ...nextProfile,
+          profileImage,
+        },
+        1,
+        resolvedUserId,
+      );
 
       toast.success("Profile updated successfully");
     },
