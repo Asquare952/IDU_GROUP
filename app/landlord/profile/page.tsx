@@ -129,8 +129,8 @@ const page = () => {
     user?.address ?? cachedProfile?.address ?? decodedProfile.address ?? "";
   const displayBio = user?.bio ?? cachedProfile?.bio ?? "";
   const displayProfileImage =
-    cachedDisplay.profileImage ||
     userDisplay.profileImage ||
+    cachedDisplay.profileImage ||
     decodedDisplay.profileImage ||
     displayUser?.profileImage ||
     "";

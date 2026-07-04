@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
@@ -91,11 +92,22 @@ export const useConfirmVerifyOtp = () => {
 // USER PROFILE
 // ==============================
 export const useUserProfile = (userId?: string, enabled = true) => {
-  return useQuery<userProfile, Error>({
+  const queryClient = useQueryClient();
+  const query = useQuery<userProfile, Error>({
     queryKey: ["user-profile", userId ?? "me"],
     queryFn: () => getUserProfile(userId as string),
     enabled: enabled && !!userId,
   });
+
+  useEffect(() => {
+    if (query.data) {
+      const resolvedUserId = query.data?.id ?? userId ?? "me";
+      writeCachedProfile(query.data, 1, resolvedUserId);
+      queryClient.setQueryData(["user-profile", userId ?? "me"], query.data);
+    }
+  }, [query.data, queryClient, userId]);
+
+  return query;
 };
 
 export const useUpdateUserProfile = (userId?: string) => {

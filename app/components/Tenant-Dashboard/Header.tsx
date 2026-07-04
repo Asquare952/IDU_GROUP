@@ -93,8 +93,8 @@ const Header: FC<HeaderProps> = ({ onMenuClick }) => {
   const displayEmail =
     userDisplay.email || cachedDisplay.email || decodedDisplay.email;
   const displayProfileImage =
-    cachedDisplay.profileImage ||
     userDisplay.profileImage ||
+    cachedDisplay.profileImage ||
     decodedDisplay.profileImage;
   const initials =
     displayName

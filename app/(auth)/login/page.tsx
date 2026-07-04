@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLogin } from "../../api/features/auth/auth.queries";
+import { getUserProfile } from "../../api/features/auth/auth.api";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,7 +22,7 @@ const Page = () => {
   const { login } = useAuth();
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  const { mutate: loginUser, isPending } = useLogin();
+  const { mutateAsync: loginUser, isPending } = useLogin();
 
   const getRedirectPath = (role: "landlord" | "tenant") => {
     return role === "landlord" ? "/landlord/dashboard" : "/tenant/dashboard";
@@ -67,7 +68,7 @@ const Page = () => {
     remember?: boolean;
   };
 
-  const onSubmit = (data: LoginFormValues) => {
+  const onSubmit = async (data: LoginFormValues) => {
     let identifier = data.identifier;
     const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
 
@@ -83,29 +84,41 @@ const Page = () => {
       password: data.password,
     };
 
-    loginUser(payload, {
-      onSuccess: (response: AuthResponse) => {
-        const accessToken = response.accessToken ?? response.token;
-        const role = response.user?.role ?? response.role;
+    try {
+      const response = await loginUser(payload);
+      const accessToken = response.accessToken ?? response.token;
+      const role = response.user?.role ?? response.role;
 
-        if (!accessToken || !role) {
-          toast.error("Login response missing token or role");
-          return;
+      if (!accessToken || !role) {
+        toast.error("Login response missing token or role");
+        return;
+      }
+
+      if (response.user) {
+        writeCachedProfile(
+          response.user,
+          data.remember ? 7 : 1,
+          response.user.id,
+        );
+
+        try {
+          const refreshedProfile = await getUserProfile(response.user.id);
+          writeCachedProfile(
+            refreshedProfile,
+            data.remember ? 7 : 1,
+            response.user.id,
+          );
+        } catch {
+          // Fall back to the login payload if the profile endpoint is unavailable.
         }
+      }
 
-        if (response.user) {
-          writeCachedProfile(response.user, data.remember ? 7 : 1);
-        }
-
-        login(accessToken, role, data.remember);
-        toast.success("Login successful");
-        router.replace(getRedirectPath(role));
-      },
-
-      onError: (error: any) => {
-        toast.error(error?.response?.data?.message || "Login failed");
-      },
-    });
+      login(accessToken, role, data.remember);
+      toast.success("Login successful");
+      router.replace(getRedirectPath(role));
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Login failed");
+    }
   };
 
   const {

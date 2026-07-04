@@ -97,8 +97,8 @@ const page = () => {
       ? new Date(cachedProfile.createdAt).getFullYear()
       : "";
   const displayProfileImage =
-    cachedDisplay.profileImage ||
     userDisplay.profileImage ||
+    cachedDisplay.profileImage ||
     decodedDisplay.profileImage ||
     "";
   const initials =

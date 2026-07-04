@@ -98,8 +98,8 @@ const Header = () => {
   const displayEmail =
     userDisplay.email || cachedDisplay.email || decodedDisplay.email;
   const displayProfileImage =
-    cachedDisplay.profileImage ||
     userDisplay.profileImage ||
+    cachedDisplay.profileImage ||
     decodedDisplay.profileImage;
   const initials =
     (displayName || "")
