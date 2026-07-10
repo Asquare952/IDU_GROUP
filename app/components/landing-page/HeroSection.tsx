@@ -191,13 +191,15 @@ const HeroSection = () => {
             priority
           />
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 pb-24 md:pb-32">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6 leading-[1.1]">
-              Find Verified Homes <br />
-              No Agents. <span className="text-[#22C55E]">No Scams.</span>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6 leading-[1.1]">
+              Find Verified Homes. <br />
+              Verified Realtors.
+              <span className="text-[#22C55E]">No Scams.</span>
             </h1>
+
             <p className="text-gray-100 text-base md:text-lg max-w-xl mb-10 opacity-90">
-              Discover trusted houses for rents near you. Directly from
-              landlords, verified and location-based.
+              Browse trusted rental listings from verified realtors and
+              landlords. Find your next apartment with confidence.
             </p>
             <div className="flex flex-row gap-4">
               <button
