@@ -417,6 +417,7 @@ const Testimonials = () => {
   const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
+  const [mounted, setMounted] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -428,7 +429,11 @@ const Testimonials = () => {
 
   const { data: myTestimonial, isLoading: loadingMine } = useGetMyTestimonial();
 
-  const isLoggedIn = typeof window !== "undefined" ? hasAccessToken() : false;
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isLoggedIn = mounted ? hasAccessToken() : false;
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
@@ -551,25 +556,27 @@ const Testimonials = () => {
           </div>
         )}
 
-        {/* Write / Edit Review Button */}
-        <div className="flex justify-center mt-12">
-          <button
-            onClick={handleWriteReview}
-            disabled={loadingMine}
-            className="flex items-center gap-2 bg-[#22C55E] hover:bg-[#16A34A] text-white font-bold px-8 py-3 rounded-full transition-all active:scale-95 shadow-lg shadow-green-200 cursor-pointer disabled:opacity-60"
-          >
-            {loadingMine ? (
-              <Loader2 size={16} className="animate-spin" />
-            ) : (
-              <PenLine size={16} />
-            )}
-            {loadingMine
-              ? "Loading..."
-              : myTestimonial
-                ? "Edit Your Review"
-                : "Write a Review"}
-          </button>
-        </div>
+        {/* Write / Edit Review Button - only shown to logged-in users */}
+        {mounted && isLoggedIn && (
+          <div className="flex justify-center mt-12">
+            <button
+              onClick={handleWriteReview}
+              disabled={loadingMine}
+              className="flex items-center gap-2 bg-[#22C55E] hover:bg-[#16A34A] text-white font-bold px-8 py-3 rounded-full transition-all active:scale-95 shadow-lg shadow-green-200 cursor-pointer disabled:opacity-60"
+            >
+              {loadingMine ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                <PenLine size={16} />
+              )}
+              {loadingMine
+                ? "Loading..."
+                : myTestimonial
+                  ? "Edit Your Review"
+                  : "Write a Review"}
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );
