@@ -211,8 +211,6 @@ export default function AllPropertiesPage() {
               <AnimatePresence mode="popLayout">
                 {visibleProperties.length > 0 ? (
                   visibleProperties.map((item) => {
-                    const propertyPath = getPropertyDetailsPath(item);
-                    // const viewHref = isLoggedIn ? propertyPath : "/login";
 
                     return (
                       <motion.div

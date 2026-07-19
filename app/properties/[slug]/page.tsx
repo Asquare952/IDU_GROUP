@@ -79,7 +79,7 @@ function PropertyDesktopViewContent() {
     return (
       <div className="bg-white min-h-screen">
         <Navbar />
-        <div className="flex items-center justify-center py-32">
+        <div className="flex items-center justify-center py-32"> 
           <Loader2 size={32} className="animate-spin text-[#4CAF50]" />
         </div>
         {showFooter ? <Footer /> : null}

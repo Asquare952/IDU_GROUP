@@ -101,7 +101,7 @@ const Page = () => {
                     {isOpen ? (
                       <ChevronUp className="w-5 h-5 text-[#4CAF50] flex-shrink-0 ml-4" />
                     ) : (
-                      <ChevronDown className="w-5 h-5 text-gray-400 flex-shrink-0 ml-4" />
+                      <ChevronDown className="w-5 h-5 text-gray-400 flex-shrink-0 ml-4" /> 
                     )}
                   </button>
 
