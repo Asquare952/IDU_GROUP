@@ -1,5 +1,19 @@
 "use client";
 
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/thumbs";
+import "swiper/css/free-mode";
+import "swiper/css/scrollbar";
+import { Swiper, SwiperSlide } from "swiper/react";
+import {
+  Navigation,
+  Thumbs,
+  FreeMode,
+} from "swiper/modules";
+import Lightbox from "yet-another-react-lightbox";
+import Zoom from "yet-another-react-lightbox/plugins/zoom";
+import "yet-another-react-lightbox/styles.css";
 import React, { Suspense, useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 
@@ -55,6 +69,9 @@ function PropertyDesktopViewContent() {
   const { mutate: createConversation } = useCreateConversation();
   const initializeLockPayment = useInitializeLockPayment();
   const initializeRentPayment = useInitializeRentPayment();
+  const [thumbsSwiper, setThumbsSwiper] = useState<any>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [open, setOpen] = useState(false);
 
   // const {
   //   data: property,
@@ -79,7 +96,7 @@ function PropertyDesktopViewContent() {
     return (
       <div className="bg-white min-h-screen">
         <Navbar />
-        <div className="flex items-center justify-center py-32"> 
+        <div className="flex items-center justify-center py-32">
           <Loader2 size={32} className="animate-spin text-[#4CAF50]" />
         </div>
         {showFooter ? <Footer /> : null}
@@ -150,58 +167,48 @@ function PropertyDesktopViewContent() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           <div className="lg:col-span-2 space-y-8">
-            <div className="grid grid-cols-1 gap-2 overflow-hidden lg:h-[430px] lg:grid-cols-[1.35fr_1fr]">
-              <div className="group relative h-[280px] w-full overflow-hidden bg-slate-100 lg:h-full">
-                {galleryImages[0] ? (
-                  <Image
-                    src={galleryImages[0]}
-                    alt={property.title}
-                    fill
-                    priority
-                    className="object-cover opacity-95 transition-transform duration-700 group-hover:scale-105"
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-lg text-slate-400">
-                    No image uploaded yet
+            <Swiper modules={[Navigation, Thumbs]} spaceBetween={10} thumbs={{
+              swiper:
+                thumbsSwiper && !thumbsSwiper.destroyed
+                  ? thumbsSwiper
+                  : null,
+            }}
+              onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)} className="rounded-3xl">
+              {property.images.map((img, index) => (
+                <SwiperSlide key={index}>
+                  <div className="relative aspect-video w-full overflow-hidden rounded-3xl" onClick={() => {
+                    setActiveIndex(index);
+                    setOpen(true);
+                  }}>
+                    <Image src={img} alt={`image ${index + 1}`} width={500} height={700} className=" w-full object-cover" />
                   </div>
-                )}
-
-                {/* <div className="absolute left-5 top-5 rounded bg-white px-4 py-3 text-sm font-black text-gray-900 shadow-lg">
-                  From N{Number(property.price).toLocaleString()} /{" "}
-                  <span className="lowercase">{property.priceType}</span>
-                </div> */}
+                </SwiperSlide>
+              ))}
+              <div className="absolute bottom-5 right-5 z-20 rounded-full bg-black/70 px-4 py-2 text-white">
+                {activeIndex + 1}/{property.images.length}
               </div>
+            </Swiper>
 
-              {galleryImages.length > 1 && (
-                <div className="grid h-[280px] grid-cols-2 gap-2 lg:h-full">
-                  {galleryImages.slice(1).map((image, index) => {
-                    const realImageIndex = property.images.findIndex(
-                      (propertyImage) => propertyImage === image,
-                    );
-
-                    return (
-                      <button
-                        key={`${property.id}-gallery-${image}-${index}`}
-                        type="button"
-                        onClick={() =>
-                          setCurrentImageIndex(
-                            realImageIndex >= 0 ? realImageIndex : index + 1,
-                          )
-                        }
-                        className="relative overflow-hidden bg-slate-100"
-                      >
-                        <Image
-                          src={image}
-                          alt={`${property.title} ${index + 2}`}
-                          fill
-                          className="object-cover transition-transform duration-500 hover:scale-105"
-                        />
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+            <Swiper onSwiper={setThumbsSwiper} modules={[Thumbs, FreeMode]} watchSlidesProgress freeMode spaceBetween={10} slidesPerView={5} allowTouchMove touchRatio={1} scrollbar={{
+              draggable: true,
+              hide: false,
+            }} breakpoints={{
+              320: {
+                slidesPerView: 3,
+              },
+              640: {
+                slidesPerView: 4,
+              },
+              1024: {
+                slidesPerView: 5,
+              },
+            }} className="mt-4 overflow-visible">
+              {property.images.map((img, index) => (
+                <SwiperSlide key={index}>
+                  <Image src={img} alt={`Thumbnail ${index + 1}`} width={100} height={100} className="h-24 w-full cursor-pointer rounded-xl object-cover" />
+                </SwiperSlide>
+              ))}
+            </Swiper>
 
             <div className=" grid grid-cols-2 gap-1.5">
               {property.videos.map((video, index) => (
@@ -209,7 +216,7 @@ function PropertyDesktopViewContent() {
                   <video
                     src={video}
                     controls
-                    className="w-full h-full object-cover"
+                    className="w-full h-40 object-cover rounded-xl"
                   />
                 </div>
               ))}
@@ -296,7 +303,7 @@ function PropertyDesktopViewContent() {
           </div>
 
           <div className="lg:col-span-1">
-            <div className="sticky top-10 space-y-6">
+            <div className="sticky top-10 space-y-6 lg:top-24 h-fit">
               <div className="bg-white border border-gray-100 p-8 rounded-[40px] shadow-xl shadow-gray-200/50">
                 <div className="flex items-center gap-3 mb-6 bg-green-50 p-3 rounded-2xl border border-green-100">
                   <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
@@ -510,7 +517,16 @@ function PropertyDesktopViewContent() {
             </div>
           </div>
         </div>
-        <BookInspectionModal isOpen={isBookInspectionsOpen} onClose={() => setisBookInspectionOpen(false)} id={property.id}/>
+        <BookInspectionModal isOpen={isBookInspectionsOpen} onClose={() => setisBookInspectionOpen(false)} id={property.id} />
+        <Lightbox
+          open={open}
+          close={() => setOpen(false)}
+          index={activeIndex}
+          plugins={[Zoom]}
+          slides={property.images.map((img) => ({
+            src: img,
+          }))}
+        />
       </main>
       {showFooter ? <Footer /> : null}
     </div>
