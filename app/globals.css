@@ -31,13 +31,21 @@ body {
 }
 
 @keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 @keyframes marquee-reverse {
-  0% { transform: translateX(-50%); }
-  100% { transform: translateX(0); }
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }
 
 .animate-marquee {
@@ -46,6 +54,11 @@ body {
 
 .animate-marquee-reverse {
   animation: marquee-reverse 30s linear infinite;
+}
+
+.swiper-slide-thumb-active {
+  border: 3px solid #43a047;
+  border-radius: 12px;
 }
 
 @media (max-width: 767px) {
