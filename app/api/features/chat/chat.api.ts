@@ -54,7 +54,12 @@ export const sanitizeConversationId = (
     id = id.replace(/^conversation_id:?/, "");
   }
 
-  if (!id || id === "undefined" || id === "null" || /^conversation-\d+$/.test(id)) {
+  if (
+    !id ||
+    id === "undefined" ||
+    id === "null" ||
+    /^conversation-\d+$/.test(id)
+  ) {
     return "";
   }
 
@@ -126,6 +131,12 @@ const normalizeUser = (value: unknown): User => {
     fullName: findStringByKeys(record, ["fullName"]),
     email: findStringByKeys(record, ["email"]),
     role: findStringByKeys(record, ["role"]) as User["role"],
+    image: findStringByKeys(record, [
+      "image",
+      "profileImage",
+      "profile_image",
+      "avatar",
+    ]),
   };
 };
 
@@ -143,10 +154,16 @@ const normalizeMessage = (value: unknown): Message => {
         "conversation",
       ]) || "",
     senderId:
-      findStringByKeys(record, ["senderId", "sender_id", "userId", "user_id"]) ||
+      findStringByKeys(record, [
+        "senderId",
+        "sender_id",
+        "userId",
+        "user_id",
+      ]) ||
       findStringByKeys(sender, ["_id", "id"]) ||
       "",
-    content: findStringByKeys(record, ["content", "message", "text", "body"]) || "",
+    content:
+      findStringByKeys(record, ["content", "message", "text", "body"]) || "",
     createdAt: findStringByKeys(record, ["createdAt", "created_at"]) || "",
     updatedAt: findStringByKeys(record, ["updatedAt", "updated_at"]),
   };
@@ -254,8 +271,10 @@ const normalizeConversation = (payload: unknown): Conversation => {
     lastMessage: lastMessageSource
       ? normalizeMessage(lastMessageSource)
       : undefined,
-    createdAt: findStringByKeys(conversation, ["createdAt", "created_at"]) || "",
-    updatedAt: findStringByKeys(conversation, ["updatedAt", "updated_at"]) || "",
+    createdAt:
+      findStringByKeys(conversation, ["createdAt", "created_at"]) || "",
+    updatedAt:
+      findStringByKeys(conversation, ["updatedAt", "updated_at"]) || "",
   };
 };
 
@@ -309,7 +328,9 @@ export const createConversation = async (
   const conversation = normalizeConversation(data);
 
   if (!conversation.conversation_id) {
-    throw new Error("Conversation was created, but no conversation id was returned.");
+    throw new Error(
+      "Conversation was created, but no conversation id was returned.",
+    );
   }
 
   return conversation;

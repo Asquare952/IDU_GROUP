@@ -28,8 +28,8 @@ export type DashboardpropListings = {
   price: number;
   inquiries: number;
   views: number;
-  image: string
-}
+  image: string;
+};
 
 export type RecentInquiries = {
   id: number;
@@ -37,4 +37,7 @@ export type RecentInquiries = {
   message: string;
   figure: number;
   image: string;
+  isNew?: boolean;
+  lastMessageAt?: string;
+  conversationId?: string;
 };

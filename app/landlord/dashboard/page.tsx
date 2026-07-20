@@ -5,15 +5,13 @@ import { useRouter } from "next/navigation";
 import DashboardLayout from "../../components/Dashboard/DashboardLayout";
 import { DashboardMetrics } from "../../components/Dashboard/types";
 import { rentalApi, Rental } from "@/app/api/features/rental";
-import {
-  Inquiries,
-} from "../../components/Dashboard/config/DashboardDatas";
 import Cookies from "js-cookie";
 import { useUserProfile } from "@/app/api/features/auth/auth.queries";
 import { AuthResponse } from "@/app/api/features/auth/types";
 import { readCachedProfile } from "@/app/api/features/auth/profile-cache";
 import Image from "next/image";
 import { PenLine, Trash2, Loader2 } from "lucide-react";
+import { useRecentInquiries } from "@/app/api/features/dashboard/useRecentInquiries";
 // import ReviewGraph from "@/public/assets/income-overview-graph.webp";
 // import SnapshotGraph from "@/public/assets/tenants-activity-snapshot-graph.png";
 import { getCurrentUserId } from "@/app/lib/auth";
@@ -69,7 +67,10 @@ export default function Page() {
 
   const { data: user, isLoading } = useUserProfile(userId, hasCheckedAuth);
   const displayName =
-    cachedProfile?.full_name ?? user?.full_name ?? decodedProfile.full_name ?? "";
+    cachedProfile?.full_name ??
+    user?.full_name ??
+    decodedProfile.full_name ??
+    "";
 
   const fetchRentals = async () => {
     try {
@@ -169,6 +170,15 @@ export default function Page() {
     ],
     [activeListings, totalValue],
   ); // Replace with real view count when available
+
+  const { data: inquiries = [], isLoading: inquiriesLoading } =
+    useRecentInquiries();
+
+  const handleInquirySelect = (conversationId?: string) => {
+    if (!conversationId) return;
+
+    router.push(`/landlord/messages/${conversationId}`);
+  };
 
   return (
     <DashboardLayout>
@@ -337,35 +347,65 @@ export default function Page() {
 
           {/* Recent Inquiries Sidebar */}
           <div className="bg-white p-6 rounded-[1.5rem] md:rounded-[2.5rem] border border-slate-100 shadow-sm">
-            <h3 className="font-bold text-[#162B4C] mb-6">Recent Inquiries</h3>
-            <div className="space-y-6">
-              {Inquiries.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex justify-between items-center"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="relative w-10 h-10 rounded-full overflow-hidden shrink-0">
-                      {item.image ? (
-                        <Image src={item.image} fill alt="" />
-                      ) : (
-                        <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500 text-xs">No image</div>
-                      )}
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-xs text-[#3D3F42]">
-                        {item.name}
-                      </h4>
-                      <p className="text-[10px] text-slate-400 truncate w-[120px] md:w-auto">
-                        {item.message}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="bg-[#43A047] text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
-                    {item.figure}
-                  </div>
+            <div className="mb-6">
+              <h3 className="font-bold text-[#162B4C]">Recent Inquiries</h3>
+            </div>
+            <div className="space-y-3">
+              {inquiriesLoading ? (
+                <div className="flex justify-center py-6">
+                  <Loader2 size={20} className="animate-spin text-[#43A047]" />
                 </div>
-              ))}
+              ) : inquiries.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">
+                  No inquiries yet
+                </div>
+              ) : (
+                inquiries.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => handleInquirySelect(item.conversationId)}
+                    className="w-full flex justify-between items-center rounded-xl border border-slate-100 p-3 text-left hover:bg-slate-50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="relative w-10 h-10 rounded-full overflow-hidden shrink-0">
+                        {item.image ? (
+                          <Image
+                            src={item.image}
+                            fill
+                            alt=""
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-[#43A047] flex items-center justify-center text-white font-bold text-xs">
+                            {item.name.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-bold text-xs text-[#3D3F42] truncate">
+                            {item.name}
+                          </h4>
+                          {item.isNew && (
+                            <span className="text-[9px] font-semibold text-[#43A047] bg-green-50 px-2 py-0.5 rounded-full">
+                              New
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[10px] text-slate-400 truncate w-[120px] md:w-auto">
+                          {item.message}
+                        </p>
+                      </div>
+                    </div>
+                    {item.figure > 0 && (
+                      <div className="bg-[#43A047] text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shrink-0">
+                        {item.figure}
+                      </div>
+                    )}
+                  </button>
+                ))
+              )}
             </div>
           </div>
 

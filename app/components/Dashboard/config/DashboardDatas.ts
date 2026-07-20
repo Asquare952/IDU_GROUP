@@ -4,36 +4,6 @@ import {
   RecentInquiries,
 } from "../types";
 
-// export const DashMetrics: DashboardMetrics[] = [
-//   {
-//     id: 1,
-//     name: "Active Listings",
-//     figure: "24",
-//     image: "/assets/dashboard-metrics-img-1.png",
-//   },
-//   {
-//     id: 2,
-//     name: "Inquiries Received",
-//     percentage: 8,
-//     figure: "45",
-//     image: "/assets/dashboard-metrics-img-2.png",
-//   },
-//   {
-//     id: 3,
-//     name: "Total views",
-//     percentage: 12,
-//     figure: "245K",
-//     image: "/assets/dashboard-metrics-img-3.png",
-//   },
-//   {
-//     id: 4,
-//     name: "Estimated rent value",
-//     percentage: 8,
-//     figure: "$250K",
-//     image: "/assets/dashboard-metrics-img-4.png",
-//   },
-// ];
-
 export const DashboardListings: DashboardpropListings[] = [
   {
     id: 1,
@@ -114,6 +84,8 @@ export const Inquiries: RecentInquiries[] = [
     message: "I’d like to know how everything wou...",
     figure: 4,
     image: "/assets/user-img-dash.png",
+    isNew: true,
+    lastMessageAt: "2026-07-20T10:15:00Z",
   },
   {
     id: 2,
@@ -121,6 +93,7 @@ export const Inquiries: RecentInquiries[] = [
     message: "I’d like to know how everything wou...",
     figure: 3,
     image: "/assets/user-img-dash.png",
+    lastMessageAt: "2026-07-20T09:40:00Z",
   },
   {
     id: 3,
@@ -128,6 +101,7 @@ export const Inquiries: RecentInquiries[] = [
     message: "I’d like to know how everything wou...",
     figure: 6,
     image: "/assets/user-img-dash.png",
+    lastMessageAt: "2026-07-20T08:50:00Z",
   },
   {
     id: 4,
@@ -135,6 +109,7 @@ export const Inquiries: RecentInquiries[] = [
     message: "I’d like to know how everything wou...",
     figure: 2,
     image: "/assets/user-img-dash.png",
+    lastMessageAt: "2026-07-20T08:15:00Z",
   },
   {
     id: 5,
@@ -142,6 +117,7 @@ export const Inquiries: RecentInquiries[] = [
     message: "I’d like to know how everything wou...",
     figure: 2,
     image: "/assets/user-img-dash.png",
+    lastMessageAt: "2026-07-20T07:30:00Z",
   },
   {
     id: 6,
@@ -149,5 +125,6 @@ export const Inquiries: RecentInquiries[] = [
     message: "I’d like to know how everything wou...",
     figure: 4,
     image: "/assets/user-img-dash.png",
+    lastMessageAt: "2026-07-20T06:45:00Z",
   },
 ];
