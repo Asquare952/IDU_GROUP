@@ -1,14 +1,14 @@
 "use client";
 
 import WalletTransactionDetails from "@/app/components/Wallet/WalletTransactionDetails";
-import DashboardLayout from "@/app/components/Dashboard/DashboardLayout";
+import DashboardLayout from "@/app/components/Tenant-Dashboard/DashboardLayout";
 
 const page = () => {
   return (
     <WalletTransactionDetails
       Layout={DashboardLayout}
-      dashboardBase="/landlord"
-      walletBasePath="/landlord/wallet"
+      dashboardBase="/tenant/dashboard"
+      walletBasePath="/tenant/wallet"
     />
   );
 };
