@@ -21,6 +21,7 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
 
   return (
     <div className="fixed inset-0 z-[70] lg:hidden">
+      {/* Backdrop */}
       <button
         aria-label="Close sidebar"
         className="absolute inset-0 bg-black/40"
@@ -28,18 +29,25 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
         type="button"
       />
 
-      <aside className="relative z-10 flex h-full w-[280px] flex-col gap-4 border border-[#EBECED] bg-white p-3 shadow rounded-r-xl">
-        <div className="mt-3.5 flex items-center justify-between gap-1">
-          <Link href="/" className="flex items-center gap-1">
-            <Image src={rentUloLogo} width={32.7} alt="" />
-            <h2 className="text-[22px] font-semibold text-[#000000]">
+      {/* Sidebar Panel */}
+      <aside className="relative z-10 flex h-full w-[280px] flex-col border-r border-[#EBECED] bg-white shadow-xl">
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-5">
+          <Link href="/" className="flex items-center gap-2" onClick={onClose}>
+            <Image
+              src={rentUloLogo}
+              width={32}
+              height={32}
+              alt="RentULO Logo"
+            />
+            <h2 className="text-[22px] font-bold text-[#000000]">
               Rent<span className="text-[#43A047]">ULO</span>
             </h2>
           </Link>
 
           <button
             aria-label="Close sidebar"
-            className="rounded-md p-2 text-[#3D3F42]"
+            className="rounded-md p-2 text-[#3D3F42] hover:bg-gray-100"
             onClick={onClose}
             type="button"
           >
@@ -47,8 +55,9 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
           </button>
         </div>
 
-        <div className="h-full overflow-y-auto hide-scrollbar">
-          <nav className="mt-10 flex flex-col gap-6">
+        {/* Main Navigation - takes available space */}
+        <div className="flex-1 overflow-y-auto hide-scrollbar px-3 py-4">
+          <nav className="flex flex-col gap-5">
             {sidebarItems.map((item) => {
               const { id, name, path, icon: Icon } = item;
               const isActive = !!path && pathname === path;
@@ -58,56 +67,64 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
                   href={path ?? "#"}
                   key={id}
                   onClick={onClose}
-                  className={`flex items-center gap-2 rounded-[8px] py-3 px-6 ${isActive ? "bg-[#43A047] text-white" : "hover:bg-[#43A047] hover:text-white"}`}
+                  className={`flex items-center gap-3 rounded-lg px-4 py-3.5 text-sm font-medium transition-all ${
+                    isActive
+                      ? "bg-[#43A047] text-white"
+                      : "text-[#3D3F42] hover:bg-[#43A047] hover:text-white"
+                  }`}
                 >
-                  <Icon />
+                  <Icon size={20} />
                   <span>{name}</span>
                 </Link>
               );
             })}
           </nav>
+        </div>
 
-          <div>
-            <nav className="mt-10 flex flex-col gap-2">
-              <h1>Others</h1>
-              {sidebarItems2.map((item) => {
-                const { id, name, path, action, icon: Icon } = item;
-                const isActive = !!path && pathname === path;
-                const className = `flex items-center gap-2 rounded-[8px] py-3 px-6 ${isActive ? "bg-[#43A047] text-white" : "hover:bg-[#43A047] hover:text-white"}`;
-                const logoutClassName =
-                  "flex items-center gap-2 rounded-[8px] py-3 px-6 text-[#DC2626]";
+        {/* Others Section - pushed to bottom */}
+        <div className="border-t border-[#EBECED] px-3 py-3">
+          <h3 className="mb-2 px-4 text-xs font-semibold uppercase tracking-wider text-[#9CA3AF]">
+            Others
+          </h3>
+          <nav className="flex flex-col gap-2">
+            {sidebarItems2.map((item) => {
+              const { id, name, path, action, icon: Icon } = item;
+              const isActive = !!path && pathname === path;
 
-                if (action === "logout") {
-                  return (
-                    <button
-                      key={id}
-                      type="button"
-                      onClick={() => {
-                        onClose();
-                        logout();
-                      }}
-                      className={logoutClassName}
-                    >
-                      <Icon />
-                      <span>{name}</span>
-                    </button>
-                  );
-                }
-
+              if (action === "logout") {
                 return (
-                  <Link
-                    href={path ?? "#"}
+                  <button
                     key={id}
-                    onClick={onClose}
-                    className={className}
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      logout();
+                    }}
+                    className="flex items-center gap-3 rounded-lg px-4 py-3.5 text-sm font-medium text-[#DC2626] transition-all hover:bg-red-50"
                   >
-                    <Icon />
+                    <Icon size={20} />
                     <span>{name}</span>
-                  </Link>
+                  </button>
                 );
-              })}
-            </nav>
-          </div>
+              }
+
+              return (
+                <Link
+                  href={path ?? "#"}
+                  key={id}
+                  onClick={onClose}
+                  className={`flex items-center gap-3 rounded-lg px-4 py-3.5 text-sm font-medium transition-all ${
+                    isActive
+                      ? "bg-[#43A047] text-white"
+                      : "text-[#3D3F42] hover:bg-[#43A047] hover:text-white"
+                  }`}
+                >
+                  <Icon size={20} />
+                  <span>{name}</span>
+                </Link>
+              );
+            })}
+          </nav>
         </div>
       </aside>
     </div>

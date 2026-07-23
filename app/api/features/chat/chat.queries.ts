@@ -41,6 +41,8 @@ export const useChatConversations = () => {
     queryKey: ["conversations"],
     queryFn: () => getConversations(),
     enabled: true,
+    refetchInterval: 10_000,
+    refetchOnWindowFocus: true,
   });
 
   return {
@@ -85,11 +87,10 @@ export const useSendMessage = () => {
         queryKey: ["messages", conversationId],
       });
 
-      const previousMessages =
-        queryClient.getQueryData<GetMessagesResponse>([
-          "messages",
-          conversationId,
-        ]);
+      const previousMessages = queryClient.getQueryData<GetMessagesResponse>([
+        "messages",
+        conversationId,
+      ]);
       const previousConversations =
         queryClient.getQueryData<GetConversationsResponse>(["conversations"]);
       const optimisticMessage: Message = {

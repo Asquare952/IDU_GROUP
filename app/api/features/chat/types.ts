@@ -5,6 +5,10 @@ export interface User {
   fullName?: string;
   email?: string;
   role?: "tenant" | "landlord";
+  image?: string;
+  profileImage?: string;
+  profile_image?: string;
+  avatar?: string;
 }
 
 export interface Message {
