@@ -13,16 +13,16 @@ export type WalletResponse = {
 export type WalletTransaction = {
   id: string;
   tx_ref: string;
-  flw_ref: string;
+  flw_ref: string | null;
   type: string;
   role: string | null;
   amount: string;
   status: string;
-  narration: string;
-  from_account_number: string;
-  from_account_name: string;
-  to_account_number: string;
-  to_account_name: string;
+  narration: string | null;
+  from_account_number: string | null;
+  from_account_name: string | null;
+  to_account_number: string | null;
+  to_account_name: string | null;
   createdAt: string;
 };
 
@@ -57,3 +57,10 @@ export type TransferPayload = {
   accountNumber: string;
   amount: number;
 };
+
+// FIX: /wallet/transfer returns { success, message, balance } — not a full Wallet object.
+export interface TransferResponse {
+  success: boolean;
+  message: string;
+  balance: string;
+}

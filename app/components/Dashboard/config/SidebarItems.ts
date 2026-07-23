@@ -9,6 +9,8 @@ import {
   ChartNoAxesCombined,
   ClipboardCheck,
   CircleQuestionMark,
+  CreditCardIcon,
+  Wallet,
 } from "lucide-react";
 
 export const sidebarItems: SidebarItems[] = [
@@ -47,6 +49,18 @@ export const sidebarItems: SidebarItems[] = [
     name: "Inspections",
     path: "/landlord/inspections",
     icon: ClipboardCheck,
+  },
+  {
+    id: 7,
+    name: "Payments",
+    path: "/landlord/payments",
+    icon: CreditCardIcon,
+  },
+  {
+    id: 8,
+    name: "Wallet",
+    path: "/landlord/wallet",
+    icon: Wallet,
   },
 ];
 
