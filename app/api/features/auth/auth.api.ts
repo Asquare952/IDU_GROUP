@@ -101,6 +101,24 @@ const normalizeProfileResponse = (data: any): userProfile => {
     state: raw.state ?? profile.state ?? profile.location ?? "",
     bio: raw.bio ?? profile.bio ?? "",
     profileImage,
+    withdrawalAccountName:
+      raw.withdrawalAccountName ??
+      raw.withdrawal_account_name ??
+      profile.withdrawalAccountName ??
+      profile.withdrawal_account_name ??
+      "",
+    withdrawalAccountNumber:
+      raw.withdrawalAccountNumber ??
+      raw.withdrawal_account_number ??
+      profile.withdrawalAccountNumber ??
+      profile.withdrawal_account_number ??
+      "",
+    withdrawalBankName:
+      raw.withdrawalBankName ??
+      raw.withdrawal_bank_name ??
+      profile.withdrawalBankName ??
+      profile.withdrawal_bank_name ??
+      "",
   };
 
   return normalized;
@@ -175,6 +193,18 @@ export const updateUserProfile = async (
     } else {
       formData.append("profileImage", trimmed);
     }
+  }
+
+  if (payload.withdrawalAccountName !== undefined) {
+    formData.append("withdrawalAccountName", payload.withdrawalAccountName);
+  }
+
+  if (payload.withdrawalAccountNumber !== undefined) {
+    formData.append("withdrawalAccountNumber", payload.withdrawalAccountNumber);
+  }
+
+  if (payload.withdrawalBankName !== undefined) {
+    formData.append("withdrawalBankName", payload.withdrawalBankName);
   }
 
   const res = await api.put(UPDATE_PROFILE_ENDPOINT, formData, {

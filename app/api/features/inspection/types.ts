@@ -5,7 +5,6 @@ export type CreateInspection = {
 };
 
 export type Inspections = {
-
   id: string;
   user_id: string;
   rental_id: string;
@@ -39,6 +38,12 @@ export interface InspectionResponse {
   success: boolean;
   message: string;
   data: Inspections[];
+}
+
+export interface SingleInspectionResponse {
+  success: boolean;
+  message: string;
+  data: Inspections;
 }
 
 export type UpdateInspection = {

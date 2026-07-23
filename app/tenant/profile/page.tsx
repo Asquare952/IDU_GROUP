@@ -4,7 +4,10 @@ import Image from "next/image";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import DashboardLayout from "@/app/components/Tenant-Dashboard/DashboardLayout";
-import { SquarePen, User, Mail, Phone, MapPin, Calendar } from "lucide-react";
+import {
+  SquarePen, User, Mail, Phone, MapPin, Calendar, Landmark,
+  CreditCard, ShieldCheck
+} from "lucide-react";
 import Link from "next/link";
 import { useUserProfile } from "@/app/api/features/auth/auth.queries";
 import { AuthResponse } from "@/app/api/features/auth/types";
@@ -31,6 +34,10 @@ type DecodedToken = {
   address?: string;
   state?: string;
   createdAt?: string;
+  is_verified?: boolean;
+  withdrawalBankName?: string;
+  withdrawalAccountNumber?: string;
+  withdrawalAccountName?: string;
 };
 
 const page = () => {
@@ -61,6 +68,10 @@ const page = () => {
         address: decoded.address,
         state: decoded.state,
         createdAt: decoded.createdAt,
+        is_verified: decoded.is_verified,
+        withdrawalBankName: decoded.withdrawalBankName,
+        withdrawalAccountNumber: decoded.withdrawalAccountNumber,
+        withdrawalAccountName: decoded.withdrawalAccountName
       });
     } catch {
       setUserId(undefined);
@@ -88,17 +99,19 @@ const page = () => {
   const displayEmail =
     userDisplay.email || cachedDisplay.email || decodedDisplay.email || "";
   const displayPhone =
-    cachedProfile?.phone_no ?? user?.phone_no ?? decodedProfile.phone_no ?? "";
+    cachedProfile?.phone_no ?? userDisplay?.phone_no ?? decodedProfile.phone_no ?? "";
   const displayAddress =
-    cachedProfile?.address ?? user?.address ?? decodedProfile.address ?? "";
+    cachedProfile?.address ?? userDisplay.address ?? decodedProfile.address ?? "";
   const displayState =
-    cachedProfile?.state ?? user?.state ?? decodedProfile.state ?? "";
+    cachedProfile?.state ?? userDisplay.state ?? decodedProfile.state ?? "";
   const displayBio = cachedProfile?.bio ?? user?.bio ?? "";
-  const displayMembershipYear = user?.createdAt
-    ? new Date(user.createdAt).getFullYear()
+  const displayMembershipYear = userDisplay?.createdAt
+    ? new Date(userDisplay.createdAt).getFullYear()
     : cachedProfile?.createdAt
       ? new Date(cachedProfile.createdAt).getFullYear()
       : "";
+
+
   const [avatarSrc, setAvatarSrc] = useState("");
   const fallbackImage =
     userDisplay.profileImage ||
@@ -106,6 +119,9 @@ const page = () => {
     decodedDisplay.profileImage ||
     "";
   const displayProfileImage = useStableProfileImage(fallbackImage);
+  const displayBankName = userDisplay.withdrawalBankName ?? cachedProfile?.withdrawalBankName ?? decodedProfile.withdrawalBankName ?? "";
+  const displayAccountNumber = userDisplay.withdrawalAccountNumber ?? cachedProfile?.withdrawalAccountNumber ?? decodedProfile.withdrawalAccountNumber ?? "";
+  const displayAccountName = userDisplay.withdrawalAccountName ?? cachedProfile?.withdrawalAccountName ?? decodedProfile.withdrawalAccountName ?? "";
 
   useEffect(() => {
     if (fallbackImage) {
@@ -114,6 +130,10 @@ const page = () => {
   }, [fallbackImage]);
   const initials =
     `${displayFirstName[0] ?? ""}${displayLastName[0] ?? ""}`.trim() || "U";
+
+  const profileDisplay = getProfileDisplayFields(
+    user ?? cachedProfile ?? decodedProfile,
+  );
 
   return (
     <DashboardLayout>
@@ -219,7 +239,7 @@ const page = () => {
             </div>
           </div>
 
-          {/*  */}
+          {/* Account Details */}
           <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-50">
             <div className=" mb-10">
               <h4 className="text-xl font-semibold text-[#162B4C]">
@@ -243,7 +263,70 @@ const page = () => {
                   </p>
                 </div>
               </div>
+
+              <div className="flex gap-1.5">
+                <div className="bg-[#E8F5E9] p-2 rounded-lg">
+                  <ShieldCheck size={25} className="text-gray-400" />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <p className="text-sm font-bold text-[#162B4C]">
+                    Verification Status
+                  </p>
+
+                  {profileDisplay.verified === true 
+                    ? <p className=" text-green-500">Verified</p>
+                    : <p className=" text-amber-400">Not verified</p>}
+
+                </div>
+              </div>
             </div>
+          </div>
+
+
+          {/* Bank Details */}
+          <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-50">
+            <div className=" mb-10">
+              <h4 className="text-xl font-semibold text-[#162B4C]">
+                Bank Details
+              </h4>
+            </div>
+
+            <div className="flex flex-col gap-8 mb-1">
+              <div className="flex gap-1.5">
+                <div className="bg-[#E8F5E9] p-2 rounded-lg">
+                  <Landmark size={25} className="text-gray-400" />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <p className="text-sm font-bold text-[#162B4C]">
+                    Bank Name
+                  </p>
+                  <p className="text-gray-500">
+                    {displayBankName}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-1">
+                <div className="bg-[#E8F5E9] p-2 rounded-lg">
+                  <CreditCard size={25} className="text-gray-400" />
+                </div>
+                <div className=" flex flex-col gap-1">
+                  <p className="text-sm font-bold text-[#162B4C]">Account Number</p>
+                  <p className="text-gray-500">{displayAccountNumber}</p>
+                </div>
+              </div>
+
+              <div className="flex gap-1">
+                <div className="bg-[#E8F5E9] p-2 rounded-lg">
+                  <User size={25} className="text-gray-400" />
+                </div>
+                <div className=" flex flex-col gap-1">
+                  <p className="text-sm font-bold text-[#162B4C]">Account Name</p>
+                  <p className="text-gray-500">{displayAccountName}</p>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
