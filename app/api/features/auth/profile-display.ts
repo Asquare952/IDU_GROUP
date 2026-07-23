@@ -40,6 +40,15 @@ export const getProfileDisplayFields = (profile?: unknown) => {
       full_name: "",
       email: "",
       profileImage: "",
+      phone_no: "",
+      address: "",
+      state: "",
+      createdAt: "",
+      is_verified: false,
+      verified: false,
+      withdrawalBankName: "",
+      withdrawalAccountNumber: "",
+      withdrawalAccountName: "",
     };
   }
 
@@ -59,6 +68,24 @@ export const getProfileDisplayFields = (profile?: unknown) => {
     splitCombinedName.lastName;
   const fullName = [firstName, lastName].filter(Boolean).join(" ").trim();
   const email = readString(record, ["email"]);
+  const phone_no = readString(record, ["phone_no", "phone", "mobile"]);
+  const address = readString(record, ["address"]);
+  const state = readString(record, ["state"]);
+  const createdAt = readString(record, ["createdAt", "created_at"]);
+  const is_verified = !!readString(record, ["is_verified", "verified"]);
+  const verified = !!readString(record, ["is_verified", "verified"]);
+  const withdrawalBankName = readString(record, [
+    "withdrawalBankName",
+    "bankName",
+  ]);
+  const withdrawalAccountNumber = readString(record, [
+    "withdrawalAccountNumber",
+    "accountNumber",
+  ]);
+  const withdrawalAccountName = readString(record, [
+    "withdrawalAccountName",
+    "accountName",
+  ]);
 
   return {
     firstName,
@@ -72,6 +99,15 @@ export const getProfileDisplayFields = (profile?: unknown) => {
       "image",
       "avatar",
     ]),
+    phone_no,
+    address,
+    state,
+    createdAt,
+    is_verified,
+    verified,
+    withdrawalBankName,
+    withdrawalAccountNumber,
+    withdrawalAccountName
   };
 };
 
@@ -104,5 +140,18 @@ export const normalizeProfileForCache = <T extends object>(
       display.profileImage ||
       fallbackDisplay.profileImage ||
       (profile as ProfileRecord).profileImage,
+    phone_no: display.phone_no || fallbackDisplay.phone_no,
+    address: display.address || fallbackDisplay.address,
+    state: display.state || fallbackDisplay.state,
+    createdAt: display.createdAt || fallbackDisplay.createdAt,
+    is_verified: display.is_verified || fallbackDisplay.is_verified,
+    verified: display.verified || fallbackDisplay.verified,
+    withdrawalBankName:
+      display.withdrawalBankName || fallbackDisplay.withdrawalBankName,
+    withdrawalAccountNumber:
+      display.withdrawalAccountNumber ||
+      fallbackDisplay.withdrawalAccountNumber,
+    withdrawalAccountName:
+      display.withdrawalAccountName || fallbackDisplay.withdrawalAccountName,
   };
 };

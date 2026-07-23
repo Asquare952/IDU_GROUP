@@ -11,8 +11,9 @@ import {
   Phone,
   MapPin,
   Calendar,
-  Building2,
-  Shield,
+  Landmark,
+  CreditCard,
+  ShieldCheck
 } from "lucide-react";
 import Link from "next/link";
 import { useUserProfile } from "@/app/api/features/auth/auth.queries";
@@ -42,6 +43,11 @@ type DecodedToken = {
   address?: string;
   state?: string;
   createdAt?: string;
+  is_verified?: boolean;
+  verified?: boolean;
+  withdrawalBankName?: string;
+  withdrawalAccountNumber?: string;
+  withdrawalAccountName?: string;
 };
 
 const page = () => {
@@ -87,6 +93,11 @@ const page = () => {
         address: decoded.address,
         state: decoded.state,
         createdAt: decoded.createdAt,
+        is_verified: decoded.is_verified,
+        verified: decoded.verified,
+        withdrawalBankName: decoded.withdrawalBankName,
+        withdrawalAccountNumber: decoded.withdrawalAccountNumber,
+        withdrawalAccountName: decoded.withdrawalAccountName
       });
     } catch {
       setUserId(undefined);
@@ -130,7 +141,16 @@ const page = () => {
     user?.phone_no ?? cachedProfile?.phone_no ?? decodedProfile.phone_no ?? "";
   const displayAddress =
     user?.address ?? cachedProfile?.address ?? decodedProfile.address ?? "";
+  const displayState =
+    user?.state ?? cachedProfile?.state ?? decodedProfile.state ?? "";
   const displayBio = user?.bio ?? cachedProfile?.bio ?? "";
+  const displayVerification =
+    user?.verified ?? cachedProfile?.verified ?? decodedProfile.verified ?? "";
+  const displayBankName = user?.withdrawalBankName ?? cachedProfile?.withdrawalBankName ?? decodedProfile.withdrawalBankName ?? "";
+  const displayAccountNumber = user?.withdrawalAccountNumber ?? cachedProfile?.withdrawalAccountNumber ?? decodedProfile.withdrawalAccountNumber ?? "";
+  const displayAccountName = user?.withdrawalAccountName ?? cachedProfile?.withdrawalAccountName ?? decodedProfile.withdrawalAccountName ?? "";
+
+
   const [avatarSrc, setAvatarSrc] = useState("");
   const fallbackImage =
     userDisplay.profileImage ||
@@ -152,6 +172,10 @@ const page = () => {
       : "";
   const initials =
     `${displayFirstName[0] ?? ""}${displayLastName[0] ?? ""}`.trim() || "U";
+
+  const profileDisplay = getProfileDisplayFields(
+    user ?? cachedProfile ?? decodedProfile,
+  );
 
   return (
     <DashboardLayout>
@@ -238,6 +262,18 @@ const page = () => {
                   <p className="font-bold text-[#162B4C]">{displayAddress}</p>
                 </div>
               </div>
+
+              <div className="flex items-center gap-2">
+                <div className="bg-[#E8F5E9] p-2 rounded-lg">
+                  <MapPin size={25} className="text-gray-400" />
+                </div>
+                <div className="flex flex-col ">
+                  <p className="text-sm text-gray-500 ">State</p>
+                  <p className="font-bold text-[#162B4C]">
+                    {displayState || "N/A"}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -263,6 +299,22 @@ const page = () => {
                       ? `Since ${displayMembershipYear}`
                       : "N/A"}
                   </p>
+                </div>
+
+              </div>
+              <div className="flex gap-1.5">
+                <div className="bg-[#E8F5E9] p-2 rounded-lg">
+                  <ShieldCheck size={25} className="text-gray-400" />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <p className="text-sm font-bold text-[#162B4C]">
+                    Verification Status
+                  </p>
+
+                  {profileDisplay.verified === true
+                    ? <p className=" text-green-500">Verified</p>
+                    : <p className=" text-amber-400">Not verified</p>}
+
                 </div>
               </div>
             </div>
@@ -303,7 +355,7 @@ const page = () => {
                           </p>
                         </div>
                         <p className="text-sm font-bold text-[#43A047] mt-1">
-                          ${Number(prop.price).toFixed(0)}/month
+                          ₦{Number(prop.price).toFixed(0)}/month
                         </p>
                       </div>
                     </div>
@@ -319,39 +371,49 @@ const page = () => {
           </div>
 
           {/* Recent Reviews */}
-          {/* <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-50">
+          <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-50">
             <div className=" mb-10">
               <h4 className="text-xl font-semibold text-[#162B4C]">
-                Recent Reviews
+                Bank Details
               </h4>
             </div>
 
             <div className="flex flex-col gap-8 mb-1">
               <div className="flex gap-1.5">
                 <div className="bg-[#E8F5E9] p-2 rounded-lg">
-                  <Calendar size={25} className="text-gray-400" />
+                  <Landmark size={25} className="text-gray-400" />
                 </div>
                 <div className="flex flex-col gap-1">
                   <p className="text-sm font-bold text-[#162B4C]">
-                    Memeber Since
+                    Bank Name
                   </p>
                   <p className="text-gray-500">
-                    {displayFirstName} {displayLastName}
+                    {displayBankName}
                   </p>
                 </div>
               </div>
 
-              <div className="flex flex-col gap-1">
-                <p className="text-sm font-bold text-[#162B4C]">Email</p>
-                <p className="text-gray-500">{displayEmail}</p>
+              <div className="flex gap-1">
+                <div className="bg-[#E8F5E9] p-2 rounded-lg">
+                  <CreditCard size={25} className="text-gray-400" />
+                </div>
+                <div className=" flex flex-col gap-1">
+                  <p className="text-sm font-bold text-[#162B4C]">Account Number</p>
+                  <p className="text-gray-500">{displayAccountNumber}</p>
+                </div>
               </div>
 
-              <div className="flex flex-col gap-1">
-                <p className="text-sm font-bold text-[#162B4C]">Phone Number</p>
-                <p className="text-gray-500">{displayPhone}</p>
+              <div className="flex gap-1">
+                <div className="bg-[#E8F5E9] p-2 rounded-lg">
+                  <User size={25} className="text-gray-400" />
+                </div>
+                <div className=" flex flex-col gap-1">
+                  <p className="text-sm font-bold text-[#162B4C]">Account Name</p>
+                  <p className="text-gray-500">{displayAccountName}</p>
+                </div>
               </div>
             </div>
-          </div> */}
+          </div>
         </div>
       </section>
     </DashboardLayout>

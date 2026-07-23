@@ -30,6 +30,9 @@ type DecodedToken = {
   address?: string;
   state?: string;
   is_verified?: boolean;
+  withdrawalAccountName?: string;
+  withdrawalAccountNumber?: string;
+  withdrawalBankName?: string;
 };
 
 type EditProfileFormValues = {
@@ -43,6 +46,9 @@ type EditProfileFormValues = {
   currentPassword: string;
   newPassword: string;
   confirmPassword: string;
+  withdrawalAccountName: string;
+  withdrawalAccountNumber: string;
+  withdrawalBankName: string;
 };
 
 const defaultValues: EditProfileFormValues = {
@@ -56,6 +62,9 @@ const defaultValues: EditProfileFormValues = {
   currentPassword: "",
   newPassword: "",
   confirmPassword: "",
+  withdrawalAccountName: "",
+  withdrawalAccountNumber: "",
+  withdrawalBankName: "",
 };
 
 type CachedUserProfile = Partial<AuthResponse["user"]>;
@@ -168,6 +177,9 @@ const page = () => {
         email: decoded.email ?? "",
         address: decoded.address ?? "",
         state: decoded.state ?? "",
+        withdrawalAccountName: decoded.withdrawalAccountName ?? "",
+        withdrawalAccountNumber: decoded.withdrawalAccountNumber ?? "",
+        withdrawalBankName: decoded.withdrawalBankName ?? "",
       });
     } catch {
       setUserId(undefined);
@@ -193,9 +205,12 @@ const page = () => {
       ...cachedProfile,
     };
 
+
     const profileDisplay = getProfileDisplayFields(profile);
     const cachedDisplay = getProfileDisplayFields(cachedProfile);
     const decodedDisplay = getProfileDisplayFields(decodedProfile);
+
+
     const displayFullName =
       profileDisplay.fullName ||
       cachedDisplay.fullName ||
@@ -214,6 +229,9 @@ const page = () => {
         state: decodedProfile.state ?? "",
         bio: "",
         profileImage: "",
+        withdrawalAccountName: decodedProfile.withdrawalAccountName ?? "",
+        withdrawalAccountNumber: decodedProfile.withdrawalAccountNumber ?? "",
+        withdrawalBankName: decodedProfile.withdrawalBankName ?? "",
       });
 
       setPreview(null);
@@ -238,6 +256,9 @@ const page = () => {
         profile?.state ?? cachedProfile?.state ?? decodedProfile.state ?? "",
       bio: profile?.bio ?? cachedProfile?.bio ?? "",
       profileImage: cachedProfile?.profileImage || profile?.profileImage || "",
+      withdrawalBankName: profile?.withdrawalBankName ?? cachedProfile?.withdrawalBankName ?? decodedProfile.withdrawalBankName ?? "",
+      withdrawalAccountNumber: profile?.withdrawalAccountNumber ?? cachedProfile?.withdrawalAccountNumber ?? decodedProfile.withdrawalAccountNumber ?? "",
+      withdrawalAccountName: profile?.withdrawalAccountName ?? cachedProfile?.withdrawalAccountName ?? decodedProfile.withdrawalAccountName ?? "",
     });
 
     setPreview(cachedProfile?.profileImage || profile?.profileImage || null);
@@ -289,6 +310,9 @@ const page = () => {
     currentPassword,
     newPassword,
     confirmPassword,
+    withdrawalBankName,
+    withdrawalAccountNumber,
+    withdrawalAccountName
   }) => {
     const payload: updateUserPayload = {
       phone_no,
@@ -298,6 +322,9 @@ const page = () => {
       profileImage: profileImage.startsWith("data:")
         ? profileImage
         : profileImage || undefined,
+      withdrawalBankName,
+      withdrawalAccountNumber,
+      withdrawalAccountName
     };
 
     const originalPhone = profile?.phone_no ?? cachedProfile?.phone_no ?? "";
@@ -306,12 +333,20 @@ const page = () => {
     const originalBio = profile?.bio ?? cachedProfile?.bio ?? "";
     const originalProfileImage =
       cachedProfile?.profileImage ?? profile?.profileImage ?? "";
+    const originalwithdrawalBankName = profile?.withdrawalBankName ?? cachedProfile?.withdrawalBankName ?? "";
+    const originalwithdrawalAccountNumber = profile?.withdrawalAccountNumber ?? cachedProfile?.withdrawalAccountNumber ?? "";
+    const originalwithdrawalAccountName = profile?.withdrawalAccountName ?? cachedProfile?.withdrawalAccountName ?? "";
+
+
     const shouldUpdateProfile =
       phone_no !== originalPhone ||
       state !== originalState ||
       address !== originalAddress ||
       bio !== originalBio ||
-      profileImage !== originalProfileImage;
+      profileImage !== originalProfileImage ||
+    withdrawalBankName !== originalwithdrawalBankName ||
+      withdrawalAccountNumber !== originalwithdrawalAccountNumber ||
+      withdrawalAccountName !== originalwithdrawalAccountName;
     const shouldChangePassword =
       !!currentPassword || !!newPassword || !!confirmPassword;
 
@@ -346,6 +381,9 @@ const page = () => {
           phone_no,
           bio,
           profileImage,
+          withdrawalBankName,
+          withdrawalAccountNumber,
+          withdrawalAccountName,
         }));
         setPreview(profileImage || null);
       }
@@ -366,7 +404,7 @@ const page = () => {
           { keepDirty: false },
         );
       }
-      router.push("/landlord/dashboard");
+      router.push("/landlord/profile");
     } catch {
       // Mutation hooks already handle user-facing errors.
     }
@@ -376,6 +414,10 @@ const page = () => {
   const imageSrc = preview || null;
   const isBusy =
     isProfileLoading || isUpdating || isChangingPassword || isSubmitting;
+
+  const profileDisplay = getProfileDisplayFields(
+    profile ?? cachedProfile ?? decodedProfile,
+  );
 
   return (
     <DashboardLayout>
@@ -390,24 +432,7 @@ const page = () => {
                 <MoveLeft />
                 <span>Back to Profile</span>
               </Link>
-              {profile?.is_verified === false ? (
-                <div className="mt-4 p-6 bg-[#fff9E6] border border-[#ffd966] rounded-[1.5rem] flex gap-4 items-start shadow-sm">
-                  <div className="text-[#b45309] mt-1">
-                    <ImportantNoticeData2.icon size={24} />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <h4 className="font-bold text-[#92400E] mb-1">
-                      {ImportantNoticeData2.title}
-                    </h4>
-
-                    <p className="text-[#B45309] leading-relaxed font-medium">
-                      {ImportantNoticeData2.message}
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                ""
-              )}
+              
               <div className="flex flex-col gap-1">
                 <h1 className="text-4xl font-semibold text-gray-900">
                   Edit Profile
@@ -415,9 +440,24 @@ const page = () => {
                 <p className="mt-2 text-gray-600">
                   Update your personal information and profile settings
                 </p>
-                {/* <p className="text-sm text-gray-500">
-                  Only your bio and profile photo can be updated from this page.
-                </p> */}
+                {profileDisplay.verified === false ? (
+                  <div className="mt-4 p-6 bg-[#fff9E6] border border-[#ffd966] rounded-[1.5rem] flex gap-4 items-start shadow-sm">
+                    <div className="text-[#b45309] mt-1">
+                      <ImportantNoticeData2.icon size={24} />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <h4 className="font-bold text-[#92400E] mb-1">
+                        {ImportantNoticeData2.title}
+                      </h4>
+
+                      <p className="text-[#B45309] leading-relaxed font-medium">
+                        {ImportantNoticeData2.message}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  ""
+                )}
               </div>
             </div>
 
@@ -501,6 +541,7 @@ const page = () => {
                 </div>
               </div>
 
+              {/* contact info input */}
               <div className="flex flex-col gap-4 rounded-xl bg-white px-6 py-5">
                 <h2 className="text-xl font-medium text-gray-900">
                   Contact Information
@@ -541,6 +582,20 @@ const page = () => {
                       htmlFor="state"
                       className="mb-2 block text-sm font-medium text-gray-700"
                     >
+                      Address
+                    </label>
+                    <input
+                      id="address"
+                      type="text"
+                      {...register("address")}
+                      className="w-full rounded-lg border border-gray-200 bg-gray-100 px-4 py-3 text-gray-600 outline-none"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label
+                      htmlFor="state"
+                      className="mb-2 block text-sm font-medium text-gray-700"
+                    >
                       State of Residence
                     </label>
                     <input
@@ -550,20 +605,62 @@ const page = () => {
                       className="w-full rounded-lg border border-gray-200 bg-gray-100 px-4 py-3 text-gray-600 outline-none"
                     />
                   </div>
+                </div>
+              </div>
+
+
+              {/* bank info input */}
+              <div className="flex flex-col gap-4 rounded-xl bg-white px-6 py-5">
+                <h2 className="text-xl font-medium text-gray-900">
+                  Bank Information
+                </h2>
+
+                <div className="flex flex-col gap-2.5">
                   <div className="flex flex-col gap-1">
                     <label
-                      htmlFor="address"
+                      htmlFor="bankname"
                       className="mb-2 block text-sm font-medium text-gray-700"
                     >
-                      Current Address
+                      Bank Name
                     </label>
                     <input
-                      id="address"
+                      id="withdrawalBankName"
                       type="text"
-                      {...register("address")}
+                      {...register("withdrawalBankName")}
                       className="w-full rounded-lg border border-gray-200 bg-gray-100 px-4 py-3 text-gray-600 outline-none"
                     />
                   </div>
+                  <div className=" grid grid-cols-2 gap-1">
+                    <div className="flex flex-col gap-1">
+                      <label
+                        htmlFor="accnumber"
+                        className="mb-2 block text-sm font-medium text-gray-700"
+                      >
+                        Account Number
+                      </label>
+                      <input
+                        id="withdrawalAccountNumber"
+                        type="text"
+                        {...register("withdrawalAccountNumber")}
+                        className="w-full rounded-lg border border-gray-200 bg-gray-100 px-4 py-3 text-gray-600 outline-none"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label
+                        htmlFor="accname"
+                        className="mb-2 block text-sm font-medium text-gray-700"
+                      >
+                        Account Name
+                      </label>
+                      <input
+                        id="withdrawalAccountName"
+                        type="text"
+                        {...register("withdrawalAccountName")}
+                        className="w-full rounded-lg border border-gray-200 bg-gray-100 px-4 py-3 text-gray-600 outline-none"
+                      />
+                    </div>
+                  </div>
+
                 </div>
               </div>
 

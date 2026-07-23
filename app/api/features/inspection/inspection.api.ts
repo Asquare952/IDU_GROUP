@@ -1,6 +1,12 @@
 import api from "../../axios";
 
-import { CreateInspection, Inspections, UpdateInspection, InspectionResponse } from "./types";
+import {
+  CreateInspection,
+  Inspections,
+  UpdateInspection,
+  InspectionResponse,
+  SingleInspectionResponse,
+} from "./types";
 
 // Book inspection
 export const bookInspection = async (payload: CreateInspection) => {
@@ -11,16 +17,28 @@ export const bookInspection = async (payload: CreateInspection) => {
 
 // Get inspections
 export const getInspections = async (): Promise<Inspections[]> => {
-  const res = await api.get<InspectionResponse>("/inspection/all");
+  const res = await api.get<InspectionResponse | Inspections[]>(
+    "/inspection/all",
+  );
+
+  if (Array.isArray(res.data)) {
+    return res.data;
+  }
 
   return res.data.data;
 };
 
 // Get single inspection detials
 export const getInspection = async (id: string): Promise<Inspections> => {
-  const res = await api.get(`/inspection/${id}`);
+  const res = await api.get<SingleInspectionResponse | Inspections>(
+    `/inspection/${id}`,
+  );
 
-  return res.data;
+  if (res.data && typeof res.data === "object" && "data" in res.data) {
+    return res.data.data as Inspections;
+  }
+
+  return res.data as Inspections;
 };
 
 // Update inspection

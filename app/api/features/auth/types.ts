@@ -28,6 +28,10 @@ export interface userProfile {
   profileImage?: string;
   createdAt?: string;
   is_verified?: boolean;
+  verified?: boolean;
+  withdrawalAccountName?: string;
+  withdrawalAccountNumber?: string;
+  withdrawalBankName?: string;
 }
 export interface updateUserPayload {
   bio?: string;
@@ -38,6 +42,9 @@ export interface updateUserPayload {
   full_name?: string;
   first_name?: string;
   last_name?: string;
+  withdrawalAccountName?: string;
+  withdrawalAccountNumber?: string;
+  withdrawalBankName?: string;
 }
 
 export interface ChangePasswordPayload {
@@ -67,6 +74,10 @@ export interface AuthResponse {
     profileImage?: string;
     createdAt?: string;
     is_verified?: boolean;
+    verified?: boolean;
+    withdrawalAccountName?: string;
+    withdrawalAccountNumber?: string;
+    withdrawalBankName?: string;
   };
 }
 
