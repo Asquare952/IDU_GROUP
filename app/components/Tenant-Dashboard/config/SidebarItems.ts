@@ -9,6 +9,7 @@ import {
   Shield,
   Settings,
   LogOut,
+  CreditCardIcon,
 } from "lucide-react";
 
 export const sidebarItems: SidebarItems[] = [
@@ -56,12 +57,21 @@ export const sidebarItems: SidebarItems[] = [
   },
   {
     id: 8,
+    name: "Wallet",
+    path: "/tenant/wallet",
+    icon: CreditCardIcon,
+  },
+];
+
+export const sidebarItems2: SidebarItems[] = [
+  {
+    id: 1,
     name: "Settings",
     path: "/tenant/settings",
     icon: Settings,
   },
   {
-    id: 9,
+    id: 2,
     name: "Logout",
     action: "logout",
     icon: LogOut,

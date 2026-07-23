@@ -52,12 +52,6 @@ export const sidebarItems: SidebarItems[] = [
   },
   {
     id: 7,
-    name: "Payments",
-    path: "/landlord/payments",
-    icon: CreditCardIcon,
-  },
-  {
-    id: 8,
     name: "Wallet",
     path: "/landlord/wallet",
     icon: Wallet,
