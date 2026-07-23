@@ -12,12 +12,12 @@ import { CreateInspection, Inspections, UpdateInspection } from "./types";
 // MUTATIONS
 //  ========================
 
-// Book house
+// Book inspection
 export const useBookInspection = () => {
   return useMutation<unknown, Error, CreateInspection>({
     mutationFn: bookInspection,
     onSuccess: () => {
-      toast.success("House booked successfully");
+      toast.success("Inspection scheduled successfully");
     },
   });
 };
@@ -26,7 +26,7 @@ export const useUpdateInspection = (id: string) => {
   return useMutation<Inspections, Error, UpdateInspection>({
     mutationFn: (payload) => updateInspection(payload, id),
     onSuccess: () => {
-      toast.success("Inspection date and time updated successfully");
+      toast.success("Inspection re-scheduled successfully");
     },
   });
 };

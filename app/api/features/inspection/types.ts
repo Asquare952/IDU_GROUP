@@ -32,6 +32,7 @@ export type Inspections = {
       };
     };
   };
+  createdAt: string;
 };
 
 export interface InspectionResponse {
