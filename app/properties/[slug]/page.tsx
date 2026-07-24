@@ -34,24 +34,15 @@ import Image from "next/image";
 import Navbar from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 import {
-  useBookProperty,
   useFetchPropertyBySlug,
 } from "@/app/api/features/property";
 import {
-  useInitializeLockPayment,
-  useInitializeRentPayment,
+  useRentRental,
+  useLockRental,
 } from "@/app/api/features/progress/progress.queries";
 import { useCreateConversation } from "@/app/api/features/chat/chat.queries";
 import { sanitizeConversationId } from "@/app/api/features/chat/chat.api";
 import { hasAccessToken } from "@/app/lib/auth";
-import {
-  buildLockPaymentPayload,
-  storePendingLockPayment,
-} from "@/app/lib/lock-payment";
-import {
-  buildRentPaymentPayload,
-  storePendingRentPayment,
-} from "@/app/lib/rent-payment";
 import { toast } from "react-toastify";
 import { useAuth } from "@/app/components/context/AuthContext";
 import BookInspectionModal from "@/app/components/BookInspectionModal";
@@ -65,10 +56,10 @@ function PropertyDesktopViewContent() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showAllTips, setShowAllTips] = useState(false);
   const [isBookInspectionsOpen, setisBookInspectionOpen] = useState(false)
-  const { mutate: handleBook, isPending } = useBookProperty();
+  // const { mutate: handleBook, isPending } = useBookProperty();
+  const { mutate: handleLock, isPending: isLocking } = useLockRental();
+  const { mutate: handleRent, isPending: isRenting } = useRentRental();
   const { mutate: createConversation } = useCreateConversation();
-  const initializeLockPayment = useInitializeLockPayment();
-  const initializeRentPayment = useInitializeRentPayment();
   const [thumbsSwiper, setThumbsSwiper] = useState<any>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [open, setOpen] = useState(false);
@@ -332,36 +323,17 @@ function PropertyDesktopViewContent() {
                       }
 
                       const rentalId = String(property.id);
+                      handleRent(rentalId);
 
-                      initializeRentPayment.mutate(
-                        buildRentPaymentPayload(rentalId),
-                        {
-                          onSuccess: (data) => {
-                            storePendingRentPayment({
-                              reference: data.reference,
-                              rentalId,
-                            });
-
-                            window.location.href = data.authorizationUrl;
-                          },
-                          onError: (error) => {
-                            toast.error(
-                              error.message ||
-                              "Unable to start payment. Please try again.",
-                            );
-                          },
-                        },
-                      );
                     }}
                     disabled={
-                      isPending ||
-                      initializeRentPayment.isPending
+                      isRenting
                     }
                     className="flex items-center justify-center gap-3 w-full bg-green-600 border-2 border-none text-white font-black py-5 rounded-[24px] hover:bg-green-700 transition-all active:scale-95 shadow-lg shadow-orange-100 uppercase mt-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Lock className="inline-block mr-2" />
                     <span>
-                      {initializeRentPayment.isPending
+                      {isRenting
                         ? "Processing..."
                         : "Rent This House"}
                     </span>
@@ -376,8 +348,7 @@ function PropertyDesktopViewContent() {
                         return;
                       }
 
-                      if (access?.is_verified === false) {
-
+                      if (access?.verified === false) {
                         return false;
                       }
 
@@ -428,11 +399,10 @@ function PropertyDesktopViewContent() {
                       }
                       setisBookInspectionOpen(true);
                     }}
-                    disabled={isPending}
                     className="flex items-center justify-center gap-3 w-full bg-green-600 border-2 border-none text-white font-black py-5 rounded-[24px] hover:bg-green-700 transition-all active:scale-95 shadow-lg shadow-orange-100 uppercase mt-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <CalendarDays />
-                    {isPending ? "Processing..." : "Book Inspection"}
+                    Book Inspection
                   </button>
 
                   {/*  */}
@@ -445,36 +415,16 @@ function PropertyDesktopViewContent() {
                       }
 
                       const rentalId = String(property.id);
-
-                      initializeLockPayment.mutate(
-                        buildLockPaymentPayload(rentalId),
-                        {
-                          onSuccess: (data) => {
-                            storePendingLockPayment({
-                              reference: data.reference,
-                              rentalId,
-                            });
-
-                            window.location.href = data.authorizationUrl;
-                          },
-                          onError: (error) => {
-                            toast.error(
-                              error.message ||
-                              "Unable to start payment. Please try again.",
-                            );
-                          },
-                        },
-                      );
+                      handleLock(rentalId);
                     }}
                     disabled={
-                      isPending ||
-                      initializeLockPayment.isPending
+                      isLocking
                     }
                     className="flex items-center justify-center gap-3 w-full bg-green-600 border-2 border-none text-white font-black py-5 rounded-[24px] hover:bg-green-700 transition-all active:scale-95 shadow-lg shadow-orange-100 uppercase mt-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Lock className="inline-block mr-2" />
                     <span>
-                      {initializeLockPayment.isPending
+                      {isLocking
                         ? "Processing..."
                         : "Lock This House"}
                     </span>

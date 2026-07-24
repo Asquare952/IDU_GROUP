@@ -267,7 +267,7 @@ export default function AllPropertiesPage() {
                           <div className="mb-2 flex items-start justify-between gap-4">
                             <div>
                               <p className="text-xl font-bold text-gray-900">
-                                N{Number(item.price).toLocaleString()}
+                                ₦{Number(item.price).toLocaleString()}
                                 <span className="text-sm font-normal text-gray-400 capitalize">
                                   / {item.priceType}
                                 </span>
