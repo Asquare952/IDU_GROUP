@@ -23,16 +23,8 @@ import {
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
-import { useLockedRentals, useVerifyLockPayment } from "@/app/api";
+import { useLockedRentals } from "@/app/api";
 import type { Rental } from "@/app/api";
-import {
-  clearPendingLockPayment,
-  getPendingLockPaymentReference,
-} from "@/app/lib/lock-payment";
-import {
-  getPendingRentPaymentReference,
-  hasPendingRentPayment,
-} from "@/app/lib/rent-payment";
 
 // const getPaymentReference = (searchParams: URLSearchParams) =>
 //   searchParams.get("reference") ||
@@ -59,8 +51,6 @@ const LockedHouseContent = () => {
     isError,
     error,
   } = useLockedRentals();
-  const { mutate: verifyPayment, isPending: isVerifyingPayment } =
-    useVerifyLockPayment();
 
   // useEffect(() => {
   //   const urlReference = getUrlPaymentReference(searchParams);

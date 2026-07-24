@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useMemo } from "react";
-import { XCircle, RotateCcw, ArrowLeft } from "lucide-react";
+import { ArrowLeft, RotateCcw, XCircle } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const PaymentFailedContent = () => {
@@ -9,7 +9,10 @@ const PaymentFailedContent = () => {
   const router = useRouter();
 
   const errorMessage = useMemo(
-    () => searchParams.get("message") || searchParams.get("error") || "Your payment was not completed.",
+    () =>
+      searchParams.get("message") ||
+      searchParams.get("error") ||
+      "Your payment was not completed.",
     [searchParams],
   );
 
@@ -31,11 +34,10 @@ const PaymentFailedContent = () => {
         </div>
 
         <div className="space-y-4 rounded-3xl border border-slate-200 bg-slate-50 p-6">
-          <p className="text-base leading-7 text-slate-700">
-            {errorMessage}
-          </p>
+          <p className="text-base leading-7 text-slate-700">{errorMessage}</p>
           <p className="text-sm text-slate-500">
-            Your rent booking was not completed. You can try again or return to the property listing.
+            Your rent booking was not completed. You can try again or return to
+            the property listing.
           </p>
         </div>
 
@@ -62,14 +64,14 @@ const PaymentFailedContent = () => {
         <div className="rounded-3xl bg-slate-900 p-6 text-white">
           <p className="text-sm font-semibold">Need support?</p>
           <p className="mt-2 text-sm leading-6 text-slate-200">
-            If you need help, open the tenant dashboard and contact support so we can review your payment.
+            If you need help, open the tenant dashboard and contact support so
+            we can review your payment.
           </p>
         </div>
       </div>
     </div>
   );
 };
-
 
 export default function page() {
   return (

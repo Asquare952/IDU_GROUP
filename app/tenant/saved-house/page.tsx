@@ -13,25 +13,21 @@ import {
   AlertTriangle,
   X,
   ShieldAlert,
-  House
+  House,
+  Loader2
 } from "lucide-react";
+import loading from "@/app/assets/images/loading.gif";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
-  useLikedRentals, useClearLikedRentals, useUnlikeRental, useInitializeLockPayment,
-  useVerifyLockPayment,
+  useLikedRentals, useClearLikedRentals, useUnlikeRental
 } from "@/app/api/features/progress/progress.queries";
 import { getPropertyDetailsPath } from "@/app/lib/property-routes";
 import {
-
+  useLockRental
 } from "@/app/api/features/progress/progress.queries";
 import { hasAccessToken } from "@/app/lib/auth";
-import {
-  buildLockPaymentPayload,
-  storePendingLockPayment,
-} from "@/app/lib/lock-payment";
 import { useRouter, useSearchParams } from "next/navigation";
-import { toast } from "react-toastify"
 
 const SavedHouseContent = () => {
   const router = useRouter();
@@ -40,33 +36,7 @@ const SavedHouseContent = () => {
   const { data: getLikedRentals } = useLikedRentals();
   const { mutate: clearLikedRentals } = useClearLikedRentals();
   const { mutate: unlikeRental } = useUnlikeRental();
-  const [verifiedReference, setVerifiedReference] = useState<string | null>(
-    null,
-  );
-  const initializeLockPayment = useInitializeLockPayment();
-  const { mutate: verifyPayment } = useVerifyLockPayment();
-
-  useEffect(() => {
-    const reference =
-      searchParams.get("reference") ||
-      searchParams.get("trxref") ||
-      searchParams.get("transaction_reference");
-
-    if (!reference || reference === verifiedReference || !hasAccessToken()) {
-      return;
-    }
-
-    setVerifiedReference(reference);
-    verifyPayment(reference, {
-      onSuccess: (data) => {
-        toast.success(data.message || "Payment verified successfully.");
-        router.replace("/tenant/locked-house");
-      },
-      onError: (error) => {
-        toast.error(error.message || "Payment verification failed.");
-      },
-    });
-  }, [router, searchParams, verifiedReference, verifyPayment]);
+  const { mutate: lockRental, isPending } = useLockRental();
 
   return (
     <DashboardLayout>
@@ -133,7 +103,7 @@ const SavedHouseContent = () => {
 
                 <div className="flex items-center justify-between mt-1">
                   <span className="text-[#43A047] font-bold text-2xl">
-                    ₦{house.price}
+                    ₦{Number(house.price).toLocaleString()}
                   </span>
                   {/* <span className="text-gray-400 text-sm flex items-center gap-1">
                     <BedDouble size={16} /> {house.beds} Beds
@@ -155,27 +125,12 @@ const SavedHouseContent = () => {
 
                     const rentalId = String(house.id);
 
-                    initializeLockPayment.mutate(
-                      buildLockPaymentPayload(rentalId),
-                      {
-                        onSuccess: (data) => {
-                          storePendingLockPayment({
-                            reference: data.reference,
-                            rentalId,
-                          });
-
-                          window.location.href = data.authorizationUrl;
-                        },
-                        onError: (error) => {
-                          toast.error(
-                            error.message ||
-                            "Unable to start payment. Please try again.",
-                          );
-                        },
-                      },
-                    );
+                    lockRental(rentalId)
                   }}>
-                    <Lock size={18} />
+                    {isPending ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <Lock size={18} />)}
                   </button>
                 </div>
               </div>

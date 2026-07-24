@@ -308,26 +308,58 @@ export const fetchLandlordListedProperties =
     };
   };
 
+const appendFormDataValue = (
+  formData: FormData,
+  key: string,
+  value: unknown,
+) => {
+  if (value === undefined || value === null) {
+    return;
+  }
+
+  if (Array.isArray(value)) {
+    const normalizedItems = value
+      .flatMap((item) => {
+        if (item === undefined || item === null) {
+          return [];
+        }
+
+        if (typeof item === "string") {
+          const trimmedItem = item.trim();
+          return trimmedItem ? [trimmedItem] : [];
+        }
+
+        return [String(item)];
+      })
+      .filter(Boolean);
+
+    if (key === "amenities") {
+      if (normalizedItems.length > 0) {
+        formData.append("amenities", JSON.stringify(normalizedItems));
+        normalizedItems.forEach((item) => {
+          formData.append("amenities[]", item);
+        });
+      }
+      return;
+    }
+
+    normalizedItems.forEach((item) => {
+      formData.append(key, String(item));
+    });
+    return;
+  }
+
+  formData.append(key, String(value));
+};
+
 const buildRentalFormData = (
   payload: CreateRentalPayload | UpdateRentalPayload,
 ): FormData => {
   const formData = new FormData();
 
   Object.entries(payload).forEach(([key, value]) => {
-    if (
-      value !== undefined &&
-      value !== null &&
-      key !== "images" &&
-      key !== "videos"
-    ) {
-      if (Array.isArray(value)) {
-        value.forEach((item) => {
-          formData.append(key, String(item));
-        });
-        return;
-      }
-
-      formData.append(key, String(value));
+    if (key !== "images" && key !== "videos") {
+      appendFormDataValue(formData, key, value);
     }
   });
 

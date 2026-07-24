@@ -1,14 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { progressApi } from "./progress.api";
 import type { Rental } from "../rental";
-import type {
-  LockPaymentInitializePayload,
-  LockPaymentInitializeResponse,
-  LockPaymentVerifyResponse,
-  RentPaymentInitializePayload,
-  RentPaymentInitializeResponse,
-  RentPaymentVerifyResponse,
-} from "./types";
+import { toast } from "react-toastify";
+import { success } from "zod";
 
 const progressQueryKeys = {
   liked: ["progress", "liked"] as const,
@@ -16,13 +10,13 @@ const progressQueryKeys = {
   booked: ["progress", "booked"] as const,
 };
 
-const invalidateProgressQueries = (queryClient: ReturnType<typeof useQueryClient>) => {
+const invalidateProgressQueries = (
+  queryClient: ReturnType<typeof useQueryClient>,
+) => {
   queryClient.invalidateQueries({ queryKey: progressQueryKeys.liked });
   queryClient.invalidateQueries({ queryKey: progressQueryKeys.locked });
   queryClient.invalidateQueries({ queryKey: progressQueryKeys.booked });
 };
-
-
 
 // Queries
 
@@ -42,26 +36,18 @@ export const useLockRental = () => {
 
   return useMutation({
     mutationFn: progressApi.lockRental,
-    onSuccess: () => invalidateProgressQueries(queryClient),
-  });
-};
-
-export const useInitializeLockPayment = () => {
-  return useMutation<
-    LockPaymentInitializeResponse,
-    Error,
-    LockPaymentInitializePayload
-  >({
-    mutationFn: progressApi.initializeLockPayment,
-  });
-};
-
-export const useVerifyLockPayment = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation<LockPaymentVerifyResponse, Error, string>({
-    mutationFn: progressApi.verifyLockPayment,
-    onSuccess: () => invalidateProgressQueries(queryClient),
+    onSuccess: (success: any) => {
+      invalidateProgressQueries(queryClient);
+      const successMessage =
+        success?.response?.data?.message || "Apartment locked successfully!";
+      toast.success(successMessage);
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.data?.message ||
+        "An error occurred while locking the apartment.";
+      toast.error(errorMessage);
+    },
   });
 };
 
@@ -71,26 +57,18 @@ export const useRentRental = () => {
 
   return useMutation({
     mutationFn: progressApi.rentRental,
-    onSuccess: () => invalidateProgressQueries(queryClient),
-  });
-};
-
-export const useInitializeRentPayment = () => {
-  return useMutation<
-    RentPaymentInitializeResponse,
-    Error,
-    RentPaymentInitializePayload
-  >({
-    mutationFn: progressApi.initializeRentPayment,
-  });
-};
-
-export const useVerifyRentPayment = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation<RentPaymentVerifyResponse, Error, string>({
-    mutationFn: progressApi.verifyRentPayment,
-    onSuccess: () => invalidateProgressQueries(queryClient),
+    onSuccess: (success: any) => {
+      invalidateProgressQueries(queryClient);
+      const successMessage =
+        success?.response?.data?.message || "Apartment rented successfully!";
+      toast.success(successMessage);
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.data?.message ||
+        "An error occurred while renting the apartment.";
+      toast.error(errorMessage);
+    },
   });
 };
 
@@ -100,7 +78,16 @@ export const useBookRental = () => {
 
   return useMutation({
     mutationFn: progressApi.bookRental,
-    onSuccess: () => invalidateProgressQueries(queryClient),
+    onSuccess: () => {
+      invalidateProgressQueries(queryClient);
+      toast.success("Apartment booked successfully!");
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.data?.message ||
+        "An error occurred while booking the apartment.";
+      toast.error(errorMessage);
+    },
   });
 };
 
@@ -141,7 +128,6 @@ export const useLikedRentals = () =>
     queryFn: progressApi.getLikedRentals,
   });
 
-
 // get locked rental for the current user
 export const useLockedRentals = () =>
   useQuery<Rental[]>({
@@ -149,16 +135,12 @@ export const useLockedRentals = () =>
     queryFn: progressApi.getLockedRentals,
   });
 
-
 // get booked rental for the current user
 export const useBookedRentals = () =>
   useQuery<Rental[]>({
     queryKey: progressQueryKeys.booked,
     queryFn: progressApi.getBookedRentals,
   });
-
-
-
 
 // clear liked rentals
 export const useClearLikedRentals = () => {

@@ -6,6 +6,7 @@ import { useGetInspections } from "@/app/api/features/inspection/inspection.quer
 import { getInspectionDetailsPath } from "@/app/lib/inspection-routes";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import formartTime from "@/app/lib/formartTimes";
 
 const Page = () => {
   const router = useRouter()
@@ -60,7 +61,7 @@ const Page = () => {
                         <Calendar size={13} /> {item.date}
                       </div>
                       <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-medium border-l border-gray-200 pl-4">
-                        <Clock size={13} /> {item.time}
+                        <Clock size={13} /> {formartTime(item.time)}
                       </div>
                       <span className="bg-gray-100 text-gray-400 px-2.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest">
                         {/* {item.data.rental.} */}
@@ -69,7 +70,7 @@ const Page = () => {
                   </div>
 
                   <div className="mt-6 md:mt-0" onClick={() => router.push(getInspectionDetailsPath(item))}>
-                    <button className="w-full md:w-auto px-8 py-3 border border-gray-100 rounded-2xl text-slate-500 text-[12px] font-bold hover:bg-[#162B4C] hover:text-white hover:border-[#162B4C] hover:shadow-lg transition-all duration-300 cursor-pointer">
+                    <button className="w-full md:w-auto px-8 py-3 border rounded-2xl text-white text-[12px] font-bold hover:text-white bg-[#43A047] transition-all duration-300 cursor-pointer">
                       View Details
                     </button>
                   </div>

@@ -1,6 +1,6 @@
 import type { Rental, RawRental } from "@/app/api/features/rental";
 
-export type ProgressAction = "like" | "lock" | "book" | "rent";
+export type ProgressAction = "like" | "lock" | "book" | "rent/pay";
 
 export type ProgressListPayload =
   | RawRental[]
