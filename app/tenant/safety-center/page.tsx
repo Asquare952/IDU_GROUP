@@ -122,7 +122,10 @@ const Page = () => {
             };
 
       await fileReportMutation.mutateAsync(payload);
-      toast.success("Report submitted successfully.", reportSuccessToastOptions);
+      toast.success(
+        "Report submitted successfully.",
+        reportSuccessToastOptions,
+      );
       closeSafetyDrawer();
     } catch (error) {
       toast.error(
@@ -172,7 +175,9 @@ const Page = () => {
             </button>
             <button
               type="button"
-              onClick={() => showGreenSafetyToast("Live chat support is not connected yet.")}
+              onClick={() =>
+                showGreenSafetyToast("Live chat support is not connected yet.")
+              }
               className="flex-1 md:flex-none bg-white/20 text-white px-6 py-3 rounded-xl font-bold border border-white/30 cursor-pointer"
             >
               {SafetyBannerData.chatText}
@@ -223,9 +228,7 @@ const Page = () => {
         </div>
 
         <div className="mb-12">
-          <h3 className="text-xl font-bold text-[#162B4C] mb-8">
-            Safety Tips
-          </h3>
+          <h3 className="text-xl font-bold text-[#162B4C] mb-8">Safety Tips</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {SafetyTipsData.map((tip) => {
               const Icon = safetyCenterIconMap[tip.icon];
@@ -288,10 +291,7 @@ const Page = () => {
                     <div className="p-6 pb-4">
                       <div className="flex justify-between items-start mb-4">
                         <div className="bg-red-50 p-2.5 rounded-2xl">
-                          <ShieldAlert
-                            className="text-[#FF3B30]"
-                            size={20}
-                          />
+                          <ShieldAlert className="text-[#FF3B30]" size={20} />
                         </div>
                         <div className="flex items-center gap-2">
                           <button
@@ -335,7 +335,9 @@ const Page = () => {
                         <input
                           type="text"
                           value={targetValue}
-                          onChange={(event) => setTargetValue(event.target.value)}
+                          onChange={(event) =>
+                            setTargetValue(event.target.value)
+                          }
                           placeholder={selectedReportTemplate.targetPlaceholder}
                           disabled={fileReportMutation.isPending}
                           className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#43A047] disabled:bg-gray-50"
@@ -406,10 +408,7 @@ const Page = () => {
                   <div className="p-8 pb-4">
                     <div className="flex justify-between items-start mb-4">
                       <div className="bg-red-50 p-2.5 rounded-2xl">
-                        <ShieldAlert
-                          className="text-[#FF3B30]"
-                          size={20}
-                        />
+                        <ShieldAlert className="text-[#FF3B30]" size={20} />
                       </div>
                       <button
                         type="button"
@@ -458,10 +457,11 @@ const Page = () => {
           )}
         </div>
 
+        {/* Stacked above the global chat launcher (bottom-10 right-10) so they don't overlap */}
         <button
           type="button"
           onClick={isSafetyOpen ? closeSafetyDrawer : openSafetyDrawer}
-          className="cursor-pointer fixed bottom-10 right-10 bg-[#FF3B30] text-white p-4 rounded-full shadow-2xl hover:bg-red-700 transition-all z-40 active:scale-90"
+          className="cursor-pointer fixed bottom-32 right-10 bg-[#FF3B30] text-white p-4 rounded-full shadow-2xl hover:bg-red-700 transition-all z-40 active:scale-90"
         >
           <AlertTriangle size={24} />
         </button>

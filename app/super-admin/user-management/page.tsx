@@ -341,9 +341,6 @@ const Page = () => {
                   Showing {filteredUsers.length.toLocaleString()} of{" "}
                   {users.length.toLocaleString()} users
                 </p>
-                <div className="flex items-center gap-2 text-xs md:text-sm text-gray-400">
-                  Live data from `/admin/users`
-                </div>
               </div>
             </>
           )}

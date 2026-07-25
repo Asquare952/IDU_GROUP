@@ -179,6 +179,7 @@ const page = () => {
                     })}
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none appearance-none cursor-pointer"
                   >
+                    <option value="gender">Gender</option>
                     <option value="male">Male</option>
                     <option value="female">Female</option>
                   </select>
