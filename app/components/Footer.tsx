@@ -6,6 +6,7 @@ import { useState } from "react";
 import { FaFacebookF, FaInstagram, FaTiktok } from "react-icons/fa";
 import { RiTwitterXFill } from "react-icons/ri";
 import { useSubscribe } from "@/app/api/features/subscribe/useSubscribe";
+import Support from "@/app/components/Support";
 
 const Footer = () => {
   const [email, setEmail] = useState("");
@@ -169,6 +170,7 @@ const Footer = () => {
         <h1 className="text-[120px] md:text-[200px] lg:text-[280px] font-bold text-gray-50 select-none opacity-40">
           RentULO
         </h1>
+        <Support/>
       </div>
     </footer>
   );
