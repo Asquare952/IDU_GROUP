@@ -36,11 +36,23 @@ export const useSearchRentals = (
 ) => {
   return useQuery<Rental[], Error>({
     queryKey: ["rentals", "search", params],
-    queryFn: () => rentalApi.searchRentals(params, { skipAuthRedirect: true }),
+    queryFn: () => rentalApi.searchRentals(params), // no options → uses the authenticated api instance
     enabled: !!(params.location || (params.lat && params.lng)),
     ...options,
   });
 };
+
+// export const useSearchRentals = (
+//   params: RentalSearchParams,
+//   options?: Omit<UseQueryOptions<Rental[], Error>, "queryKey" | "queryFn">,
+// ) => {
+//   return useQuery<Rental[], Error>({
+//     queryKey: ["rentals", "search", params],
+//     queryFn: () => rentalApi.searchRentals(params, { skipAuthRedirect: true }),
+//     enabled: !!(params.location || (params.lat && params.lng)),
+//     ...options,
+//   });
+// };
 
 export const useGetRentalById = (
   id: string | null | undefined,

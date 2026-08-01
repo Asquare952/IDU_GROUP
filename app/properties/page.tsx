@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { HiHeart, HiOutlineHeart } from "react-icons/hi";
 import Navbar from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
@@ -18,9 +18,12 @@ import {
 import { getPropertyDetailsPath } from "@/app/lib/property-routes";
 import { hasAccessToken } from "@/app/lib/auth";
 import { useLikeRental, useUnlikeRental } from "@/app/api";
-import { House, MapPin } from 'lucide-react';
+import { House, MapPin } from "lucide-react";
 
-
+// FIX: matches the real backend propertyType enum exactly (see docs section 16 —
+// ENUM Definitions). "Bungalow" and "Duplex" were never valid values here or in
+// HeroSection's dropdown — those need fixing on that end too, since selecting them
+// can never match a real property no matter what this page does.
 const CATEGORIES = [
   "All",
   "Apartment",
@@ -28,13 +31,42 @@ const CATEGORIES = [
   "Office",
   "Commercial",
   "Land",
+  "Lodge",
+  "Shortlet",
 ];
 
-export default function AllPropertiesPage() {
+function AllPropertiesPageContent() {
   const router = useRouter();
-  const [tempSearch, setTempSearch] = useState("");
-  const [finalSearch, setFinalSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
+
+  // FIX: this is the actual bug — read what HeroSection.tsx put in the URL
+  // (?search=...&category=...) instead of always starting from a blank state.
+  const searchParams = useSearchParams();
+  const urlSearch = searchParams.get("search") ?? "";
+  const urlCategory = searchParams.get("category") ?? "";
+
+  // Normalize the URL's category value (e.g. "lodge") against our CATEGORIES
+  // list case-insensitively, so "?category=lodge" correctly selects "Lodge".
+  // Falls back to "All" if it doesn't match anything we recognize.
+  const matchedCategory =
+    CATEGORIES.find((c) => c.toLowerCase() === urlCategory.toLowerCase()) ??
+    "All";
+
+  const [tempSearch, setTempSearch] = useState(urlSearch);
+  const [finalSearch, setFinalSearch] = useState(urlSearch);
+  const [selectedCategory, setSelectedCategory] = useState(matchedCategory);
+
+  // FIX: useState's initial value only applies on first mount. If this page
+  // stays mounted across a second navigation (e.g. searching again from the
+  // homepage), the URL changes but this state doesn't — so a stale category
+  // from the PREVIOUS search can silently filter out results from the NEW
+  // one. Re-sync whenever the actual URL params change.
+  useEffect(() => {
+    setTempSearch(urlSearch);
+    setFinalSearch(urlSearch);
+    setSelectedCategory(matchedCategory);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlSearch, urlCategory]);
+
   const [likedPropertyIds, setLikedPropertyIds] = useState<Set<string>>(
     () => new Set(),
   );
@@ -60,6 +92,9 @@ export default function AllPropertiesPage() {
     },
   });
 
+  // Category filtering happens client-side on whatever the query above returned —
+  // the backend's /rental/search only supports filtering by location, not property
+  // type, so this is intentional, not a workaround.
   const visibleProperties = properties.filter((item) => {
     if (selectedCategory === "All") {
       return true;
@@ -211,11 +246,12 @@ export default function AllPropertiesPage() {
               <AnimatePresence mode="popLayout">
                 {visibleProperties.length > 0 ? (
                   visibleProperties.map((item) => {
-
                     return (
                       <motion.div
                         key={item.id}
-                        onClick={() => router.push(getPropertyDetailsPath(item))}
+                        onClick={() =>
+                          router.push(getPropertyDetailsPath(item))
+                        }
                         layout
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -224,7 +260,7 @@ export default function AllPropertiesPage() {
                       >
                         <div className="relative h-56 w-full overflow-hidden bg-slate-100 md:h-64 group">
                           {item.images[0] ? (
-                            <div   className="block h-full w-full">
+                            <div className="block h-full w-full">
                               <Image
                                 src={item.images[0]}
                                 alt={item.title}
@@ -276,15 +312,14 @@ export default function AllPropertiesPage() {
                                 {item.title}
                               </h3>
                             </div>
-                        
-                              <motion.button
-                                whileTap={{ scale: 0.95 }}
-                                whileHover={{ scale: 1.05 }}
-                                className="cursor-pointer rounded-full bg-[#E8F5E9] px-4 py-1.5 text-xs font-bold text-[#43A047]"
-                              >
-                                View
-                              </motion.button>
-                            
+
+                            <motion.button
+                              whileTap={{ scale: 0.95 }}
+                              whileHover={{ scale: 1.05 }}
+                              className="cursor-pointer rounded-full bg-[#E8F5E9] px-4 py-1.5 text-xs font-bold text-[#43A047]"
+                            >
+                              View
+                            </motion.button>
                           </div>
 
                           <p className="mb-4 line-clamp-2 text-sm leading-relaxed text-gray-400">
@@ -334,5 +369,15 @@ export default function AllPropertiesPage() {
       </div>
       <Footer />
     </>
+  );
+}
+
+// FIX: useSearchParams() requires a Suspense boundary in the App Router,
+// or Next.js will error/opt the whole page out of static rendering.
+export default function AllPropertiesPage() {
+  return (
+    <Suspense fallback={null}>
+      <AllPropertiesPageContent />
+    </Suspense>
   );
 }
