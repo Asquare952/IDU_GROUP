@@ -250,8 +250,9 @@ const page = () => {
                         <option value="">Select a location</option>
                         <option value="lagos">Lagos</option>
                         <option value="abuja">Abuja</option>
-                        <option value="port-harcourt">Port Harcourt</option>
+                        {/* <option value="port-harcourt">Port Harcourt</option> */}
                         <option value="imo">Imo</option>
+                        <option value="enugu">Enugu</option>
                       </select>
                       {errors.location && (
                         <p className="text-red-500 text-xs ml-1">

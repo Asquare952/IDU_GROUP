@@ -242,7 +242,7 @@ const HeroSection = () => {
               title="Location"
               placeholder="Select location"
               isDropdown={true}
-              options={["Lagos", "Abuja", "Imo", "Ibadan", "Enugu"]}
+              options={["Lagos", "Abuja", "Imo", "Enugu"]}
               showLocationIcon={true}
               value={location}
               onChange={setLocation}
@@ -251,7 +251,15 @@ const HeroSection = () => {
               title="Property Type"
               placeholder="Select type"
               isDropdown={true}
-              options={["Bungalow", "Duplex", "Apartment"]}
+              options={[
+                "Apartment",
+                "House",
+                "Office",
+                "Commercial",
+                "Land",
+                "Lodge",
+                "Shortlet",
+              ]}
               isLast={true}
               value={propertyType}
               onChange={setPropertyType}

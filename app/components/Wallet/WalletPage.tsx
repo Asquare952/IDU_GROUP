@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { Eye, EyeOff, Copy, Check } from "lucide-react";
 import {
   useWallet,
   useWalletTransactions,
@@ -11,6 +12,12 @@ import WalletSummary from "@/app/components/Wallet/WalletSummary";
 import WalletTransactions from "@/app/components/Wallet/WalletTransactions";
 import { formatNaira, Tab } from "@/app/landlord/wallet/data/walletData";
 
+/**
+ * Shared wallet page shell, reused by both the landlord and tenant routes.
+ * Each route just passes in its own breadcrumb link, base path (so the
+ * quick actions/transaction rows link to the right sub-routes), page title,
+ * and dashboard Layout wrapper — everything else here is identical for both.
+ */
 const WalletPage = ({
   breadcrumbBase,
   walletBasePath,
@@ -40,8 +47,12 @@ const WalletPage = ({
   } = useWalletTransactions();
 
   const wallet = walletRes?.data;
+  // Fall back to an empty ledger on error/no-data — the empty state in
+  // WalletTransactions handles both "genuinely no transactions yet" and
+  // "the fetch failed" the same way, so the user never sees a raw error.
   const transactions = txRes?.data ?? [];
 
+  // Real failures are logged for debugging but never shown to the user directly.
   useEffect(() => {
     if (walletError) console.error("Failed to load wallet:", walletErrorObj);
   }, [walletError, walletErrorObj]);
@@ -51,6 +62,10 @@ const WalletPage = ({
       console.error("Failed to load wallet transactions:", txErrorObj);
   }, [txError, txErrorObj]);
 
+  // Filter the ledger by the active tab (All / Credits / Debits / Pending).
+  // "Credit" vs "debit" isn't a field the API gives us directly — we derive
+  // it from the transaction type (topup/transfer_in/refund_payment = money
+  // coming in, everything else = money going out).
   const filtered = useMemo(() => {
     if (!transactions) return [];
     if (tab === "All") return transactions;
@@ -71,6 +86,8 @@ const WalletPage = ({
     });
   }, [transactions, tab]);
 
+  // Running totals for the Wallet Summary card — computed client-side since
+  // the API doesn't return pre-aggregated credit/debit totals.
   const { totalCredits, totalDebits } = useMemo(() => {
     if (!transactions) return { totalCredits: 0, totalDebits: 0 };
 
@@ -121,6 +138,7 @@ const WalletPage = ({
 
         <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-6">
           <div className="space-y-6">
+            {/* Balance card */}
             <div className="relative overflow-hidden rounded-2xl bg-[#43A047] px-6 py-7 sm:px-8 sm:py-8 text-white">
               <div className="absolute -right-6 -bottom-10 opacity-[0.14] pointer-events-none select-none">
                 <div className="w-56 h-56 rounded-full bg-white/25" />
@@ -130,11 +148,22 @@ const WalletPage = ({
                 <div>
                   <div className="flex items-center gap-2 text-white/80 text-sm mb-2">
                     <span>Available Balance</span>
+                    {/*
+                      Icon-only toggle instead of a "Hide"/"Show" text label —
+                      keeps this compact on mobile. EyeOff shown while the
+                      balance IS visible (click it to hide); Eye shown while
+                      it's hidden (click it to reveal) — standard convention.
+                    */}
                     <button
                       onClick={() => setShowBalance((s) => !s)}
                       className="hover:text-white transition-colors cursor-pointer"
+                      aria-label={showBalance ? "Hide balance" : "Show balance"}
                     >
-                      {showBalance ? "Hide" : "Show"}
+                      {showBalance ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
                     </button>
                   </div>
                   {walletLoading ? (
@@ -161,19 +190,31 @@ const WalletPage = ({
                     <p className="text-white/70 mb-1">Account Name</p>
                     <p className="font-semibold mb-3">{wallet.accountName}</p>
                     <p className="text-white/70 mb-1">Account Number</p>
+                    {/*
+                      Account number stays as text (that's the actual data),
+                      but the trailing "Copy"/"Copied" label is now icon-only —
+                      Check icon confirms the copy briefly, then reverts to Copy.
+                    */}
                     <button
                       onClick={copyAccount}
                       className="inline-flex items-center gap-1.5 font-semibold hover:text-white/90 cursor-pointer"
+                      aria-label="Copy account number"
                     >
                       {wallet.accountNumber}
-                      <span>{copied ? "Copied" : "Copy"}</span>
+                      {copied ? (
+                        <Check className="w-3.5 h-3.5" />
+                      ) : (
+                        <Copy className="w-3.5 h-3.5" />
+                      )}
                     </button>
                   </div>
                 )}
               </div>
             </div>
 
+            {/* Top Up / Transfer / Withdraw — now the OPay-style icon grid */}
             <WalletActions basePath={walletBasePath} />
+
             <WalletTransactions
               transactions={filtered}
               isLoading={txLoading}
