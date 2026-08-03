@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import { clearCachedProfile } from "@/app/api/features/auth/profile-cache";
 
 interface AuthContextType {
   isLoggedIn: boolean;
@@ -44,6 +45,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setIsLoggedIn(true);
   };
   const logout = () => {
+    clearCachedProfile();
     Cookies.remove("ACCESS_TOKEN");
     Cookies.remove("USER_ROLE");
     setIsLoggedIn(false);
