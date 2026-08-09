@@ -110,6 +110,7 @@ const page = () => {
     : cachedProfile?.createdAt
       ? new Date(cachedProfile.createdAt).getFullYear()
       : "";
+  const verifiedStatus = userDisplay.is_verified || cachedDisplay.is_verified || decodedDisplay.is_verified || false;
 
 
   const [avatarSrc, setAvatarSrc] = useState("");
@@ -273,9 +274,9 @@ const page = () => {
                     Verification Status
                   </p>
 
-                  {profileDisplay.verified === true 
-                    ? <p className=" text-green-500">Verified</p>
-                    : <p className=" text-amber-400">Not verified</p>}
+                  {verifiedStatus === true
+                    ? (<p className=" text-green-500">Verified</p>)
+                    : (<p className=" text-amber-400">Not verified</p>)}
 
                 </div>
               </div>

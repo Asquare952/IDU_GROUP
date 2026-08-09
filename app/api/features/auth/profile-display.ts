@@ -25,6 +25,40 @@ const readString = (profile: ProfileRecord, keys: string[]) => {
   return "";
 };
 
+const readBoolean = (profile: ProfileRecord, keys: string[]) => {
+  for (const key of keys) {
+    const value = profile[key];
+
+    if (typeof value === "boolean") {
+      return value;
+    }
+
+    if (typeof value === "number") {
+      return value !== 0;
+    }
+
+    if (typeof value === "string") {
+      const normalized = value.trim().toLowerCase();
+
+      if (
+        ["true", "1", "yes", "y", "verified", "active"].includes(normalized)
+      ) {
+        return true;
+      }
+
+      if (
+        ["false", "0", "no", "n", "pending", "inactive", "unverified"].includes(
+          normalized,
+        )
+      ) {
+        return false;
+      }
+    }
+  }
+
+  return false;
+};
+
 const splitName = (name: string) => {
   const parts = name.trim().split(/\s+/).filter(Boolean);
 
@@ -72,8 +106,8 @@ export const getProfileDisplayFields = (profile?: unknown) => {
   const address = readString(record, ["address"]);
   const state = readString(record, ["state"]);
   const createdAt = readString(record, ["createdAt", "created_at"]);
-  const is_verified = !!readString(record, ["is_verified", "verified"]);
-  const verified = !!readString(record, ["is_verified", "verified"]);
+  const is_verified = readBoolean(record, ["is_verified", "verified"]);
+  const verified = readBoolean(record, ["is_verified", "verified"]);
   const withdrawalBankName = readString(record, [
     "withdrawalBankName",
     "bankName",
@@ -107,7 +141,7 @@ export const getProfileDisplayFields = (profile?: unknown) => {
     verified,
     withdrawalBankName,
     withdrawalAccountNumber,
-    withdrawalAccountName
+    withdrawalAccountName,
   };
 };
 
