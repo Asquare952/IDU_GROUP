@@ -30,7 +30,6 @@ const getStatusStyle = (status: string) => {
 
 const Listing = () => {
   const router = useRouter();
-  const isLoggedIn = hasAccessToken();
   const [likedPropertyIds, setLikedPropertyIds] = useState<Set<string>>(
     () => new Set(),
   );
@@ -139,12 +138,13 @@ const Listing = () => {
             {properties.slice(0, 6).map((item, i) => {
               const isLiked = likedPropertyIds.has(String(item.id));
 
+              // FIX: viewing a listing should always be public — the login
+              // gate belongs on the individual action buttons (Rent, Chat,
+              // Lock, Book Inspection) on the details page itself, not on
+              // navigating to the page at all. Matches how TenantPropertyCard
+              // on /properties already behaves (plain Link, no login check).
               const handleCardClick = () => {
-                if (isLoggedIn) {
-                  router.push(getPropertyDetailsPath(item));
-                } else {
-                  router.push("/login");
-                }
+                router.push(getPropertyDetailsPath(item));
               };
 
               return (

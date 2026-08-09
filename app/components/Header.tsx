@@ -419,9 +419,9 @@ const Header = () => {
                 Home
               </Link>
               <Link
-                href={isLoggedIn ? "/tenant/homepage" : "/#listing"}
+                href={isLoggedIn ? "/properties" : "/#listing"}
                 onClick={() => setIsOpen(false)}
-                className={`text-base font-medium px-4 py-3 rounded-xl transition-all ${pathname === "/tenant/homepage" || pathname === "/#listing" ? "text-[#4CAF50] bg-green-50" : "text-gray-700 hover:bg-gray-50"}`}
+                className={`text-base font-medium px-4 py-3 rounded-xl transition-all ${pathname === "/properties" || pathname === "/#listing" ? "text-[#4CAF50] bg-green-50" : "text-gray-700 hover:bg-gray-50"}`}
               >
                 Property
               </Link>
