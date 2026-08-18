@@ -22,12 +22,17 @@ type SendMessageContext = {
   previousConversations: GetConversationsResponse | undefined;
 };
 
+export const CHAT_REFRESH_INTERVAL_MS = 3_000;
+
 export const useChatMessages = (conversationId: string) => {
   const sanitizedConversationId = sanitizeConversationId(conversationId);
   const { data, isLoading } = useQuery<GetMessagesResponse>({
     queryKey: ["messages", sanitizedConversationId],
     queryFn: () => getMessages(sanitizedConversationId),
     enabled: !!sanitizedConversationId,
+    refetchInterval: CHAT_REFRESH_INTERVAL_MS,
+    refetchIntervalInBackground: true,
+    refetchOnWindowFocus: true,
   });
 
   return {
@@ -41,7 +46,8 @@ export const useChatConversations = () => {
     queryKey: ["conversations"],
     queryFn: () => getConversations(),
     enabled: true,
-    refetchInterval: 10_000,
+    refetchInterval: CHAT_REFRESH_INTERVAL_MS,
+    refetchIntervalInBackground: true,
     refetchOnWindowFocus: true,
   });
 

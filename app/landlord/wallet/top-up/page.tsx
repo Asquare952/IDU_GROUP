@@ -42,7 +42,7 @@ const page = () => {
         <div className="mb-6">
           <Breadcrumb
             items={[
-              { label: "Dashboard", href: "/landlord" },
+              { label: "Dashboard", href: "/landlord/dashboard" },
               { label: "Wallet", href: "/landlord/wallet" },
               { label: "Top Up" },
             ]}
