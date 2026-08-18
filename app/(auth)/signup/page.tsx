@@ -260,7 +260,7 @@ const page = () => {
               <p className="text-[10px] text-gray-400 text-center">
                 By creating an account, you agree to our
                 <Link
-                  href="/terms"
+                  href="/terms-privacy"
                   className="text-[#4CAF50] font-bold hover:underline ml-1"
                 >
                   Terms and Conditions
