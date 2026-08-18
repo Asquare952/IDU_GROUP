@@ -8,6 +8,7 @@ import { jwtDecode } from "jwt-decode";
 import { ArrowLeft, Search, SendHorizontal, MessageCircle } from "lucide-react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import {
+  CHAT_REFRESH_INTERVAL_MS,
   useChatConversations,
   useChatMessages,
   useSendMessage,
@@ -130,7 +131,9 @@ const Chat = () => {
       queryKey: ["messages", conversationId],
       queryFn: () => getMessages(conversationId),
       enabled: Boolean(conversationId),
-      staleTime: 30_000,
+      refetchInterval: CHAT_REFRESH_INTERVAL_MS,
+      refetchIntervalInBackground: true,
+      refetchOnWindowFocus: true,
     })),
   });
   const lastMessageByConversationId = new Map<string, Message>();
