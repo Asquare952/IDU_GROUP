@@ -145,7 +145,7 @@ const Page = () => {
   const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
   const [cachedProfile, setCachedProfile] = useState<CachedUserProfile>();
   const [decodedProfile, setDecodedProfile] = useState<
-    Partial<EditProfileFormValues>
+    Partial<CachedUserProfile>
   >({});
 
   const {
@@ -179,6 +179,7 @@ const Page = () => {
         email: decoded.email ?? "",
         address: decoded.address ?? "",
         state: decoded.state ?? "",
+        verified: decoded.verified,
         withdrawalAccountName: decoded.withdrawalAccountName ?? "",
         withdrawalAccountNumber: decoded.withdrawalAccountNumber ?? "",
         withdrawalBankName: decoded.withdrawalBankName ?? "",
@@ -202,15 +203,19 @@ const Page = () => {
   const { mutateAsync: changePassword, isPending: isChangingPassword } =
     useChangePassword();
 
+  const profileDisplay = getProfileDisplayFields(profile);
+  const cachedDisplay = getProfileDisplayFields(cachedProfile);
+  const decodedDisplay = getProfileDisplayFields(decodedProfile);
+
   useEffect(() => {
     const mergedProfile = {
       ...profile,
       ...cachedProfile,
     };
 
-    const profileDisplay = getProfileDisplayFields(profile);
-    const cachedDisplay = getProfileDisplayFields(cachedProfile);
-    const decodedDisplay = getProfileDisplayFields(decodedProfile);
+    // const profileDisplay = getProfileDisplayFields(profile);
+    // const cachedDisplay = getProfileDisplayFields(cachedProfile);
+    // const decodedDisplay = getProfileDisplayFields(decodedProfile);
 
     const displayFullName =
       profileDisplay.fullName ||
@@ -224,15 +229,15 @@ const Page = () => {
       reset({
         ...defaultValues,
         full_name: displayFullName,
-        phone_no: decodedProfile.phone_no ?? "",
+        phone_no: decodedProfile?.phone_no ?? "",
         email: displayEmail,
-        address: decodedProfile.address ?? "",
-        state: decodedProfile.state ?? "",
+        address: decodedProfile?.address ?? "",
+        state: decodedProfile?.state ?? "",
         bio: "",
         profileImage: "",
-        withdrawalBankName: decodedProfile.withdrawalBankName ?? "",
-        withdrawalAccountNumber: decodedProfile.withdrawalAccountNumber ?? "",
-        withdrawalAccountName: decodedProfile.withdrawalAccountName ?? ""
+        withdrawalBankName: decodedProfile?.withdrawalBankName ?? "",
+        withdrawalAccountNumber: decodedProfile?.withdrawalAccountNumber ?? "",
+        withdrawalAccountName: decodedProfile?.withdrawalAccountName ?? ""
       });
 
       setPreview(null);
@@ -245,21 +250,21 @@ const Page = () => {
       phone_no:
         profile?.phone_no ??
         cachedProfile?.phone_no ??
-        decodedProfile.phone_no ??
+        decodedProfile?.phone_no ??
         "",
       email: displayEmail,
       address:
         profile?.address ??
         cachedProfile?.address ??
-        decodedProfile.address ??
+        decodedProfile?.address ??
         "",
       state:
-        profile?.state ?? cachedProfile?.state ?? decodedProfile.state ?? "",
+        profile?.state ?? cachedProfile?.state ?? decodedProfile?.state ?? "",
       bio: profile?.bio ?? cachedProfile?.bio ?? "",
       profileImage: cachedProfile?.profileImage || profile?.profileImage || "",
-      withdrawalBankName: profile?.withdrawalBankName ?? cachedProfile?.withdrawalBankName ?? decodedProfile.withdrawalBankName ?? "",
-      withdrawalAccountNumber: profile?.withdrawalAccountNumber ?? cachedProfile?.withdrawalAccountNumber ?? decodedProfile.withdrawalAccountNumber ?? "",
-      withdrawalAccountName: profile?.withdrawalAccountName ?? cachedProfile?.withdrawalAccountName ?? decodedProfile.withdrawalAccountName ?? "",
+      withdrawalBankName: profile?.withdrawalBankName ?? cachedProfile?.withdrawalBankName ?? decodedProfile?.withdrawalBankName ?? "",
+      withdrawalAccountNumber: profile?.withdrawalAccountNumber ?? cachedProfile?.withdrawalAccountNumber ?? decodedProfile?.withdrawalAccountNumber ?? "",
+      withdrawalAccountName: profile?.withdrawalAccountName ?? cachedProfile?.withdrawalAccountName ?? decodedProfile?.withdrawalAccountName ?? "",
     });
 
     setPreview(cachedProfile?.profileImage || profile?.profileImage || null);
@@ -417,9 +422,8 @@ const Page = () => {
   const isBusy =
     isProfileLoading || isUpdating || isChangingPassword || isSubmitting;
 
-  const profileDisplay = getProfileDisplayFields(
-    profile ?? cachedProfile ?? decodedProfile,
-  );
+  const verifiedStatus = profileDisplay.verified || cachedDisplay.verified || decodedDisplay.verified || false;
+
 
   return (
     <DashboardLayout>
@@ -446,7 +450,7 @@ const Page = () => {
                   Only your bio and profile photo can be updated from this page.
                 </p> */}
               </div>
-              {profileDisplay.verified === false ? (
+              {verifiedStatus === false ? (
                 <div className="mt-4 p-6 bg-[#fff9E6] border border-[#ffd966] rounded-[1.5rem] flex gap-4 items-start shadow-sm">
                   <div className="text-[#b45309] mt-1">
                     <ImportantNoticeData2.icon size={24} />
