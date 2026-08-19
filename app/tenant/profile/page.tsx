@@ -34,7 +34,7 @@ type DecodedToken = {
   address?: string;
   state?: string;
   createdAt?: string;
-  is_verified?: boolean;
+  verified?: boolean;
   withdrawalBankName?: string;
   withdrawalAccountNumber?: string;
   withdrawalAccountName?: string;
@@ -68,7 +68,7 @@ const page = () => {
         address: decoded.address,
         state: decoded.state,
         createdAt: decoded.createdAt,
-        is_verified: decoded.is_verified,
+        verified: decoded.verified,
         withdrawalBankName: decoded.withdrawalBankName,
         withdrawalAccountNumber: decoded.withdrawalAccountNumber,
         withdrawalAccountName: decoded.withdrawalAccountName
@@ -110,6 +110,7 @@ const page = () => {
     : cachedProfile?.createdAt
       ? new Date(cachedProfile.createdAt).getFullYear()
       : "";
+  const verifiedStatus = userDisplay.verified || cachedDisplay.verified || decodedDisplay.verified || false;
 
 
   const [avatarSrc, setAvatarSrc] = useState("");
@@ -131,9 +132,9 @@ const page = () => {
   const initials =
     `${displayFirstName[0] ?? ""}${displayLastName[0] ?? ""}`.trim() || "U";
 
-  const profileDisplay = getProfileDisplayFields(
-    user ?? cachedProfile ?? decodedProfile,
-  );
+  // const profileDisplay = getProfileDisplayFields(
+  //   user ?? cachedProfile ?? decodedProfile,
+  // );
 
   return (
     <DashboardLayout>
@@ -273,9 +274,9 @@ const page = () => {
                     Verification Status
                   </p>
 
-                  {profileDisplay.verified === true 
-                    ? <p className=" text-green-500">Verified</p>
-                    : <p className=" text-amber-400">Not verified</p>}
+                  {verifiedStatus === true
+                    ? (<p className=" text-green-500">Verified</p>)
+                    : (<p className=" text-amber-400">Not verified</p>)}
 
                 </div>
               </div>

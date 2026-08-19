@@ -125,7 +125,7 @@ export const ImportantNoticeData = {
 export const ImportantNoticeData2 = {
   title: "Important Notice",
   message:
-    "Please complete your profile details (phone number, address and state) to enhance your chances of securing a apartment. Landlords prefer tenants with complete profiles.",
+    "Please complete your profile details (phone number, address, state, Bank Name, Account Number, Account Name) to enhance your chances of securing a apartment. Landlords prefer tenants with complete profiles.",
   icon: AlertTriangle,
 };
 

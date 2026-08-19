@@ -145,7 +145,7 @@ const page = () => {
     user?.state ?? cachedProfile?.state ?? decodedProfile.state ?? "";
   const displayBio = user?.bio ?? cachedProfile?.bio ?? "";
   const displayVerification =
-    user?.verified ?? cachedProfile?.verified ?? decodedProfile.verified ?? "";
+    userDisplay.verified || cachedDisplay.verified || decodedDisplay.verified || "";
   const displayBankName = user?.withdrawalBankName ?? cachedProfile?.withdrawalBankName ?? decodedProfile.withdrawalBankName ?? "";
   const displayAccountNumber = user?.withdrawalAccountNumber ?? cachedProfile?.withdrawalAccountNumber ?? decodedProfile.withdrawalAccountNumber ?? "";
   const displayAccountName = user?.withdrawalAccountName ?? cachedProfile?.withdrawalAccountName ?? decodedProfile.withdrawalAccountName ?? "";
@@ -310,11 +310,9 @@ const page = () => {
                   <p className="text-sm font-bold text-[#162B4C]">
                     Verification Status
                   </p>
-
-                  {profileDisplay.verified === true
+                  {displayVerification === true
                     ? <p className=" text-green-500">Verified</p>
                     : <p className=" text-amber-400">Not verified</p>}
-
                 </div>
               </div>
             </div>
