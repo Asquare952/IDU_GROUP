@@ -8,12 +8,13 @@ const Transparency = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-40 mt-20">
         <div className="bg-white rounded-[32px] p-6 lg:p-10 flex flex-col lg:flex-row items-center gap-14 lg:gap-16">
           <div className="w-full lg:w-1/2">
-            <div className="relative aspect-[5/4] w-full">
+            <div className="relative aspect-[2/1] w-full overflow-hidden rounded-[24px] bg-white">
               <Image
-                src="/Company.webp"
-                alt="IDU Building"
+                src="/rentulo-logo.jpeg"
+                alt="RentULO Building"
                 fill
-                className="rounded-[24px] object-cover"
+                sizes="(min-width: 1024px) 50vw, 100vw"
+                className="object-contain"
               />
             </div>
           </div>
@@ -37,7 +38,7 @@ const Transparency = () => {
             </h2>
 
             <p className="mt-6 text-gray-500 font-normal text-base md:text-lg leading-relaxed max-w-lg">
-              IDU Group is a tech-driven team solving real-world challenges with
+              RentULO is a tech-driven team solving real-world challenges with
               innovation, development, and unity. Our mission: to simplify
               housing for everyone.
             </p>
