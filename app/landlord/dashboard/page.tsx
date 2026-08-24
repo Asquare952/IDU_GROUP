@@ -130,7 +130,7 @@ export default function Page() {
   };
 
   const handleEdit = (id: string) => {
-    router.push(`/landlord/edit-listing/${id}`);
+    router.push(`/landlord/edit-property/${id}`);
   };
 
   const getStatusStyle = (status: string) => {
