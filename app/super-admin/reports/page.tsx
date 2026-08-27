@@ -242,7 +242,7 @@ const Page = () => {
                   Top Report Categories
                 </h2>
                 <p className="mt-1 text-xs text-gray-500 md:text-sm">
-                  Most reported issues from `/admin/reports`
+                  Most reported issues
                 </p>
               </div>
             </div>
