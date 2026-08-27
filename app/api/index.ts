@@ -182,6 +182,7 @@ export {
   useUpdateAdminReportStatus,
   useAdminChats,
   useAdminChatMessages,
+  useAdminAnalytics,
 } from "./features/admin/admin.queries";
 export type {
   AdminUser,
@@ -192,7 +193,11 @@ export type {
   AdminChatConversation,
   AdminChatMessage,
   AdminChatParticipant,
+  AdminAnalytics,
 } from "./features/admin/types";
+
+export { useAdminWaitlist } from "./features/waitlist/waitlist.queries";
+export type { WaitlistEntry } from "./features/waitlist/waitlist.api";
 
 // ============================================
 // Axios Instance

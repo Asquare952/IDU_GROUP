@@ -456,8 +456,6 @@ const normalizeChatMessage = (payload: unknown): AdminChatMessage => {
   };
 };
 
-
-
 //======== Test ======
 export const adminApi = {
   getUsers: async (): Promise<AdminUser[]> => {
@@ -531,23 +529,70 @@ export const adminApi = {
 
   getAnalytics: async (): Promise<AdminAnalytics> => {
     const response = await api.get("/admin/analytics");
-    const data = response.data;
+    const data = response.data?.data ?? response.data;
     return {
-      totalUsers: toNumberValue(data.totalUsers ?? data.total_users, 0),
-      activeUsers: toNumberValue(data.activeUsers ?? data.active_users, 0),
-      suspendedUsers: toNumberValue(data.suspendedUsers ?? data.suspended_users, 0),
+      totalUsers: toNumberValue(
+        data.users?.total ?? data.totalUsers ?? data.total_users,
+        0,
+      ),
+      activeUsers: toNumberValue(
+        data.users?.active ?? data.activeUsers ?? data.active_users,
+        0,
+      ),
+      suspendedUsers: toNumberValue(
+        data.users?.suspended ?? data.suspendedUsers ?? data.suspended_users,
+        0,
+      ),
       usersByRole: {
-        landlords: toNumberValue(data.usersByRole?.landlords ?? data.landlords, 0),
-        tenants: toNumberValue(data.usersByRole?.tenants ?? data.tenants, 0),
-        admins: toNumberValue(data.usersByRole?.admins ?? data.admins, 0),
+        landlords: toNumberValue(
+          data.users?.roles?.landlord ??
+            data.usersByRole?.landlords ??
+            data.landlords,
+          0,
+        ),
+        tenants: toNumberValue(
+          data.users?.roles?.tenant ??
+            data.usersByRole?.tenants ??
+            data.tenants,
+          0,
+        ),
+        admins: toNumberValue(
+          data.users?.roles?.admin ?? data.usersByRole?.admins ?? data.admins,
+          0,
+        ),
       },
-      totalRentals: toNumberValue(data.totalRentals ?? data.total_rentals, 0),
-      totalLikes: toNumberValue(data.totalLikes ?? data.total_likes, 0),
-      totalLocks: toNumberValue(data.totalLocks ?? data.total_locks, 0),
-      totalBookings: toNumberValue(data.totalBookings ?? data.total_bookings, 0),
-      pendingReports: toNumberValue(data.pendingReports ?? data.pending_reports, 0),
-      resolvedReports: toNumberValue(data.resolvedReports ?? data.resolved_reports, 0),
-      totalTransactionRevenue: toNumberValue(data.totalTransactionRevenue ?? data.total_transaction_revenue, 0),
+      totalRentals: toNumberValue(
+        data.rentals?.total ?? data.totalRentals ?? data.total_rentals,
+        0,
+      ),
+      totalLikes: toNumberValue(
+        data.interactions?.likes ?? data.totalLikes ?? data.total_likes,
+        0,
+      ),
+      totalLocks: toNumberValue(
+        data.interactions?.locks ?? data.totalLocks ?? data.total_locks,
+        0,
+      ),
+      totalBookings: toNumberValue(
+        data.interactions?.bookings ??
+          data.totalBookings ??
+          data.total_bookings,
+        0,
+      ),
+      pendingReports: toNumberValue(
+        data.reports?.pending ?? data.pendingReports ?? data.pending_reports,
+        0,
+      ),
+      resolvedReports: toNumberValue(
+        data.reports?.resolved ?? data.resolvedReports ?? data.resolved_reports,
+        0,
+      ),
+      totalTransactionRevenue: toNumberValue(
+        data.financials?.totalRevenueNGN ??
+          data.totalTransactionRevenue ??
+          data.total_transaction_revenue,
+        0,
+      ),
     };
   },
 };

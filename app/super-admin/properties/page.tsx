@@ -328,12 +328,9 @@ const Page = () => {
 
         <div className="flex items-center justify-between bg-white rounded-xl md:rounded-2xl border border-gray-100 shadow-sm p-4">
           <p className="text-sm text-gray-500">
-            Showing {filteredProperties.length.toLocaleString()} of{" "}
+            Showing {filteredProperties.length.toLocaleString()} of
             {stats.total.toLocaleString()} properties
           </p>
-          <div className="flex items-center gap-1.5 text-sm text-gray-400">
-            Live data from `/admin/rentals`
-          </div>
         </div>
       </div>
     </DashboardLayout>

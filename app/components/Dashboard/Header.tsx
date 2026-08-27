@@ -1,7 +1,7 @@
 "use client";
 
 import DesktopSearch from "./UI/search/DesktopSearch";
-import NotificationBell from "./UI/NotificationBell";
+import NotificationMenu from "@/app/components/shared/NotificationMenu";
 import Chats from "./UI/Chats";
 import Image from "next/image";
 import AdminProfileImg from "@/public/assets/landloard-profile-img.png";
@@ -101,7 +101,8 @@ const Header: FC<HeaderProp> = ({ onMenuClick }) => {
   const displayEmail =
     userDisplay.email || cachedDisplay.email || decodedDisplay.email;
   const [avatarSrc, setAvatarSrc] = useState("");
-  const fallbackImage = userDisplay.profileImage || cachedDisplay.profileImage || "";
+  const fallbackImage =
+    userDisplay.profileImage || cachedDisplay.profileImage || "";
   const displayProfileImage = useStableProfileImage(fallbackImage);
 
   useEffect(() => {
@@ -174,7 +175,7 @@ const Header: FC<HeaderProp> = ({ onMenuClick }) => {
               >
                 <Search />
               </button>
-              <NotificationBell />
+              <NotificationMenu notificationPath={notificationPath} />
               {/* <Chats /> */}
               {isLoading && !displayUser ? (
                 <p className="text-sm text-[#999EA5]">Loading...</p>
@@ -223,7 +224,7 @@ const Header: FC<HeaderProp> = ({ onMenuClick }) => {
           <DesktopSearch />
 
           <div className="flex items-center gap-1">
-            <NotificationBell />
+            <NotificationMenu notificationPath={notificationPath} />
 
             {/* <Chats /> */}
             {isLoading && !displayUser ? (

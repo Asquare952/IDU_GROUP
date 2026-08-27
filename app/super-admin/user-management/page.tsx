@@ -15,6 +15,8 @@ import {
   useAdminUsers,
   useDeleteAdminUser,
   useToggleAdminUserStatus,
+  useSuspendUser,
+  useUnsuspendUser,
 } from "@/app/api/features/admin";
 import { toast } from "react-toastify";
 
@@ -67,13 +69,19 @@ const Page = () => {
   const { data: users = [], isLoading, isError, error } = useAdminUsers();
   const { mutate: toggleStatus, isPending: isTogglingStatus } =
     useToggleAdminUserStatus();
-  const { mutate: deleteUser, isPending: isDeletingUser } = useDeleteAdminUser();
+  const { mutate: deleteUser, isPending: isDeletingUser } =
+    useDeleteAdminUser();
+  const { mutate: suspendUser, isPending: isSuspendingUser } = useSuspendUser();
+  const { mutate: unsuspendUser, isPending: isUnsuspendingUser } =
+    useUnsuspendUser();
 
   const filteredUsers = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
 
     return users.filter((user) => {
-      const fullName = `${user.first_name} ${user.last_name}`.trim().toLowerCase();
+      const fullName = `${user.first_name} ${user.last_name}`
+        .trim()
+        .toLowerCase();
       const role = user.role.toLowerCase();
       const status = getUserStatus(user.is_active, user.is_superadmin);
 
@@ -161,7 +169,9 @@ const Page = () => {
 
         <div className="bg-white rounded-xl md:rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           {isLoading ? (
-            <div className="p-8 text-center text-gray-500">Loading users...</div>
+            <div className="p-8 text-center text-gray-500">
+              Loading users...
+            </div>
           ) : isError ? (
             <div className="p-8 text-center text-red-500">
               {error.message || "Unable to load users."}
@@ -195,7 +205,8 @@ const Page = () => {
                   <tbody className="divide-y divide-gray-100">
                     {filteredUsers.map((user) => {
                       const fullName =
-                        `${user.first_name} ${user.last_name}`.trim() || "Unknown User";
+                        `${user.first_name} ${user.last_name}`.trim() ||
+                        "Unknown User";
                       const status = getUserStatus(
                         user.is_active,
                         user.is_superadmin,
@@ -251,7 +262,9 @@ const Page = () => {
                                 title="Email user"
                                 onClick={() => {
                                   if (!user.email) {
-                                    toast.error("This user does not have an email address.");
+                                    toast.error(
+                                      "This user does not have an email address.",
+                                    );
                                     return;
                                   }
 
@@ -263,8 +276,16 @@ const Page = () => {
                               {!user.is_superadmin ? (
                                 <button
                                   className="p-1 text-green-500 hover:bg-green-50 rounded transition-colors"
-                                  title={user.is_active ? "Block user" : "Unblock user"}
-                                  disabled={isTogglingStatus}
+                                  title={
+                                    user.is_active
+                                      ? "Block user"
+                                      : "Unblock user"
+                                  }
+                                  disabled={
+                                    isTogglingStatus ||
+                                    isSuspendingUser ||
+                                    isUnsuspendingUser
+                                  }
                                   onClick={() =>
                                     toggleStatus(user.id, {
                                       onSuccess: () => {
@@ -284,6 +305,39 @@ const Page = () => {
                                   }
                                 >
                                   <ShieldCheck size={14} />
+                                </button>
+                              ) : null}
+                              {!user.is_superadmin ? (
+                                <button
+                                  className="p-1 text-orange-500 hover:bg-orange-50 rounded transition-colors"
+                                  title={
+                                    user.is_active
+                                      ? "Suspend user"
+                                      : "Unsuspend user"
+                                  }
+                                  disabled={
+                                    isSuspendingUser || isUnsuspendingUser
+                                  }
+                                  onClick={() => {
+                                    const mutation = user.is_active
+                                      ? suspendUser
+                                      : unsuspendUser;
+                                    mutation(user.id, {
+                                      onSuccess: () =>
+                                        toast.success(
+                                          user.is_active
+                                            ? "User suspended successfully."
+                                            : "User unsuspended successfully.",
+                                        ),
+                                      onError: (mutationError) =>
+                                        toast.error(
+                                          mutationError.message ||
+                                            "Unable to update this user right now.",
+                                        ),
+                                    });
+                                  }}
+                                >
+                                  <Ban size={14} />
                                 </button>
                               ) : null}
                               <button
@@ -308,7 +362,9 @@ const Page = () => {
 
                                   deleteUser(user.id, {
                                     onSuccess: () => {
-                                      toast.success("User deleted successfully.");
+                                      toast.success(
+                                        "User deleted successfully.",
+                                      );
                                     },
                                     onError: (mutationError) => {
                                       toast.error(
