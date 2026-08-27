@@ -31,6 +31,7 @@ import {
   useLockedRentals,
   useUnlikeRental,
   useLikedRentals,
+  useBookedRentals,
 } from "@/app/api/features/progress/progress.queries";
 import { getPropertyDetailsPath } from "@/app/lib/property-routes";
 import { hasAccessToken } from "@/app/lib/auth";
@@ -50,6 +51,9 @@ const formatRentPrice = (price: string | number) => {
 const getRentPeriod = (priceType: string) =>
   priceType ? `/${priceType}` : "/year";
 
+const formatAmount = (amount: number | string) =>
+  `N${Number(amount || 0).toLocaleString()}`;
+
 const getActiveLockProgress = (rental?: Rental) => (rental ? 100 : 0);
 
 const Page = () => {
@@ -57,6 +61,8 @@ const Page = () => {
   const isLoggedIn = true;
   const [isSafetyOpen, setIsSafetyOpen] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [rentedApartmentSlide, setRentedApartmentSlide] = useState(0);
+  const [rentedImageSlide, setRentedImageSlide] = useState(0);
   const [likedPropertyIds, setLikedPropertyIds] = useState<Set<string>>(
     () => new Set(),
   );
@@ -69,11 +75,17 @@ const Page = () => {
     error: lockedRentalsError,
   } = useLockedRentals();
   const { data: likedRentals = [] } = useLikedRentals();
+  const { data: bookedRentals = [] } = useBookedRentals();
   const { mutate: likeRental } = useLikeRental();
   const { mutate: unlikeRental } = useUnlikeRental();
   const activeLockedRental = lockedRentals[0];
   const activeLockImages = activeLockedRental?.images ?? [];
   const activeLockProgress = getActiveLockProgress(activeLockedRental);
+  const rentedApartments = bookedRentals.filter(
+    (rental) => rental.status.toLowerCase() === "rented",
+  );
+  const activeRentedApartment = rentedApartments[rentedApartmentSlide];
+  const rentedImages = activeRentedApartment?.images ?? [];
 
   const dashMetrics = useMemo<DashboardMetricsType[]>(
     () => [
@@ -109,6 +121,15 @@ const Page = () => {
   useEffect(() => {
     setCurrentSlide(0);
   }, [activeLockedRental?.id]);
+
+  useEffect(() => {
+    setRentedApartmentSlide(0);
+    setRentedImageSlide(0);
+  }, [bookedRentals.length]);
+
+  useEffect(() => {
+    setRentedImageSlide(0);
+  }, [activeRentedApartment?.id]);
 
   const handleLikeToggle = (propertyId: string) => {
     if (!hasAccessToken()) {
@@ -172,6 +193,160 @@ const Page = () => {
   return (
     <DashboardLayout>
       <section className="flex flex-col gap-8 px-7 py-2.5">
+        {activeRentedApartment ? (
+          <div className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm">
+            <div className="grid grid-cols-1 lg:grid-cols-2">
+              <div className="relative min-h-[280px] bg-slate-100 lg:min-h-[360px]">
+                {rentedImages.length > 0 ? (
+                  <Image
+                    src={rentedImages[rentedImageSlide]}
+                    alt={activeRentedApartment.title}
+                    fill
+                    className="object-cover"
+                  />
+                ) : null}
+                {rentedImages.length > 1 ? (
+                  <>
+                    <button
+                      type="button"
+                      aria-label="Previous rented apartment image"
+                      onClick={() =>
+                        setRentedImageSlide((slide) =>
+                          slide === 0 ? rentedImages.length - 1 : slide - 1,
+                        )
+                      }
+                      className="absolute left-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white text-[#162B4C] shadow-md"
+                    >
+                      <ChevronLeft size={20} />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Next rented apartment image"
+                      onClick={() =>
+                        setRentedImageSlide((slide) =>
+                          slide === rentedImages.length - 1 ? 0 : slide + 1,
+                        )
+                      }
+                      className="absolute right-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white text-[#162B4C] shadow-md"
+                    >
+                      <ChevronRight size={20} />
+                    </button>
+                    <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-1.5 rounded-full bg-black/40 px-3 py-2">
+                      {rentedImages.map((image, index) => (
+                        <button
+                          key={`${image}-${index}`}
+                          type="button"
+                          aria-label={`Show rented apartment image ${index + 1}`}
+                          onClick={() => setRentedImageSlide(index)}
+                          className={`h-2 w-2 rounded-full ${index === rentedImageSlide ? "bg-white" : "bg-white/50"}`}
+                        />
+                      ))}
+                    </div>
+                  </>
+                ) : null}
+              </div>
+
+              <div className="flex flex-col justify-center p-7 md:p-10">
+                <div className="mb-4 flex flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-bold uppercase text-[#43A047]">
+                    Rented Apartment
+                  </span>
+                  {rentedApartments.length > 1 ? (
+                    <span className="text-xs font-medium text-slate-400">
+                      {rentedApartmentSlide + 1} / {rentedApartments.length}
+                    </span>
+                  ) : null}
+                </div>
+                <h2 className="text-2xl font-bold text-[#162B4C] md:text-3xl">
+                  {activeRentedApartment.title}
+                </h2>
+                <p className="mt-2 flex items-center gap-1.5 text-sm text-slate-500">
+                  <MapPin size={16} />
+                  {activeRentedApartment.location}
+                </p>
+                <p className="mt-5 text-3xl font-bold text-[#43A047]">
+                  {formatRentPrice(activeRentedApartment.price)}
+                  <span className="ml-1 text-base font-normal text-slate-400">
+                    {getRentPeriod(activeRentedApartment.priceType)}
+                  </span>
+                </p>
+                <div className="mt-5 grid grid-cols-2 gap-x-6 gap-y-2 border-t border-slate-100 pt-4 text-sm">
+                  <div className="flex justify-between gap-3 text-slate-500">
+                    <span>Basic rent</span>
+                    <span className="font-semibold text-slate-800">
+                      {formatAmount(activeRentedApartment.price)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between gap-3 text-slate-500">
+                    <span>Caution fee</span>
+                    <span className="font-semibold text-slate-800">
+                      {formatAmount(activeRentedApartment.cautionFee)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between gap-3 text-slate-500">
+                    <span>Legal fee</span>
+                    <span className="font-semibold text-slate-800">
+                      {formatAmount(activeRentedApartment.legalFee)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between gap-3 text-slate-500">
+                    <span>Brokerage fee</span>
+                    <span className="font-semibold text-slate-800">
+                      {formatAmount(activeRentedApartment.brokeFee)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between gap-3 text-slate-500">
+                    <span>Service charge</span>
+                    <span className="font-semibold text-slate-800">
+                      {formatAmount(activeRentedApartment.mgtServiceCharge)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between gap-3 border-t border-slate-100 pt-2 font-bold text-[#162B4C]">
+                    <span>Total package</span>
+                    <span>
+                      {formatAmount(
+                        Number(activeRentedApartment.price || 0) +
+                          Number(activeRentedApartment.cautionFee || 0) +
+                          Number(activeRentedApartment.legalFee || 0) +
+                          Number(activeRentedApartment.brokeFee || 0) +
+                          Number(activeRentedApartment.mgtServiceCharge || 0),
+                      )}
+                    </span>
+                  </div>
+                </div>
+                {rentedApartments.length > 1 ? (
+                  <div className="mt-6 flex gap-2">
+                    <button
+                      type="button"
+                      aria-label="Previous rented apartment"
+                      onClick={() =>
+                        setRentedApartmentSlide((slide) =>
+                          slide === 0 ? rentedApartments.length - 1 : slide - 1,
+                        )
+                      }
+                      className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-[#162B4C]"
+                    >
+                      <ChevronLeft size={18} />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Next rented apartment"
+                      onClick={() =>
+                        setRentedApartmentSlide((slide) =>
+                          slide === rentedApartments.length - 1 ? 0 : slide + 1,
+                        )
+                      }
+                      className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-[#162B4C]"
+                    >
+                      <ChevronRight size={18} />
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        ) : null}
+
         {/* Metrics Section */}
         <div className="grid grid-cols-2 gap-2">
           {dashMetrics.map((item) => {
