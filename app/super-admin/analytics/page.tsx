@@ -1,7 +1,9 @@
-// app/super-admin/analytics/page.tsx
+"use client";
+
 import React from "react";
 import DashboardLayout from "@/app/components/super-admin/DashboardLayout";
 import { Download, ArrowUp, ArrowDown } from "lucide-react";
+import { useAdminAnalytics } from "@/app/api/features/admin";
 import {
   analyticStats,
   months,
@@ -11,6 +13,25 @@ import {
 } from "@/app/super-admin/analytics/data/analysis";
 
 const page = () => {
+  const { data: analytics, isLoading, isError } = useAdminAnalytics();
+  const stats = analytics
+    ? analyticStats.map((stat, index) => ({
+        ...stat,
+        value: [
+          analytics.totalUsers.toLocaleString(),
+          `N${analytics.totalTransactionRevenue.toLocaleString()}`,
+          analytics.totalRentals.toLocaleString(),
+          `${analytics.pendingReports.toLocaleString()} pending`,
+        ][index],
+        change: [
+          `${analytics.activeUsers.toLocaleString()} active`,
+          "Platform revenue",
+          `${analytics.totalLocks.toLocaleString()} locked`,
+          `${analytics.resolvedReports.toLocaleString()} resolved`,
+        ][index],
+      }))
+    : [];
+
   return (
     <DashboardLayout>
       <div className="p-4 md:p-6 space-y-4 md:space-y-6">
@@ -30,34 +51,46 @@ const page = () => {
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-          {analyticStats.map((stat) => (
-            <div
-              key={stat.title}
-              className="bg-white rounded-xl md:rounded-2xl p-3 md:p-5 border border-gray-100 shadow-sm"
-            >
-              <div className="flex items-start justify-between mb-2 md:mb-3">
-                <div className={`p-2 rounded-lg md:rounded-xl ${stat.iconBg}`}>
-                  <stat.icon size={16} className={stat.iconColor} />
-                </div>
-                <div
-                  className={`flex items-center gap-1 text-xs font-medium ${stat.changeType === "up" ? "text-green-500" : "text-red-500"}`}
-                >
-                  {stat.changeType === "up" ? (
-                    <ArrowUp size={12} />
-                  ) : (
-                    <ArrowDown size={12} />
-                  )}
-                  {stat.change}
-                </div>
-              </div>
-              <h3 className="text-lg md:text-2xl font-bold text-gray-900">
-                {stat.value}
-              </h3>
-              <p className="text-xs md:text-sm text-gray-500 mt-1">
-                {stat.title}
-              </p>
+          {isLoading ? (
+            <div className="col-span-full text-center text-gray-500">
+              Loading analytics...
             </div>
-          ))}
+          ) : isError ? (
+            <div className="col-span-full text-center text-red-500">
+              Unable to load analytics.
+            </div>
+          ) : (
+            stats.map((stat) => (
+              <div
+                key={stat.title}
+                className="bg-white rounded-xl md:rounded-2xl p-3 md:p-5 border border-gray-100 shadow-sm"
+              >
+                <div className="flex items-start justify-between mb-2 md:mb-3">
+                  <div
+                    className={`p-2 rounded-lg md:rounded-xl ${stat.iconBg}`}
+                  >
+                    <stat.icon size={16} className={stat.iconColor} />
+                  </div>
+                  <div
+                    className={`flex items-center gap-1 text-xs font-medium ${stat.changeType === "up" ? "text-green-500" : "text-red-500"}`}
+                  >
+                    {stat.changeType === "up" ? (
+                      <ArrowUp size={12} />
+                    ) : (
+                      <ArrowDown size={12} />
+                    )}
+                    {stat.change}
+                  </div>
+                </div>
+                <h3 className="text-lg md:text-2xl font-bold text-gray-900">
+                  {stat.value}
+                </h3>
+                <p className="text-xs md:text-sm text-gray-500 mt-1">
+                  {stat.title}
+                </p>
+              </div>
+            ))
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
