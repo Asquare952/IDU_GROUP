@@ -59,7 +59,8 @@ const printAsPdf = (
           body { margin: 0; background: #f3f5f7; font-family: Arial, sans-serif; color: #162b4c; }
           .page { position: relative; width: 100%; max-width: 430px; min-height: 760px; margin: 24px auto; padding: 28px 24px; overflow: hidden; background: white; }
           .watermarks { position: absolute; inset: 130px 0 0; display: grid; grid-template-columns: repeat(2, 1fr); grid-auto-rows: 150px; align-items: center; justify-items: center; overflow: hidden; pointer-events: none; }
-          .watermark { transform: rotate(-28deg); color: #43a047; opacity: .055; font-size: 22px; font-weight: 800; white-space: nowrap; }
+          .watermark { display: flex; align-items: center; gap: 5px; transform: rotate(-28deg); color: #43a047; opacity: .055; font-size: 18px; font-weight: 800; white-space: nowrap; }
+          .watermark img { width: 22px; height: 22px; border-radius: 5px; object-fit: cover; }
           .brand { position: relative; display: flex; align-items: center; gap: 10px; padding-bottom: 22px; border-bottom: 1px solid #e6eaed; }
           .brand img { width: 42px; height: 42px; border-radius: 10px; object-fit: cover; }
           .brand-name { color: #43a047; font-size: 20px; font-weight: 800; }
@@ -80,12 +81,12 @@ const printAsPdf = (
       <body>
         <div class="page">
           <div class="watermarks">
-            <span class="watermark">Rent<span style="color:#43a047">ULO</span></span>
-            <span class="watermark">Rent<span style="color:#43a047">ULO</span></span>
-            <span class="watermark">Rent<span style="color:#43a047">ULO</span></span>
-            <span class="watermark">Rent<span style="color:#43a047">ULO</span></span>
-            <span class="watermark">Rent<span style="color:#43a047">ULO</span></span>
-            <span class="watermark">Rent<span style="color:#43a047">ULO</span></span>
+            <span class="watermark"><img src="/IDU%20GROUP%20LOGO.png" alt="" />Rent<span style="color:#43a047">ULO</span></span>
+            <span class="watermark"><img src="/IDU%20GROUP%20LOGO.png" alt="" />Rent<span style="color:#43a047">ULO</span></span>
+            <span class="watermark"><img src="/IDU%20GROUP%20LOGO.png" alt="" />Rent<span style="color:#43a047">ULO</span></span>
+            <span class="watermark"><img src="/IDU%20GROUP%20LOGO.png" alt="" />Rent<span style="color:#43a047">ULO</span></span>
+            <span class="watermark"><img src="/IDU%20GROUP%20LOGO.png" alt="" />Rent<span style="color:#43a047">ULO</span></span>
+            <span class="watermark"><img src="/IDU%20GROUP%20LOGO.png" alt="" />Rent<span style="color:#43a047">ULO</span></span>
           </div>
           <div class="brand">
             <img src="/IDU%20GROUP%20LOGO.png" alt="RentULO logo" />
