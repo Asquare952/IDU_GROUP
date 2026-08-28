@@ -1,4 +1,9 @@
-export type RentalStatus = "available" | "pending" | "locked" | "rented" | string;
+export type RentalStatus =
+  | "available"
+  | "pending"
+  | "locked"
+  | "rented"
+  | string;
 
 export interface RentalUser {
   id: string;
@@ -26,6 +31,7 @@ export interface Rental {
   liked?: boolean;
   locked?: boolean;
   booked?: boolean;
+  lockedAt?: string;
   images: string[];
   videos: string[];
   amenities: string[];
@@ -133,4 +139,6 @@ export type RawRental = Partial<Omit<Rental, "images" | "videos">> & {
   bedrooms?: unknown;
   bathrooms?: unknown;
   added?: unknown;
+  locked_at?: unknown;
+  lockedAt?: unknown;
 };

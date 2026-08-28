@@ -250,6 +250,12 @@ export const normalizeRental = (rental: RawRental): Rental => ({
   mgtServiceCharge: normalizeMoneyValue(rental.mgtServiceCharge),
   priceType: rental.priceType ?? "yearly",
   status: rental.status ?? "available",
+  lockedAt:
+    typeof rental.lockedAt === "string"
+      ? rental.lockedAt
+      : typeof rental.locked_at === "string"
+        ? rental.locked_at
+        : undefined,
   images: normalizeMediaList(rental.images),
   videos: normalizeMediaList(rental.videos),
   amenities: normalizeStringList(rental.amenities),
