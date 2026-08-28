@@ -4,6 +4,7 @@ import React from "react";
 import DashboardLayout from "@/app/components/super-admin/DashboardLayout";
 import { Download, ArrowUp, ArrowDown } from "lucide-react";
 import { useAdminAnalytics } from "@/app/api/features/admin";
+import { toast } from "react-toastify";
 import {
   analyticStats,
   months,
@@ -32,6 +33,61 @@ const page = () => {
       }))
     : [];
 
+  const handleExportReport = () => {
+    if (!analytics) {
+      toast.error("Analytics are still loading.");
+      return;
+    }
+
+    const reportText = [
+      `Generated: ${new Date().toLocaleString()}`,
+      "",
+      `Total Users: ${analytics.totalUsers.toLocaleString()}`,
+      `Active Users: ${analytics.activeUsers.toLocaleString()}`,
+      `Suspended Users: ${analytics.suspendedUsers.toLocaleString()}`,
+      `Landlords: ${analytics.usersByRole.landlords.toLocaleString()}`,
+      `Tenants: ${analytics.usersByRole.tenants.toLocaleString()}`,
+      `Admins: ${analytics.usersByRole.admins.toLocaleString()}`,
+      `Total Rentals: ${analytics.totalRentals.toLocaleString()}`,
+      `Total Likes: ${analytics.totalLikes.toLocaleString()}`,
+      `Total Locks: ${analytics.totalLocks.toLocaleString()}`,
+      `Total Bookings: ${analytics.totalBookings.toLocaleString()}`,
+      `Pending Reports: ${analytics.pendingReports.toLocaleString()}`,
+      `Resolved Reports: ${analytics.resolvedReports.toLocaleString()}`,
+      `Platform Revenue (NGN): ${analytics.totalTransactionRevenue.toLocaleString()}`,
+    ].join("\n");
+    const printWindow = window.open("", "_blank", "width=800,height=900");
+
+    if (!printWindow) {
+      toast.error("Please allow pop-ups to export the PDF report.");
+      return;
+    }
+
+    const escapedReport = reportText
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\n/g, "<br />");
+
+    printWindow.document.write(`
+      <!doctype html>
+      <html>
+        <head>
+          <title>RentULO Analytics Report</title>
+          <style>
+            body { font-family: Arial, sans-serif; color: #162b4c; padding: 48px; line-height: 1.8; }
+            h1 { color: #43a047; margin-bottom: 28px; }
+            .report { border-top: 3px solid #43a047; padding-top: 24px; }
+          </style>
+        </head>
+        <body><h1>RentULO Analytics Report</h1><div class="report">${escapedReport}</div></body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.setTimeout(() => printWindow.print(), 250);
+  };
+
   return (
     <DashboardLayout>
       <div className="p-4 md:p-6 space-y-4 md:space-y-6">
@@ -44,7 +100,11 @@ const page = () => {
               Platform performance and insights
             </p>
           </div>
-          <button className="flex items-center justify-center gap-2 bg-[#43A047] hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm w-full sm:w-auto">
+          <button
+            type="button"
+            onClick={handleExportReport}
+            className="flex items-center justify-center gap-2 bg-[#43A047] hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm w-full sm:w-auto cursor-pointer"
+          >
             <Download size={16} />
             Export Report
           </button>
