@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState, useRef, Suspense } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -37,6 +37,7 @@ const CATEGORIES = [
 
 function AllPropertiesPageContent() {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   // FIX: this is the actual bug — read what HeroSection.tsx put in the URL
   // (?search=...&category=...) instead of always starting from a blank state.
@@ -54,6 +55,7 @@ function AllPropertiesPageContent() {
   const [tempSearch, setTempSearch] = useState(urlSearch);
   const [finalSearch, setFinalSearch] = useState(urlSearch);
   const [selectedCategory, setSelectedCategory] = useState(matchedCategory);
+  const [currentPage, setCurrentPage] = useState(0);
 
   // FIX: useState's initial value only applies on first mount. If this page
   // stays mounted across a second navigation (e.g. searching again from the
@@ -64,6 +66,7 @@ function AllPropertiesPageContent() {
     setTempSearch(urlSearch);
     setFinalSearch(urlSearch);
     setSelectedCategory(matchedCategory);
+    setCurrentPage(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlSearch, urlCategory]);
 
@@ -103,6 +106,14 @@ function AllPropertiesPageContent() {
     return item.propertyType.toLowerCase() === selectedCategory.toLowerCase();
   });
 
+  // Pagination: 6 properties per page
+  const itemsPerPage = 6;
+  const totalPages = Math.ceil(visibleProperties.length / itemsPerPage);
+  const paginatedProperties = visibleProperties.slice(
+    currentPage * itemsPerPage,
+    (currentPage + 1) * itemsPerPage,
+  );
+
   useEffect(() => {
     if (properties.length > 0 && !hasInitializedRef.current) {
       hasInitializedRef.current = true;
@@ -114,7 +125,7 @@ function AllPropertiesPageContent() {
         ),
       );
     }
-  }, []);
+  }, [properties]);
 
   const handleLikeToggle = (propertyId: string) => {
     if (!hasAccessToken()) {
@@ -139,6 +150,16 @@ function AllPropertiesPageContent() {
     const mutation = wasLiked ? unlikeRental : likeRental;
 
     mutation(propertyId, {
+      onSuccess: () => {
+        // Refetch properties to ensure liked status is persisted and shown on refresh
+        queryClient.invalidateQueries({
+          queryKey: [
+            "properties-list",
+            finalSearch,
+            recentOnly ? "recent" : "all",
+          ],
+        });
+      },
       onError: () => {
         setLikedPropertyIds((previousIds) => {
           const nextIds = new Set(previousIds);
@@ -239,131 +260,185 @@ function AllPropertiesPageContent() {
               </p>
             </div>
           ) : (
-            <motion.div
-              layout
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-            >
-              <AnimatePresence mode="popLayout">
-                {visibleProperties.length > 0 ? (
-                  visibleProperties.map((item) => {
-                    return (
-                      <motion.div
-                        key={item.id}
-                        onClick={() =>
-                          router.push(getPropertyDetailsPath(item))
-                        }
-                        layout
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.9 }}
-                        className="group overflow-hidden rounded-[35px] border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:shadow-xl"
-                      >
-                        <div className="relative h-56 w-full overflow-hidden bg-slate-100 md:h-64 group">
-                          {item.images[0] ? (
-                            <div className="block h-full w-full">
-                              <Image
-                                src={item.images[0]}
-                                alt={item.title}
-                                fill
-                                className="object-cover rounded-3xl p-2 transition-transform duration-500 group-hover:scale-110"
-                              />
+            <div className="space-y-8">
+              <motion.div
+                layout
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+              >
+                <AnimatePresence mode="popLayout">
+                  {paginatedProperties.length > 0 ? (
+                    paginatedProperties.map((item) => {
+                      return (
+                        <motion.div
+                          key={item.id}
+                          onClick={() =>
+                            router.push(getPropertyDetailsPath(item))
+                          }
+                          layout
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.9 }}
+                          className="group overflow-hidden rounded-[35px] border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:shadow-xl"
+                        >
+                          <div className="relative h-56 w-full overflow-hidden bg-slate-100 md:h-64 group">
+                            {item.images[0] ? (
+                              <div className="block h-full w-full">
+                                <Image
+                                  src={item.images[0]}
+                                  alt={item.title}
+                                  fill
+                                  className="object-cover rounded-3xl p-2 transition-transform duration-500 group-hover:scale-110"
+                                />
+                              </div>
+                            ) : (
+                              <div className="block h-full w-full">
+                                <div className="flex h-full w-full items-center justify-center text-slate-400">
+                                  No image
+                                </div>
+                              </div>
+                            )}
+                            <button
+                              type="button"
+                              className="absolute right-5 top-5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#162B4C] shadow-sm transition hover:text-red-500"
+                              aria-label={`Save ${item.title}`}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleLikeToggle(String(item.id));
+                              }}
+                            >
+                              {likedPropertyIds.has(String(item.id)) ? (
+                                <HiHeart
+                                  size={22}
+                                  className="text-red-500 transition-all duration-200"
+                                />
+                              ) : (
+                                <HiOutlineHeart
+                                  size={22}
+                                  className="transition-all duration-200"
+                                />
+                              )}
+                            </button>
+                          </div>
+
+                          <div className="p-5">
+                            <div className="mb-2 flex items-start justify-between gap-4">
+                              <div>
+                                <p className="text-xl font-bold text-gray-900">
+                                  ₦{Number(item.price).toLocaleString()}
+                                  <span className="text-sm font-normal text-gray-400 capitalize">
+                                    / {item.priceType}
+                                  </span>
+                                </p>
+                                <h3 className="text-lg font-semibold text-gray-800">
+                                  {item.title}
+                                </h3>
+                              </div>
+
+                              <motion.button
+                                whileTap={{ scale: 0.95 }}
+                                whileHover={{ scale: 1.05 }}
+                                className="cursor-pointer rounded-full bg-[#E8F5E9] px-4 py-1.5 text-xs font-bold text-[#43A047]"
+                              >
+                                View
+                              </motion.button>
                             </div>
-                          ) : (
-                            <div className="block h-full w-full">
-                              <div className="flex h-full w-full items-center justify-center text-slate-400">
-                                No image
+
+                            <p className="mb-4 line-clamp-2 text-sm leading-relaxed text-gray-400">
+                              {item.description ||
+                                "No description provided yet."}
+                            </p>
+
+                            <div className="flex flex-wrap gap-4 border-t border-gray-50 pt-4">
+                              <div className="flex items-center gap-2">
+                                <House size={16} className="text-gray-400" />
+                                <span className="text-xs font-medium text-gray-500 capitalize">
+                                  {item.propertyType}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <MapPin size={16} className="text-gray-400" />
+                                <span className="text-xs font-medium text-gray-500">
+                                  {item.location}
+                                </span>
                               </div>
                             </div>
-                          )}
-                          <button
-                            type="button"
-                            className="absolute right-5 top-5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#162B4C] shadow-sm transition hover:text-red-500"
-                            aria-label={`Save ${item.title}`}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              handleLikeToggle(String(item.id));
-                            }}
-                          >
-                            {likedPropertyIds.has(String(item.id)) ? (
-                              <HiHeart
-                                size={22}
-                                className="text-red-500 transition-all duration-200"
-                              />
-                            ) : (
-                              <HiOutlineHeart
-                                size={22}
-                                className="transition-all duration-200"
-                              />
-                            )}
-                          </button>
-                        </div>
-
-                        <div className="p-5">
-                          <div className="mb-2 flex items-start justify-between gap-4">
-                            <div>
-                              <p className="text-xl font-bold text-gray-900">
-                                ₦{Number(item.price).toLocaleString()}
-                                <span className="text-sm font-normal text-gray-400 capitalize">
-                                  / {item.priceType}
-                                </span>
-                              </p>
-                              <h3 className="text-lg font-semibold text-gray-800">
-                                {item.title}
-                              </h3>
-                            </div>
-
-                            <motion.button
-                              whileTap={{ scale: 0.95 }}
-                              whileHover={{ scale: 1.05 }}
-                              className="cursor-pointer rounded-full bg-[#E8F5E9] px-4 py-1.5 text-xs font-bold text-[#43A047]"
-                            >
-                              View
-                            </motion.button>
                           </div>
+                        </motion.div>
+                      );
+                    })
+                  ) : (
+                    <div className="col-span-full py-20 text-center">
+                      <p className="text-gray-400 text-lg font-medium">
+                        No results found.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFinalSearch("");
+                          setTempSearch("");
+                          setSelectedCategory("All");
+                        }}
+                        className="mt-4 text-[#4CAF50] font-bold hover:underline"
+                      >
+                        Clear filters
+                      </button>
+                    </div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
 
-                          <p className="mb-4 line-clamp-2 text-sm leading-relaxed text-gray-400">
-                            {item.description || "No description provided yet."}
-                          </p>
+              {/* Pagination Controls */}
+              {visibleProperties.length > 0 && totalPages > 1 && (
+                <div className="flex items-center justify-center gap-4 mt-12">
+                  <button
+                    type="button"
+                    onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
+                    disabled={currentPage === 0}
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-white border border-gray-200 text-gray-600 transition hover:bg-[#4CAF50] hover:text-white hover:border-[#4CAF50] disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label="Previous page"
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
 
-                          <div className="flex flex-wrap gap-4 border-t border-gray-50 pt-4">
-                            <div className="flex items-center gap-2">
-                              <House size={16} className="text-gray-400" />
-                              <span className="text-xs font-medium text-gray-500 capitalize">
-                                {item.propertyType}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <MapPin size={16} className="text-gray-400" />
-                              <span className="text-xs font-medium text-gray-500">
-                                {item.location}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    );
-                  })
-                ) : (
-                  <div className="col-span-full py-20 text-center">
-                    <p className="text-gray-400 text-lg font-medium">
-                      No results found.
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFinalSearch("");
-                        setTempSearch("");
-                        setSelectedCategory("All");
-                      }}
-                      className="mt-4 text-[#4CAF50] font-bold hover:underline"
-                    >
-                      Clear filters
-                    </button>
+                  <div className="flex items-center gap-2">
+                    {Array.from({ length: totalPages }).map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setCurrentPage(idx)}
+                        className={`h-8 w-8 rounded-full font-bold transition-all ${
+                          currentPage === idx
+                            ? "bg-[#4CAF50] text-white shadow-lg"
+                            : "bg-white border border-gray-200 text-gray-600 hover:border-[#4CAF50] hover:text-[#4CAF50]"
+                        }`}
+                      >
+                        {idx + 1}
+                      </button>
+                    ))}
                   </div>
-                )}
-              </AnimatePresence>
-            </motion.div>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setCurrentPage(Math.min(totalPages - 1, currentPage + 1))
+                    }
+                    disabled={currentPage === totalPages - 1}
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-white border border-gray-200 text-gray-600 transition hover:bg-[#4CAF50] hover:text-white hover:border-[#4CAF50] disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label="Next page"
+                  >
+                    <ChevronRight size={20} />
+                  </button>
+                </div>
+              )}
+
+              {/* Page indicator */}
+              {visibleProperties.length > 0 && totalPages > 1 && (
+                <div className="text-center text-sm text-gray-500">
+                  Page {currentPage + 1} of {totalPages} • Showing{" "}
+                  {paginatedProperties.length} of {visibleProperties.length}
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>

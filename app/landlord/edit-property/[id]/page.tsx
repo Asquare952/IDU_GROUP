@@ -62,12 +62,7 @@ const Page = () => {
   const [videoPreviews, setVideoPreviews] = useState<string[]>([]);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const {
-    data: rentalData,
-    isLoading,
-    isError,
-    error,
-  } = useGetRentalById(id);
+  const { data: rentalData, isLoading, isError, error } = useGetRentalById(id);
   const { mutate: updateRental, isPending } = useUpdateRental(id ?? "");
 
   const {
@@ -401,9 +396,9 @@ const Page = () => {
                       className="flex flex-col items-center justify-center p-4 bg-[#F8FAFC] rounded-2xl cursor-pointer hover:bg-slate-100 transition-colors"
                     >
                       <input
-                        {...register("amenities")}
                         type="checkbox"
                         value={item}
+                        {...register("amenities")}
                         className="mb-2 accent-[#4CAF50]"
                       />
                       <span className="text-[10px] font-bold text-slate-500 text-center uppercase">

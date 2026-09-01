@@ -26,7 +26,7 @@ interface FormData {
   legalFee: number;
   cautionFee: number;
   brokeFee: number;
-  mgtServiceCharge: number; 
+  mgtServiceCharge: number;
   amenities: string[];
 }
 
@@ -80,7 +80,7 @@ const page = () => {
     setTotalPackages(sum);
   }, [fees]);
 
-  // Handle image selection 
+  // Handle image selection
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
@@ -152,7 +152,7 @@ const page = () => {
       };
 
       await rentalApi.createRental(payload);
-      
+
       toast.success("Property uploaded successfully!");
       // Success — redirect to listings
       router.push("/landlord/my-listings");
@@ -160,7 +160,7 @@ const page = () => {
       console.error("Upload failed:", err);
       setSubmitError(
         err.response?.data?.message ||
-        "Failed to upload listing. Please try again.",
+          "Failed to upload listing. Please try again.",
       );
     } finally {
       setIsSubmitting(false);
@@ -321,9 +321,9 @@ const page = () => {
                       className="flex flex-col items-center justify-center p-4 bg-[#F8FAFC] rounded-2xl cursor-pointer hover:bg-slate-100 transition-colors"
                     >
                       <input
-                      {...register("amenities")}
                         type="checkbox"
                         value={item}
+                        {...register("amenities")}
                         className="mb-2 accent-[#4CAF50]"
                       />
                       <span className="text-[10px] font-bold text-slate-500 text-center uppercase">
@@ -530,7 +530,6 @@ const page = () => {
                 )}
               </section>
 
-
               <button
                 type="submit"
                 disabled={isSubmitting || images.length === 0}
@@ -553,4 +552,4 @@ const page = () => {
   );
 };
 
-export default page 
+export default page;
