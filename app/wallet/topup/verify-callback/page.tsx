@@ -28,7 +28,7 @@ const CallbackContent = () => {
 
     const timer = window.setTimeout(() => {
       router.replace(`${walletPath}${query}`);
-    }, 1200);
+    }, 8000);
 
     return () => window.clearTimeout(timer);
   }, [router, searchParams]);
