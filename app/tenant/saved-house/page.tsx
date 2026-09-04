@@ -14,18 +14,18 @@ import {
   X,
   ShieldAlert,
   House,
-  Loader2
+  Loader2,
 } from "lucide-react";
 import loading from "@/app/assets/images/loading.gif";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
-  useLikedRentals, useClearLikedRentals, useUnlikeRental
+  useLikedRentals,
+  useClearLikedRentals,
+  useUnlikeRental,
 } from "@/app/api/features/progress/progress.queries";
 import { getPropertyDetailsPath } from "@/app/lib/property-routes";
-import {
-  useLockRental
-} from "@/app/api/features/progress/progress.queries";
+import { useLockRental } from "@/app/api/features/progress/progress.queries";
 import { hasAccessToken } from "@/app/lib/auth";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -58,7 +58,8 @@ const SavedHouseContent = () => {
         {/* Card Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {getLikedRentals?.map((house) => (
-            <Link href={getPropertyDetailsPath(house)}
+            <Link
+              href={getPropertyDetailsPath(house)}
               key={house.id}
               className="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 group hover:shadow-md transition-all duration-300"
             >
@@ -82,7 +83,6 @@ const SavedHouseContent = () => {
                 </button>
               </div>
 
-
               <div className="p-5 flex flex-col gap-3">
                 {/* {house.isVerified && (
                   <div className="flex">
@@ -95,7 +95,6 @@ const SavedHouseContent = () => {
                 <h3 className="font-bold text-xl text-[#162B4C] hover:text-[#43A047] transition-colors cursor-pointer">
                   {house.title}
                 </h3>
-
 
                 <p className="text-gray-400 text-sm flex items-center gap-1 font-medium">
                   <MapPin size={16} /> {house.location}
@@ -115,22 +114,26 @@ const SavedHouseContent = () => {
                     View Details
                   </button>
 
-                  <button className="flex-1 border-2 border-[#43A047] text-[#43A047] p-3 rounded-xl flex items-center justify-center hover:bg-green-50 transition-all cursor-pointer" onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    if (!hasAccessToken()) {
-                      router.push("/login");
-                      return;
-                    }
+                  <button
+                    className="flex-1 border-2 border-[#43A047] text-[#43A047] p-3 rounded-xl flex items-center justify-center hover:bg-green-50 transition-all cursor-pointer"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (!hasAccessToken()) {
+                        router.push("/login");
+                        return;
+                      }
 
-                    const rentalId = String(house.id);
+                      const rentalId = String(house.id);
 
-                    lockRental(rentalId)
-                  }}>
+                      lockRental(rentalId);
+                    }}
+                  >
                     {isPending ? (
                       <Loader2 className="w-5 h-5 animate-spin" />
                     ) : (
-                      <Lock size={18} />)}
+                      <Lock size={18} />
+                    )}
                   </button>
                 </div>
               </div>
@@ -163,17 +166,18 @@ const SavedHouseContent = () => {
                   action below.
                 </p>
               </div>
-              <div className="p-6 flex flex-col gap-3">
+              <div className="p-6 flex flex-col gap-4">
                 {SafetyAction.map((action) => (
                   <button
                     key={action.id}
-                    className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer
-                      ${action.variant === "danger"
-                        ? "bg-[#FF3B30] text-white hover:bg-red-700"
-                        : action.variant === "success" ||
-                          action.variant === "Success"
-                          ? "bg-[#43A047] text-white hover:bg-green-700"
-                          : "bg-[#F2F2F7] text-[#162B4C] hover:bg-gray-200"
+                    className={`w-full py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer
+                      ${
+                        action.variant === "danger"
+                          ? "bg-[#FF3B30] text-white hover:bg-red-700"
+                          : action.variant === "success" ||
+                              action.variant === "Success"
+                            ? "bg-[#43A047] text-white hover:bg-green-700"
+                            : "bg-[#F2F2F7] text-[#162B4C] hover:bg-gray-200"
                       }`}
                   >
                     <action.icon size={20} />
@@ -193,14 +197,18 @@ const SavedHouseContent = () => {
           <AlertTriangle size={32} />
         </button>
 
-        {getLikedRentals?.length === 0 ? "" : (
-          <div className=" flex justify-center items-center" onClick={() => clearLikedRentals()}>
+        {getLikedRentals?.length === 0 ? (
+          ""
+        ) : (
+          <div
+            className=" flex justify-center items-center"
+            onClick={() => clearLikedRentals()}
+          >
             <button className="bg-[#43A047] text-white px-6 py-3 rounded-xl font-bold hover:bg-green-700 transition-all active:scale-95 shadow-md cursor-pointer">
               Clear All Saved Houses
             </button>
           </div>
         )}
-
       </div>
     </DashboardLayout>
   );

@@ -5,7 +5,6 @@ import Link from "next/link";
 import DashboardLayout from "@/app/components/Tenant-Dashboard/DashboardLayout";
 import { useState } from "react";
 
-
 import {
   Bell,
   ShieldCheck,
@@ -21,11 +20,8 @@ import {
   SafetyAction,
 } from "@/app/components/Tenant-Dashboard/config/DashboardDatas";
 
-
-
 const page = () => {
   const [isSafetyOpen, setIsSafetyOpen] = useState(false);
-  
 
   return (
     <DashboardLayout>
@@ -157,11 +153,11 @@ const page = () => {
                     action below.
                   </p>
                 </div>
-                <div className="p-6 flex flex-col gap-3">
+                <div className="p-6 flex flex-col gap-4">
                   {SafetyAction.map((action) => (
                     <button
                       key={action.id}
-                      className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer
+                      className={`w-full py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer
                 ${
                   action.variant === "danger"
                     ? "bg-[#FF3B30] text-white hover:bg-red-700"

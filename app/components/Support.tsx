@@ -3,87 +3,113 @@
 import { useEffect, useRef, useState } from "react";
 import { MessageCircleMore, X, SendHorizontal, Loader2 } from "lucide-react";
 import {
-  useSendChatMessage,
-  useChatHistory,
-} from "@/app/api/features/ai-support/aiSupport.queries";
-import type { ChatMessage as ApiChatMessage } from "@/app/api/features/ai-support/type";
-
-type LocalMessage = {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-};
-
-const SESSION_STORAGE_KEY = "rentulo-ai-support-session";
+  useCreateTicket,
+  useSendTicketMessage,
+  useGetUserTickets,
+} from "@/app/api/features/support";
+import type { TicketMessage } from "@/app/api/features/support/types";
+import { hasAccessToken } from "@/app/lib/auth";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 const Support = () => {
+  const router = useRouter();
   const [isSupportOpen, setIsSupportOpen] = useState(false);
   const [message, setMessage] = useState("");
-  const [sessionId, setSessionId] = useState<string | undefined>(undefined);
-  const [messages, setMessages] = useState<LocalMessage[]>([]);
+  const [ticketId, setTicketId] = useState<string | undefined>(undefined);
+  const [messages, setMessages] = useState<TicketMessage[]>([]);
+  const [isInitialized, setIsInitialized] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const { mutate: sendMessage, isPending, error } = useSendChatMessage();
-  const { data: historyRes } = useChatHistory(sessionId);
+  const { mutate: createTicket, isPending: isCreating } = useCreateTicket();
+  const { mutate: sendMessage, isPending: isSending } = useSendTicketMessage();
+  const { data: userTickets } = useGetUserTickets();
 
-  // Restore an existing session for this browser, if one exists, on first mount.
+  // Initialize: Get or create a ticket
   useEffect(() => {
-    const stored = localStorage.getItem(SESSION_STORAGE_KEY);
-    if (stored) setSessionId(stored);
-  }, []);
+    if (!hasAccessToken()) {
+      setIsInitialized(true);
+      return;
+    }
 
-  // Hydrate local messages from the fetched transcript once we have a session.
-  useEffect(() => {
-    if (!historyRes || !sessionId) return;
-    const transcript = historyRes.data as ApiChatMessage[];
-    setMessages(
-      transcript.map((m) => ({ id: m.id, role: m.role, content: m.content })),
-    );
-  }, [historyRes, sessionId]);
+    // Check if user has an open ticket
+    if (userTickets && userTickets.length > 0) {
+      const openTicket = userTickets.find(
+        (t) => t.status === "open" || t.status === "in-progress",
+      );
+      if (openTicket) {
+        setTicketId(openTicket.id);
+        setMessages(openTicket.messages || []);
+        setIsInitialized(true);
+        return;
+      }
+    }
+
+    // Create a new ticket when support opens
+    if (isSupportOpen && !ticketId) {
+      createTicket(
+        {
+          subject: "Support Request",
+          description: "User initiated support chat",
+          category: "general",
+          priority: "medium",
+        },
+        {
+          onSuccess: (ticket) => {
+            setTicketId(ticket.id);
+            setMessages(ticket.messages || []);
+            setIsInitialized(true);
+          },
+          onError: () => {
+            toast.error("Failed to create support ticket");
+            setIsInitialized(true);
+          },
+        },
+      );
+    } else {
+      setIsInitialized(true);
+    }
+  }, [isSupportOpen, userTickets, createTicket, ticketId]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
       top: scrollRef.current.scrollHeight,
       behavior: "smooth",
     });
-  }, [messages, isPending]);
+  }, [messages, isSending]);
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = message.trim();
-    if (!trimmed || isPending) return;
 
-    setMessages((prev) => [
-      ...prev,
-      { id: `local-${Date.now()}`, role: "user", content: trimmed },
-    ]);
+    if (!trimmed || isSending || !ticketId) return;
+
+    if (!hasAccessToken()) {
+      router.push("/login");
+      return;
+    }
+
     setMessage("");
 
     sendMessage(
-      { message: trimmed, session_id: sessionId },
+      { ticketId, content: trimmed },
       {
-        onSuccess: (data) => {
-          if (!sessionId) {
-            setSessionId(data.data.session_id);
-            localStorage.setItem(SESSION_STORAGE_KEY, data.data.session_id);
-          }
-          setMessages((prev) => [
-            ...prev,
-            {
-              id: `assistant-${Date.now()}`,
-              role: "assistant",
-              content: data.data.reply,
-            },
-          ]);
+        onSuccess: (newMessage) => {
+          setMessages((prev) => [...prev, newMessage]);
+        },
+        onError: () => {
+          toast.error("Failed to send message");
+          setMessage(trimmed);
         },
       },
     );
   };
 
-  const errorMessage =
-    (error as any)?.response?.status === 429
-      ? "You're sending messages too quickly. Please slow down."
-      : ((error as any)?.response?.data?.message as string | undefined);
+  if (!isInitialized) {
+    return null;
+  }
+
+  const isPending = isCreating || isSending;
 
   return (
     <div>
@@ -93,86 +119,105 @@ const Support = () => {
             <div className="flex flex-col gap-0.5">
               <h2 className="text-white text-[18px]">RentULO Support</h2>
               <p className="text-white text-[13px]">
-                We typically reply in a few seconds
+                We typically reply within a few hours
               </p>
             </div>
             <button
-              className="cursor-pointer"
               onClick={() => setIsSupportOpen(false)}
+              className="cursor-pointer text-white hover:bg-[#3A8C3D] p-2 rounded-full transition"
+              aria-label="Close support"
             >
-              <X size={20} className="text-white" />
+              <X size={20} />
             </button>
           </header>
 
           <div
             ref={scrollRef}
-            className="flex flex-1 flex-col gap-3 overflow-y-auto bg-[#F7F8FA] p-4"
+            className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50"
           >
-            {messages.length === 0 && !isPending && (
-              <p className="text-center text-sm text-slate-400 mt-6">
-                Ask me anything about RentULO — locking a house, your wallet,
-                inspections, or listings.
-              </p>
-            )}
-            {messages.map((m) => (
-              <div
-                key={m.id}
-                className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
-              >
+            {messages.length === 0 ? (
+              <div className="text-center text-gray-500 text-sm mt-8">
+                <p className="font-medium">Hi! 👋</p>
+                <p className="mt-2">How can we help you today?</p>
+                <p className="text-xs mt-4">
+                  Send your message and our team will respond as soon as
+                  possible.
+                </p>
+              </div>
+            ) : (
+              messages.map((msg) => (
                 <div
-                  className={`max-w-[80%] rounded-2xl px-3.5 py-2 text-sm whitespace-pre-wrap ${
-                    m.role === "user"
-                      ? "bg-[#43A047] text-white rounded-br-sm"
-                      : "bg-white text-slate-800 border border-slate-200 rounded-bl-sm"
+                  key={msg.id}
+                  className={`flex ${
+                    msg.senderRole === "user" ? "justify-end" : "justify-start"
                   }`}
                 >
-                  {m.content}
+                  <div
+                    className={`max-w-[70%] rounded-lg px-3 py-2 text-sm ${
+                      msg.senderRole === "user"
+                        ? "bg-[#43A047] text-white"
+                        : "bg-white text-gray-800 border border-gray-200"
+                    }`}
+                  >
+                    <p>{msg.content}</p>
+                    <p
+                      className={`text-xs mt-1 ${
+                        msg.senderRole === "user"
+                          ? "text-green-100"
+                          : "text-gray-400"
+                      }`}
+                    >
+                      {new Date(msg.createdAt).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
             {isPending && (
               <div className="flex justify-start">
-                <div className="bg-white border border-slate-200 rounded-2xl rounded-bl-sm px-3.5 py-2.5">
-                  <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
+                <div className="bg-white border border-gray-200 rounded-lg px-3 py-2">
+                  <Loader2 size={16} className="animate-spin text-[#43A047]" />
                 </div>
               </div>
             )}
           </div>
 
-          {errorMessage && (
-            <p className="px-4 py-1.5 text-xs text-red-600 bg-red-50 shrink-0">
-              {errorMessage}
-            </p>
-          )}
-
-          <div className="border-t border-[#ddd] bg-white p-2.5 shrink-0">
-            <form onSubmit={handleSend} className="flex items-center gap-1.5">
-              <input
-                type="text"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                className="flex-1 rounded-3xl border border-[#ccc] px-4 py-2.5 outline-none disabled:opacity-60"
-                placeholder="Type a message..."
-                disabled={isPending}
-              />
-              <button
-                type="submit"
-                className="cursor-pointer rounded-full bg-[#43A047] px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-70"
-                disabled={!message.trim() || isPending}
-              >
-                <SendHorizontal />
-              </button>
-            </form>
-          </div>
+          <form
+            onSubmit={handleSend}
+            className="sticky bottom-0 flex gap-2 bg-white border-t border-gray-200 p-3 rounded-b-2xl shrink-0"
+          >
+            <input
+              type="text"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Type your message..."
+              className="flex-1 bg-gray-50 rounded-full px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-[#43A047]"
+              disabled={isPending || !ticketId}
+            />
+            <button
+              type="submit"
+              disabled={isPending || !message.trim() || !ticketId}
+              className="cursor-pointer bg-[#43A047] text-white p-2 rounded-full hover:bg-[#3A8C3D] disabled:opacity-50 disabled:cursor-not-allowed transition"
+              aria-label="Send message"
+            >
+              <SendHorizontal size={18} />
+            </button>
+          </form>
         </div>
       )}
 
-      <button
-        onClick={() => setIsSupportOpen(true)}
-        className="fixed bottom-10 right-10 bg-[#43A047] text-white p-5 rounded-full shadow-2xl transition-all z-40 active:scale-90 cursor-pointer"
-      >
-        <MessageCircleMore size={32} />
-      </button>
+      {!isSupportOpen && (
+        <button
+          onClick={() => setIsSupportOpen(true)}
+          className="fixed z-50 bottom-10 right-10 bg-[#43A047] text-white p-4 rounded-full shadow-lg hover:bg-[#3A8C3D] transition flex items-center justify-center cursor-pointer"
+          aria-label="Open support chat"
+        >
+          <MessageCircleMore size={24} />
+        </button>
+      )}
     </div>
   );
 };

@@ -237,11 +237,11 @@ const LockedHouseContent = () => {
                   action below.
                 </p>
               </div>
-              <div className="p-6 flex flex-col gap-3">
+              <div className="p-6 flex flex-col gap-4">
                 {SafetyAction.map((action) => (
                   <button
                     key={action.id}
-                    className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                    className={`w-full py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                       action.variant === "danger"
                         ? "bg-[#FF3B30] text-white hover:bg-red-700"
                         : action.variant === "Success" ||
