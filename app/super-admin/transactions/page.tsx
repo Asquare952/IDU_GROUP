@@ -1,13 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import DashboardLayout from "@/app/components/super-admin/DashboardLayout";
 import { Search, Filter } from "lucide-react";
+import { filterTabs, transactionStats } from "@/app/super-admin/transactions/data/transaction";
 import {
-  transactionStats,
-  filterTabs,
-  transactions,
-} from "@/app/super-admin/transactions/data/transaction";
+  useGetTransactionStats,
+  useGetTransactions,
+} from "@/app/api/features/transactions";
+import type { Transaction } from "@/app/api/features/transactions/types";
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -22,13 +23,64 @@ const getStatusColor = (status: string) => {
   }
 };
 
+const formatAmount = (amount: number) =>
+  `₦${amount.toLocaleString("en-NG", { maximumFractionDigits: 2 })}`;
+
+const formatDateTime = (date: string) => {
+  const value = new Date(date);
+  if (Number.isNaN(value.getTime())) return date;
+
+  return value.toLocaleString("en-NG", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
+};
+
+const toDisplayTransaction = (transaction: Transaction) => ({
+  id: transaction.reference || transaction.id,
+  dateTime: formatDateTime(transaction.createdAt),
+  tenant: transaction.User?.full_name || "Unknown tenant",
+  tenantDetail: transaction.User?.email || "",
+  property: transaction.payment_type,
+  amount: formatAmount(transaction.amount),
+  method: transaction.payment_type,
+  status:
+    transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1),
+});
+
 const page = () => {
   const [activeFilter, setActiveFilter] = useState("All Transactions");
+  const { data: stats, isLoading: isLoadingStats } = useGetTransactionStats();
+  const { data: transactionResponse, isLoading: isLoadingTransactions } =
+    useGetTransactions();
 
-  // FIXED: Proper filtering logic
-  const filteredTransactions = transactions.filter((txn) => {
+  const displayStats = transactionStats.map((stat) => {
+    const values = {
+      "Total Today": stats?.totalToday,
+      Completed: stats?.completed,
+      Pending: stats?.pending,
+      Failed: stats?.failed,
+    };
+    const value = values[stat.title as keyof typeof values];
+
+    return {
+      ...stat,
+      value:
+        isLoadingStats || value === undefined
+          ? "—"
+          : stat.title === "Total Today"
+            ? formatAmount(value)
+            : value.toLocaleString(),
+    };
+  });
+
+  const displayedTransactions = useMemo(
+    () => (transactionResponse?.data || []).map(toDisplayTransaction),
+    [transactionResponse],
+  );
+
+  const filteredTransactions = displayedTransactions.filter((txn) => {
     if (activeFilter === "All Transactions") return true;
-    // Direct comparison since tab labels match status values exactly
     return txn.status === activeFilter;
   });
 
@@ -46,7 +98,7 @@ const page = () => {
 
         {/* Stats cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-          {transactionStats.map((stat) => (
+          {displayStats.map((stat) => (
             <div
               key={stat.title}
               className="bg-white rounded-xl md:rounded-2xl p-3 md:p-5 border border-gray-100 shadow-sm"
@@ -136,7 +188,13 @@ const page = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {filteredTransactions.length > 0 ? (
+                {isLoadingTransactions ? (
+                  <tr>
+                    <td colSpan={7} className="px-3 md:px-6 py-8 text-center text-gray-500 text-sm">
+                      Loading transactions...
+                    </td>
+                  </tr>
+                ) : filteredTransactions.length > 0 ? (
                   filteredTransactions.map((txn) => (
                     <tr key={txn.id} className="hover:bg-gray-50/50">
                       <td className="px-3 md:px-6 py-3 md:py-4">
@@ -194,7 +252,7 @@ const page = () => {
           {/* Pagination */}
           <div className="flex flex-col sm:flex-row items-center justify-between px-4 md:px-6 py-3 md:py-4 border-t border-gray-100 gap-3">
             <p className="text-xs md:text-sm text-gray-500">
-              Showing {filteredTransactions.length} of {transactions.length}{" "}
+              Showing {filteredTransactions.length} of {displayedTransactions.length}{" "}
               transactions
             </p>
             <div className="flex items-center gap-1 md:gap-2">
