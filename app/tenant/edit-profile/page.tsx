@@ -735,7 +735,7 @@ const Page = () => {
                   {isBusy ? "Saving..." : "Save Changes"}
                 </button>
                 <Link
-                  href="/tenant/dashboard/settings"
+                  href="/tenant/settings"
                   className="rounded-lg bg-gray-100 px-4 py-1.5 hover:bg-gray-200"
                 >
                   Cancel

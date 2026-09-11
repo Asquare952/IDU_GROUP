@@ -6,6 +6,7 @@ import {
   ImportantNoticeData,
   SafetyAction,
 } from "@/app/components/Tenant-Dashboard/config/DashboardDatas";
+import SafetyAssistanceDrawer from "@/app/components/Tenant-Dashboard/SafetyAssistanceDrawer";
 import DashboardLayout from "@/app/components/Tenant-Dashboard/DashboardLayout";
 import {
   MapPin,
@@ -258,12 +259,15 @@ const LockedHouseContent = () => {
             </div>
           </div>
         )}
-
+        <SafetyAssistanceDrawer
+          open={isSafetyOpen}
+          onClose={() => setIsSafetyOpen(false)}
+        />
         <button
           onClick={() => setIsSafetyOpen(true)}
-          className="fixed bottom-10 right-10 bg-[#FF3B30] text-white p-5 rounded-full shadow-2xl hover:bg-red-700 transition-all z-40 active:scale-90"
+          className="fixed bottom-32 right-10 bg-[#FF3B30] text-white p-5 rounded-full shadow-2xl hover:bg-red-700 transition-all z-40 active:scale-90"
         >
-          <AlertTriangle size={32} />
+          <AlertTriangle size={24} />
         </button>
       </section>
     </DashboardLayout>

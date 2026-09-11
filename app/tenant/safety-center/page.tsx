@@ -7,135 +7,27 @@ import {
   SafetyBannerData,
   SafetyReportCards,
   SafetyTipsData,
-  SafetyAction,
 } from "@/app/components/Tenant-Dashboard/config/DashboardDatas";
+import { AlertTriangle, ArrowRight, Shield } from "lucide-react";
 import {
-  AlertTriangle,
-  ArrowRight,
-  Shield,
-  ShieldAlert,
-  X,
-} from "lucide-react";
-import { toast } from "react-toastify";
-import { useFileReport } from "@/app/api/features/report";
-import {
-  reportSuccessToastOptions,
   reportTemplates,
-  reportTypeOptions,
-  safetyActionFeedback,
   safetyCenterIconMap,
   showGreenSafetyToast,
-  type ReportType,
-  type ReportTemplate,
 } from "./center/center";
+// Shared safety drawer (action menu + report forms) - modal logic lives there.
+import SafetyAssistanceDrawer from "@/app/components/Tenant-Dashboard/SafetyAssistanceDrawer";
 
 const Page = () => {
+  // isSafetyOpen: whether the shared drawer is visible.
+  // safetyTemplateId: which report form to show when it opens
+  //   (1 = fake listing, 2 = report agent). null -> action menu.
   const [isSafetyOpen, setIsSafetyOpen] = useState(false);
-  const [selectedReportTemplate, setSelectedReportTemplate] =
-    useState<ReportTemplate | null>(null);
-  const [reportType, setReportType] = useState<ReportType>("fraud");
-  const [targetValue, setTargetValue] = useState("");
-  const [reportMessage, setReportMessage] = useState("");
-  const fileReportMutation = useFileReport();
+  const [safetyTemplateId, setSafetyTemplateId] = useState<number | null>(null);
 
   const closeSafetyDrawer = () => {
     setIsSafetyOpen(false);
-    setSelectedReportTemplate(null);
-    setReportType("fraud");
-    setTargetValue("");
-    setReportMessage("");
+    setSafetyTemplateId(null);
   };
-
-  const openSafetyDrawer = () => {
-    setIsSafetyOpen(true);
-    setSelectedReportTemplate(null);
-    setReportType("fraud");
-    setTargetValue("");
-    setReportMessage("");
-  };
-
-  const openReportTemplate = (cardId: number) => {
-    const template = reportTemplates[cardId];
-
-    if (!template) {
-      showGreenSafetyToast(
-        "Support contact is not connected yet. Use the report form for suspicious listings or agents.",
-      );
-      return;
-    }
-
-    setIsSafetyOpen(true);
-    setSelectedReportTemplate(template);
-    setReportType(template.defaultReportType);
-    setTargetValue("");
-    setReportMessage("");
-  };
-
-  const handleSafetyAction = (actionId: number) => {
-    if (actionId === 1) {
-      openReportTemplate(2);
-      return;
-    }
-
-    showGreenSafetyToast(
-      safetyActionFeedback[actionId] ||
-        "This action is not connected yet in this build.",
-    );
-  };
-
-  const handleReportSubmit = async (
-    event: React.FormEvent<HTMLFormElement>,
-  ) => {
-    event.preventDefault();
-
-    if (!selectedReportTemplate) {
-      return;
-    }
-
-    const trimmedTarget = targetValue.trim();
-    const trimmedMessage = reportMessage.trim();
-
-    if (!trimmedTarget) {
-      toast.error(
-        `Please enter the ${selectedReportTemplate.targetLabel.toLowerCase()}.`,
-      );
-      return;
-    }
-
-    if (!trimmedMessage) {
-      toast.error("Please describe the issue before submitting.");
-      return;
-    }
-
-    try {
-      const payload =
-        selectedReportTemplate.targetField === "search_name"
-          ? {
-              report_message: trimmedMessage,
-              report_type: reportType,
-              search_name: trimmedTarget,
-            }
-          : {
-              report_message: trimmedMessage,
-              report_type: reportType,
-              report_user_id: trimmedTarget,
-            };
-
-      await fileReportMutation.mutateAsync(payload);
-      toast.success(
-        "Report submitted successfully.",
-        reportSuccessToastOptions,
-      );
-      closeSafetyDrawer();
-    } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Unable to submit your report right now.",
-      );
-    }
-  };
-
   return (
     <DashboardLayout>
       <div className="p-8 bg-[#F8F9FA] min-h-screen">
@@ -210,13 +102,17 @@ const Page = () => {
                 </div>
                 <button
                   type="button"
-                  onClick={() =>
-                    template
-                      ? openReportTemplate(card.id)
-                      : showGreenSafetyToast(
-                          "Support contact is not connected yet. Please use the report options for suspicious listings or agents.",
-                        )
-                  }
+                  onClick={() => {
+                    if (template) {
+                      // Open the shared drawer straight into this card's form.
+                      setSafetyTemplateId(card.id);
+                      setIsSafetyOpen(true);
+                    } else {
+                      showGreenSafetyToast(
+                        "Support contact is not connected yet. Please use the report options for suspicious listings or agents.",
+                      );
+                    }
+                  }}
                   className="flex items-center gap-2 text-[#43A047] font-bold group-hover:gap-3 transition-all cursor-pointer"
                 >
                   {template ? "Submit Report" : "Contact Support"}
@@ -282,185 +178,21 @@ const Page = () => {
           </div>
         </div>
 
-        <div className="p-6 flex flex-col gap-3">
-          {isSafetyOpen && (
-            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end justify-end p-6 md:p-10">
-              <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-[560px] overflow-hidden border border-gray-100 animate-in fade-in zoom-in duration-200">
-                {selectedReportTemplate ? (
-                  <form onSubmit={handleReportSubmit}>
-                    <div className="p-6 pb-4">
-                      <div className="flex justify-between items-start mb-4">
-                        <div className="bg-red-50 p-2.5 rounded-2xl">
-                          <ShieldAlert className="text-[#FF3B30]" size={20} />
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelectedReportTemplate(null);
-                              setReportType("fraud");
-                              setTargetValue("");
-                              setReportMessage("");
-                            }}
-                            className="cursor-pointer text-sm font-semibold text-gray-500 hover:text-gray-700"
-                          >
-                            Back
-                          </button>
-                          <button
-                            type="button"
-                            onClick={closeSafetyDrawer}
-                            className="cursor-pointer text-gray-400 hover:text-gray-600 p-1 hover:bg-gray-50 rounded-full transition-colors"
-                          >
-                            <X size={20} />
-                          </button>
-                        </div>
-                      </div>
-
-                      <h3 className="text-xl font-bold text-[#162B4C] leading-tight">
-                        {selectedReportTemplate.targetField === "search_name"
-                          ? "Report Fake Listing"
-                          : "Report Agent"}
-                      </h3>
-                      <p className="text-xs text-gray-500 mt-1">
-                        Send a report directly to the safety team. The backend
-                        accepts exactly one target field.
-                      </p>
-                    </div>
-
-                    <div className="px-8 pb-8 space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          {selectedReportTemplate.targetLabel}
-                        </label>
-                        <input
-                          type="text"
-                          value={targetValue}
-                          onChange={(event) =>
-                            setTargetValue(event.target.value)
-                          }
-                          placeholder={selectedReportTemplate.targetPlaceholder}
-                          disabled={fileReportMutation.isPending}
-                          className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#43A047] disabled:bg-gray-50"
-                        />
-                        <p className="mt-2 text-xs text-gray-500">
-                          {selectedReportTemplate.targetHint}
-                        </p>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Report category
-                        </label>
-                        <select
-                          value={reportType}
-                          onChange={(event) =>
-                            setReportType(event.target.value as ReportType)
-                          }
-                          disabled={fileReportMutation.isPending}
-                          className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#43A047] disabled:bg-gray-50"
-                        >
-                          {reportTypeOptions.map((option) => (
-                            <option key={option.value} value={option.value}>
-                              {option.label}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Report details
-                        </label>
-                        <textarea
-                          value={reportMessage}
-                          onChange={(event) =>
-                            setReportMessage(event.target.value)
-                          }
-                          placeholder="Tell us what happened and what you want us to check."
-                          rows={4}
-                          disabled={fileReportMutation.isPending}
-                          className="w-full resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#43A047] disabled:bg-gray-50"
-                        />
-                      </div>
-
-                      <div className="flex flex-col gap-3 sm:flex-row">
-                        <button
-                          type="button"
-                          onClick={closeSafetyDrawer}
-                          disabled={fileReportMutation.isPending}
-                          className="cursor-pointer flex-1 rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          type="submit"
-                          disabled={fileReportMutation.isPending}
-                          className="cursor-pointer flex-1 rounded-xl bg-[#43A047] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-green-600 disabled:cursor-not-allowed disabled:bg-green-400"
-                        >
-                          {fileReportMutation.isPending
-                            ? "Sending..."
-                            : "Send Report"}
-                        </button>
-                      </div>
-                    </div>
-                  </form>
-                ) : (
-                  <div className="p-8 pb-4">
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="bg-red-50 p-2.5 rounded-2xl">
-                        <ShieldAlert className="text-[#FF3B30]" size={20} />
-                      </div>
-                      <button
-                        type="button"
-                        onClick={closeSafetyDrawer}
-                        className="cursor-pointer text-gray-400 hover:text-gray-600 p-1 hover:bg-gray-50 rounded-full transition-colors"
-                      >
-                        <X size={20} />
-                      </button>
-                    </div>
-
-                    <h3 className="text-xl font-bold text-[#162B4C] leading-tight">
-                      Safety Assistance
-                    </h3>
-                    <p className="text-xs text-gray-500 mt-1">
-                      If you feel unsafe or suspect a scam, choose an action
-                      below.
-                    </p>
-                  </div>
-                )}
-
-                {!selectedReportTemplate && (
-                  <div className="p-6 flex flex-col gap-4">
-                    {SafetyAction.map((action) => (
-                      <button
-                        key={action.id}
-                        type="button"
-                        onClick={() => handleSafetyAction(action.id)}
-                        className={`w-full py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer
-                       ${
-                         action.variant === "danger"
-                           ? "bg-[#FF3B30] text-white hover:bg-red-700"
-                           : action.variant === "Success" ||
-                               action.variant === "success"
-                             ? "bg-[#43A047] text-white hover:bg-green-700"
-                             : "bg-[#F2F2F7] text-[#162B4C] hover:bg-gray-200"
-                       }`}
-                      >
-                        <action.icon size={18} />
-                        {action.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
+        {/* Shared drawer. templateId = 1 (fake listing) or 2 (report agent)
+            opens it straight into that form; null shows the action menu. */}
+        <SafetyAssistanceDrawer
+          open={isSafetyOpen}
+          onClose={closeSafetyDrawer}
+          templateId={safetyTemplateId}
+        />
 
         {/* Stacked above the global chat launcher (bottom-10 right-10) so they don't overlap */}
         <button
           type="button"
-          onClick={isSafetyOpen ? closeSafetyDrawer : openSafetyDrawer}
+          onClick={() => {
+            setSafetyTemplateId(null); // always open on the action menu
+            setIsSafetyOpen(true);
+          }}
           className="cursor-pointer fixed bottom-32 right-10 bg-[#FF3B30] text-white p-4 rounded-full shadow-2xl hover:bg-red-700 transition-all z-40 active:scale-90"
         >
           <AlertTriangle size={24} />

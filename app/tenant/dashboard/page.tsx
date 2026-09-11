@@ -3,9 +3,10 @@
 import {
   DashMetrics,
   Safetytips,
-  SafetyAction,
 } from "@/app/components/Tenant-Dashboard/config/DashboardDatas";
 import DashboardLayout from "@/app/components/Tenant-Dashboard/DashboardLayout";
+// Shared safety modal (action menu + report form) - the only place it lives now.
+import SafetyAssistanceDrawer from "@/app/components/Tenant-Dashboard/SafetyAssistanceDrawer";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { containerVariants, itemVariants } from "@/app/components/animation";
@@ -14,8 +15,6 @@ import Link from "next/link";
 import { HiHeart, HiOutlineHeart } from "react-icons/hi";
 import {
   MapPin,
-  ShieldAlert,
-  X,
   AlertTriangle,
   Lock,
   ChevronLeft,
@@ -624,54 +623,17 @@ const Page = () => {
             ))}
           </div>
         </div>
-        {isSafetyOpen && (
-          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end justify-end p-6 md:p-10">
-            <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-[360px] overflow-hidden border border-gray-100 animate-in fade-in zoom-in duration-200">
-              <div className="p-8 pb-4">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="bg-red-50 p-3 rounded-2xl">
-                    <ShieldAlert className="text-[#FF3B30]" size={24} />
-                  </div>
-                  <button
-                    onClick={() => setIsSafetyOpen(false)}
-                    className="text-gray-400 hover:text-gray-600 p-1 rounded-full transition-colors"
-                  >
-                    <X size={20} />
-                  </button>
-                </div>
-                <h3 className="text-2xl font-bold text-[#162B4C]">
-                  Safety Assistance
-                </h3>
-                <p className="text-sm text-gray-500 mt-1">
-                  If you feel unsafe or suspect a scam, choose an action.
-                </p>
-              </div>
-              <div className="p-6 flex flex-col gap-4">
-                {SafetyAction.map((action) => (
-                  <button
-                    key={action.id}
-                    className={`w-full py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                      action.variant === "danger"
-                        ? "bg-[#FF3B30] text-white hover:bg-red-700"
-                        : action.variant === "Success" ||
-                            action.variant === "success"
-                          ? "bg-[#43A047] text-white hover:bg-green-700"
-                          : "bg-[#F2F2F7] text-[#162B4C] hover:bg-gray-200"
-                    }`}
-                  >
-                    <action.icon size={20} />
-                    {action.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Safety drawer: shared component. Renders the action menu and the
+            Report Agent / Fake Listing forms. It controls its own internals. */}
+        <SafetyAssistanceDrawer
+          open={isSafetyOpen}
+          onClose={() => setIsSafetyOpen(false)}
+        />
         <button
           onClick={() => setIsSafetyOpen(true)}
-          className="fixed bottom-10 right-10 bg-[#FF3B30] text-white p-5 rounded-full shadow-2xl hover:bg-red-700 transition-all z-40 active:scale-90"
+          className="fixed bottom-32 right-10 bg-[#FF3B30] text-white p-5 rounded-full shadow-2xl hover:bg-red-700 transition-all z-40 active:scale-90"
         >
-          <AlertTriangle size={32} />
+          <AlertTriangle size={24} />
         </button>
       </section>
     </DashboardLayout>
