@@ -32,6 +32,7 @@ const CATEGORIES = [
   "Commercial",
   "Land",
   "Lodge",
+  "Self-contain",
   "Shortlet",
 ];
 
