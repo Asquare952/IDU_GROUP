@@ -375,6 +375,7 @@ const page = () => {
                         {/* <option value="port-harcourt">Port Harcourt</option> */}
                         <option value="imo">Imo</option>
                         <option value="enugu">Enugu</option>
+                        <option value="enugu">Abia</option>
                       </select>
                       {errors.location && (
                         <p className="text-red-500 text-xs ml-1">

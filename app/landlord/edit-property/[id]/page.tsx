@@ -359,6 +359,7 @@ const Page = () => {
                         <option value="abuja">Abuja</option>
                         <option value="port-harcourt">Imo</option>
                         <option value="port-harcourt">Enugu</option>
+                        <option value="port-harcourt">Abia</option>
                       </select>
                       {errors.location && (
                         <p className="text-red-500 text-xs ml-1">
