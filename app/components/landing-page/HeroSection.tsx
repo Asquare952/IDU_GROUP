@@ -258,6 +258,7 @@ const HeroSection = () => {
                 "Commercial",
                 "Land",
                 "Lodge",
+                "Self-contain",
                 "Shortlet",
               ]}
               isLast={true}

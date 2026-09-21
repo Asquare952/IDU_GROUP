@@ -120,12 +120,10 @@ const Page = () => {
     () => fees.reduce((acc, curr) => acc + toMoneyNumber(curr), 0),
     [fees],
   );
-  const existingImages = rentalData?.images.filter(
-    (image) => !removedImages.includes(image),
-  ) ?? [];
-  const existingVideos = rentalData?.videos.filter(
-    (video) => !removedVideos.includes(video),
-  ) ?? [];
+  const existingImages =
+    rentalData?.images.filter((image) => !removedImages.includes(image)) ?? [];
+  const existingVideos =
+    rentalData?.videos.filter((video) => !removedVideos.includes(video)) ?? [];
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -167,13 +165,17 @@ const Page = () => {
 
   const removeExistingImage = (image: string) => {
     setRemovedImages((previousImages) =>
-      previousImages.includes(image) ? previousImages : [...previousImages, image],
+      previousImages.includes(image)
+        ? previousImages
+        : [...previousImages, image],
     );
   };
 
   const removeExistingVideo = (video: string) => {
     setRemovedVideos((previousVideos) =>
-      previousVideos.includes(video) ? previousVideos : [...previousVideos, video],
+      previousVideos.includes(video)
+        ? previousVideos
+        : [...previousVideos, video],
     );
   };
 
@@ -380,6 +382,9 @@ const Page = () => {
                         <option value="office">Office</option>
                         <option value="commercial">Commercial</option>
                         <option value="land">Land</option>
+                        <option value="lodge">Lodge</option>
+                        <option value="lodge">Self-contain</option>
+                        <option value="shortlets">Shortlets</option>
                       </select>
                     </div>
                   </div>

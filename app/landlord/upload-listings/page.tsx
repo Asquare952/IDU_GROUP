@@ -397,6 +397,7 @@ const page = () => {
                         <option value="commercial">Commercial</option>
                         <option value="land">Land</option>
                         <option value="lodge">Lodge</option>
+                        <option value="lodge">Self-contain</option>
                         <option value="shortlets">Shortlets</option>
                       </select>
                     </div>
