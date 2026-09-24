@@ -46,6 +46,10 @@ const PUBLIC_PATHS = [
   "/contact",
   "/login",
   "/signup",
+  "/confirm-registration-otp",
+  "/confirm-otp",
+  "/forgot-password",
+  "/reset-password",
 ];
 
 // ==============================
