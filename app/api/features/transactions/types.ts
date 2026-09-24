@@ -1,6 +1,14 @@
 // Transaction Types
-export type PaymentType = "topup" | "lock" | "rent" | "inspection";
-export type TransactionStatus = "completed" | "pending" | "failed";
+export type PaymentType =
+  | "topup"
+  | "withdrawal"
+  | "transfer"
+  | "lock"
+  | "rent"
+  | "inspection"
+  | "refund"
+  | (string & {});
+export type TransactionStatus = "completed" | "success" | "pending" | "failed";
 
 export interface TransactionUser {
   id: string;
@@ -12,13 +20,16 @@ export interface TransactionUser {
 
 export interface Transaction {
   id: string;
+  source: "rent" | "wallet";
   user_id: string;
   amount: number;
   payment_type: PaymentType;
   status: TransactionStatus;
   reference: string;
+  narration?: string;
   createdAt: string;
   User?: TransactionUser;
+  Rental?: unknown | null;
 }
 
 export interface TransactionStats {

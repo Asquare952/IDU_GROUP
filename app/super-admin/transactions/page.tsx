@@ -3,7 +3,10 @@
 import React, { useMemo, useState } from "react";
 import DashboardLayout from "@/app/components/super-admin/DashboardLayout";
 import { Search, Filter } from "lucide-react";
-import { filterTabs, transactionStats } from "@/app/super-admin/transactions/data/transaction";
+import {
+  filterTabs,
+  transactionStats,
+} from "@/app/super-admin/transactions/data/transaction";
 import {
   useGetTransactionStats,
   useGetTransactions,
@@ -13,6 +16,7 @@ import type { Transaction } from "@/app/api/features/transactions/types";
 const getStatusColor = (status: string) => {
   switch (status) {
     case "Completed":
+    case "Success":
       return "bg-green-100 text-green-700";
     case "Pending":
       return "bg-orange-100 text-orange-700";
@@ -41,7 +45,7 @@ const toDisplayTransaction = (transaction: Transaction) => ({
   dateTime: formatDateTime(transaction.createdAt),
   tenant: transaction.User?.full_name || "Unknown tenant",
   tenantDetail: transaction.User?.email || "",
-  property: transaction.payment_type,
+  property: transaction.narration || transaction.payment_type,
   amount: formatAmount(transaction.amount),
   method: transaction.payment_type,
   status:
@@ -50,9 +54,19 @@ const toDisplayTransaction = (transaction: Transaction) => ({
 
 const page = () => {
   const [activeFilter, setActiveFilter] = useState("All Transactions");
+  const [search, setSearch] = useState("");
+  const [pageNumber, setPageNumber] = useState(1);
   const { data: stats, isLoading: isLoadingStats } = useGetTransactionStats();
   const { data: transactionResponse, isLoading: isLoadingTransactions } =
-    useGetTransactions();
+    useGetTransactions({
+      status:
+        activeFilter === "All Transactions"
+          ? undefined
+          : (activeFilter.toLowerCase() as "completed" | "pending" | "failed"),
+      search: search || undefined,
+      page: pageNumber,
+      limit: 10,
+    });
 
   const displayStats = transactionStats.map((stat) => {
     const values = {
@@ -79,10 +93,7 @@ const page = () => {
     [transactionResponse],
   );
 
-  const filteredTransactions = displayedTransactions.filter((txn) => {
-    if (activeFilter === "All Transactions") return true;
-    return txn.status === activeFilter;
-  });
+  const pagination = transactionResponse?.pagination;
 
   return (
     <DashboardLayout>
@@ -130,6 +141,11 @@ const page = () => {
               />
               <input
                 type="text"
+                value={search}
+                onChange={(event) => {
+                  setSearch(event.target.value);
+                  setPageNumber(1);
+                }}
                 placeholder="Search by transaction ID, tenant, or property..."
                 className="w-full pl-9 pr-3 py-2 rounded-lg md:rounded-xl border border-gray-200 text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-[#43A047]"
               />
@@ -145,7 +161,10 @@ const page = () => {
             {filterTabs.map((tab) => (
               <button
                 key={tab}
-                onClick={() => setActiveFilter(tab)}
+                onClick={() => {
+                  setActiveFilter(tab);
+                  setPageNumber(1);
+                }}
                 className={`px-3 py-1.5 rounded-full text-xs md:text-sm font-medium transition-colors whitespace-nowrap ${
                   activeFilter === tab
                     ? "bg-[#43A047] text-white"
@@ -190,12 +209,15 @@ const page = () => {
               <tbody className="divide-y divide-gray-100">
                 {isLoadingTransactions ? (
                   <tr>
-                    <td colSpan={7} className="px-3 md:px-6 py-8 text-center text-gray-500 text-sm">
+                    <td
+                      colSpan={7}
+                      className="px-3 md:px-6 py-8 text-center text-gray-500 text-sm"
+                    >
                       Loading transactions...
                     </td>
                   </tr>
-                ) : filteredTransactions.length > 0 ? (
-                  filteredTransactions.map((txn) => (
+                ) : displayedTransactions.length > 0 ? (
+                  displayedTransactions.map((txn) => (
                     <tr key={txn.id} className="hover:bg-gray-50/50">
                       <td className="px-3 md:px-6 py-3 md:py-4">
                         <span className="text-xs md:text-sm font-medium text-blue-600">
@@ -252,23 +274,34 @@ const page = () => {
           {/* Pagination */}
           <div className="flex flex-col sm:flex-row items-center justify-between px-4 md:px-6 py-3 md:py-4 border-t border-gray-100 gap-3">
             <p className="text-xs md:text-sm text-gray-500">
-              Showing {filteredTransactions.length} of {displayedTransactions.length}{" "}
+              Showing {displayedTransactions.length} of {pagination?.total ?? 0}{" "}
               transactions
             </p>
             <div className="flex items-center gap-1 md:gap-2">
-              <button className="px-2 md:px-3 py-1 md:py-1.5 text-xs md:text-sm text-gray-600 hover:bg-gray-100 rounded-lg">
+              <button
+                onClick={() =>
+                  setPageNumber((current) => Math.max(1, current - 1))
+                }
+                disabled={pageNumber === 1}
+                className="px-2 md:px-3 py-1 md:py-1.5 text-xs md:text-sm text-gray-600 hover:bg-gray-100 rounded-lg disabled:opacity-40"
+              >
                 Previous
               </button>
               <button className="px-2 md:px-3 py-1 md:py-1.5 text-xs md:text-sm bg-[#43A047] text-white rounded-lg">
-                1
+                {pageNumber}
               </button>
-              <button className="px-2 md:px-3 py-1 md:py-1.5 text-xs md:text-sm text-gray-600 hover:bg-gray-100 rounded-lg">
-                2
-              </button>
-              <button className="px-2 md:px-3 py-1 md:py-1.5 text-xs md:text-sm text-gray-600 hover:bg-gray-100 rounded-lg">
-                3
-              </button>
-              <button className="px-2 md:px-3 py-1 md:py-1.5 text-xs md:text-sm text-gray-600 hover:bg-gray-100 rounded-lg">
+              <span className="px-2 text-xs text-gray-500">
+                of {pagination?.totalPages ?? 1}
+              </span>
+              <button
+                onClick={() =>
+                  setPageNumber((current) =>
+                    Math.min(pagination?.totalPages ?? current, current + 1),
+                  )
+                }
+                disabled={!pagination || pageNumber >= pagination.totalPages}
+                className="px-2 md:px-3 py-1 md:py-1.5 text-xs md:text-sm text-gray-600 hover:bg-gray-100 rounded-lg disabled:opacity-40"
+              >
                 Next
               </button>
             </div>

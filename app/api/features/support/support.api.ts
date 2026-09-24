@@ -1,108 +1,96 @@
 import api from "../../axios";
 import type {
-  SupportTicket,
-  TicketMessage,
+  AdminTicketFilters,
+  AdminTicketsListResponse,
   CreateTicketRequest,
   SendTicketMessageRequest,
-  UpdateTicketStatusRequest,
+  SupportDashboard,
+  SupportTicket,
   SupportTicketResponse,
-  SupportTicketsListResponse,
+  TicketMessage,
+  TicketReply,
 } from "./types";
 
-const SUPPORT_ENDPOINT = "/support";
+const ADMIN_SUPPORT_ENDPOINT = "/admin/support";
 
 export const supportApi = {
-  // Create a new support ticket
-  createTicket: async (
-    payload: CreateTicketRequest,
-  ): Promise<SupportTicket> => {
-    const response = await api.post<SupportTicketResponse>(
-      `${SUPPORT_ENDPOINT}/ticket`,
-      payload,
+  async createTicket(payload: CreateTicketRequest): Promise<SupportTicket> {
+    return (await api.post<SupportTicketResponse>("/support/tickets", payload, { withCredentials: true })).data.data;
+  },
+  async getUserTickets(): Promise<SupportTicket[]> {
+    return (
+      await api.get<{ success: boolean; data: SupportTicket[] }>(
+        "/support/tickets",
+      )
+    ).data.data;
+  },
+  async getUserTicket(ticketRef: string): Promise<SupportTicket> {
+    return (
+      await api.get<SupportTicketResponse>(
+        `/support/tickets/${encodeURIComponent(ticketRef)}`,
+        { withCredentials: true },
+      )
+    ).data.data;
+  },
+  async sendMessage(payload: SendTicketMessageRequest): Promise<TicketMessage> {
+    const response = await api.post<{ success: boolean; data: { reply: TicketReply } }>(
+      `/support/tickets/${encodeURIComponent(payload.ticketId)}/reply`,
+      { message: payload.content },
       { withCredentials: true },
     );
-    return response.data.data;
+    const reply = response.data.data.reply;
+    return {
+      id: reply.id,
+      ticketId: reply.ticket_id,
+      senderId: reply.sender_id ?? "",
+      senderRole: reply.sender_role,
+      senderName: reply.sender?.full_name ?? "You",
+      content: reply.message,
+      createdAt: reply.createdAt,
+    };
   },
-
-  // Get all tickets for current user
-  getUserTickets: async (): Promise<SupportTicket[]> => {
-    const response = await api.get<SupportTicketsListResponse>(
-      `${SUPPORT_ENDPOINT}/tickets`,
+  async getDashboard(): Promise<SupportDashboard> {
+    return (
+      await api.get<{ success: boolean; data: SupportDashboard }>(
+        `${ADMIN_SUPPORT_ENDPOINT}/dashboard`,
+        { withCredentials: true },
+      )
+    ).data.data;
+  },
+  async getAllTickets(
+    filters: AdminTicketFilters = {},
+  ): Promise<AdminTicketsListResponse> {
+    return (
+      await api.get<AdminTicketsListResponse>(
+        `${ADMIN_SUPPORT_ENDPOINT}/tickets`,
+        { params: filters, withCredentials: true },
+      )
+    ).data;
+  },
+  async getAdminTicket(ticketRef: string): Promise<SupportTicket> {
+    return (
+      await api.get<SupportTicketResponse>(
+        `${ADMIN_SUPPORT_ENDPOINT}/tickets/${encodeURIComponent(ticketRef)}`,
+        { withCredentials: true },
+      )
+    ).data.data;
+  },
+  async sendAdminReply(
+    ticketRef: string,
+    message: string,
+  ): Promise<TicketReply> {
+    return (
+      await api.post<{ success: boolean; data: { reply: TicketReply } }>(
+        `${ADMIN_SUPPORT_ENDPOINT}/tickets/${encodeURIComponent(ticketRef)}/reply`,
+        { message },
+        { withCredentials: true },
+      )
+    ).data.data.reply;
+  },
+  async resolveTicket(ticketRef: string): Promise<void> {
+    await api.delete(
+      `${ADMIN_SUPPORT_ENDPOINT}/tickets/${encodeURIComponent(ticketRef)}/resolve`,
       { withCredentials: true },
     );
-    return response.data.data || [];
-  },
-
-  // Get single ticket by ID
-  getTicket: async (ticketId: string): Promise<SupportTicket> => {
-    const response = await api.get<SupportTicketResponse>(
-      `${SUPPORT_ENDPOINT}/ticket/${ticketId}`,
-      { withCredentials: true },
-    );
-    return response.data.data;
-  },
-
-  // Send message to ticket
-  sendMessage: async (
-    payload: SendTicketMessageRequest,
-  ): Promise<TicketMessage> => {
-    const response = await api.post<{
-      data: TicketMessage;
-      message?: string;
-    }>(`${SUPPORT_ENDPOINT}/message`, payload, { withCredentials: true });
-    return response.data.data;
-  },
-
-  // Get all tickets (Admin only)
-  getAllTickets: async (filters?: {
-    status?: string;
-    priority?: string;
-  }): Promise<SupportTicket[]> => {
-    const response = await api.get<SupportTicketsListResponse>(
-      `${SUPPORT_ENDPOINT}/tickets/all`,
-      {
-        withCredentials: true,
-        params: filters,
-      },
-    );
-    return response.data.data || [];
-  },
-
-  // Update ticket status (Admin only)
-  updateTicketStatus: async (
-    payload: UpdateTicketStatusRequest,
-  ): Promise<SupportTicket> => {
-    const response = await api.patch<SupportTicketResponse>(
-      `${SUPPORT_ENDPOINT}/ticket/${payload.ticketId}`,
-      { status: payload.status },
-      { withCredentials: true },
-    );
-    return response.data.data;
-  },
-
-  // Admin: Send message to ticket
-  sendAdminMessage: async (
-    ticketId: string,
-    content: string,
-  ): Promise<TicketMessage> => {
-    const response = await api.post<{
-      data: TicketMessage;
-      message?: string;
-    }>(
-      `${SUPPORT_ENDPOINT}/message`,
-      { ticketId, content, senderRole: "admin" },
-      { withCredentials: true },
-    );
-    return response.data.data;
-  },
-
-  // Close ticket (Admin only)
-  closeTicket: async (ticketId: string): Promise<SupportTicket> => {
-    const response = await api.patch<SupportTicketResponse>(
-      `${SUPPORT_ENDPOINT}/ticket/${ticketId}`,
-      { status: "closed" },
-      { withCredentials: true },
-    );
-    return response.data.data;
   },
 };

@@ -16,7 +16,7 @@ const Support = () => {
   const router = useRouter();
   const [isSupportOpen, setIsSupportOpen] = useState(false);
   const [message, setMessage] = useState("");
-  const [ticketId, setTicketId] = useState<string | undefined>(undefined);
+  const [ticketRef, setTicketRef] = useState<string | undefined>(undefined);
   const [messages, setMessages] = useState<TicketMessage[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -35,10 +35,10 @@ const Support = () => {
     // Check if user has an open ticket
     if (userTickets && userTickets.length > 0) {
       const openTicket = userTickets.find(
-        (t) => t.status === "open" || t.status === "in-progress",
+        (t) => t.status === "open" || t.status === "in_progress",
       );
       if (openTicket) {
-        setTicketId(openTicket.id);
+        setTicketRef(openTicket.ticket_ref);
         setMessages(openTicket.messages || []);
         setIsInitialized(true);
         return;
@@ -46,7 +46,7 @@ const Support = () => {
     }
 
     // Create a new ticket when support opens
-    if (isSupportOpen && !ticketId) {
+    if (isSupportOpen && !ticketRef) {
       createTicket(
         {
           subject: "Support Request",
@@ -56,7 +56,7 @@ const Support = () => {
         },
         {
           onSuccess: (ticket) => {
-            setTicketId(ticket.id);
+            setTicketRef(ticket.ticket_ref);
             setMessages(ticket.messages || []);
             setIsInitialized(true);
           },
@@ -69,7 +69,7 @@ const Support = () => {
     } else {
       setIsInitialized(true);
     }
-  }, [isSupportOpen, userTickets, createTicket, ticketId]);
+  }, [isSupportOpen, userTickets, createTicket, ticketRef]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
@@ -82,7 +82,7 @@ const Support = () => {
     e.preventDefault();
     const trimmed = message.trim();
 
-    if (!trimmed || isSending || !ticketId) return;
+    if (!trimmed || isSending || !ticketRef) return;
 
     if (!hasAccessToken()) {
       router.push("/login");
@@ -92,7 +92,7 @@ const Support = () => {
     setMessage("");
 
     sendMessage(
-      { ticketId, content: trimmed },
+      { ticketId: ticketRef, content: trimmed },
       {
         onSuccess: (newMessage) => {
           setMessages((prev) => [...prev, newMessage]);
@@ -195,11 +195,11 @@ const Support = () => {
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Type your message..."
               className="flex-1 bg-gray-50 rounded-full px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-[#43A047]"
-              disabled={isPending || !ticketId}
+              disabled={isPending || !ticketRef}
             />
             <button
               type="submit"
-              disabled={isPending || !message.trim() || !ticketId}
+              disabled={isPending || !message.trim() || !ticketRef}
               className="cursor-pointer bg-[#43A047] text-white p-2 rounded-full hover:bg-[#3A8C3D] disabled:opacity-50 disabled:cursor-not-allowed transition"
               aria-label="Send message"
             >
