@@ -42,7 +42,7 @@ api.interceptors.request.use(
 const PUBLIC_PATHS = [
   "/",
   "/properties",
-  "/about",
+  "/about-us",
   "/contact",
   "/login",
   "/signup",
