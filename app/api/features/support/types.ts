@@ -49,8 +49,8 @@ export interface SupportTicket {
 }
 export interface SupportDashboard {
   total_open: number;
-  by_status: Record<TicketStatus, number>;
-  by_priority: Record<TicketPriority, number>;
+  by_status: Partial<Record<TicketStatus, number>>;
+  by_priority: Partial<Record<TicketPriority, number>>;
 }
 export interface Pagination {
   page: number;

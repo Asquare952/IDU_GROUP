@@ -15,7 +15,11 @@ const ADMIN_SUPPORT_ENDPOINT = "/admin/support";
 
 export const supportApi = {
   async createTicket(payload: CreateTicketRequest): Promise<SupportTicket> {
-    return (await api.post<SupportTicketResponse>("/support/tickets", payload, { withCredentials: true })).data.data;
+    return (
+      await api.post<SupportTicketResponse>("/support/tickets", payload, {
+        withCredentials: true,
+      })
+    ).data.data;
   },
   async getUserTickets(): Promise<SupportTicket[]> {
     return (
@@ -33,7 +37,10 @@ export const supportApi = {
     ).data.data;
   },
   async sendMessage(payload: SendTicketMessageRequest): Promise<TicketMessage> {
-    const response = await api.post<{ success: boolean; data: { reply: TicketReply } }>(
+    const response = await api.post<{
+      success: boolean;
+      data: { reply: TicketReply };
+    }>(
       `/support/tickets/${encodeURIComponent(payload.ticketId)}/reply`,
       { message: payload.content },
       { withCredentials: true },
@@ -52,7 +59,7 @@ export const supportApi = {
   async getDashboard(): Promise<SupportDashboard> {
     return (
       await api.get<{ success: boolean; data: SupportDashboard }>(
-        `${ADMIN_SUPPORT_ENDPOINT}/dashboard`,
+        `${ADMIN_SUPPORT_ENDPOINT}/stats`,
         { withCredentials: true },
       )
     ).data.data;
@@ -88,8 +95,9 @@ export const supportApi = {
     ).data.data.reply;
   },
   async resolveTicket(ticketRef: string): Promise<void> {
-    await api.delete(
+    await api.post(
       `${ADMIN_SUPPORT_ENDPOINT}/tickets/${encodeURIComponent(ticketRef)}/resolve`,
+      undefined,
       { withCredentials: true },
     );
   },

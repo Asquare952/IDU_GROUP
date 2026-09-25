@@ -4,10 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import { MessageCircleMore, X, SendHorizontal, Loader2 } from "lucide-react";
 import {
   useCreateTicket,
+  useGetUserTicket,
   useSendTicketMessage,
   useGetUserTickets,
 } from "@/app/api/features/support";
-import type { TicketMessage } from "@/app/api/features/support/types";
+import type { TicketMessage, TicketReply } from "@/app/api/features/support/types";
 import { hasAccessToken } from "@/app/lib/auth";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
@@ -24,6 +25,22 @@ const Support = () => {
   const { mutate: createTicket, isPending: isCreating } = useCreateTicket();
   const { mutate: sendMessage, isPending: isSending } = useSendTicketMessage();
   const { data: userTickets } = useGetUserTickets();
+  const {
+    data: ticketDetail,
+    refetch: refetchTicketDetail,
+  } = useGetUserTicket(ticketRef);
+
+  const toChatMessage = (reply: TicketReply): TicketMessage => ({
+    id: reply.id,
+    ticketId: reply.ticket_id,
+    senderId: reply.sender_id ?? "",
+    senderRole: reply.sender_role,
+    senderName:
+      reply.sender?.full_name ??
+      (reply.sender_role === "admin" ? "RentULO Support" : "You"),
+    content: reply.message,
+    createdAt: reply.createdAt,
+  });
 
   // Initialize: Get or create a ticket
   useEffect(() => {
@@ -39,7 +56,6 @@ const Support = () => {
       );
       if (openTicket) {
         setTicketRef(openTicket.ticket_ref);
-        setMessages(openTicket.messages || []);
         setIsInitialized(true);
         return;
       }
@@ -57,7 +73,6 @@ const Support = () => {
         {
           onSuccess: (ticket) => {
             setTicketRef(ticket.ticket_ref);
-            setMessages(ticket.messages || []);
             setIsInitialized(true);
           },
           onError: () => {
@@ -70,6 +85,22 @@ const Support = () => {
       setIsInitialized(true);
     }
   }, [isSupportOpen, userTickets, createTicket, ticketRef]);
+
+  // The list endpoint deliberately omits replies. The ticket-detail endpoint is
+  // the source of truth for the tenant conversation, including admin replies.
+  useEffect(() => {
+    if (ticketDetail?.replies) {
+      setMessages(ticketDetail.replies.map(toChatMessage));
+    }
+  }, [ticketDetail]);
+
+  // A closed widget stays mounted, so explicitly refresh its conversation when
+  // it is reopened to pick up any reply made by a super admin.
+  useEffect(() => {
+    if (isSupportOpen && ticketRef) {
+      void refetchTicketDetail();
+    }
+  }, [isSupportOpen, ticketRef, refetchTicketDetail]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({

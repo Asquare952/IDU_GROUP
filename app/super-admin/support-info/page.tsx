@@ -89,13 +89,13 @@ export default function SupportInfoPage() {
             </p>
           </header>
           <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
-            <Stat label="Open queue" value={dashboard?.total_open} />
-            <Stat label="Open" value={dashboard?.by_status.open} />
+            <Stat label="Open queue" value={dashboard?.total_open ?? 0} />
+            <Stat label="Open" value={dashboard?.by_status.open ?? 0} />
             <Stat
               label="In progress"
-              value={dashboard?.by_status.in_progress}
+              value={dashboard?.by_status.in_progress ?? 0}
             />
-            <Stat label="Urgent" value={dashboard?.by_priority.urgent} />
+            <Stat label="Urgent" value={dashboard?.by_priority.urgent ?? 0} />
           </div>
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
             <aside className="flex max-h-[650px] flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
@@ -271,11 +271,11 @@ function Badge({
     </span>
   );
 }
-function Stat({ label, value }: { label: string; value?: number }) {
+function Stat({ label, value }: { label: string; value: number }) {
   return (
     <div className="rounded-xl border border-slate-100 bg-white p-4 shadow-sm">
       <p className="text-xs text-slate-500">{label}</p>
-      <p className="mt-1 text-2xl font-bold text-slate-800">{value ?? "–"}</p>
+      <p className="mt-1 text-2xl font-bold text-slate-800">{value}</p>
     </div>
   );
 }

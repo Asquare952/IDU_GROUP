@@ -31,8 +31,12 @@ export const useSendTicketMessage = () => {
   return useMutation({
     mutationFn: (payload: SendTicketMessageRequest) =>
       supportApi.sendMessage(payload),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["support", "tickets"] }),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["support", "tickets"] });
+      queryClient.invalidateQueries({
+        queryKey: ["support", "ticket", variables.ticketId],
+      });
+    },
   });
 };
 export const useSupportDashboard = () =>
