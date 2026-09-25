@@ -4,10 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import { MessageCircleMore, X, SendHorizontal, Loader2 } from "lucide-react";
 import {
   useCreateTicket,
+  useGetUserTicket,
   useSendTicketMessage,
   useGetUserTickets,
 } from "@/app/api/features/support";
-import type { TicketMessage } from "@/app/api/features/support/types";
+import type { TicketMessage, TicketReply } from "@/app/api/features/support/types";
 import { hasAccessToken } from "@/app/lib/auth";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
@@ -16,7 +17,7 @@ const Support = () => {
   const router = useRouter();
   const [isSupportOpen, setIsSupportOpen] = useState(false);
   const [message, setMessage] = useState("");
-  const [ticketId, setTicketId] = useState<string | undefined>(undefined);
+  const [ticketRef, setTicketRef] = useState<string | undefined>(undefined);
   const [messages, setMessages] = useState<TicketMessage[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -24,6 +25,22 @@ const Support = () => {
   const { mutate: createTicket, isPending: isCreating } = useCreateTicket();
   const { mutate: sendMessage, isPending: isSending } = useSendTicketMessage();
   const { data: userTickets } = useGetUserTickets();
+  const {
+    data: ticketDetail,
+    refetch: refetchTicketDetail,
+  } = useGetUserTicket(ticketRef);
+
+  const toChatMessage = (reply: TicketReply): TicketMessage => ({
+    id: reply.id,
+    ticketId: reply.ticket_id,
+    senderId: reply.sender_id ?? "",
+    senderRole: reply.sender_role,
+    senderName:
+      reply.sender?.full_name ??
+      (reply.sender_role === "admin" ? "RentULO Support" : "You"),
+    content: reply.message,
+    createdAt: reply.createdAt,
+  });
 
   // Initialize: Get or create a ticket
   useEffect(() => {
@@ -35,18 +52,17 @@ const Support = () => {
     // Check if user has an open ticket
     if (userTickets && userTickets.length > 0) {
       const openTicket = userTickets.find(
-        (t) => t.status === "open" || t.status === "in-progress",
+        (t) => t.status === "open" || t.status === "in_progress",
       );
       if (openTicket) {
-        setTicketId(openTicket.id);
-        setMessages(openTicket.messages || []);
+        setTicketRef(openTicket.ticket_ref);
         setIsInitialized(true);
         return;
       }
     }
 
     // Create a new ticket when support opens
-    if (isSupportOpen && !ticketId) {
+    if (isSupportOpen && !ticketRef) {
       createTicket(
         {
           subject: "Support Request",
@@ -56,8 +72,7 @@ const Support = () => {
         },
         {
           onSuccess: (ticket) => {
-            setTicketId(ticket.id);
-            setMessages(ticket.messages || []);
+            setTicketRef(ticket.ticket_ref);
             setIsInitialized(true);
           },
           onError: () => {
@@ -69,7 +84,23 @@ const Support = () => {
     } else {
       setIsInitialized(true);
     }
-  }, [isSupportOpen, userTickets, createTicket, ticketId]);
+  }, [isSupportOpen, userTickets, createTicket, ticketRef]);
+
+  // The list endpoint deliberately omits replies. The ticket-detail endpoint is
+  // the source of truth for the tenant conversation, including admin replies.
+  useEffect(() => {
+    if (ticketDetail?.replies) {
+      setMessages(ticketDetail.replies.map(toChatMessage));
+    }
+  }, [ticketDetail]);
+
+  // A closed widget stays mounted, so explicitly refresh its conversation when
+  // it is reopened to pick up any reply made by a super admin.
+  useEffect(() => {
+    if (isSupportOpen && ticketRef) {
+      void refetchTicketDetail();
+    }
+  }, [isSupportOpen, ticketRef, refetchTicketDetail]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
@@ -82,7 +113,7 @@ const Support = () => {
     e.preventDefault();
     const trimmed = message.trim();
 
-    if (!trimmed || isSending || !ticketId) return;
+    if (!trimmed || isSending || !ticketRef) return;
 
     if (!hasAccessToken()) {
       router.push("/login");
@@ -92,7 +123,7 @@ const Support = () => {
     setMessage("");
 
     sendMessage(
-      { ticketId, content: trimmed },
+      { ticketId: ticketRef, content: trimmed },
       {
         onSuccess: (newMessage) => {
           setMessages((prev) => [...prev, newMessage]);
@@ -195,11 +226,11 @@ const Support = () => {
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Type your message..."
               className="flex-1 bg-gray-50 rounded-full px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-[#43A047]"
-              disabled={isPending || !ticketId}
+              disabled={isPending || !ticketRef}
             />
             <button
               type="submit"
-              disabled={isPending || !message.trim() || !ticketId}
+              disabled={isPending || !message.trim() || !ticketRef}
               className="cursor-pointer bg-[#43A047] text-white p-2 rounded-full hover:bg-[#3A8C3D] disabled:opacity-50 disabled:cursor-not-allowed transition"
               aria-label="Send message"
             >

@@ -1,106 +1,90 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supportApi } from "./support.api";
 import type {
-  SupportTicket,
+  AdminTicketFilters,
   CreateTicketRequest,
   SendTicketMessageRequest,
-  UpdateTicketStatusRequest,
 } from "./types";
-
+const ticketsKey = ["support", "admin", "tickets"] as const;
 export const useCreateTicket = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: CreateTicketRequest) =>
       supportApi.createTicket(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["support", "tickets"] });
-    },
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["support", "tickets"] }),
   });
 };
-
-export const useGetUserTickets = () => {
-  return useQuery({
+export const useGetUserTickets = () =>
+  useQuery({
     queryKey: ["support", "tickets"],
-    queryFn: () => supportApi.getUserTickets(),
+    queryFn: supportApi.getUserTickets,
   });
-};
-
-export const useGetTicket = (ticketId: string | undefined) => {
-  return useQuery({
-    queryKey: ["support", "ticket", ticketId],
-    queryFn: () => supportApi.getTicket(ticketId!),
-    enabled: !!ticketId,
+export const useGetUserTicket = (ticketRef?: string) =>
+  useQuery({
+    queryKey: ["support", "ticket", ticketRef],
+    queryFn: () => supportApi.getUserTicket(ticketRef!),
+    enabled: Boolean(ticketRef),
   });
-};
-
 export const useSendTicketMessage = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: SendTicketMessageRequest) =>
       supportApi.sendMessage(payload),
     onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["support", "tickets"] });
       queryClient.invalidateQueries({
         queryKey: ["support", "ticket", variables.ticketId],
       });
-      queryClient.invalidateQueries({ queryKey: ["support", "tickets"] });
     },
   });
 };
-
-// Admin queries
-export const useGetAllTickets = (filters?: {
-  status?: string;
-  priority?: string;
-}) => {
-  return useQuery({
-    queryKey: ["support", "all-tickets", filters],
+export const useSupportDashboard = () =>
+  useQuery({
+    queryKey: ["support", "admin", "dashboard"],
+    queryFn: supportApi.getDashboard,
+  });
+export const useGetAllTickets = (filters: AdminTicketFilters = {}) =>
+  useQuery({
+    queryKey: [...ticketsKey, filters],
     queryFn: () => supportApi.getAllTickets(filters),
   });
-};
-
-export const useUpdateTicketStatus = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (payload: UpdateTicketStatusRequest) =>
-      supportApi.updateTicketStatus(payload),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["support", "all-tickets"],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["support", "ticket", variables.ticketId],
-      });
-    },
+export const useGetAdminTicket = (ticketRef?: string) =>
+  useQuery({
+    queryKey: ["support", "admin", "ticket", ticketRef],
+    queryFn: () => supportApi.getAdminTicket(ticketRef!),
+    enabled: Boolean(ticketRef),
   });
-};
-
-export const useSendAdminMessage = () => {
+export const useSendAdminReply = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
-      ticketId,
-      content,
+      ticketRef,
+      message,
     }: {
-      ticketId: string;
-      content: string;
-    }) => supportApi.sendAdminMessage(ticketId, content),
-    onSuccess: (_, variables) => {
+      ticketRef: string;
+      message: string;
+    }) => supportApi.sendAdminReply(ticketRef, message),
+    onSuccess: (_, { ticketRef }) => {
       queryClient.invalidateQueries({
-        queryKey: ["support", "ticket", variables.ticketId],
+        queryKey: ["support", "admin", "ticket", ticketRef],
       });
+      queryClient.invalidateQueries({ queryKey: ticketsKey });
       queryClient.invalidateQueries({
-        queryKey: ["support", "all-tickets"],
+        queryKey: ["support", "admin", "dashboard"],
       });
     },
   });
 };
-
-export const useCloseTicket = () => {
+export const useResolveTicket = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (ticketId: string) => supportApi.closeTicket(ticketId),
+    mutationFn: supportApi.resolveTicket,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["support", "all-tickets"] });
+      queryClient.invalidateQueries({ queryKey: ticketsKey });
+      queryClient.invalidateQueries({
+        queryKey: ["support", "admin", "dashboard"],
+      });
     },
   });
 };

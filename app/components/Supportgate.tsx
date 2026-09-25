@@ -3,7 +3,15 @@
 import { usePathname } from "next/navigation";
 import Support from "./Support";
 
-const HIDDEN_PATHS = ["/login", "/signup", "/tenant/messages", "super-admin/login"];
+const HIDDEN_PATHS = [
+  "/login",
+  "/signup",
+  "/tenant/messages",
+  "/super-admin/login",
+  "/super-admin/transactions",
+  "/super-admin/dashboard",
+  "/super-admin/support-info",
+];
 
 export default function SupportGate() {
   const pathname = usePathname();

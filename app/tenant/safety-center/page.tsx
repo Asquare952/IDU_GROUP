@@ -190,7 +190,7 @@ const Page = () => {
         <button
           type="button"
           onClick={() => {
-            setSafetyTemplateId(null); // always open on the action menu
+            setSafetyTemplateId(null);
             setIsSafetyOpen(true);
           }}
           className="cursor-pointer fixed bottom-32 right-10 bg-[#FF3B30] text-white p-4 rounded-full shadow-2xl hover:bg-red-700 transition-all z-40 active:scale-90"
