@@ -339,19 +339,14 @@ const appendFormDataValue = (
       })
       .filter(Boolean);
 
-    if (
-      key === "amenities" ||
-      key === "removedImages" ||
-      key === "removedVideos"
-    ) {
+    if (key === "amenities") {
+      formData.append("amenities", JSON.stringify(normalizedItems));
+      return;
+    }
+
+    if (key === "removedImages" || key === "removedVideos") {
       if (normalizedItems.length > 0) {
         formData.append(key, JSON.stringify(normalizedItems));
-
-        if (key === "amenities") {
-          normalizedItems.forEach((item) => {
-            formData.append("amenities[]", item);
-          });
-        }
       }
       return;
     }
