@@ -27,7 +27,6 @@ interface FormData {
   cautionFee: number;
   brokeFee: number;
   mgtServiceCharge: number;
-  amenities: string[];
 }
 
 const toMoneyNumber = (value: unknown): number => {
@@ -43,6 +42,7 @@ const page = () => {
   const [videos, setVideos] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [videoPreviews, setVideoPreviews] = useState<string[]>([]);
+  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -68,7 +68,6 @@ const page = () => {
       cautionFee: 0,
       brokeFee: 0,
       mgtServiceCharge: 0,
-      amenities: [],
     },
   });
 
@@ -79,6 +78,13 @@ const page = () => {
     "brokeFee",
     "mgtServiceCharge",
   ]);
+  const toggleAmenity = (amenity: string) => {
+    setSelectedAmenities((currentAmenities) => {
+      return currentAmenities.includes(amenity)
+        ? currentAmenities.filter((item) => item !== amenity)
+        : [...currentAmenities, amenity];
+    });
+  };
 
   useEffect(() => {
     const sum = fees.reduce((acc, curr) => acc + toMoneyNumber(curr), 0);
@@ -240,7 +246,7 @@ const page = () => {
         status: data.status,
         images: images,
         videos: videos,
-        amenities: data.amenities,
+        amenities: selectedAmenities,
       };
 
       await rentalApi.createRental(payload);
@@ -439,6 +445,7 @@ const page = () => {
                     "WiFi",
                     "Elevator",
                     "Garden",
+                    "kitchen",
                   ].map((item) => (
                     <label
                       key={item}
@@ -446,8 +453,8 @@ const page = () => {
                     >
                       <input
                         type="checkbox"
-                        value={item}
-                        {...register("amenities")}
+                        checked={selectedAmenities.includes(item)}
+                        onChange={() => toggleAmenity(item)}
                         className="mb-2 accent-[#4CAF50]"
                       />
                       <span className="text-[10px] font-bold text-slate-500 text-center uppercase">
