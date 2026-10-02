@@ -46,6 +46,7 @@ import { hasAccessToken } from "@/app/lib/auth";
 import { toast } from "react-toastify";
 import { useAuth } from "@/app/components/context/AuthContext";
 import BookInspectionModal from "@/app/components/BookInspectionModal";
+import { TransactionPinSheet } from "@/app/components/TransactionPinModal";
 
 function PropertyDesktopViewContent() {
   const params = useParams<{ slug: string }>();
@@ -56,6 +57,7 @@ function PropertyDesktopViewContent() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showAllTips, setShowAllTips] = useState(false);
   const [isBookInspectionsOpen, setisBookInspectionOpen] = useState(false)
+  const [pinAction, setPinAction] = useState<"rent" | "lock" | null>(null);
   // const { mutate: handleBook, isPending } = useBookProperty();
   const { mutate: handleLock, isPending: isLocking } = useLockRental();
   const { mutate: handleRent, isPending: isRenting } = useRentRental();
@@ -322,8 +324,7 @@ function PropertyDesktopViewContent() {
                         return;
                       }
 
-                      const rentalId = String(property.id);
-                      handleRent(rentalId);
+                      setPinAction("rent");
 
                     }}
                     disabled={
@@ -414,8 +415,7 @@ function PropertyDesktopViewContent() {
                         return;
                       }
 
-                      const rentalId = String(property.id);
-                      handleLock(rentalId);
+                      setPinAction("lock");
                     }}
                     disabled={
                       isLocking
@@ -468,6 +468,26 @@ function PropertyDesktopViewContent() {
           </div>
         </div>
         <BookInspectionModal isOpen={isBookInspectionsOpen} onClose={() => setisBookInspectionOpen(false)} id={property.id} />
+        <TransactionPinSheet
+          isOpen={pinAction !== null}
+          title={pinAction === "rent" ? "Confirm rental" : "Confirm house lock"}
+          description="Enter your transaction PIN to continue with this payment."
+          confirmLabel={pinAction === "rent" ? "Confirm rental" : "Confirm lock"}
+          isPending={isRenting || isLocking}
+          onClose={() => setPinAction(null)}
+          onConfirm={(pin) => {
+            const rentalId = String(property.id);
+
+            if (pinAction === "rent") {
+              handleRent({ rentalId, pin }, { onSuccess: () => setPinAction(null) });
+              return;
+            }
+
+            if (pinAction === "lock") {
+              handleLock({ rentalId, pin }, { onSuccess: () => setPinAction(null) });
+            }
+          }}
+        />
         <Lightbox
           open={open}
           close={() => setOpen(false)}

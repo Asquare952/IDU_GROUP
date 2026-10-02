@@ -10,8 +10,10 @@ import {
 } from "@/app/api/features/wallet/wallet.queries";
 import { formatNaira } from "../data/walletData";
 import Breadcrumb from "../components/Breadcrumb";
+import { TransactionPinSheet } from "@/app/components/TransactionPinModal";
 
 const page = () => {
+  const [pinModal, setPinModal] = useState(false)
   const [amount, setAmount] = useState("");
   const { data: walletRes, isLoading: walletLoading } = useWallet();
   const {
@@ -24,13 +26,27 @@ const page = () => {
 
   const wallet = walletRes?.data;
 
-  const handleWithdraw = () => {
-    withdraw({ amount: Number(amount) });
-  };
 
   const errorMessage = (error as any)?.response?.data?.message as
     | string
     | undefined;
+
+  const openPinModal = () => {
+    if (!amount || Number(amount) <= 0) return;
+    setPinModal(true);
+  };
+
+  const confirmWithdrawal = (pin: string) => {
+    withdraw(
+      { amount: Number(amount), pin },
+      {
+        onSuccess: () => {
+          setPinModal(false);
+          setAmount("");
+        },
+      },
+    );
+  };
 
   return (
     <DashboardLayout>
@@ -130,7 +146,7 @@ const page = () => {
           )}
 
           <button
-            onClick={handleWithdraw}
+            onClick={openPinModal}
             disabled={!amount || Number(amount) <= 0 || isPending}
             className="w-full flex items-center justify-center gap-2 bg-[#43A047] text-white font-medium py-3 rounded-lg hover:bg-[#3d8f40] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors"
           >
@@ -148,6 +164,16 @@ const page = () => {
           </p>
         </div>
       </div>
+
+      <TransactionPinSheet
+        isOpen={pinModal}
+        title="Confirm withdrawal"
+        description={`Enter your transaction PIN to withdraw ₦${Number(amount || 0).toLocaleString()}.`}
+        confirmLabel="Confirm withdrawal"
+        isPending={isPending}
+        onClose={() => setPinModal(false)}
+        onConfirm={confirmWithdrawal}
+      />
     </DashboardLayout>
   );
 };

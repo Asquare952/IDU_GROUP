@@ -128,9 +128,11 @@ const getProgressList = async (action: ProgressAction): Promise<Rental[]> => {
 const addProgressItem = async (
   action: ProgressAction,
   rentalId: string,
+  pin?: string,
 ): Promise<unknown> => {
   const response = await api.post(`/progress/${action}`, {
     rental_id: rentalId,
+    ...(pin ? { pin } : {}),
   });
 
   return response.data;
@@ -182,8 +184,14 @@ export const progressApi = {
   getLockedRentals: () => getProgressList("lock"),
   getBookedRentals: () => getProgressList("book"),
   likeRental: (rentalId: string) => addProgressItem("like", rentalId),
-  lockRental: (rentalId: string) => addProgressItem("lock", rentalId),
-  rentRental: (rentalId: string) => addProgressItem("rent/pay", rentalId),
+  lockRental: (input: string | { rentalId: string; pin: string }) => {
+    const { rentalId, pin } =
+      typeof input === "string" ? { rentalId: input, pin: undefined } : input;
+
+    return addProgressItem("lock", rentalId, pin);
+  },
+  rentRental: ({ rentalId, pin }: { rentalId: string; pin: string }) =>
+    addProgressItem("rent/pay", rentalId, pin),
   bookRental: (rentalId: string) => addProgressItem("book", rentalId),
   unlikeRental: (rentalId: string) => removeProgressItem("like", rentalId),
   unlockRental: (rentalId: string) => removeProgressItem("lock", rentalId),

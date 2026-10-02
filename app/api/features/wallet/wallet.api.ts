@@ -8,6 +8,10 @@ import {
   TransferPayload,
   TransferResponse,
   WalletResponse,
+  CreatePinPayload,
+  CreatePinResponse,
+  PinUpdatePayload,
+  PinUpdateResponse,
 } from "./type";
 
 export const getWallet = async (): Promise<WalletResponse> => {
@@ -21,7 +25,6 @@ export const getWalletTransactions =
     return data;
   };
 
-// FIX: was typed Promise<WalletResponse> — the endpoint returns { link, tx_ref, ... }, not a Wallet.
 export const topUpWallet = async (
   payload: TopUpPayload,
 ): Promise<TopUpResponse> => {
@@ -36,10 +39,25 @@ export const withdrawFromWallet = async (
   return data;
 };
 
-// FIX: was typed Promise<WalletResponse> — the endpoint returns { message, balance }, not a Wallet.
 export const transferFromWallet = async (
   payload: TransferPayload,
 ): Promise<TransferResponse> => {
   const { data } = await apiInstance.post("/wallet/transfer", payload);
+  return data;
+};
+
+// Create transaction pin
+export const createTransactionPin = async (
+  payload: CreatePinPayload,
+): Promise<CreatePinResponse> => {
+  const { data } = await apiInstance.post("/pin/create", payload);
+  return data;
+};
+
+// Update Transaction pin
+export const updateTransactionPin = async (
+  payload: PinUpdatePayload,
+): Promise<PinUpdateResponse> => {
+  const { data } = await apiInstance.put("/pin/update", payload);
   return data;
 };

@@ -10,9 +10,10 @@ import {
   ExternalLink,
   Bell,
   Shield,
+  ChevronRight,
 } from "lucide-react";
 import { NOTIFICATION_SETTINGS } from "./constants/settingsData";
-
+import Link from "next/link";
 
 const Toggle = ({ defaultChecked }: { defaultChecked: boolean }) => (
   <label className="relative inline-flex items-center cursor-pointer">
@@ -36,7 +37,7 @@ const SettingsPage = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="flex flex-col gap-8">
           <div className="lg:col-span-2 space-y-8">
             {/* Notification Preferences Section */}
             <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100">
@@ -77,38 +78,37 @@ const SettingsPage = () => {
                 <h3 className="text-xl font-bold text-[#162B4C]">Security</h3>
               </div>
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-[#F0F2F5] rounded-2xl">
+                <Link
+                  href="/landlord/edit-profile"
+                  className="flex items-center justify-between p-4 bg-[#F0F2F5] rounded-2xl"
+                >
                   <div>
                     <h4 className="font-bold text-sm text-[#3D3F42]">
-                      Change Password
+                      Password
                     </h4>
                     <p className="text-[10px] text-slate-400">
-                      Last changed 3 months ago
+                      Change your login password
                     </p>
                   </div>
-                  <button className="bg-white text-slate-600 px-5 py-2 rounded-xl text-xs font-bold border border-slate-100 hover:bg-slate-50 transition-all cursor-pointer">
-                    Update
-                  </button>
-                </div>
+                  <ChevronRight />
+                </Link>
               </div>
               <div className="space-y-4 mt-4">
-                <div className="flex items-center justify-between p-4 bg-[#F0F2F5] rounded-2xl">
+                <Link href="/landlord/settings/transaction-pin" className="flex items-center justify-between p-4 bg-[#F0F2F5] rounded-2xl">
                   <div>
                     <h4 className="font-bold text-sm text-[#3D3F42]">
-                      Two-Factor Authentication
+                      Transaction Pin
                     </h4>
                     <p className="text-[10px] text-slate-400">
-                      Add an extra layer of security to your account
+                      Manage your transaction Pin
                     </p>
                   </div>
-                  <button className="bg-green-600 text-white px-5 py-2 rounded-xl text-xs font-bold border border-slate-100 cursor-pointer">
-                    Enable
-                  </button>
-                </div>
+                  <ChevronRight />
+                </Link>
               </div>
-              
             </div>
-            <div className="bg-red-50/50 rounded-[2rem] border border-red-100">
+            
+            <div className="bg-red-50/50 rounded-[2rem] border border-red-100 p-2.5">
               <h3 className="font-bold text-red-600 text-lg mb-2">
                 Danger Zone
               </h3>
@@ -117,10 +117,8 @@ const SettingsPage = () => {
               </button>
             </div>
           </div>
-        
-
-          </div>
         </div>
+      </div>
     </DashboardLayout>
   );
 };

@@ -9,18 +9,30 @@ import {
 } from "@/app/api/features/wallet/wallet.queries";
 import { formatNaira } from "@/app/landlord/wallet/data/walletData";
 import Breadcrumb from "@/app/components/Wallet/Breadcrumb";
+import { TransactionPinSheet } from "@/app/components/TransactionPinModal";
 
 const page = () => {
   const [amount, setAmount] = useState("");
+  const [isPinModalOpen, setIsPinModalOpen] = useState(false);
   const { data: walletRes, isLoading: walletLoading } = useWallet();
   const { mutate: withdraw, isPending, error } = useWithdrawFromWallet();
 
   const wallet = walletRes?.data;
 
   const handleContinue = () => {
+    if (!amount || Number(amount) <= 0) return;
+    setIsPinModalOpen(true);
+  };
+
+  const confirmWithdrawal = (pin: string) => {
     withdraw(
-      { amount: Number(amount) },
-      { onSuccess: () => (window.location.href = "/tenant/wallet") },
+      { amount: Number(amount), pin },
+      {
+        onSuccess: () => {
+          setIsPinModalOpen(false);
+          window.location.href = "/tenant/wallet";
+        },
+      },
     );
   };
 
@@ -128,6 +140,15 @@ const page = () => {
           </div>
         </div>
       </div>
+      <TransactionPinSheet
+        isOpen={isPinModalOpen}
+        title="Confirm withdrawal"
+        description={`Enter your transaction PIN to withdraw ₦${Number(amount || 0).toLocaleString()}.`}
+        confirmLabel="Confirm withdrawal"
+        isPending={isPending}
+        onClose={() => setIsPinModalOpen(false)}
+        onConfirm={confirmWithdrawal}
+      />
     </DashboardLayout>
   );
 };

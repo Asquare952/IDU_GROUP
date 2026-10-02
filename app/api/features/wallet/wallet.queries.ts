@@ -5,6 +5,8 @@ import {
   topUpWallet,
   withdrawFromWallet,
   transferFromWallet,
+  createTransactionPin,
+  updateTransactionPin
 } from "./wallet.api";
 import {
   WalletResponse,
@@ -15,7 +17,12 @@ import {
   WithdrawResponse,
   TransferPayload,
   TransferResponse,
+  CreatePinPayload,
+  CreatePinResponse,
+  PinUpdatePayload,
+  PinUpdateResponse
 } from "./type";
+import { toast } from "react-toastify";
 
 // Hook to fetch wallet information
 export const useWallet = () => {
@@ -71,3 +78,27 @@ export const useTransferFromWallet = () => {
     },
   });
 };
+
+// Create pin hook
+export const useCreateTransactionPin = () => {
+  const queryClient = useQueryClient();
+  return useMutation<CreatePinResponse, Error, CreatePinPayload>({
+    mutationFn: createTransactionPin,
+    onSuccess: () => {
+      toast.success("PIN created successfully")
+      queryClient.invalidateQueries({queryKey: ["pin"]});
+    }
+  })
+}
+
+// Update pin hook
+export const useUpdateTransactionPin = () => {
+  const queryClient = useQueryClient();
+  return useMutation<PinUpdateResponse, Error, PinUpdatePayload>({
+    mutationFn: updateTransactionPin,
+    onSuccess: () => {
+      toast.success("PIN changed successfully");
+      queryClient.invalidateQueries({queryKey: ["pin"]});
+    }
+  })
+}
