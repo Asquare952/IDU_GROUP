@@ -44,6 +44,7 @@ export interface TopUpResponse {
 
 export type WithdrawPayload = {
   amount: number;
+  pin: string;
 };
 
 export interface WithdrawResponse {
@@ -63,4 +64,23 @@ export interface TransferResponse {
   success: boolean;
   message: string;
   balance: string;
+}
+
+export type CreatePinPayload = {
+  pin: string;
+};
+
+export interface CreatePinResponse {
+  success: boolean;
+  message: string;
+}
+
+export type PinUpdatePayload = {
+  oldPin: string;
+  newPin: string;
+};
+
+export interface PinUpdateResponse {
+  success: boolean;
+  message: string;
 }

@@ -206,8 +206,7 @@ const SafetyAssistanceDrawer = ({
                   : "Report Agent"}
               </h3>
               <p className="text-xs text-gray-500 mt-1">
-                Send a report directly to the safety team. The backend accepts
-                exactly one target field.
+                Send a report directly to the safety team.
               </p>
             </div>
 

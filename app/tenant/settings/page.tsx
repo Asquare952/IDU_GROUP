@@ -12,6 +12,8 @@ import {
   AlertTriangle,
   X,
   ShieldAlert,
+  ChevronRight,
+  Shield,
 } from "lucide-react";
 import {
   NotificationSettingsData,
@@ -33,38 +35,39 @@ const page = () => {
           </p>
         </div>
 
-        <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-50 mt-8">
-          <div className="flex items-center gap-3 mb-10">
-            <div className="bg-[#E8F5E9] p-2 rounded-lg">
-              <Bell size={20} className="text-[#43A047]" />
-            </div>
-            <h4 className="text-xl font-bold text-[#162B4C]">
-              Notification Preferences
-            </h4>
-          </div>
-          <div className="flex flex-col">
-            {NotificationSettingsData.map((item) => (
-              <div
-                key={item.id}
-                className="flex justify-between items-center py-6 border-b border-gray-50 last:border-0"
-              >
-                <span className="text-lg font-medium text-[#162B4C]">
-                  {item.label}
-                </span>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    defaultChecked={item.isActive}
-                    className="sr-only peer"
-                  />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#1B401C]"></div>
-                </label>
+        <div className=" flex flex-col gap-8">
+          <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-50">
+            <div className="flex items-center gap-3 mb-10">
+              <div className="bg-[#E8F5E9] p-2 rounded-lg">
+                <Bell size={20} className="text-[#43A047]" />
               </div>
-            ))}
+              <h4 className="text-xl font-bold text-[#162B4C]">
+                Notification Preferences
+              </h4>
+            </div>
+            <div className="flex flex-col">
+              {NotificationSettingsData.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex justify-between items-center py-6 border-b border-gray-50 last:border-0"
+                >
+                  <span className="text-lg font-medium text-[#162B4C]">
+                    {item.label}
+                  </span>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      defaultChecked={item.isActive}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#1B401C]"></div>
+                  </label>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-50 mt-8">
+          {/* <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-50 mt-8">
           <div className="flex items-center gap-3 mb-10">
             <div className="bg-[#E8F5E9] p-2 rounded-lg">
               <ShieldCheck className="text-[#43A047]" size={20} />
@@ -96,36 +99,82 @@ const page = () => {
           </div>
         </div> */}
 
-        <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-50 mt-8">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="bg-[#E8F5E9] p-2 rounded-lg">
-              <HelpCircle className="text-[#43A047]" size={20} />
+          <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-50">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="bg-[#E8F5E9] p-2 rounded-lg">
+                <HelpCircle className="text-[#43A047]" size={20} />
+              </div>
+              <h4 className="text-xl font-bold text-[#162B4C]">
+                Support & Help
+              </h4>
             </div>
-            <h4 className="text-xl font-bold text-[#162B4C]">Support & Help</h4>
+
+            <div className="flex flex-col">
+              {SupportLinks.map((link) => (
+                <Link
+                  key={link.id}
+                  href={link.href}
+                  className="flex justify-between items-center py-5 border-b border-gray-50 last:border-0 cursor-pointer hover:bg-gray-50 px-2 rounded-xl transition-all"
+                >
+                  <span className="font-medium text-[#162B4C]">
+                    {link.label}
+                  </span>
+                  <span className="text-gray-400">→</span>
+                </Link>
+              ))}
+            </div>
           </div>
 
-          <div className="flex flex-col">
-            {SupportLinks.map((link) => (
+          {/* Security Section */}
+          <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="p-2 bg-green-50 rounded-lg">
+                <Shield className="text-[#43A047]" size={20} />
+              </div>
+              <h3 className="text-xl font-bold text-[#162B4C]">Security</h3>
+            </div>
+            <div className="space-y-4">
               <Link
-                key={link.id}
-                href={link.href}
-                className="flex justify-between items-center py-5 border-b border-gray-50 last:border-0 cursor-pointer hover:bg-gray-50 px-2 rounded-xl transition-all"
+                href="/tenant/edit-profile"
+                className="flex items-center justify-between p-4 bg-[#F0F2F5] rounded-2xl"
               >
-                <span className="font-medium text-[#162B4C]">{link.label}</span>
-                <span className="text-gray-400">→</span>
+                <div>
+                  <h4 className="font-bold text-sm text-[#3D3F42]">Password</h4>
+                  <p className="text-[10px] text-slate-400">
+                    Change your login password
+                  </p>
+                </div>
+                <ChevronRight />
               </Link>
-            ))}
+            </div>
+            <div className="space-y-4 mt-4">
+              <Link
+                href="/tenant/settings/transaction-pin"
+                className="flex items-center justify-between p-4 bg-[#F0F2F5] rounded-2xl"
+              >
+                <div>
+                  <h4 className="font-bold text-sm text-[#3D3F42]">
+                    Transaction Pin
+                  </h4>
+                  <p className="text-[10px] text-slate-400">
+                    Manage your transaction Pin
+                  </p>
+                </div>
+                <ChevronRight />
+              </Link>
+            </div>
           </div>
-        </div>
-        <div className="bg-white rounded-3xl p-8 shadow-sm border border-red-100 mt-8">
-          <h4 className="text-xl font-bold text-red-600 mb-6">Danger Zone</h4>
-          <div className="flex flex-col gap-4">
-            <button className="w-full bg-red-50 text-red-600 font-bold py-4 rounded-xl cursor-pointer hover:bg-red-100 transition-colors">
-              Deactivate Account
-            </button>
-            <button className="w-full bg-red-600 text-white font-bold py-4 rounded-xl cursor-pointer hover:bg-red-700 transition-colors shadow-sm">
-              Delete Account Permanently
-            </button>
+
+          <div className="bg-white rounded-3xl p-8 shadow-sm border border-red-100">
+            <h4 className="text-xl font-bold text-red-600 mb-6">Danger Zone</h4>
+            <div className="flex flex-col gap-4">
+              <button className="w-full bg-red-50 text-red-600 font-bold py-4 rounded-xl cursor-pointer hover:bg-red-100 transition-colors">
+                Deactivate Account
+              </button>
+              <button className="w-full bg-red-600 text-white font-bold py-4 rounded-xl cursor-pointer hover:bg-red-700 transition-colors shadow-sm">
+                Delete Account Permanently
+              </button>
+            </div>
           </div>
         </div>
         <div className="p-6 flex flex-col gap-3">
@@ -178,7 +227,7 @@ const page = () => {
         </div>
         <button
           onClick={() => setIsSafetyOpen(true)}
-          className="fixed bottom-10 right-10 bg-[#FF3B30] text-white p-5 rounded-full shadow-2xl hover:bg-red-700 transition-all z-40 active:scale-90"
+          className="fixed bottom-28 right-10 bg-[#FF3B30] text-white p-5 rounded-full shadow-2xl hover:bg-red-700 transition-all z-40 active:scale-90"
         >
           <AlertTriangle size={32} />
         </button>
