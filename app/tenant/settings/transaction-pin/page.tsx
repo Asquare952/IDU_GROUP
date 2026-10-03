@@ -30,7 +30,7 @@ const page = () => {
           </div>
 
           {/*  */}
-          <div className=" flex flex-col gap-2 mt-5">
+          <div className=" flex flex-col justify-center items-center gap-2 mt-5">
             <button
               onClick={() =>
                 router.push("/tenant/settings/transaction-pin/create-pin")

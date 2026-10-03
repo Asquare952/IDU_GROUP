@@ -71,6 +71,7 @@ const page = () => {
         onSuccess: () => {
           toast.success("Transaction PIN updated successfully!");
           clearInputs();
+          router.push("/tenant/wallet");
         },
         onError: (error: any) => {
           toast.error(
@@ -103,68 +104,64 @@ const page = () => {
 
           {/* OTP Input UI */}
           {/* <div className="w-full max-w-md flex flex-col gap-1.5 mt-5"> */}
-            <div className="w-full max-w-md  flex flex-col gap-1.5">
-              <label htmlFor="pin">Current PIN</label>
-              <div className="flex gap-2 md:gap-3 mb-8">
-                {oldPin.map((digit, index) => (
-                  <input
-                    key={index}
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={1}
-                    value={digit}
-                    ref={(el) => {
-                      if (el) oldPinRefs.current[index] = el;
-                    }}
-                    onChange={(e) =>
-                      handleChange(
-                        index,
-                        e.target.value,
-                        oldPin,
-                        setOldPin,
-                        oldPinRefs,
-                      )
-                    }
-                    onKeyDown={(e) =>
-                      handleKeyDown(index, e, oldPin, oldPinRefs)
-                    }
-                    className="h-12 min-w-0 flex-1 text-center text-lg font-bold text-slate-900 bg-gray-50 border border-gray-200 rounded-xl focus:border-[#4CAF50] focus:ring-4 focus:ring-[#4CAF50]/10 outline-none transition-all md:h-16 md:w-14 md:text-xl"
-                  />
-                ))}
-              </div>
+          <div className="w-full max-w-md  flex flex-col gap-1.5">
+            <label htmlFor="pin">Current PIN</label>
+            <div className="flex gap-2 md:gap-3 mb-8">
+              {oldPin.map((digit, index) => (
+                <input
+                  key={index}
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={1}
+                  value={digit}
+                  ref={(el) => {
+                    if (el) oldPinRefs.current[index] = el;
+                  }}
+                  onChange={(e) =>
+                    handleChange(
+                      index,
+                      e.target.value,
+                      oldPin,
+                      setOldPin,
+                      oldPinRefs,
+                    )
+                  }
+                  onKeyDown={(e) => handleKeyDown(index, e, oldPin, oldPinRefs)}
+                  className="w-20 h-12 md:w-32 md:h-16 text-center text-lg md:text-xl font-bold bg-gray-50 border border-gray-100 rounded-xl focus:border-[#4CAF50] focus:ring-4 focus:ring-[#4CAF50]/10 outline-none transition-all"
+                />
+              ))}
             </div>
+          </div>
 
-            {/*  */}
-            <div className="w-full max-w-md flex flex-col gap-1.5">
-              <label htmlFor="pin">New PIN</label>
-              <div className="flex gap-2 md:gap-3 mb-8">
-                {newPin.map((digit, index) => (
-                  <input
-                    key={index}
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={1}
-                    value={digit}
-                    ref={(el) => {
-                      if (el) newPinRefs.current[index] = el;
-                    }}
-                    onChange={(e) =>
-                      handleChange(
-                        index,
-                        e.target.value,
-                        newPin,
-                        setNewPin,
-                        newPinRefs,
-                      )
-                    }
-                    onKeyDown={(e) =>
-                      handleKeyDown(index, e, newPin, newPinRefs)
-                    }
-                    className="h-12 min-w-0 flex-1 text-center text-lg font-bold text-slate-900 bg-gray-50 border border-gray-200 rounded-xl focus:border-[#4CAF50] focus:ring-4 focus:ring-[#4CAF50]/10 outline-none transition-all md:h-16 md:w-14 md:text-xl"
-                  />
-                ))}
-              </div>
+          {/*  */}
+          <div className="w-full max-w-md flex flex-col gap-1.5">
+            <label htmlFor="pin">New PIN</label>
+            <div className="flex gap-2 md:gap-3 mb-8">
+              {newPin.map((digit, index) => (
+                <input
+                  key={index}
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={1}
+                  value={digit}
+                  ref={(el) => {
+                    if (el) newPinRefs.current[index] = el;
+                  }}
+                  onChange={(e) =>
+                    handleChange(
+                      index,
+                      e.target.value,
+                      newPin,
+                      setNewPin,
+                      newPinRefs,
+                    )
+                  }
+                  onKeyDown={(e) => handleKeyDown(index, e, newPin, newPinRefs)}
+                  className="w-20 h-12 md:w-32 md:h-16 text-center text-lg md:text-xl font-bold bg-gray-50 border border-gray-100 rounded-xl focus:border-[#4CAF50] focus:ring-4 focus:ring-[#4CAF50]/10 outline-none transition-all"
+                />
+              ))}
             </div>
+          </div>
           {/* </div> */}
 
           {/*  */}
