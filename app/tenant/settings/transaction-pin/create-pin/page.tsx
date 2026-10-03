@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { useCreateTransactionPin } from "@/app/api/features/wallet/wallet.queries";
 import padLockImg from "@/public/assets/padlock-img.png";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const page = () => {
   const [tranPin, setTransPin] = useState(["", "", "", ""]);
@@ -16,6 +17,7 @@ const page = () => {
     inputRefs.current.forEach((input) => (input.value = ""));
   };
   const inputRefs = useRef<HTMLInputElement[]>([]);
+  const router = useRouter();
 
   const handleChange = (index: number, value: string) => {
     if (isNaN(Number(value))) return;
@@ -53,6 +55,7 @@ const page = () => {
                 "Failed to create Transaction PIN.",
             );
             clearInputs();
+            router.push("/tenant/wallet");
           },
         },
       );
@@ -96,7 +99,7 @@ const page = () => {
                   }}
                   onChange={(e) => handleChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}
-                  className="h-12 min-w-0 flex-1 text-center text-lg font-bold text-slate-900 bg-gray-50 border border-gray-200 rounded-xl focus:border-[#4CAF50] focus:ring-4 focus:ring-[#4CAF50]/10 outline-none transition-all md:h-16 md:w-14 md:text-xl"
+                  className="w-20 h-12 md:w-24 md:h-16 text-center text-lg md:text-xl font-bold bg-gray-50 border border-gray-100 rounded-xl focus:border-[#4CAF50] focus:ring-4 focus:ring-[#4CAF50]/10 outline-none transition-all"
                 />
               ))}
             </div>
@@ -117,7 +120,7 @@ const page = () => {
           {/*  */}
           <div className=" flex items-center gap-1 mt-3.5 bg-[#F0F2F5] p-2.5 rounded-lg">
             <Info className=" text-[#4CAF50]" />
-            <p className="w-[240px] md:w-full text-sm text-gray-600">
+            <p className=" text-sm text-gray-600">
               This PIN will be used to authorize all wallet transactions.
             </p>
           </div>

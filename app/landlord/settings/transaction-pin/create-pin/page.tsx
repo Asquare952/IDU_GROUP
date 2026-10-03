@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { useCreateTransactionPin } from "@/app/api/features/wallet/wallet.queries";
 import padLockImg from "@/public/assets/padlock-img.png";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const page = () => {
   const [tranPin, setTransPin] = useState(["", "", "", ""]);
@@ -15,6 +16,7 @@ const page = () => {
     setTransPin(["", "", "", ""]);
   }
   const inputRefs = useRef<HTMLInputElement[]>([]);
+  const router = useRouter()
 
   const handleChange = (index: number, value: string) => {
     if (isNaN(Number(value))) return;
@@ -43,6 +45,7 @@ const page = () => {
         onSuccess: () => {
           toast.success("Transaction PIN created successfully!");
           clearInput();
+          router.push("/landlord/wallet")
         },
         onError: (error: any) => {
           toast.error(error?.response?.data?.message || "Failed to create Transaction PIN.");
@@ -89,7 +92,7 @@ const page = () => {
                   }}
                   onChange={(e) => handleChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}
-                  className="h-12 min-w-0 flex-1 text-center text-lg font-bold text-slate-900 bg-gray-50 border border-gray-200 rounded-xl focus:border-[#4CAF50] focus:ring-4 focus:ring-[#4CAF50]/10 outline-none transition-all md:h-16 md:w-14 md:text-xl"
+                  className="w-20 h-12 md:w-24 md:h-16 text-center text-lg md:text-xl font-bold bg-gray-50 border border-gray-100 rounded-xl focus:border-[#4CAF50] focus:ring-4 focus:ring-[#4CAF50]/10 outline-none transition-all"
                 />
               ))}
             </div>

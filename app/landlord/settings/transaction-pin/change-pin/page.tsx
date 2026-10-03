@@ -69,6 +69,7 @@ const page = () => {
         onSuccess: () => {
           toast.success("Transaction PIN updated successfully!");
           clearInput();
+          router.push("/landlord/wallet")
         },
         onError: (error: any) => {
           toast.error(
@@ -126,7 +127,7 @@ const page = () => {
                     onKeyDown={(e) =>
                       handleKeyDown(index, e, oldPin, oldPinRefs)
                     }
-                    className="h-12 min-w-0 flex-1 text-center text-lg font-bold text-slate-900 bg-gray-50 border border-gray-200 rounded-xl focus:border-[#4CAF50] focus:ring-4 focus:ring-[#4CAF50]/10 outline-none transition-all md:h-16 md:w-14 md:text-xl"
+                    className="w-20 h-12 md:w-32 md:h-16 text-center text-lg md:text-xl font-bold bg-gray-50 border border-gray-100 rounded-xl focus:border-[#4CAF50] focus:ring-4 focus:ring-[#4CAF50]/10 outline-none transition-all"
                   />
                 ))}
               </div>
@@ -158,7 +159,7 @@ const page = () => {
                     onKeyDown={(e) =>
                       handleKeyDown(index, e, newPin, newPinRefs)
                     }
-                    className="h-12 min-w-0 flex-1 text-center text-lg font-bold text-slate-900 bg-gray-50 border border-gray-200 rounded-xl focus:border-[#4CAF50] focus:ring-4 focus:ring-[#4CAF50]/10 outline-none transition-all md:h-16 md:w-14 md:text-xl"
+                    className="w-20 h-12 md:w-32 md:h-16 text-center text-lg md:text-xl font-bold bg-gray-50 border border-gray-100 rounded-xl focus:border-[#4CAF50] focus:ring-4 focus:ring-[#4CAF50]/10 outline-none transition-all"
                   />
                 ))}
               </div>
