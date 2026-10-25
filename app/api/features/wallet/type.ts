@@ -31,6 +31,39 @@ export type WalletTransactionsResponse = {
   data: WalletTransaction[];
 };
 
+export type RedeemCouponPayload = {
+  code: string;
+};
+
+export type CouponRedemptionResponse = {
+  success: boolean;
+  message: string;
+  bonus: string;
+  balance: string;
+  tx_ref: string;
+  transaction: {
+    id: string;
+    tx_ref: string;
+    type: "bonus";
+    amount: string;
+    status: "success";
+    narration: string;
+    from_account_name: "RentULO Bonus";
+    to_account_number: string;
+    meta: {
+      code: string;
+      coupon_id: string;
+      bonus_type: "fixed" | "percent";
+      bonus_value: string;
+      base_amount: string | null;
+    };
+  };
+  coupon: {
+    code: string;
+    description: string | null;
+  };
+};
+
 export type TopUpPayload = {
   amount: number;
 };

@@ -117,6 +117,10 @@ export type AdminLoginPayload = {
 export type AuthMeResponse = {
   isLoggedIn: boolean;
   userRole: string | null;
+  role?: string | null;
+  role_name?: string | null;
+  is_superadmin?: boolean;
+  isSuperAdmin?: boolean;
 };
 
 // ==================== REPORT TYPES ====================

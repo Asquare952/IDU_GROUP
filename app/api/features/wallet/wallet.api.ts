@@ -12,6 +12,8 @@ import {
   CreatePinResponse,
   PinUpdatePayload,
   PinUpdateResponse,
+  RedeemCouponPayload,
+  CouponRedemptionResponse,
 } from "./type";
 
 export const getWallet = async (): Promise<WalletResponse> => {
@@ -43,6 +45,16 @@ export const transferFromWallet = async (
   payload: TransferPayload,
 ): Promise<TransferResponse> => {
   const { data } = await apiInstance.post("/wallet/transfer", payload);
+  return data;
+};
+
+export const redeemWalletCoupon = async (
+  payload: RedeemCouponPayload,
+): Promise<CouponRedemptionResponse> => {
+  const { data } = await apiInstance.post(
+    "/wallet/coupons/redeem",
+    payload,
+  );
   return data;
 };
 

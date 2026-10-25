@@ -33,6 +33,7 @@ import {
   useBookedRentals,
 } from "@/app/api/features/progress/progress.queries";
 import { getPropertyDetailsPath } from "@/app/lib/property-routes";
+import { formatRelativeTime } from "@/app/lib/formatRelativeTime";
 import { hasAccessToken } from "@/app/lib/auth";
 import type { Rental } from "@/app/api/features/rental";
 import type { DashboardMetrics as DashboardMetricsType } from "@/app/components/Tenant-Dashboard/types";
@@ -579,6 +580,10 @@ const Page = () => {
 
                       <p className="text-gray-400 text-sm mb-4 leading-relaxed line-clamp-2">
                         {item.description}
+                      </p>
+
+                      <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-gray-400">
+                        Posted {formatRelativeTime(item.createdAt)}
                       </p>
 
                       <div className="flex flex-wrap gap-4 border-t border-gray-50 pt-4">

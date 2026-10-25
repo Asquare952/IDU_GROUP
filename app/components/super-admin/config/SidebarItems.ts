@@ -10,6 +10,7 @@ import {
   BadgeAlert,
   Settings,
   MessageCircleMore,
+  Gift,
 } from "lucide-react";
 
 export const sidebarItems: SidebarItems[] = [
@@ -78,5 +79,11 @@ export const sidebarItems: SidebarItems[] = [
     name: "Waitlist",
     path: "/super-admin/waitlist",
     icon: User2,
+  },
+  {
+    id: 12,
+    name: "Coupons",
+    path: "/super-admin/coupons",
+    icon: Gift,
   },
 ];

@@ -8,7 +8,7 @@ export function formatNaira(value: number | string) {
   return `₦${n.toLocaleString("en-NG", { minimumFractionDigits: 2 })}`;
 }
 
-const CREDIT_TYPES = ["topup", "transfer_in", "refund_payment"];
+const CREDIT_TYPES = ["topup", "transfer_in", "refund_payment", "bonus"];
 const DEBIT_TYPES = ["withdrawal", "transfer_out"];
 
 // "lock house" / "house rent" / "inspection fee" are marketplace types shared between
@@ -33,6 +33,7 @@ const TYPE_LABELS: Record<string, string> = {
   "house rent": "Rent Payment",
   "inspection fee": "Inspection Fee",
   refund_payment: "Refund",
+  bonus: "Coupon Bonus",
 };
 
 export function getTypeLabel(t: WalletTransaction) {

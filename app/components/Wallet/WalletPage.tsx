@@ -10,6 +10,7 @@ import Breadcrumb from "@/app/components/Wallet/Breadcrumb";
 import WalletActions from "@/app/components/Wallet/WalletActions";
 import WalletSummary from "@/app/components/Wallet/WalletSummary";
 import WalletTransactions from "@/app/components/Wallet/WalletTransactions";
+import CouponRedeemForm from "@/app/components/Wallet/CouponRedeemForm";
 import { formatNaira, Tab } from "@/app/landlord/wallet/data/walletData";
 
 /**
@@ -75,7 +76,8 @@ const WalletPage = ({
           ? "pending"
           : t.type === "topup" ||
               t.type === "transfer_in" ||
-              t.type === "refund_payment"
+              t.type === "refund_payment" ||
+              t.type === "bonus"
             ? "credit"
             : "debit";
       return tab === "Credits"
@@ -98,7 +100,8 @@ const WalletPage = ({
         const kind =
           t.type === "topup" ||
           t.type === "transfer_in" ||
-          t.type === "refund_payment"
+          t.type === "refund_payment" ||
+          t.type === "bonus"
             ? "credit"
             : "debit";
         if (kind === "credit") acc.totalCredits += amount;
@@ -211,6 +214,8 @@ const WalletPage = ({
                 )}
               </div>
             </div>
+
+            <CouponRedeemForm />
 
             {/* Top Up / Transfer / Withdraw — now the OPay-style icon grid */}
             <WalletActions basePath={walletBasePath} />
