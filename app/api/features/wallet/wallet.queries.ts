@@ -6,7 +6,8 @@ import {
   withdrawFromWallet,
   transferFromWallet,
   createTransactionPin,
-  updateTransactionPin
+  updateTransactionPin,
+  redeemWalletCoupon,
 } from "./wallet.api";
 import {
   WalletResponse,
@@ -20,7 +21,9 @@ import {
   CreatePinPayload,
   CreatePinResponse,
   PinUpdatePayload,
-  PinUpdateResponse
+  PinUpdateResponse,
+  RedeemCouponPayload,
+  CouponRedemptionResponse,
 } from "./type";
 import { toast } from "react-toastify";
 
@@ -79,17 +82,31 @@ export const useTransferFromWallet = () => {
   });
 };
 
+export const useRedeemWalletCoupon = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<CouponRedemptionResponse, Error, RedeemCouponPayload>({
+    mutationFn: redeemWalletCoupon,
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["wallet"] }),
+        queryClient.invalidateQueries({ queryKey: ["wallet-transactions"] }),
+      ]);
+    },
+  });
+};
+
 // Create pin hook
 export const useCreateTransactionPin = () => {
   const queryClient = useQueryClient();
   return useMutation<CreatePinResponse, Error, CreatePinPayload>({
     mutationFn: createTransactionPin,
     onSuccess: () => {
-      toast.success("PIN created successfully")
-      queryClient.invalidateQueries({queryKey: ["pin"]});
-    }
-  })
-}
+      toast.success("PIN created successfully");
+      queryClient.invalidateQueries({ queryKey: ["pin"] });
+    },
+  });
+};
 
 // Update pin hook
 export const useUpdateTransactionPin = () => {
@@ -98,7 +115,7 @@ export const useUpdateTransactionPin = () => {
     mutationFn: updateTransactionPin,
     onSuccess: () => {
       toast.success("PIN changed successfully");
-      queryClient.invalidateQueries({queryKey: ["pin"]});
-    }
-  })
-}
+      queryClient.invalidateQueries({ queryKey: ["pin"] });
+    },
+  });
+};

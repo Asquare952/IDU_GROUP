@@ -6,11 +6,7 @@ import "swiper/css/thumbs";
 import "swiper/css/free-mode";
 import "swiper/css/scrollbar";
 import { Swiper, SwiperSlide } from "swiper/react";
-import {
-  Navigation,
-  Thumbs,
-  FreeMode,
-} from "swiper/modules";
+import { Navigation, Thumbs, FreeMode } from "swiper/modules";
 import Lightbox from "yet-another-react-lightbox";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/styles.css";
@@ -33,9 +29,7 @@ import {
 import Image from "next/image";
 import Navbar from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
-import {
-  useFetchPropertyBySlug,
-} from "@/app/api/features/property";
+import { useFetchPropertyBySlug } from "@/app/api/features/property";
 import {
   useRentRental,
   useLockRental,
@@ -43,6 +37,7 @@ import {
 import { useCreateConversation } from "@/app/api/features/chat/chat.queries";
 import { sanitizeConversationId } from "@/app/api/features/chat/chat.api";
 import { hasAccessToken } from "@/app/lib/auth";
+import { formatRelativeTime } from "@/app/lib/formatRelativeTime";
 import { toast } from "react-toastify";
 import { useAuth } from "@/app/components/context/AuthContext";
 import BookInspectionModal from "@/app/components/BookInspectionModal";
@@ -56,7 +51,7 @@ function PropertyDesktopViewContent() {
   const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showAllTips, setShowAllTips] = useState(false);
-  const [isBookInspectionsOpen, setisBookInspectionOpen] = useState(false)
+  const [isBookInspectionsOpen, setisBookInspectionOpen] = useState(false);
   const [pinAction, setPinAction] = useState<"rent" | "lock" | null>(null);
   // const { mutate: handleBook, isPending } = useBookProperty();
   const { mutate: handleLock, isPending: isLocking } = useLockRental();
@@ -77,7 +72,12 @@ function PropertyDesktopViewContent() {
   //   enabled: Boolean(slug),
   // });
 
-  const { data: property, isLoading, isError, error } = useFetchPropertyBySlug(slug!);
+  const {
+    data: property,
+    isLoading,
+    isError,
+    error,
+  } = useFetchPropertyBySlug(slug!);
 
   useEffect(() => {
     setCurrentImageIndex(0);
@@ -140,9 +140,9 @@ function PropertyDesktopViewContent() {
   const activeImage = property.images[currentImageIndex] ?? property.images[0];
   const galleryImages = activeImage
     ? [
-      activeImage,
-      ...property.images.filter((_, index) => index !== currentImageIndex),
-    ].slice(0, 5)
+        activeImage,
+        ...property.images.filter((_, index) => index !== currentImageIndex),
+      ].slice(0, 5)
     : [];
   const landlordName = property.User
     ? `${property.User.full_name}`.trim()
@@ -160,20 +160,32 @@ function PropertyDesktopViewContent() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           <div className="lg:col-span-2 space-y-8">
-            <Swiper modules={[Navigation, Thumbs]} spaceBetween={10} thumbs={{
-              swiper:
-                thumbsSwiper && !thumbsSwiper.destroyed
-                  ? thumbsSwiper
-                  : null,
-            }}
-              onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)} className="rounded-3xl">
+            <Swiper
+              modules={[Navigation, Thumbs]}
+              spaceBetween={10}
+              thumbs={{
+                swiper:
+                  thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null,
+              }}
+              onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
+              className="rounded-3xl"
+            >
               {property.images.map((img, index) => (
                 <SwiperSlide key={index}>
-                  <div className="relative aspect-video w-full overflow-hidden rounded-3xl" onClick={() => {
-                    setActiveIndex(index);
-                    setOpen(true);
-                  }}>
-                    <Image src={img} alt={`image ${index + 1}`} width={500} height={700} className=" w-full object-cover" />
+                  <div
+                    className="relative aspect-video w-full overflow-hidden rounded-3xl"
+                    onClick={() => {
+                      setActiveIndex(index);
+                      setOpen(true);
+                    }}
+                  >
+                    <Image
+                      src={img}
+                      alt={`image ${index + 1}`}
+                      width={500}
+                      height={700}
+                      className=" w-full object-cover"
+                    />
                   </div>
                 </SwiperSlide>
               ))}
@@ -182,23 +194,41 @@ function PropertyDesktopViewContent() {
               </div>
             </Swiper>
 
-            <Swiper onSwiper={setThumbsSwiper} modules={[Thumbs, FreeMode]} watchSlidesProgress freeMode spaceBetween={10} slidesPerView={5} allowTouchMove touchRatio={1} scrollbar={{
-              draggable: true,
-              hide: false,
-            }} breakpoints={{
-              320: {
-                slidesPerView: 3,
-              },
-              640: {
-                slidesPerView: 4,
-              },
-              1024: {
-                slidesPerView: 5,
-              },
-            }} className="mt-4 overflow-visible">
+            <Swiper
+              onSwiper={setThumbsSwiper}
+              modules={[Thumbs, FreeMode]}
+              watchSlidesProgress
+              freeMode
+              spaceBetween={10}
+              slidesPerView={5}
+              allowTouchMove
+              touchRatio={1}
+              scrollbar={{
+                draggable: true,
+                hide: false,
+              }}
+              breakpoints={{
+                320: {
+                  slidesPerView: 3,
+                },
+                640: {
+                  slidesPerView: 4,
+                },
+                1024: {
+                  slidesPerView: 5,
+                },
+              }}
+              className="mt-4 overflow-visible"
+            >
               {property.images.map((img, index) => (
                 <SwiperSlide key={index}>
-                  <Image src={img} alt={`Thumbnail ${index + 1}`} width={100} height={100} className="h-24 w-full cursor-pointer rounded-xl object-cover" />
+                  <Image
+                    src={img}
+                    alt={`Thumbnail ${index + 1}`}
+                    width={100}
+                    height={100}
+                    className="h-24 w-full cursor-pointer rounded-xl object-cover"
+                  />
                 </SwiperSlide>
               ))}
             </Swiper>
@@ -235,6 +265,9 @@ function PropertyDesktopViewContent() {
 
             <div className="space-y-4">
               <h2 className="text-3xl font-black text-gray-900">Description</h2>
+              <p className="text-sm font-medium text-gray-400">
+                Posted {formatRelativeTime(property.createdAt)}
+              </p>
               <p className="text-gray-600 leading-relaxed text-lg">
                 {property.description || "No description provided yet."}
               </p>
@@ -244,7 +277,10 @@ function PropertyDesktopViewContent() {
               <h2 className="text-3xl font-black text-gray-900">Amenities</h2>
               <ul className="flex flex-col gap-2 list-disc list-inside">
                 {property.amenities.map((amenity, index) => (
-                  <li key={index} className="text-gray-600 leading-relaxed text-lg">
+                  <li
+                    key={index}
+                    className="text-gray-600 leading-relaxed text-lg"
+                  >
                     {amenity}
                   </li>
                 ))}
@@ -255,11 +291,11 @@ function PropertyDesktopViewContent() {
               <h2 className="text-2xl font-black text-gray-900">Safety Tips</h2>
               {(showAllTips
                 ? [
-                  "Ensure you meet the landlord or agent in an open location.",
-                  "Always verify ownership before making any payment.",
-                  "Be cautious of deals that seem too good to be true.",
-                  "Use secure payment methods and keep your receipts.",
-                ]
+                    "Ensure you meet the landlord or agent in an open location.",
+                    "Always verify ownership before making any payment.",
+                    "Be cautious of deals that seem too good to be true.",
+                    "Use secure payment methods and keep your receipts.",
+                  ]
                 : ["Ensure you meet the landlord or agent in an open location."]
               ).map((tip, index) => (
                 <p
@@ -325,18 +361,13 @@ function PropertyDesktopViewContent() {
                       }
 
                       setPinAction("rent");
-
                     }}
-                    disabled={
-                      isRenting
-                    }
+                    disabled={isRenting}
                     className="flex items-center justify-center gap-3 w-full bg-green-600 border-2 border-none text-white font-black py-5 rounded-[24px] hover:bg-green-700 transition-all active:scale-95 shadow-lg shadow-orange-100 uppercase mt-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Lock className="inline-block mr-2" />
                     <span>
-                      {isRenting
-                        ? "Processing..."
-                        : "Rent This House"}
+                      {isRenting ? "Processing..." : "Rent This House"}
                     </span>
                   </button>
 
@@ -378,7 +409,7 @@ function PropertyDesktopViewContent() {
                           onError: (conversationError) => {
                             toast.error(
                               conversationError.message ||
-                              "Unable to start chat. Please try again.",
+                                "Unable to start chat. Please try again.",
                             );
                           },
                         },
@@ -417,16 +448,12 @@ function PropertyDesktopViewContent() {
 
                       setPinAction("lock");
                     }}
-                    disabled={
-                      isLocking
-                    }
+                    disabled={isLocking}
                     className="flex items-center justify-center gap-3 w-full bg-green-600 border-2 border-none text-white font-black py-5 rounded-[24px] hover:bg-green-700 transition-all active:scale-95 shadow-lg shadow-orange-100 uppercase mt-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Lock className="inline-block mr-2" />
                     <span>
-                      {isLocking
-                        ? "Processing..."
-                        : "Lock This House"}
+                      {isLocking ? "Processing..." : "Lock This House"}
                     </span>
                   </button>
 
@@ -467,24 +494,36 @@ function PropertyDesktopViewContent() {
             </div>
           </div>
         </div>
-        <BookInspectionModal isOpen={isBookInspectionsOpen} onClose={() => setisBookInspectionOpen(false)} id={property.id} />
+        <BookInspectionModal
+          isOpen={isBookInspectionsOpen}
+          onClose={() => setisBookInspectionOpen(false)}
+          id={property.id}
+        />
         <TransactionPinSheet
           isOpen={pinAction !== null}
           title={pinAction === "rent" ? "Confirm rental" : "Confirm house lock"}
           description="Enter your transaction PIN to continue with this payment."
-          confirmLabel={pinAction === "rent" ? "Confirm rental" : "Confirm lock"}
+          confirmLabel={
+            pinAction === "rent" ? "Confirm rental" : "Confirm lock"
+          }
           isPending={isRenting || isLocking}
           onClose={() => setPinAction(null)}
           onConfirm={(pin) => {
             const rentalId = String(property.id);
 
             if (pinAction === "rent") {
-              handleRent({ rentalId, pin }, { onSuccess: () => setPinAction(null) });
+              handleRent(
+                { rentalId, pin },
+                { onSuccess: () => setPinAction(null) },
+              );
               return;
             }
 
             if (pinAction === "lock") {
-              handleLock({ rentalId, pin }, { onSuccess: () => setPinAction(null) });
+              handleLock(
+                { rentalId, pin },
+                { onSuccess: () => setPinAction(null) },
+              );
             }
           }}
         />

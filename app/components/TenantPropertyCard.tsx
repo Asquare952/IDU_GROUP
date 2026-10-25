@@ -7,6 +7,7 @@ import { FaBed, FaBath } from "react-icons/fa";
 import { useLikeRental, useUnlikeRental } from "../api";
 import type { Property } from "../api/features/property";
 import { getPropertyDetailsPath } from "../lib/property-routes";
+import { formatRelativeTime } from "../lib/formatRelativeTime";
 import { hasAccessToken } from "../lib/auth";
 
 const TenantPropertyCard = ({ house }: { house: Property }) => {
@@ -77,9 +78,12 @@ const TenantPropertyCard = ({ house }: { house: Property }) => {
             <p className="text-[18px] font-bold text-gray-900">
               N{house.price.toLocaleString()}
             </p>
-            {house.added && (
+            {(house.createdAt || house.added) && (
               <span className="text-[10px] text-gray-400 mt-1">
-                {house.added}
+                Posted{" "}
+                {house.createdAt
+                  ? formatRelativeTime(house.createdAt)
+                  : house.added}
               </span>
             )}
           </div>

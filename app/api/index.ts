@@ -168,6 +168,36 @@ export type {
 } from "./features/global-statistics/types";
 
 // ============================================
+// Coupon Management
+// ============================================
+export {
+  createCoupon,
+  deleteCoupon,
+  getCouponDetails,
+  getCoupons,
+  updateCoupon,
+  useCouponDetails,
+  useCoupons,
+  useCreateCoupon,
+  useDeleteCoupon,
+  useUpdateCoupon,
+} from "./features/coupons";
+export type {
+  CouponFilters,
+  CouponListResponse,
+  CouponDetailsResponse,
+  CouponRedemption,
+  CouponBonusType,
+  CreateCouponPayload,
+  CreatedCoupon,
+  CreateCouponResponse,
+  DeleteCouponResponse,
+  ManagedCoupon,
+  UpdateCouponPayload,
+  UpdateCouponResponse,
+} from "./features/coupons";
+
+// ============================================
 // Super Admin
 // ============================================
 export { adminApi } from "./features/admin/admin.api";

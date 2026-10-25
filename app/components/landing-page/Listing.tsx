@@ -11,6 +11,7 @@ import { useFetchProperties } from "@/app/api/features/property";
 import { useLikeRental, useUnlikeRental } from "@/app/api";
 import { containerVariants, itemVariants } from "@/app/components/animation";
 import { getPropertyDetailsPath } from "@/app/lib/property-routes";
+import { formatRelativeTime } from "@/app/lib/formatRelativeTime";
 import { hasAccessToken } from "@/app/lib/auth";
 import { House, MapPin } from "lucide-react";
 
@@ -236,6 +237,10 @@ const Listing = () => {
 
                     <p className="text-gray-400 text-base md:text-sm mb-4 leading-relaxed">
                       {item.description || "No description provided yet."}
+                    </p>
+
+                    <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.08em] text-gray-400">
+                      Posted {formatRelativeTime(item.createdAt)}
                     </p>
 
                     <div className="flex flex-wrap gap-4 border-t border-gray-50 pt-4">

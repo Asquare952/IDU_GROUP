@@ -8,6 +8,46 @@ import {
   ReactNode,
 } from "react";
 import { useAuthStatus, useLogoutAdmin } from "@/app/api/features/admin";
+import Cookies from "js-cookie";
+
+const normalizeRole = (value: unknown) => {
+  const role = typeof value === "string" ? value.trim().toLowerCase() : "";
+  return role;
+};
+
+const hasSuperAdminClaim = () => {
+  const token = Cookies.get("ACCESS_TOKEN");
+  if (!token) return false;
+
+  try {
+    const segment = token.split(".")[1];
+    if (!segment) return false;
+
+    const normalized = segment.replace(/-/g, "+").replace(/_/g, "/");
+    const padded = normalized.padEnd(
+      normalized.length + ((4 - (normalized.length % 4)) % 4),
+      "=",
+    );
+    const payload = JSON.parse(atob(padded)) as Record<string, unknown>;
+
+    const claimValues = [
+      payload.is_superadmin,
+      payload.isSuperAdmin,
+      payload.super_admin,
+      payload.superadmin,
+      payload.is_admin,
+      payload.role,
+      payload.userRole,
+    ];
+
+    return claimValues.some((value) => {
+      const normalized = normalizeRole(value);
+      return ["super-admin", "superadmin", "admin"].includes(normalized);
+    });
+  } catch {
+    return false;
+  }
+};
 
 type AdminAuthContextType = {
   isAuthenticated: boolean;
@@ -32,10 +72,27 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!queryLoading) {
-      const loggedIn = !!data?.isLoggedIn && data?.userRole === "admin";
+      const cookieRole = normalizeRole(Cookies.get("USER_ROLE"));
+      const apiRole = normalizeRole(
+        data?.userRole ?? data?.role ?? data?.role_name,
+      );
+      const resolvedRole = apiRole || cookieRole || null;
+      const tokenExists = !!Cookies.get("ACCESS_TOKEN");
+      const loggedIn = !!data?.isLoggedIn || tokenExists;
+      const isSuperAdminRole = ["super-admin", "superadmin", "admin"].includes(
+        resolvedRole ?? "",
+      );
+
+      const shouldAllowAdminSession =
+        loggedIn &&
+        (data?.is_superadmin === true ||
+          data?.isSuperAdmin === true ||
+          isSuperAdminRole ||
+          hasSuperAdminClaim());
+
       setIsAuthenticated(loggedIn);
-      setIsSuperAdmin(data?.userRole === "admin");
-      setUserRole(data?.userRole || null);
+      setIsSuperAdmin(!!shouldAllowAdminSession);
+      setUserRole(resolvedRole);
 
       // Delay setting isLoading to false to prevent race conditions
       // with rapid redirects on mount

@@ -28,28 +28,40 @@ export default function SuperAdminLoginPage() {
     formState: { errors },
   } = useForm<SuperAdminLoginForm>();
 
- const onSubmit = async (data: SuperAdminLoginForm) => {
-   try {
-     const response = await loginMutation.mutateAsync({
-       user: data.user,
-       password: data.password,
-     });
-     
-     // Store the token in cookie
-     if (response?.accessToken || response?.token) {
-       const token = response.accessToken ?? response.token;
-       Cookies.set("ACCESS_TOKEN", token, { path: "/" });
-     }
-     
-     await refetch();
-     toast.success("Welcome back, Admin!");
-     router.push("/super-admin/dashboard");
-   } catch (err: any) {
-     const message =
-       err.response?.data?.message || err.message || "Login failed";
-     toast.error(message);
-   }
- };
+  const onSubmit = async (data: SuperAdminLoginForm) => {
+    try {
+      const response = await loginMutation.mutateAsync({
+        user: data.user,
+        password: data.password,
+      });
+
+      const token =
+        response?.accessToken ??
+        response?.token ??
+        response?.data?.accessToken ??
+        response?.data?.token;
+      const role =
+        response?.userRole ??
+        response?.role ??
+        response?.data?.userRole ??
+        response?.data?.role ??
+        "admin";
+
+      if (token) {
+        Cookies.set("ACCESS_TOKEN", token, { path: "/" });
+      }
+
+      Cookies.set("USER_ROLE", role, { path: "/" });
+
+      await refetch();
+      toast.success("Welcome back, Admin!");
+      router.push("/super-admin/dashboard");
+    } catch (err: any) {
+      const message =
+        err.response?.data?.message || err.message || "Login failed";
+      toast.error(message);
+    }
+  };
 
   const isPending = loginMutation.isPending;
 

@@ -16,6 +16,7 @@ import {
   type Property,
 } from "@/app/api/features/property";
 import { getPropertyDetailsPath } from "@/app/lib/property-routes";
+import { formatRelativeTime } from "@/app/lib/formatRelativeTime";
 import { hasAccessToken } from "@/app/lib/auth";
 import { useLikeRental, useUnlikeRental } from "@/app/api";
 import { House, MapPin } from "lucide-react";
@@ -348,6 +349,10 @@ function AllPropertiesPageContent() {
                             <p className="mb-4 line-clamp-2 text-sm leading-relaxed text-gray-400">
                               {item.description ||
                                 "No description provided yet."}
+                            </p>
+
+                            <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.08em] text-gray-400">
+                              Posted {formatRelativeTime(item.createdAt)}
                             </p>
 
                             <div className="flex flex-wrap gap-4 border-t border-gray-50 pt-4">
