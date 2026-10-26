@@ -8,27 +8,40 @@ import {
   useSendTicketMessage,
   useGetUserTickets,
 } from "@/app/api/features/support";
-import type { TicketMessage, TicketReply } from "@/app/api/features/support/types";
+import type {
+  TicketMessage,
+  TicketReply,
+} from "@/app/api/features/support/types";
 import { hasAccessToken } from "@/app/lib/auth";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import { useAuth } from "@/app/components/context/AuthContext";
 
 const Support = () => {
   const router = useRouter();
+  const { isLoggedIn, sessionVersion } = useAuth();
   const [isSupportOpen, setIsSupportOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [ticketRef, setTicketRef] = useState<string | undefined>(undefined);
-  const [messages, setMessages] = useState<TicketMessage[]>([]);
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [ticketCreationFailed, setTicketCreationFailed] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const { mutate: createTicket, isPending: isCreating } = useCreateTicket();
   const { mutate: sendMessage, isPending: isSending } = useSendTicketMessage();
-  const { data: userTickets } = useGetUserTickets();
+  const {
+    data: userTickets,
+    isSuccess: isUserTicketsSuccess,
+    isError: isUserTicketsError,
+    isLoading: isLoadingUserTickets,
+    isFetching: isFetchingUserTickets,
+    refetch: refetchUserTickets,
+  } = useGetUserTickets(isSupportOpen && isLoggedIn && hasAccessToken());
   const {
     data: ticketDetail,
     refetch: refetchTicketDetail,
-  } = useGetUserTicket(ticketRef);
+    isLoading: isLoadingTicketDetail,
+    isError: isTicketDetailError,
+  } = useGetUserTicket(ticketRef, isSupportOpen && isLoggedIn);
 
   const toChatMessage = (reply: TicketReply): TicketMessage => ({
     id: reply.id,
@@ -42,65 +55,71 @@ const Support = () => {
     createdAt: reply.createdAt,
   });
 
-  // Initialize: Get or create a ticket
   useEffect(() => {
-    if (!hasAccessToken()) {
-      setIsInitialized(true);
+    if (!isLoggedIn) {
+      setTicketRef(undefined);
+      setTicketCreationFailed(false);
+    }
+  }, [isLoggedIn, sessionVersion]);
+
+  useEffect(() => {
+    if (
+      !isSupportOpen ||
+      !isLoggedIn ||
+      !hasAccessToken() ||
+      ticketRef ||
+      ticketCreationFailed ||
+      !isUserTicketsSuccess ||
+      isFetchingUserTickets ||
+      isCreating
+    ) {
       return;
     }
 
-    // Check if user has an open ticket
-    if (userTickets && userTickets.length > 0) {
-      const openTicket = userTickets.find(
-        (t) => t.status === "open" || t.status === "in_progress",
-      );
-      if (openTicket) {
-        setTicketRef(openTicket.ticket_ref);
-        setIsInitialized(true);
-        return;
-      }
+    const openTicket = userTickets?.find(
+      (ticket) => ticket.status === "open" || ticket.status === "in_progress",
+    );
+
+    if (openTicket) {
+      setTicketRef(openTicket.ticket_ref);
+      return;
     }
 
-    // Create a new ticket when support opens
-    if (isSupportOpen && !ticketRef) {
-      createTicket(
-        {
-          subject: "Support Request",
-          description: "User initiated support chat",
-          category: "general",
-          priority: "medium",
+    createTicket(
+      {
+        subject: "Support Request",
+        description: "User initiated support chat",
+        category: "general",
+        priority: "medium",
+      },
+      {
+        onSuccess: (ticket) => {
+          setTicketCreationFailed(false);
+          setTicketRef(ticket.ticket_ref);
         },
-        {
-          onSuccess: (ticket) => {
-            setTicketRef(ticket.ticket_ref);
-            setIsInitialized(true);
-          },
-          onError: () => {
-            toast.error("Failed to create support ticket");
-            setIsInitialized(true);
-          },
+        onError: () => {
+          setTicketCreationFailed(true);
+          toast.error("Failed to create support ticket");
         },
-      );
-    } else {
-      setIsInitialized(true);
-    }
-  }, [isSupportOpen, userTickets, createTicket, ticketRef]);
+      },
+    );
+  }, [
+    isCreating,
+    isFetchingUserTickets,
+    isLoggedIn,
+    isSupportOpen,
+    isUserTicketsSuccess,
+    ticketCreationFailed,
+    userTickets,
+    createTicket,
+    ticketRef,
+  ]);
 
-  // The list endpoint deliberately omits replies. The ticket-detail endpoint is
-  // the source of truth for the tenant conversation, including admin replies.
-  useEffect(() => {
-    if (ticketDetail?.replies) {
-      setMessages(ticketDetail.replies.map(toChatMessage));
-    }
-  }, [ticketDetail]);
-
-  // A closed widget stays mounted, so explicitly refresh its conversation when
-  // it is reopened to pick up any reply made by a super admin.
-  useEffect(() => {
-    if (isSupportOpen && ticketRef) {
-      void refetchTicketDetail();
-    }
-  }, [isSupportOpen, ticketRef, refetchTicketDetail]);
+  const messages: TicketMessage[] = (ticketDetail?.replies ?? [])
+    .map(toChatMessage)
+    .sort(
+      (left, right) => Date.parse(left.createdAt) - Date.parse(right.createdAt),
+    );
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
@@ -115,19 +134,15 @@ const Support = () => {
 
     if (!trimmed || isSending || !ticketRef) return;
 
-    if (!hasAccessToken()) {
+    if (!isLoggedIn || !hasAccessToken()) {
       router.push("/login");
       return;
     }
 
     setMessage("");
-
     sendMessage(
       { ticketId: ticketRef, content: trimmed },
       {
-        onSuccess: (newMessage) => {
-          setMessages((prev) => [...prev, newMessage]);
-        },
         onError: () => {
           toast.error("Failed to send message");
           setMessage(trimmed);
@@ -135,10 +150,6 @@ const Support = () => {
       },
     );
   };
-
-  if (!isInitialized) {
-    return null;
-  }
 
   const isPending = isCreating || isSending;
 
@@ -166,46 +177,108 @@ const Support = () => {
             ref={scrollRef}
             className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50"
           >
-            {messages.length === 0 ? (
-              <div className="text-center text-gray-500 text-sm mt-8">
-                <p className="font-medium">Hi! 👋</p>
-                <p className="mt-2">How can we help you today?</p>
-                <p className="text-xs mt-4">
-                  Send your message and our team will respond as soon as
-                  possible.
-                </p>
+            {!isLoggedIn || !hasAccessToken() ? (
+              <div className="mt-8 text-center text-sm text-gray-500">
+                Please log in to contact RentULO Support.
+              </div>
+            ) : isUserTicketsError && !ticketRef ? (
+              <div className="mt-8 text-center text-sm text-red-600">
+                <p>Unable to load your support history.</p>
+                <button
+                  type="button"
+                  onClick={() => void refetchUserTickets()}
+                  className="mt-2 font-semibold underline"
+                >
+                  Retry
+                </button>
+              </div>
+            ) : isLoadingUserTickets ||
+              isFetchingUserTickets ||
+              isCreating ||
+              (ticketRef && isLoadingTicketDetail && !ticketDetail) ? (
+              <div className="mt-8 flex justify-center text-[#43A047]">
+                <Loader2 size={22} className="animate-spin" />
+              </div>
+            ) : ticketCreationFailed && !ticketRef ? (
+              <div className="mt-8 text-center text-sm text-red-600">
+                <p>Unable to start your support conversation.</p>
+                <button
+                  type="button"
+                  onClick={() => setTicketCreationFailed(false)}
+                  className="mt-2 font-semibold underline"
+                >
+                  Retry
+                </button>
+              </div>
+            ) : isTicketDetailError && !ticketDetail ? (
+              <div className="mt-8 text-center text-sm text-red-600">
+                <p>Unable to load this conversation.</p>
+                <button
+                  type="button"
+                  onClick={() => void refetchTicketDetail()}
+                  className="mt-2 font-semibold underline"
+                >
+                  Retry
+                </button>
               </div>
             ) : (
-              messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`flex ${
-                    msg.senderRole === "user" ? "justify-end" : "justify-start"
-                  }`}
-                >
-                  <div
-                    className={`max-w-[70%] rounded-lg px-3 py-2 text-sm ${
-                      msg.senderRole === "user"
-                        ? "bg-[#43A047] text-white"
-                        : "bg-white text-gray-800 border border-gray-200"
-                    }`}
-                  >
-                    <p>{msg.content}</p>
-                    <p
-                      className={`text-xs mt-1 ${
-                        msg.senderRole === "user"
-                          ? "text-green-100"
-                          : "text-gray-400"
-                      }`}
+              <>
+                {isTicketDetailError && (
+                  <div className="text-center text-xs text-red-600">
+                    Could not refresh the conversation. Showing saved messages.{" "}
+                    <button
+                      type="button"
+                      onClick={() => void refetchTicketDetail()}
+                      className="font-semibold underline"
                     >
-                      {new Date(msg.createdAt).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+                      Retry
+                    </button>
+                  </div>
+                )}
+                {messages.length === 0 ? (
+                  <div className="text-center text-gray-500 text-sm mt-8">
+                    <p className="font-medium">Hi! 👋</p>
+                    <p className="mt-2">How can we help you today?</p>
+                    <p className="text-xs mt-4">
+                      Send your message and our team will respond as soon as
+                      possible.
                     </p>
                   </div>
-                </div>
-              ))
+                ) : (
+                  messages.map((msg) => (
+                    <div
+                      key={msg.id}
+                      className={`flex ${
+                        msg.senderRole === "user"
+                          ? "justify-end"
+                          : "justify-start"
+                      }`}
+                    >
+                      <div
+                        className={`max-w-[70%] rounded-lg px-3 py-2 text-sm ${
+                          msg.senderRole === "user"
+                            ? "bg-[#43A047] text-white"
+                            : "bg-white text-gray-800 border border-gray-200"
+                        }`}
+                      >
+                        <p>{msg.content}</p>
+                        <p
+                          className={`text-xs mt-1 ${
+                            msg.senderRole === "user"
+                              ? "text-green-100"
+                              : "text-gray-400"
+                          }`}
+                        >
+                          {new Date(msg.createdAt).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </>
             )}
             {isPending && (
               <div className="flex justify-start">
@@ -226,7 +299,13 @@ const Support = () => {
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Type your message..."
               className="flex-1 bg-gray-50 rounded-full px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-[#43A047]"
-              disabled={isPending || !ticketRef}
+              disabled={
+                isPending ||
+                !ticketRef ||
+                !isLoggedIn ||
+                (isTicketDetailError && !ticketDetail) ||
+                !hasAccessToken()
+              }
             />
             <button
               type="submit"

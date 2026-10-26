@@ -34,13 +34,21 @@ export default function SupportInfoPage() {
   const [selectedRef, setSelectedRef] = useState<string>();
   const [status, setStatus] = useState<"all" | TicketStatus>("all");
   const [message, setMessage] = useState("");
-  const { data: ticketResponse, isLoading: isLoadingTickets } =
-    useGetAllTickets({
-      status: status === "all" ? undefined : status,
-      limit: 100,
-    });
-  const { data: ticket, isLoading: isLoadingTicket } =
-    useGetAdminTicket(selectedRef);
+  const {
+    data: ticketResponse,
+    isLoading: isLoadingTickets,
+    isError: isTicketsError,
+    refetch: refetchTickets,
+  } = useGetAllTickets({
+    status: status === "all" ? undefined : status,
+    limit: 100,
+  });
+  const {
+    data: ticket,
+    isLoading: isLoadingTicket,
+    isError: isTicketError,
+    refetch: refetchTicket,
+  } = useGetAdminTicket(selectedRef);
   const { data: dashboard } = useSupportDashboard();
   const { mutate: sendReply, isPending: isSending } = useSendAdminReply();
   const { mutate: resolve, isPending: isResolving } = useResolveTicket();
@@ -116,6 +124,11 @@ export default function SupportInfoPage() {
               <div className="flex-1 overflow-y-auto">
                 {isLoadingTickets ? (
                   <Loading />
+                ) : isTicketsError ? (
+                  <Retry
+                    text="Unable to load support tickets"
+                    onRetry={() => void refetchTickets()}
+                  />
                 ) : tickets.length === 0 ? (
                   <Empty text="No tickets found" />
                 ) : (
@@ -147,8 +160,14 @@ export default function SupportInfoPage() {
             <section className="flex max-h-[650px] flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm lg:col-span-3">
               {!selectedRef ? (
                 <Empty text="Select a ticket to view its details" />
-              ) : isLoadingTicket ? (
+              ) : isLoadingTicket ||
+                (ticket && ticket.ticket_ref !== selectedRef) ? (
                 <Loading />
+              ) : isTicketError && !ticket ? (
+                <Retry
+                  text="Unable to load this conversation"
+                  onRetry={() => void refetchTicket()}
+                />
               ) : !ticket ? (
                 <Empty text="Ticket not found" />
               ) : (
@@ -196,6 +215,19 @@ export default function SupportInfoPage() {
                     </button>
                   </div>
                   <div className="flex-1 space-y-4 overflow-y-auto bg-gray-50 p-6">
+                    {isTicketError && (
+                      <p className="text-center text-xs text-red-600">
+                        Could not refresh this conversation. Showing saved
+                        messages.{" "}
+                        <button
+                          type="button"
+                          onClick={() => void refetchTicket()}
+                          className="font-semibold underline"
+                        >
+                          Retry
+                        </button>
+                      </p>
+                    )}
                     {ticket.replies?.length ? (
                       ticket.replies.map((reply) => (
                         <div
@@ -283,6 +315,20 @@ function Loading() {
   return (
     <div className="flex h-full min-h-32 items-center justify-center">
       <Loader2 className="animate-spin text-[#4CAF50]" />
+    </div>
+  );
+}
+function Retry({ text, onRetry }: { text: string; onRetry: () => void }) {
+  return (
+    <div className="flex h-full min-h-32 flex-col items-center justify-center gap-2 p-4 text-center text-sm text-red-600">
+      <p>{text}</p>
+      <button
+        type="button"
+        onClick={onRetry}
+        className="font-semibold underline"
+      >
+        Retry
+      </button>
     </div>
   );
 }
