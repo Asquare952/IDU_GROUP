@@ -51,7 +51,7 @@ export const transferFromWallet = async (
 export const redeemWalletCoupon = async (
   payload: RedeemCouponPayload,
 ): Promise<CouponRedemptionResponse> => {
-  const { data } = await apiInstance.post(
+  const { data } = await api.post(
     "/wallet/coupons/redeem",
     payload,
   );
