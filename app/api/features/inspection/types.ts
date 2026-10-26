@@ -46,6 +46,11 @@ export interface SingleInspectionResponse {
   message: string;
   data: Inspections;
 }
+export interface SingleRentalInspectionsResponse {
+  success: boolean;
+  message: string;
+  data: Inspections[];
+}
 
 export type UpdateInspection = {
   date: string;

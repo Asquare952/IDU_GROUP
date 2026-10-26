@@ -6,6 +6,7 @@ import {
   UpdateInspection,
   InspectionResponse,
   SingleInspectionResponse,
+  SingleRentalInspectionsResponse
 } from "./types";
 
 // Book inspection
@@ -49,4 +50,20 @@ export const updateInspection = async (
   const res = await api.put(`/inspection/update/${id}`, payload);
 
   return res.data;
+};
+
+export const getRentalInspections = async (
+id: string
+): Promise<Inspections[]> => {
+  const res = await api.get<SingleRentalInspectionsResponse | Inspections>(
+    `/inspection/rental/:rental_id${id}`,
+  );
+
+  if (res.data && typeof res.data === "object" && "data" in res.data) {
+    return Array.isArray(res.data.data)
+      ? res.data.data
+      : [res.data.data as Inspections];
+  }
+
+  return Array.isArray(res.data) ? res.data : [res.data as Inspections];
 };

@@ -9,6 +9,7 @@ import { getPropertyDetailsPath } from "@/app/lib/property-routes";
 import { Plus, MapPin, Home, Loader2 } from "lucide-react";
 import Image from "next/image";
 import Swal from "sweetalert2";
+import { useGetRentalInspections } from "@/app/api/features/inspection/inspection.query";
 
 const tabs = ["All Properties", "Available", "Pending", "Rented"] as const;
 
@@ -220,6 +221,13 @@ const Page = () => {
                         className="px-3 py-1.5 border border-gray-100 rounded-lg text-gray-500 text-[11px] font-bold hover:bg-gray-50 transition-colors cursor-pointer"
                       >
                         Edit
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => router.push(`/landlord/my-listings/${rental.id}`)}
+                        className="px-3 py-1.5 border border-gray-100 rounded-lg text-gray-500 text-[11px] font-bold hover:bg-gray-50 transition-colors cursor-pointer"
+                      >
+                        Inspections
                       </button>
                       <button
                         type="button"

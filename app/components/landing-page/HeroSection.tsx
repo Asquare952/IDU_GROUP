@@ -242,7 +242,7 @@ const HeroSection = () => {
               title="Location"
               placeholder="Select location"
               isDropdown={true}
-              options={["Lagos", "Abuja", "Imo", "Enugu", "Abia"]}
+              options={["Lagos", "Abuja", "Imo", "Enugu", "Abia", "Jos"]}
               showLocationIcon={true}
               value={location}
               onChange={setLocation}
@@ -254,8 +254,6 @@ const HeroSection = () => {
               options={[
                 "Apartment",
                 "House",
-                "Office",
-                "Commercial",
                 "Land",
                 "Lodge",
                 "Self-contain",

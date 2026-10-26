@@ -378,7 +378,7 @@ const page = () => {
                         <option value="">Select a location</option>
                         <option value="lagos">Lagos</option>
                         <option value="abuja">Abuja</option>
-                        {/* <option value="port-harcourt">Port Harcourt</option> */}
+                        <option value="port-harcourt">Jos</option>
                         <option value="imo">Imo</option>
                         <option value="enugu">Enugu</option>
                         <option value="enugu">Abia</option>
@@ -399,8 +399,6 @@ const page = () => {
                       >
                         <option value="apartment">Apartment</option>
                         <option value="house">House</option>
-                        <option value="office">Office</option>
-                        <option value="commercial">Commercial</option>
                         <option value="land">Land</option>
                         <option value="lodge">Lodge</option>
                         <option value="lodge">Self-contain</option>
