@@ -5,6 +5,7 @@ import {
   getInspection,
   getInspections,
   updateInspection,
+  getRentalInspections,
 } from "./inspection.api";
 import { CreateInspection, Inspections, UpdateInspection } from "./types";
 
@@ -43,11 +44,17 @@ export const useGetInspections = () => {
   });
 };
 
-
 // Get single booked inspection by id
 export const useGetInspection = (id: string) => {
   return useQuery<Inspections, Error>({
     queryKey: ["inspection", id],
     queryFn: () => getInspection(id!),
+  });
+};
+
+export const useGetRentalInspections = (id: string) => {
+  return useQuery<Inspections[], Error>({
+    queryKey: ["inspecions", id],
+    queryFn: () => getRentalInspections(id!),
   });
 };

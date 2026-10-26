@@ -38,20 +38,20 @@ export const sidebarItems: SidebarItems[] = [
     path: "/landlord/messages",
     icon: MessageCircleMore,
   },
+  // {
+  //   id: 5,
+  //   name: "Insight and Analytics",
+  //   path: "/landlord/insight-analytics",
+  //   icon: ChartNoAxesCombined,
+  // },
+  // {
+  //   id: 6,
+  //   name: "Inspections",
+  //   path: "/landlord/inspections",
+  //   icon: ClipboardCheck,
+  // },
   {
     id: 5,
-    name: "Insight and Analytics",
-    path: "/landlord/insight-analytics",
-    icon: ChartNoAxesCombined,
-  },
-  {
-    id: 6,
-    name: "Inspections",
-    path: "/landlord/inspections",
-    icon: ClipboardCheck,
-  },
-  {
-    id: 7,
     name: "Wallet",
     path: "/landlord/wallet",
     icon: Wallet,
