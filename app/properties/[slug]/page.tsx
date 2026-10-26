@@ -233,13 +233,13 @@ function PropertyDesktopViewContent() {
               ))}
             </Swiper>
 
-            <div className=" grid grid-cols-2 gap-1.5">
+            <div className="grid grid-cols-1 gap-1.5">
               {property.videos.map((video, index) => (
                 <div key={index} className="rounded-xl">
                   <video
                     src={video}
                     controls
-                    className="w-full h-40 object-cover rounded-xl"
+                    className="aspect-video w-full object-cover rounded-xl"
                   />
                 </div>
               ))}
@@ -294,7 +294,7 @@ function PropertyDesktopViewContent() {
                     "Ensure you meet the landlord or agent in an open location.",
                     "Always verify ownership before making any payment.",
                     "Be cautious of deals that seem too good to be true.",
-                    "Use secure payment methods and keep your receipts.",
+                    "Use RentULO wallet for secure payment methods and keep your receipts.",
                   ]
                 : ["Ensure you meet the landlord or agent in an open location."]
               ).map((tip, index) => (
@@ -351,7 +351,7 @@ function PropertyDesktopViewContent() {
                   </h1>
                 </div>
 
-                <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-3 md:grid-cols-1 md:flex md:flex-col md:gap-0 md:space-y-4">
                   <button
                     type="button"
                     onClick={() => {
@@ -363,9 +363,9 @@ function PropertyDesktopViewContent() {
                       setPinAction("rent");
                     }}
                     disabled={isRenting}
-                    className="flex items-center justify-center gap-3 w-full bg-green-600 border-2 border-none text-white font-black py-5 rounded-[24px] hover:bg-green-700 transition-all active:scale-95 shadow-lg shadow-orange-100 uppercase mt-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex min-h-16 w-full flex-col items-center justify-center gap-1 rounded-[24px] border-2 border-none bg-green-600 px-2 py-3 text-center text-[11px] font-black uppercase leading-tight text-white shadow-lg shadow-orange-100 transition-all hover:bg-green-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:text-xs md:mt-4 md:min-h-0 md:flex-row md:gap-3 md:px-4 md:py-5 md:text-base md:leading-normal"
                   >
-                    <Lock className="inline-block mr-2" />
+                    <Lock className="size-4 shrink-0 md:size-5" />
                     <span>
                       {isRenting ? "Processing..." : "Rent This House"}
                     </span>
@@ -415,10 +415,10 @@ function PropertyDesktopViewContent() {
                         },
                       );
                     }}
-                    className="flex items-center justify-center gap-3 w-full bg-green-600 border-2 border-none text-white font-black py-5 rounded-[24px] hover:bg-green-700 transition-all active:scale-95 shadow-lg shadow-orange-100 uppercase mt-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex min-h-16 w-full flex-col items-center justify-center gap-1 rounded-[24px] border-2 border-none bg-green-600 px-2 py-3 text-center text-[11px] font-black uppercase leading-tight text-white shadow-lg shadow-orange-100 transition-all hover:bg-green-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:text-xs md:mt-4 md:min-h-0 md:flex-row md:gap-3 md:px-4 md:py-5 md:text-base md:leading-normal"
                   >
-                    <MessageSquare />
-                    <span>Chat Landloard</span>
+                    <MessageSquare className="size-4 shrink-0 md:size-5" />
+                    <span>Chat Landlord</span>
                   </button>
 
                   {/*  */}
@@ -431,9 +431,9 @@ function PropertyDesktopViewContent() {
                       }
                       setisBookInspectionOpen(true);
                     }}
-                    className="flex items-center justify-center gap-3 w-full bg-green-600 border-2 border-none text-white font-black py-5 rounded-[24px] hover:bg-green-700 transition-all active:scale-95 shadow-lg shadow-orange-100 uppercase mt-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex min-h-16 w-full flex-col items-center justify-center gap-1 rounded-[24px] border-2 border-none bg-green-600 px-2 py-3 text-center text-[11px] font-black uppercase leading-tight text-white shadow-lg shadow-orange-100 transition-all hover:bg-green-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:text-xs md:mt-4 md:min-h-0 md:flex-row md:gap-3 md:px-4 md:py-5 md:text-base md:leading-normal"
                   >
-                    <CalendarDays />
+                    <CalendarDays className="size-4 shrink-0 md:size-5" />
                     Book Inspection
                   </button>
 
@@ -449,9 +449,9 @@ function PropertyDesktopViewContent() {
                       setPinAction("lock");
                     }}
                     disabled={isLocking}
-                    className="flex items-center justify-center gap-3 w-full bg-green-600 border-2 border-none text-white font-black py-5 rounded-[24px] hover:bg-green-700 transition-all active:scale-95 shadow-lg shadow-orange-100 uppercase mt-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex min-h-16 w-full flex-col items-center justify-center gap-1 rounded-[24px] border-2 border-none bg-green-600 px-2 py-3 text-center text-[11px] font-black uppercase leading-tight text-white shadow-lg shadow-orange-100 transition-all hover:bg-green-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:text-xs md:mt-4 md:min-h-0 md:flex-row md:gap-3 md:px-4 md:py-5 md:text-base md:leading-normal"
                   >
-                    <Lock className="inline-block mr-2" />
+                    <Lock className="size-4 shrink-0 md:size-5" />
                     <span>
                       {isLocking ? "Processing..." : "Lock This House"}
                     </span>
@@ -461,7 +461,7 @@ function PropertyDesktopViewContent() {
                   <button
                     type="button"
                     onClick={() => router.push("/properties")}
-                    className="w-full bg-[#FF9800] text-white font-black py-5 rounded-[24px] hover:bg-[#F57C00] transition-all active:scale-95 shadow-lg shadow-orange-100 uppercase mt-2 cursor-pointer"
+                    className="col-span-2 w-full rounded-[24px] bg-[#FF9800] px-3 py-4 text-center text-xs font-black uppercase text-white shadow-lg shadow-orange-100 transition-all hover:bg-[#F57C00] active:scale-95 md:col-span-1 md:mt-2 md:py-5 md:text-base"
                   >
                     Back to Listings
                   </button>

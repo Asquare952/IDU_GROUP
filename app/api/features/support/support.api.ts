@@ -7,7 +7,6 @@ import type {
   SupportDashboard,
   SupportTicket,
   SupportTicketResponse,
-  TicketMessage,
   TicketReply,
 } from "./types";
 
@@ -36,7 +35,7 @@ export const supportApi = {
       )
     ).data.data;
   },
-  async sendMessage(payload: SendTicketMessageRequest): Promise<TicketMessage> {
+  async sendMessage(payload: SendTicketMessageRequest): Promise<TicketReply> {
     const response = await api.post<{
       success: boolean;
       data: { reply: TicketReply };
@@ -45,16 +44,7 @@ export const supportApi = {
       { message: payload.content },
       { withCredentials: true },
     );
-    const reply = response.data.data.reply;
-    return {
-      id: reply.id,
-      ticketId: reply.ticket_id,
-      senderId: reply.sender_id ?? "",
-      senderRole: reply.sender_role,
-      senderName: reply.sender?.full_name ?? "You",
-      content: reply.message,
-      createdAt: reply.createdAt,
-    };
+    return response.data.data.reply;
   },
   async getDashboard(): Promise<SupportDashboard> {
     return (

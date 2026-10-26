@@ -2,11 +2,13 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import { clearCachedProfile } from "@/app/api/features/auth/profile-cache";
 
 interface AuthContextType {
   isLoggedIn: boolean;
+  sessionVersion: number;
   login: (token: string, role: string, remember?: boolean) => void;
   logout: () => void;
 }
@@ -15,10 +17,10 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
-
+  const queryClient = useQueryClient();
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
+  const [sessionVersion, setSessionVersion] = useState(0);
 
   useEffect(() => {
     const token = Cookies.get("ACCESS_TOKEN");
@@ -26,6 +28,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const login = (token: string, role: string, remember?: boolean) => {
+    queryClient.removeQueries({ queryKey: ["support"] });
     const secureCookie = window.location.protocol === "https:";
 
     Cookies.set("ACCESS_TOKEN", token, {
@@ -42,18 +45,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       path: "/",
     });
 
+    setSessionVersion((version) => version + 1);
     setIsLoggedIn(true);
   };
   const logout = () => {
+    queryClient.removeQueries({ queryKey: ["support"] });
     clearCachedProfile();
     Cookies.remove("ACCESS_TOKEN");
     Cookies.remove("USER_ROLE");
+    setSessionVersion((version) => version + 1);
     setIsLoggedIn(false);
     router.push("/login");
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, sessionVersion, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
