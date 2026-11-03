@@ -1,6 +1,7 @@
 export type PropertyRouteTarget = {
   id?: string | number | null;
   slug?: string | number | null;
+  rentalModel?: string;
 };
 
 export const getPropertyDetailsPath = (property: PropertyRouteTarget) => {
@@ -10,5 +11,8 @@ export const getPropertyDetailsPath = (property: PropertyRouteTarget) => {
     return "/properties";
   }
 
-  return `/properties/${encodeURIComponent(String(identifier))}`;
+  const propertyPath = `/properties/${encodeURIComponent(String(identifier))}`;
+  return property.rentalModel
+    ? `${propertyPath}?model=shortlet`
+    : propertyPath;
 };

@@ -3,7 +3,9 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import DashboardLayout from "@/app/components/Dashboard/DashboardLayout";
-import { rentalApi, useDeleteRental, Rental } from "@/app/api/features/rental";
+import { useDeleteRental } from "@/app/api/features/rental";
+import { useDeleteShortlet } from "@/app/api/features/shortlet";
+import { fetchProperties, type Property } from "@/app/api/features/property";
 import { getCurrentUserId } from "@/app/lib/auth";
 import { getPropertyDetailsPath } from "@/app/lib/property-routes";
 import { Plus, MapPin, Home, Loader2 } from "lucide-react";
@@ -27,9 +29,9 @@ const getStatusClasses = (status: string) => {
 };
 
 const filterRentalsByTab = (
-  rentals: Rental[],
+  rentals: Property[],
   activeTab: (typeof tabs)[number],
-): Rental[] => {
+): Property[] => {
   if (activeTab === "All Properties") {
     return rentals;
   }
@@ -43,7 +45,7 @@ const Page = () => {
   const router = useRouter();
   const [activeTab, setActiveTab] =
     useState<(typeof tabs)[number]>("All Properties");
-  const [rentals, setRentals] = useState<Rental[]>([]);
+  const [rentals, setRentals] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -52,8 +54,13 @@ const Page = () => {
     isPending: isDeletingRental,
     variables: deletingRentalId,
   } = useDeleteRental();
+  const {
+    mutate: deleteShortletMutation,
+    isPending: isDeletingShortlet,
+    variables: deletingShortletId,
+  } = useDeleteShortlet();
 
-  const handleDeleteRental = async (rental: Rental) => {
+  const handleDeleteRental = async (rental: Property) => {
     const result = await Swal.fire({
       title: "Delete property?",
       text: `You are about to delete "${rental.title}". This action cannot be undone.`,
@@ -70,19 +77,30 @@ const Page = () => {
       return;
     }
 
-    deleteRentalMutation(rental.id);
+    if (rental.rentalModel) {
+      deleteShortletMutation(rental.id);
+    } else {
+      deleteRentalMutation(rental.id);
+    }
   };
 
   useEffect(() => {
     const fetchRentals = async () => {
       try {
-        const data = await rentalApi.getAllRentals();
+        const combinedListings = await fetchProperties({
+          recentOnly: false,
+          includeShortlets: true,
+        });
         const currentUserId = getCurrentUserId();
 
         setRentals(
           currentUserId
-            ? data.filter((rental) => rental.UserId === currentUserId)
-            : data,
+            ? combinedListings.filter(
+                (rental) =>
+                  rental.UserId === currentUserId ||
+                  rental.userId === currentUserId,
+              )
+            : combinedListings,
         );
       } catch (err: any) {
         console.error("Failed to fetch landlord rentals:", err);
@@ -215,29 +233,34 @@ const Page = () => {
                     </div>
 
                     <div className="flex gap-1.5">
-                      <button
+                      {!rental.rentalModel && <button
                         type="button"
                         onClick={() => router.push(`/landlord/edit-property/${rental.id}`)}
                         className="px-3 py-1.5 border border-gray-100 rounded-lg text-gray-500 text-[11px] font-bold hover:bg-gray-50 transition-colors cursor-pointer"
                       >
                         Edit
-                      </button>
-                      <button
+                      </button>}
+                      {!rental.rentalModel && <button
                         type="button"
                         onClick={() => router.push(`/landlord/my-listings/${rental.id}`)}
                         className="px-3 py-1.5 border border-gray-100 rounded-lg text-gray-500 text-[11px] font-bold hover:bg-gray-50 transition-colors cursor-pointer"
                       >
                         Inspections
-                      </button>
+                      </button>}
                       <button
                         type="button"
                         onClick={() => handleDeleteRental(rental)}
                         disabled={
-                          isDeletingRental && deletingRentalId === rental.id
+                          (isDeletingRental && deletingRentalId === rental.id) ||
+                          (isDeletingShortlet &&
+                            deletingShortletId === rental.id)
                         }
                         className="px-3 py-1.5 border bg-red-600 rounded-lg text-white text-[11px] font-bold hover:bg-red-700 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                       >
-                        {isDeletingRental && deletingRentalId === rental.id
+                        {(isDeletingRental &&
+                          deletingRentalId === rental.id) ||
+                        (isDeletingShortlet &&
+                          deletingShortletId === rental.id)
                           ? "Deleting..."
                           : "Delete"}
                       </button>

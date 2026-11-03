@@ -15,14 +15,18 @@ import {
   searchProperties,
   type Property,
 } from "@/app/api/features/property";
+import {
+  fetchShortlets,
+  searchShortlets,
+} from "@/app/api/features/shortlet/shortlet.api";
 import { getPropertyDetailsPath } from "@/app/lib/property-routes";
 import { formatRelativeTime } from "@/app/lib/formatRelativeTime";
 import { hasAccessToken } from "@/app/lib/auth";
 import { useLikeRental, useUnlikeRental } from "@/app/api";
 import { House, MapPin } from "lucide-react";
 
-// FIX: matches the real backend propertyType enum exactly (see docs section 16 —
-// ENUM Definitions). "Bungalow" and "Duplex" were never valid values here or in
+// FIX: matches the real backend propertyType exactly (see docs section 16 —
+// "Bungalow" and "Duplex" were never valid values here or in
 // HeroSection's dropdown — those need fixing on that end too, since selecting them
 // can never match a real property no matter what this page does.
 const CATEGORIES = [
@@ -87,13 +91,49 @@ function AllPropertiesPageContent() {
     isError,
     error,
   } = useQuery<Property[], Error>({
-    queryKey: ["properties-list", finalSearch, recentOnly ? "recent" : "all"],
+    queryKey: [
+      "properties-list",
+      finalSearch,
+      recentOnly ? "recent" : "all",
+      selectedCategory,
+    ],
     queryFn: async () => {
       const trimmedSearch = finalSearch.trim();
 
+      if (selectedCategory === "Shortlet") {
+        if (trimmedSearch && !recentOnly) {
+          return searchShortlets({ location: trimmedSearch });
+        }
+
+        const shortlets = await fetchShortlets(recentOnly);
+        if (!trimmedSearch) {
+          return shortlets;
+        }
+
+        const searchTerm = trimmedSearch.toLowerCase();
+        return shortlets.filter((property) =>
+          [
+            property.location,
+            property.title,
+            property.description,
+            property.propertyType,
+            property.city,
+            property.state,
+            property.area,
+          ]
+            .filter(Boolean)
+            .some((value) =>
+              String(value).toLowerCase().includes(searchTerm),
+            ),
+        );
+      }
+
       return trimmedSearch
-        ? searchProperties({ location: trimmedSearch }, { recentOnly })
-        : fetchProperties({ recentOnly });
+        ? searchProperties(
+            { location: trimmedSearch },
+            { recentOnly, includeShortlets: false },
+          )
+        : fetchProperties({ recentOnly, includeShortlets: false });
     },
   });
 
@@ -103,6 +143,14 @@ function AllPropertiesPageContent() {
   const visibleProperties = properties.filter((item) => {
     if (selectedCategory === "All") {
       return true;
+    }
+
+    if (selectedCategory === "Shortlet") {
+      return Boolean(item.rentalModel);
+    }
+
+    if (item.rentalModel) {
+      return false;
     }
 
     return item.propertyType.toLowerCase() === selectedCategory.toLowerCase();
@@ -211,7 +259,10 @@ function AllPropertiesPageContent() {
             {CATEGORIES.map((cat) => (
               <button
                 key={cat}
-                onClick={() => setSelectedCategory(cat)}
+                onClick={() => {
+                  setSelectedCategory(cat);
+                  setCurrentPage(0);
+                }}
                 className={`px-6 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap ${
                   selectedCategory === cat
                     ? "bg-[#4CAF50] text-white shadow-lg shadow-green-100"

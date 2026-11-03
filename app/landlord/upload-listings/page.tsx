@@ -14,6 +14,11 @@ import {
   Loader2,
 } from "lucide-react";
 import { rentalApi, type CreateRentalPayload } from "@/app/api/features/rental";
+import {
+  createShortlet,
+  type CreateShortletPayload,
+  type ShortletPropertyType,
+} from "@/app/api/features/shortlet";
 import { toast } from "react-toastify";
 
 interface FormData {
@@ -27,6 +32,28 @@ interface FormData {
   cautionFee: number;
   brokeFee: number;
   mgtServiceCharge: number;
+  rentalModel: "entire_place" | "private_room" | "shared_room" | "hotel";
+  shortletPropertyType: ShortletPropertyType;
+  address: string;
+  area: string;
+  landmark: string;
+  bedrooms: number;
+  bathrooms: number;
+  livingRooms: number;
+  guestCapacity: number;
+  furnishingStatus: "unfurnished" | "semi_furnished" | "fully_furnished";
+  cleaningFee: number;
+  securityDeposit: number;
+  minimumStay: number;
+  maximumStay: number;
+  availableFrom: string;
+  availableTo: string;
+  checkInTime: string;
+  checkOutTime: string;
+  smokingAllowed: string;
+  petsAllowed: string;
+  partiesAllowed: string;
+  houseRules: string;
 }
 
 const toMoneyNumber = (value: unknown): number => {
@@ -68,6 +95,28 @@ const page = () => {
       cautionFee: 0,
       brokeFee: 0,
       mgtServiceCharge: 0,
+      rentalModel: "entire_place",
+      shortletPropertyType: "apartment",
+      address: "",
+      area: "",
+      landmark: "",
+      bedrooms: 1,
+      bathrooms: 1,
+      livingRooms: 1,
+      guestCapacity: 2,
+      furnishingStatus: "fully_furnished",
+      cleaningFee: 0,
+      securityDeposit: 0,
+      minimumStay: 1,
+      maximumStay: 30,
+      availableFrom: "",
+      availableTo: "",
+      checkInTime: "",
+      checkOutTime: "",
+      smokingAllowed: "false",
+      petsAllowed: "false",
+      partiesAllowed: "false",
+      houseRules: "",
     },
   });
 
@@ -78,6 +127,7 @@ const page = () => {
     "brokeFee",
     "mgtServiceCharge",
   ]);
+  const isShortlet = watch("type") === "shortlets";
   const toggleAmenity = (amenity: string) => {
     setSelectedAmenities((currentAmenities) => {
       return currentAmenities.includes(amenity)
@@ -99,6 +149,11 @@ const page = () => {
     setUploadError(null);
     const newFiles = Array.from(files);
     const validFiles: File[] = [];
+
+    if (isShortlet && images.length + newFiles.length > 6) {
+      setUploadError("Shortlet listings can include up to 6 images.");
+      return;
+    }
 
     // Validate each file
     for (const file of newFiles) {
@@ -137,6 +192,11 @@ const page = () => {
     setUploadError(null);
     const newFiles = Array.from(files);
     const validFiles: File[] = [];
+
+    if (isShortlet && videos.length + newFiles.length > 2) {
+      setUploadError("Shortlet listings can include up to 2 videos.");
+      return;
+    }
 
     // Validate each file
     for (const file of newFiles) {
@@ -231,6 +291,61 @@ const page = () => {
     }
 
     try {
+      if (data.type === "shortlets") {
+        if (new Date(data.availableTo) < new Date(data.availableFrom)) {
+          setSubmitError("Availability end date cannot be before its start date.");
+          return;
+        }
+        if (
+          toMoneyNumber(data.maximumStay) <
+          toMoneyNumber(data.minimumStay)
+        ) {
+          setSubmitError("Maximum stay cannot be less than minimum stay.");
+          return;
+        }
+
+        const shortletPayload: CreateShortletPayload = {
+          title: data.title,
+          description: data.description,
+          rentalModel: data.rentalModel,
+          propertyType: data.shortletPropertyType,
+          bedrooms: toMoneyNumber(data.bedrooms),
+          bathrooms: toMoneyNumber(data.bathrooms),
+          livingRooms: toMoneyNumber(data.livingRooms),
+          guestCapacity: toMoneyNumber(data.guestCapacity),
+          furnishingStatus: data.furnishingStatus,
+          address: data.address,
+          city: data.location,
+          area: data.area,
+          landmark: data.landmark,
+          pricePerNight: toMoneyNumber(data.basicRent),
+          cleaningFee: toMoneyNumber(data.cleaningFee),
+          securityDeposit: toMoneyNumber(data.securityDeposit),
+          minimumStay: toMoneyNumber(data.minimumStay),
+          maximumStay: toMoneyNumber(data.maximumStay),
+          availableFrom: data.availableFrom,
+          availableTo: data.availableTo,
+          checkInTime: data.checkInTime,
+          checkOutTime: data.checkOutTime,
+          smokingAllowed: data.smokingAllowed === "true",
+          petsAllowed: data.petsAllowed === "true",
+          partiesAllowed: data.partiesAllowed === "true",
+          houseRules: data.houseRules
+            .split(/\r?\n/)
+            .map((rule) => rule.trim())
+            .filter(Boolean),
+          status: data.status,
+          images,
+          videos,
+          amenities: selectedAmenities,
+        };
+
+        await createShortlet(shortletPayload);
+        toast.success("Shortlet uploaded successfully!");
+        router.push("/landlord/my-listings");
+        return;
+      }
+
       // Build payload matching CreateRentalPayload expected by rentalApi
       const payload: CreateRentalPayload = {
         title: data.title,
@@ -242,7 +357,7 @@ const page = () => {
         cautionFee: toMoneyNumber(data.cautionFee),
         brokeFee: toMoneyNumber(data.brokeFee),
         mgtServiceCharge: toMoneyNumber(data.mgtServiceCharge),
-        priceType: "yearly",
+        priceType: isShortlet ? "nightly" : "yearly",
         status: data.status,
         images: images,
         videos: videos,
@@ -401,7 +516,7 @@ const page = () => {
                         <option value="house">House</option>
                         <option value="land">Land</option>
                         <option value="lodge">Lodge</option>
-                        <option value="lodge">Self-contain</option>
+                        <option value="self-contain">Self-contain</option>
                         <option value="shortlets">Shortlets</option>
                       </select>
                     </div>
@@ -421,6 +536,194 @@ const page = () => {
                     </select>
                   </div>
                 </div>
+                {isShortlet && (
+                  <section className="mt-6 space-y-5 border-t border-slate-100 pt-6">
+                    <h3 className="font-bold text-slate-800">
+                      Shortlet details
+                    </h3>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <label className="space-y-2 text-xs font-semibold text-slate-600">
+                        Rental model
+                        <select
+                          {...register("rentalModel", { required: true })}
+                          className="w-full rounded-xl bg-[#F8FAFC] p-3"
+                        >
+                          <option value="entire_place">Entire place</option>
+                          <option value="private_room">Private room</option>
+                          <option value="shared_room">Shared room</option>
+                          <option value="hotel">Hotel</option>
+                        </select>
+                      </label>
+                      <label className="space-y-2 text-xs font-semibold text-slate-600">
+                        Accommodation type
+                        <select
+                          {...register("shortletPropertyType", {
+                            required: true,
+                          })}
+                          className="w-full rounded-xl bg-[#F8FAFC] p-3"
+                        >
+                          <option value="apartment">Apartment</option>
+                          <option value="house">House</option>
+                          <option value="villa">Villa</option>
+                          <option value="studio">Studio</option>
+                          <option value="condo">Condo</option>
+                          <option value="townhouse">Townhouse</option>
+                          <option value="bungalow">Bungalow</option>
+                          <option value="loft">Loft</option>
+                        </select>
+                      </label>
+                    </div>
+                    <label className="block space-y-2 text-xs font-semibold text-slate-600">
+                      Full address
+                      <input
+                        {...register("address", { required: isShortlet })}
+                        className="w-full rounded-xl bg-[#F8FAFC] p-3"
+                      />
+                    </label>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <label className="space-y-2 text-xs font-semibold text-slate-600">
+                        Area
+                        <input
+                          {...register("area")}
+                          className="w-full rounded-xl bg-[#F8FAFC] p-3"
+                        />
+                      </label>
+                      <label className="space-y-2 text-xs font-semibold text-slate-600">
+                        Nearby landmark
+                        <input
+                          {...register("landmark")}
+                          className="w-full rounded-xl bg-[#F8FAFC] p-3"
+                        />
+                      </label>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                      {(
+                        [
+                          ["bedrooms", "Bedrooms"],
+                          ["bathrooms", "Bathrooms"],
+                          ["livingRooms", "Living rooms"],
+                          ["guestCapacity", "Guest capacity"],
+                        ] as const
+                      ).map(([name, label]) => (
+                        <label
+                          key={name}
+                          className="space-y-2 text-xs font-semibold text-slate-600"
+                        >
+                          {label}
+                          <input
+                            type="number"
+                            min={0}
+                            {...register(name, { valueAsNumber: true })}
+                            className="w-full rounded-xl bg-[#F8FAFC] p-3"
+                          />
+                        </label>
+                      ))}
+                      <label className="col-span-2 space-y-2 text-xs font-semibold text-slate-600 sm:col-span-1">
+                        Furnishing
+                        <select
+                          {...register("furnishingStatus")}
+                          className="w-full rounded-xl bg-[#F8FAFC] p-3"
+                        >
+                          <option value="unfurnished">Unfurnished</option>
+                          <option value="semi_furnished">Semi-furnished</option>
+                          <option value="fully_furnished">Fully furnished</option>
+                        </select>
+                      </label>
+                    </div>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <label className="space-y-2 text-xs font-semibold text-slate-600">
+                        Available from
+                        <input
+                          type="date"
+                          {...register("availableFrom", {
+                            required: isShortlet,
+                          })}
+                          className="w-full rounded-xl bg-[#F8FAFC] p-3"
+                        />
+                      </label>
+                      <label className="space-y-2 text-xs font-semibold text-slate-600">
+                        Available to
+                        <input
+                          type="date"
+                          {...register("availableTo", {
+                            required: isShortlet,
+                          })}
+                          className="w-full rounded-xl bg-[#F8FAFC] p-3"
+                        />
+                      </label>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                      {(
+                        [
+                          ["minimumStay", "Minimum nights"],
+                          ["maximumStay", "Maximum nights"],
+                        ] as const
+                      ).map(([name, label]) => (
+                        <label
+                          key={name}
+                          className="space-y-2 text-xs font-semibold text-slate-600"
+                        >
+                          {label}
+                          <input
+                            type="number"
+                            min={1}
+                            {...register(name, { valueAsNumber: true })}
+                            className="w-full rounded-xl bg-[#F8FAFC] p-3"
+                          />
+                        </label>
+                      ))}
+                      {(
+                        [
+                          ["checkInTime", "Check-in"],
+                          ["checkOutTime", "Check-out"],
+                        ] as const
+                      ).map(([name, label]) => (
+                        <label
+                          key={name}
+                          className="space-y-2 text-xs font-semibold text-slate-600"
+                        >
+                          {label} time
+                          <input
+                            type="time"
+                            {...register(name)}
+                            className="w-full rounded-xl bg-[#F8FAFC] p-3"
+                          />
+                        </label>
+                      ))}
+                    </div>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                      {(
+                        [
+                          ["smokingAllowed", "Smoking allowed"],
+                          ["petsAllowed", "Pets allowed"],
+                          ["partiesAllowed", "Parties allowed"],
+                        ] as const
+                      ).map(([name, label]) => (
+                        <label
+                          key={name}
+                          className="space-y-2 text-xs font-semibold text-slate-600"
+                        >
+                          {label}
+                          <select
+                            {...register(name)}
+                            className="w-full rounded-xl bg-[#F8FAFC] p-3"
+                          >
+                            <option value="false">No</option>
+                            <option value="true">Yes</option>
+                          </select>
+                        </label>
+                      ))}
+                    </div>
+                    <label className="block space-y-2 text-xs font-semibold text-slate-600">
+                      House rules (one per line)
+                      <textarea
+                        rows={3}
+                        {...register("houseRules")}
+                        className="w-full rounded-xl bg-[#F8FAFC] p-3"
+                      />
+                    </label>
+                  </section>
+                )}
               </section>
 
               {/* Amenities & Features */}
@@ -465,20 +768,21 @@ const page = () => {
             </div>
 
             <div className="lg:col-span-4 space-y-8">
-              {/* Financial Breakdown */}
+              {/* Financial fields keep the existing API structure; the base
+                  price period follows the selected rental type. */}
               <section className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
                 <div className="flex items-center gap-2 mb-6 text-[#4CAF50]">
                   <div className="bg-[#4CAF50]/10 p-2 rounded-full">
                     <DollarSign size={20} />
                   </div>
                   <h3 className="font-bold text-slate-800">
-                    Financial Breakdown
+                    {isShortlet ? "Nightly Rate & Charges" : "Financial Breakdown"}
                   </h3>
                 </div>
                 <div className="space-y-4">
                   <div>
                     <label className="text-[10px] font-bold text-[#4CAF50] uppercase ml-1">
-                      Basic Rent (Annual) *
+                      {isShortlet ? "Price per night *" : "Basic Rent (Annual) *"}
                     </label>
                     <input
                       type="number"
@@ -495,6 +799,33 @@ const page = () => {
                       </p>
                     )}
                   </div>
+                  {isShortlet ? (
+                    <div className="grid grid-cols-2 gap-3">
+                      <label className="space-y-2 text-xs font-semibold text-slate-600">
+                        Cleaning fee
+                        <input
+                          type="number"
+                          min={0}
+                          step="0.01"
+                          {...register("cleaningFee", { valueAsNumber: true })}
+                          className="w-full rounded-xl bg-[#F8FAFC] p-3"
+                        />
+                      </label>
+                      <label className="space-y-2 text-xs font-semibold text-slate-600">
+                        Security deposit
+                        <input
+                          type="number"
+                          min={0}
+                          step="0.01"
+                          {...register("securityDeposit", {
+                            valueAsNumber: true,
+                          })}
+                          className="w-full rounded-xl bg-[#F8FAFC] p-3"
+                        />
+                      </label>
+                    </div>
+                  ) : (
+                    <>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
@@ -543,12 +874,21 @@ const page = () => {
                       className="w-full p-3 bg-[#F8FAFC] rounded-xl"
                     />
                   </div>
+                    </>
+                  )}
                   <div className="mt-6 p-4 bg-[#4CAF50]/5 rounded-2xl border border-[#4CAF50]/10">
                     <p className="text-[10px] font-bold text-slate-400 uppercase">
-                      Total Package
+                      {isShortlet ? "Nightly rate" : "Total Package"}
                     </p>
                     <p className="text-2xl font-bold text-[#4CAF50]">
-                      ₦{totalPackages.toLocaleString()}
+                      ₦
+                      {(isShortlet
+                        ? toMoneyNumber(fees[0])
+                        : totalPackages
+                      ).toLocaleString()}
+                      {isShortlet && (
+                        <span className="ml-1 text-sm font-medium">/ night</span>
+                      )}
                     </p>
                   </div>
                 </div>
@@ -556,8 +896,8 @@ const page = () => {
 
               {/* Property Media */}
               <section className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
-                <div className="flex items-center gap-2 mb-6 text-pink-500">
-                  <div className="bg-pink-50 p-2 rounded-full">
+                <div className="flex items-center gap-2 mb-6 text-[#43A047]">
+                  <div className="bg-[#E8F5E9] p-2 rounded-full">
                     <ImageIcon size={20} />
                   </div>
                   <h3 className="font-bold text-slate-800">Property Images</h3>
@@ -609,8 +949,8 @@ const page = () => {
 
               {/* Property Videos */}
               <section className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
-                <div className="flex items-center gap-2 mb-6 text-pink-500">
-                  <div className="bg-pink-50 p-2 rounded-full">
+                <div className="flex items-center gap-2 mb-6 text-[#43A047]">
+                  <div className="bg-[#E8F5E9] p-2 rounded-full">
                     <ImageIcon size={20} />
                   </div>
                   <h3 className="font-bold text-slate-800">Property Videos</h3>

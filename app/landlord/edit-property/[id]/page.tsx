@@ -74,6 +74,7 @@ const Page = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>({ defaultValues });
+  const isShortlet = watch("propertyType") === "shortlets";
 
   useEffect(() => {
     if (!rentalData) {
@@ -190,7 +191,7 @@ const Page = () => {
       propertyType: data.propertyType,
       location: data.location,
       price: totalPackages,
-      priceType: rentalData?.priceType || "yearly",
+      priceType: data.propertyType === "shortlets" ? "nightly" : "yearly",
       status: data.status,
       amenities: data.amenities,
       legalFee: toMoneyNumber(data.legalFee),
@@ -383,7 +384,7 @@ const Page = () => {
                         <option value="commercial">Commercial</option>
                         <option value="land">Land</option>
                         <option value="lodge">Lodge</option>
-                        <option value="lodge">Self-contain</option>
+                        <option value="self-contain">Self-contain</option>
                         <option value="shortlets">Shortlets</option>
                       </select>
                     </div>
@@ -452,13 +453,13 @@ const Page = () => {
                     <DollarSign size={20} />
                   </div>
                   <h3 className="font-bold text-slate-800">
-                    Financial Breakdown
+                    {isShortlet ? "Nightly Rate & Charges" : "Financial Breakdown"}
                   </h3>
                 </div>
                 <div className="space-y-4">
                   <div>
                     <label className="text-[10px] font-bold text-[#4CAF50] uppercase ml-1">
-                      Basic Rent (Annual) *
+                      {isShortlet ? "Price per night *" : "Basic Rent (Annual) *"}
                     </label>
                     <input
                       type="number"

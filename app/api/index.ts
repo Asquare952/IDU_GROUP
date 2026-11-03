@@ -84,6 +84,29 @@ export {
 export type { Property, Properties } from "./features/property";
 
 // ============================================
+// Shortlet Management
+// ============================================
+export {
+  createShortlet,
+  deleteShortlet,
+  fetchShortletById,
+  fetchShortlets,
+  searchShortlets,
+  shortletApi,
+  updateShortlet,
+  useCreateShortlet,
+  useDeleteShortlet,
+  useFetchShortletById,
+  useFetchShortlets,
+  useUpdateShortlet,
+} from "./features/shortlet";
+export type {
+  CreateShortletPayload,
+  ShortletPropertyType,
+  UpdateShortletPayload,
+} from "./features/shortlet";
+
+// ============================================
 // Progress Tracking (Likes, Locks, Books)
 // ============================================
 export { progressApi } from "./features/progress/progress.api";
