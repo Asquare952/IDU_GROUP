@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import DashboardLayout from "@/app/components/Dashboard/DashboardLayout";
 import HouseIn from "@/public/house-in.jpg";
@@ -129,20 +129,7 @@ const page = () => {
         <div className=" flex gap-2.5 mb-3.5 p-2.5 bg-[#e0e8ff69] rounded-xl">
           <Info size={20} />
 
-          <div className=" flex flex-col gap-1.5">
-            <h2 className=" font-semibold text-[15px]">
-              What's the difference?
-            </h2>
-            <p className=":w-[510px] md:w-[610px] text-[15px]">
-              Long-term renals are for exended stays (monthly/yearly), while
-              shortlets are for short stays (days, weeks). You can always edit
-              the details later
-            </p>
-          </div>
-        </div>
-      </div>
-    </DashboardLayout>
-  );
+  return null;
 };
 
-export default page;
+export default Page;
