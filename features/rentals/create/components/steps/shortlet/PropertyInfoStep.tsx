@@ -1,4 +1,4 @@
-import { Info, Bed, Bath, Users } from "lucide-react";
+import { Info, Bed, Bath, Users, Sofa } from "lucide-react";
 
 import type { UseFormReturn, FieldErrors } from "react-hook-form";
 
@@ -97,14 +97,15 @@ const PropertyInfoStep = ({ methods, errors }: Props) => {
                   })}
                   className="w-full p-4 bg-[#F8FAFC] rounded-2xl border-none"
                 >
+                  <option value="">Select a property type</option>
                   <option value="apartment">Apartment</option>
                   <option value="house">House</option>
-                  <option value="land">villa</option>
-                  <option value="lodge">studio</option>
-                  <option value="lodge">condo</option>
-                  <option value="lodge">townhouse</option>
-                  <option value="lodge">bungalow</option>
-                  <option value="lodge">loft</option>
+                  <option value="villa">Villa</option>
+                  <option value="studio">Studio</option>
+                  <option value="condo">Condo</option>
+                  <option value="townhouse">Townhouse</option>
+                  <option value="bungalow">Bungalow</option>
+                  <option value="loft">Loft</option>
                 </select>
                 {errors.propertyType && (
                   <p className="text-red-500 text-xs ml-1">
@@ -120,9 +121,10 @@ const PropertyInfoStep = ({ methods, errors }: Props) => {
                   {...methods.register("furnishedStatus")}
                   className="w-full p-4 bg-[#F8FAFC] rounded-2xl border-none "
                 >
-                  <option value="apartment">Fully furnished</option>
-                  <option value="house">Unfurnished</option>
-                  <option value="land">Semi furnished</option>
+                  <option value="">Select furnishing status</option>
+                  <option value="fully_furnished">Fully furnished</option>
+                  <option value="unfurnished">Unfurnished</option>
+                  <option value="semi_furnished">Semi furnished</option>
                 </select>
               </div>
             </div>
@@ -136,10 +138,11 @@ const PropertyInfoStep = ({ methods, errors }: Props) => {
                 })}
                 className="w-full p-4 bg-[#F8FAFC] rounded-2xl border-none"
               >
-                <option value="available">Entire Place</option>
-                <option value="pending">Private Room</option>
-                <option value="locked">Shared Room</option>
-                <option value="rented">hotel</option>
+                <option value="">Select a rental type</option>
+                <option value="entire_place">Entire place</option>
+                <option value="private_room">Private room</option>
+                <option value="shared_room">Shared room</option>
+                <option value="hotel">Hotel</option>
               </select>
               {errors.rentalModel && (
                 <p className="text-red-500 text-xs ml-1">
@@ -163,11 +166,12 @@ const PropertyInfoStep = ({ methods, errors }: Props) => {
                     {...methods.register("bedrooms")}
                     className="w-full p-1 bg-[#F8FAFC] rounded-2xl border-none"
                   >
-                    <option value="">1</option>
-                    <option value="">2</option>
-                    <option value="">3</option>
-                    <option value="">4</option>
-                    <option value="">5</option>
+                    <option value="0">Select</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
                   </select>
                 </div>
                 <div className=" flex flex-col gap-1.5 border border-amber-50 p-1.5">
@@ -179,27 +183,29 @@ const PropertyInfoStep = ({ methods, errors }: Props) => {
                     {...methods.register("bathrooms")}
                     className="w-full p-1 bg-[#F8FAFC] rounded-2xl border-none"
                   >
-                    <option value="">1</option>
-                    <option value="">2</option>
-                    <option value="">3</option>
-                    <option value="">4</option>
-                    <option value="">5</option>
+                    <option value="0">Select</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
                   </select>
                 </div>
                 <div className=" flex flex-col gap-1.5 border border-amber-50 p-1.5">
                   <div className=" flex flex-col justify-center items-center">
-                    <Bath />
+                    <Sofa />
                     <h4>Livivng Room</h4>
                   </div>
                   <select
                     {...methods.register("livivngRooms")}
                     className="w-full p-1 bg-[#F8FAFC] rounded-2xl border-none"
                   >
-                    <option value="">1</option>
-                    <option value="">2</option>
-                    <option value="">3</option>
-                    <option value="">4</option>
-                    <option value="">5</option>
+                    <option value="0">Select</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
                   </select>
                 </div>
                 <div className=" flex flex-col gap-1.5 border border-amber-50 p-1.5">
@@ -211,11 +217,12 @@ const PropertyInfoStep = ({ methods, errors }: Props) => {
                     {...methods.register("guestCapacity")}
                     className="w-full p-1 bg-[#F8FAFC] rounded-2xl border-none"
                   >
-                    <option value="">1</option>
-                    <option value="">2</option>
-                    <option value="">3</option>
-                    <option value="">4</option>
-                    <option value="">5</option>
+                    <option value="0">Select</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
                   </select>
                 </div>
               </div>

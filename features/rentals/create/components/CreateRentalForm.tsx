@@ -2,15 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 
 import StepIndicator from "./StepIndicator";
 import PropertyInformationStep from "./steps/PropertyInformationStep";
 import AmenitiesStep from "./steps/AmenitiesStep";
 import FinancialBreakdownStep from "./steps/FinancialBreakdownStep";
 import MediaStep from "./steps/MediaStep";
+import ReviewPublishPreview from "./ReviewPublishPreview";
 
 import { longTermSteps } from "../config/rental-steps";
-import { rentalApi, type CreateRentalPayload } from "@/app/api/features/rental";
+import { type CreateRentalPayload, useCreateRental } from "@/app/api/features/rental";
 import { toast } from "react-toastify";
 
 interface FormData {
@@ -33,6 +35,8 @@ const toMoneyNumber = (value: unknown): number => {
 };
 
 export default function CreateRentalForm() {
+  const router = useRouter();
+  const { mutate: createRental, isPending: isCreating } = useCreateRental();
   const [currentStep, setCurrentStep] = useState(0);
 
   const [totalPackages, setTotalPackages] = useState(0);
@@ -237,6 +241,35 @@ export default function CreateRentalForm() {
 
   // Form submission
   const onSubmit = async (data: FormData) => {
+    setSubmitError(null);
+    if (images.length === 0) {
+      setSubmitError("Please upload at least one image before publishing.");
+      return;
+    }
+    const payload: CreateRentalPayload = {
+      title: data.title,
+      description: data.description,
+      propertyType: data.propertyType,
+      location: data.location,
+      price: totalPackages,
+      legalFee: toMoneyNumber(data.legalFee),
+      cautionFee: toMoneyNumber(data.cautionFee),
+      brokeFee: toMoneyNumber(data.brokeFee),
+      mgtServiceCharge: toMoneyNumber(data.mgtServiceCharge),
+      priceType: "yearly",
+      status: data.status,
+      images,
+      videos,
+      amenities: selectedAmenities,
+    };
+    createRental(payload, {
+      onSuccess: () => {
+        toast.success("Property published successfully!");
+        router.push("/landlord/my-listings");
+      },
+      onError: (error) =>
+        setSubmitError(error.message || "Unable to publish this property."),
+    });
     // setUploadError(null);
     // setIsSubmitting(true);
     // setSubmitError(null);
@@ -358,6 +391,17 @@ export default function CreateRentalForm() {
                 totalPackages={totalPackages}
               />
             )}
+
+            {currentStep === 4 && (
+              <ReviewPublishPreview
+                values={watch()}
+                amenities={selectedAmenities}
+                imagePreviews={imagePreviews}
+                videoPreviews={videoPreviews}
+                totalPackage={totalPackages}
+                isShortlet={false}
+              />
+            )}
           </div>
 
           {/* Navigation */}
@@ -382,9 +426,10 @@ export default function CreateRentalForm() {
             ) : (
               <button
                 type="submit"
+                disabled={isCreating}
                 className="rounded-lg bg-green-600 px-6 py-2.5 text-sm font-medium text-white transition hover:bg-green-700"
               >
-                Review & Publish
+                {isCreating ? "Publishing..." : "Publish Property"}
               </button>
             )}
           </div>

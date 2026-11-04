@@ -192,7 +192,12 @@ export const progressApi = {
   },
   rentRental: ({ rentalId, pin }: { rentalId: string; pin: string }) =>
     addProgressItem("rent/pay", rentalId, pin),
-  bookRental: (rentalId: string) => addProgressItem("book", rentalId),
+  bookRental: (input: string | { rentalId: string; pin?: string }) => {
+    const { rentalId, pin } =
+      typeof input === "string" ? { rentalId: input, pin: undefined } : input;
+
+    return addProgressItem("book", rentalId, pin);
+  },
   unlikeRental: (rentalId: string) => removeProgressItem("like", rentalId),
   unlockRental: (rentalId: string) => removeProgressItem("lock", rentalId),
   unbookRental: (rentalId: string) => removeProgressItem("book", rentalId),

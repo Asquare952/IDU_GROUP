@@ -233,13 +233,19 @@ const Page = () => {
                     </div>
 
                     <div className="flex gap-1.5">
-                      {!rental.rentalModel && <button
+                      <button
                         type="button"
-                        onClick={() => router.push(`/landlord/edit-property/${rental.id}`)}
+                        onClick={() =>
+                          router.push(
+                            `/landlord/edit-property/${rental.id}${
+                              rental.rentalModel ? "?model=shortlet" : ""
+                            }`,
+                          )
+                        }
                         className="px-3 py-1.5 border border-gray-100 rounded-lg text-gray-500 text-[11px] font-bold hover:bg-gray-50 transition-colors cursor-pointer"
                       >
                         Edit
-                      </button>}
+                      </button>
                       {!rental.rentalModel && <button
                         type="button"
                         onClick={() => router.push(`/landlord/my-listings/${rental.id}`)}

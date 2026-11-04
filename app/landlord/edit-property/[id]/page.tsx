@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Loader2, X } from "lucide-react";
 import DashboardLayout from "@/app/components/Dashboard/DashboardLayout";
 import {
@@ -10,6 +10,12 @@ import {
   useUpdateRental,
   type UpdateRentalPayload,
 } from "@/app/api/features/rental";
+import {
+  useFetchShortletById,
+  useUpdateShortlet,
+  type UpdateShortletPayload,
+} from "@/app/api/features/shortlet";
+import type { Property as ShortletProperty } from "@/app/api/features/property/types";
 import StepIndicator from "@/features/rentals/create/components/StepIndicator";
 import PropertyInformationStep from "@/features/rentals/create/components/steps/PropertyInformationStep";
 import AmenitiesStep from "@/features/rentals/create/components/steps/AmenitiesStep";
@@ -78,13 +84,33 @@ const defaults: EditForm = {
 };
 const number = (value: unknown) =>
   Number.isFinite(Number(value)) ? Number(value) : 0;
+const dateInputValue = (value?: string) => value?.slice(0, 10) ?? "";
+const timeInputValue = (value?: string) => value?.slice(0, 5) ?? "";
+const booleanInputValue = (value?: boolean) =>
+  value === undefined ? "" : String(value);
 
 export default function Page() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const params = useParams<{ id?: string | string[] }>();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
-  const { data: rental, isLoading, isError, error } = useGetRentalById(id);
-  const { mutate: updateRental, isPending } = useUpdateRental(id ?? "");
+  const isShortletRequest = searchParams.get("model") === "shortlet";
+  const rentalQuery = useGetRentalById(id, {
+    enabled: Boolean(id) && !isShortletRequest,
+  });
+  const shortletQuery = useFetchShortletById(id, isShortletRequest);
+  const rental = isShortletRequest ? shortletQuery.data : rentalQuery.data;
+  const isLoading = isShortletRequest
+    ? shortletQuery.isLoading
+    : rentalQuery.isLoading;
+  const isError = isShortletRequest ? shortletQuery.isError : rentalQuery.isError;
+  const error = isShortletRequest ? shortletQuery.error : rentalQuery.error;
+  const { mutate: updateRental, isPending: isUpdatingRental } = useUpdateRental(
+    id ?? "",
+  );
+  const { mutate: updateShortlet, isPending: isUpdatingShortlet } =
+    useUpdateShortlet(id ?? "");
+  const isPending = isShortletRequest ? isUpdatingShortlet : isUpdatingRental;
   const methods = useForm<EditForm>({
     mode: "onTouched",
     defaultValues: defaults,
@@ -105,13 +131,13 @@ export default function Page() {
   const [removedImages, setRemovedImages] = useState<string[]>([]);
   const [removedVideos, setRemovedVideos] = useState<string[]>([]);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const shortlet = Boolean(
-    rental &&
+  const shortlet =
+    isShortletRequest ||
+    Boolean(rental &&
     (rental.propertyType.toLowerCase() === "shortlets" ||
       ["nightly", "daily", "shortlet"].includes(
         rental.priceType.toLowerCase(),
-      )),
-  );
+      )));
   const steps = shortlet ? shortTermSteps : longTermSteps;
   const fees = watch([
     "basicRent",
@@ -131,6 +157,9 @@ export default function Page() {
 
   useEffect(() => {
     if (!rental) return;
+    const shortletDetails = isShortletRequest
+      ? (rental as ShortletProperty)
+      : undefined;
     const legalFee = number(rental.legalFee),
       cautionFee = number(rental.cautionFee),
       brokeFee = number(rental.brokeFee),
@@ -154,9 +183,29 @@ export default function Page() {
       cautionFee,
       brokeFee,
       mgtServiceCharge,
-      pricePerNight: number(rental.price),
-      cleaningFee: mgtServiceCharge,
-      securityDeposit: cautionFee,
+      furnishedStatus: shortletDetails?.furnishingStatus ?? "",
+      rentalModel: shortletDetails?.rentalModel ?? "",
+      bedrooms: number(shortletDetails?.bedrooms),
+      bathrooms: number(shortletDetails?.bathrooms),
+      livivngRooms: number(shortletDetails?.livingRooms),
+      guestCapacity: number(shortletDetails?.guestCapacity),
+      address: shortletDetails?.address ?? "",
+      city: shortletDetails?.city ?? "",
+      area: shortletDetails?.area ?? "",
+      landmark: shortletDetails?.landmark ?? "",
+      pricePerNight: number(shortletDetails?.price ?? rental.price),
+      cleaningFee: number(shortletDetails?.cleaningFee),
+      securityDeposit: number(shortletDetails?.securityDeposit),
+      minimumStay: shortletDetails?.minimumStay ?? "",
+      maximumStay: shortletDetails?.maximumStay ?? "",
+      availableFrom: dateInputValue(shortletDetails?.availableFrom),
+      availableTo: dateInputValue(shortletDetails?.availableTo),
+      checkInTime: timeInputValue(shortletDetails?.checkInTime),
+      checkOutTime: timeInputValue(shortletDetails?.checkOutTime),
+      smokingAllowed: booleanInputValue(shortletDetails?.smokingAllowed),
+      petsAllowed: booleanInputValue(shortletDetails?.petsAllowed),
+      partiesAllowed: booleanInputValue(shortletDetails?.partiesAllowed),
+      houseRules: shortletDetails?.houseRules?.join("\n") ?? "",
     });
     setAmenities(rental.amenities ?? []);
     setStep(0);
@@ -225,6 +274,56 @@ export default function Page() {
   const submit = (data: EditForm) => {
     if (!id || !rental) return;
     setSubmitError(null);
+    const callbacks = {
+      onSuccess: () => router.push("/landlord/my-listings"),
+      onError: (err: unknown) =>
+        setSubmitError(
+          err instanceof Error ? err.message : "Unable to save changes.",
+        ),
+    };
+
+    if (isShortletRequest) {
+      const shortletPayload = {
+        title: data.title,
+        description: data.description,
+        rentalModel: data.rentalModel,
+        propertyType: data.propertyType,
+        bedrooms: number(data.bedrooms),
+        bathrooms: number(data.bathrooms),
+        livingRooms: number(data.livivngRooms),
+        guestCapacity: number(data.guestCapacity),
+        address: data.address,
+        city: data.city,
+        area: data.area,
+        landmark: data.landmark,
+        pricePerNight: number(data.pricePerNight),
+        cleaningFee: number(data.cleaningFee),
+        securityDeposit: number(data.securityDeposit),
+        minimumStay: number(data.minimumStay),
+        maximumStay: number(data.maximumStay),
+        availableFrom: data.availableFrom,
+        availableTo: data.availableTo,
+        checkInTime: data.checkInTime,
+        checkOutTime: data.checkOutTime,
+        smokingAllowed: data.smokingAllowed === "true",
+        petsAllowed: data.petsAllowed === "true",
+        partiesAllowed: data.partiesAllowed === "true",
+        houseRules: String(data.houseRules ?? "")
+          .split(/\n/)
+          .map((rule) => rule.trim())
+          .filter(Boolean),
+        status: data.status,
+        furnishingStatus: data.furnishedStatus,
+        amenities,
+        ...(images.length ? { images } : {}),
+        ...(videos.length ? { videos } : {}),
+        ...(removedImages.length ? { removedImages } : {}),
+        ...(removedVideos.length ? { removedVideos } : {}),
+      } as UpdateShortletPayload;
+      updateShortlet(shortletPayload, callbacks);
+      return;
+    }
+
     const payload = {
       ...data,
       title: data.title,
@@ -248,13 +347,7 @@ export default function Page() {
       ...(removedImages.length ? { removedImages } : {}),
       ...(removedVideos.length ? { removedVideos } : {}),
     } as UpdateRentalPayload;
-    updateRental(payload, {
-      onSuccess: () => router.push("/landlord/my-listings"),
-      onError: (err) =>
-        setSubmitError(
-          err instanceof Error ? err.message : "Unable to save changes.",
-        ),
-    });
+    updateRental(payload, callbacks);
   };
   if (isLoading)
     return (
@@ -334,7 +427,6 @@ export default function Page() {
         Save to update this {shortlet ? "shortlet" : "long-term"} listing.
       </p>
       <h4>uidhkd</h4>
-      <h5>iugdcksjd</h5>
     </section>
   );
   return (
@@ -378,136 +470,13 @@ export default function Page() {
                       methods={methods as never}
                       errors={errors as never}
                     />
-                    {errors.description && (
-                      <p className="text-red-500 text-xs ml-1">
-                        {errors.description.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
-                        Location / City *
-                      </label>
-                      <select
-                        {...register("location", {
-                          required: "Location is required",
-                        })}
-                        className="w-full p-4 bg-[#F8FAFC] rounded-2xl border-none outline-none"
-                      >
-                        <option value="">Select a location</option>
-                        <option value="lagos">Lagos</option>
-                        <option value="abuja">Abuja</option>
-                        <option value="port-harcourt">Imo</option>
-                        <option value="port-harcourt">Enugu</option>
-                        <option value="port-harcourt">Abia</option>
-                      </select>
-                      {errors.location && (
-                        <p className="text-red-500 text-xs ml-1">
-                          {errors.location.message}
-                        </p>
-                      )}
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
-                        Property Type
-                      </label>
-                      <select
-                        {...register("propertyType")}
-                        className="w-full p-4 bg-[#F8FAFC] rounded-2xl border-none outline-none"
-                      >
-                        <option value="apartment">Apartment</option>
-                        <option value="house">House</option>
-                        <option value="office">Office</option>
-                        <option value="commercial">Commercial</option>
-                        <option value="land">Land</option>
-                        <option value="lodge">Lodge</option>
-                        <option value="self-contain">Self-contain</option>
-                        <option value="shortlets">Shortlets</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
-                      House Status
-                    </label>
-                    <select
-                      {...register("status")}
-                      className="w-full p-4 bg-[#F8FAFC] rounded-2xl border-none outline-none"
-                    >
-                      <option value="available">Available</option>
-                      <option value="pending">Pending</option>
-                      <option value="locked">Locked</option>
-                      <option value="rented">Rented</option>
-                    </select>
-                  </div>
-                </div>
-              </section>
-
-              <section className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100">
-                <div className="flex items-center gap-2 mb-6 text-[#4CAF50]">
-                  <div className="bg-[#4CAF50]/10 p-2 rounded-full">
-                    <Sparkles size={20} />
-                  </div>
-                  <h3 className="font-bold text-slate-800">
-                    Amenities & Features
-                  </h3>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {[
-                    "24/7 Power",
-                    "Swimming Pool",
-                    "Security",
-                    "Gym",
-                    "Parking",
-                    "WiFi",
-                    "Elevator",
-                    "Garden",
-                  ].map((item) => (
-                    <label
-                      key={item}
-                      className="flex flex-col items-center justify-center p-4 bg-[#F8FAFC] rounded-2xl cursor-pointer hover:bg-slate-100 transition-colors"
-                    >
-                      <input
-                        type="checkbox"
-                        value={item}
-                        {...register("amenities")}
-                        className="mb-2 accent-[#4CAF50]"
-                      />
-                      <span className="text-[10px] font-bold text-slate-500 text-center uppercase">
-                        {item}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </section>
-            </div>
-
-            <div className="lg:col-span-4 space-y-8">
-              <section className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100">
-                <div className="flex items-center gap-2 mb-6 text-[#4CAF50]">
-                  <div className="bg-[#4CAF50]/10 p-2 rounded-full">
-                    <DollarSign size={20} />
-                  </div>
-                  <h3 className="font-bold text-slate-800">
-                    {isShortlet ? "Nightly Rate & Charges" : "Financial Breakdown"}
-                  </h3>
-                </div>
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-[10px] font-bold text-[#4CAF50] uppercase ml-1">
-                      {isShortlet ? "Price per night *" : "Basic Rent (Annual) *"}
-                    </label>
-                    <input
-                      type="number"
-                      {...register("basicRent", {
-                        valueAsNumber: true,
-                        required: "Rent is required",
-                        min: { value: 1, message: "Must be greater than 0" },
-                      })}
-                      className="w-full p-3 bg-[#F8FAFC] rounded-xl border-none outline-none"
+                  )}
+                  {step === 2 && (
+                    <ShortletAmenitiesStep
+                      methods={methods as never}
+                      errors={errors as never}
+                      toggle={toggleAmenity}
+                      selected={(item) => amenities.includes(item)}
                     />
                   )}
                   {step === 3 && (
