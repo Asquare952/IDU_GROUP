@@ -84,10 +84,11 @@ const LocationStep = ({ methods, errors }: Props) => {
                   })}
                   className="w-full p-4 bg-[#F8FAFC] rounded-2xl border-none"
                 >
-                  <option value="available">Lagos</option>
-                  <option value="pending">Abuja</option>
-                  <option value="locked">Imo</option>
-                  <option value="rented">Ogun</option>
+                  <option value="">Select a city</option>
+                  <option value="Lagos">Lagos</option>
+                  <option value="Abuja">Abuja</option>
+                  <option value="Imo">Imo</option>
+                  <option value="Ogun">Ogun</option>
                 </select>
                 {errors.city && (
                   <p className="text-red-500 text-xs ml-1">
@@ -105,10 +106,11 @@ const LocationStep = ({ methods, errors }: Props) => {
                   })}
                   className="w-full p-4 bg-[#F8FAFC] rounded-2xl border-none"
                 >
-                  <option value="available">Ikeja</option>
-                  <option value="pending">Oshodi</option>
-                  <option value="locked">Iyana Ipaja</option>
-                  <option value="rented">Lekki</option>
+                  <option value="">Select an area</option>
+                  <option value="Ikeja">Ikeja</option>
+                  <option value="Oshodi">Oshodi</option>
+                  <option value="Iyana Ipaja">Iyana Ipaja</option>
+                  <option value="Lekki">Lekki</option>
                 </select>
                 {errors.area && (
                   <p className="text-red-500 text-xs ml-1">

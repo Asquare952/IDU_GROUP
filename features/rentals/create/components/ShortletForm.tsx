@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 
 import StepIndicator from "./StepIndicator";
 import PropertyInfoStep from "./steps/shortlet/PropertyInfoStep";
@@ -10,9 +11,13 @@ import AmenitiesStep from "./steps/shortlet/AmenitieStep";
 import PricingAvailaibiliy from "./steps/shortlet/PricingAvailaibiliy";
 import MediaStep from "./steps/shortlet/MediaStep";
 import HouseRuleStep from "./steps/shortlet/HouseRuleStep";
+import ReviewPublishPreview from "./ReviewPublishPreview";
 
 import { shortTermSteps } from "../config/rental-steps";
-import { rentalApi, type CreateRentalPayload } from "@/app/api/features/rental";
+import {
+  useCreateShortlet,
+  type CreateShortletPayload,
+} from "@/app/api/features/shortlet";
 import { toast } from "react-toastify";
 
 interface FormData {
@@ -53,6 +58,8 @@ const toMoneyNumber = (value: unknown): number => {
 };
 
 export default function ShortletForm() {
+  const router = useRouter();
+  const { mutate: createShortlet, isPending: isCreating } = useCreateShortlet();
   const [currentStep, setCurrentStep] = useState(0);
 
   const [totalPackages, setTotalPackages] = useState(0);
@@ -262,6 +269,51 @@ export default function ShortletForm() {
 
   // Form submission
   const onSubmit = async (data: FormData) => {
+    setSubmitError(null);
+    if (images.length === 0) {
+      setSubmitError("Please upload at least one image before publishing.");
+      return;
+    }
+    const payload = {
+      title: data.title,
+      description: data.description,
+      rentalModel: data.rentalModel,
+      propertyType: data.propertyType,
+      bedrooms: Number(data.bedrooms),
+      bathrooms: Number(data.bathrooms),
+      livingRooms: Number(data.livivngRooms),
+      guestCapacity: Number(data.guestCapacity),
+      furnishingStatus: data.furnishedStatus,
+      address: data.address,
+      city: data.city,
+      area: data.area,
+      landmark: data.landmark,
+      pricePerNight: Number(data.pricePerNight),
+      cleaningFee: Number(data.cleaningFee),
+      securityDeposit: Number(data.securityDeposit),
+      minimumStay: Number(data.minimumStay),
+      maximumStay: Number(data.maximumStay),
+      availableFrom: data.availableFrom,
+      availableTo: data.availableTo,
+      checkInTime: data.checkInTime,
+      checkOutTime: data.checkOutTime,
+      smokingAllowed: data.smokingAllowed === "true",
+      petsAllowed: data.petsAllowed === "true",
+      partiesAllowed: data.partiesAllowed === "true",
+      houseRules: data.houseRules ? [data.houseRules] : [],
+      status: data.status || "available",
+      amenities: selectedAmenities,
+      images,
+      videos,
+    } as CreateShortletPayload;
+    createShortlet(payload, {
+      onSuccess: () => {
+        toast.success("Shortlet published successfully!");
+        router.push("/landlord/my-listings");
+      },
+      onError: (error) =>
+        setSubmitError(error.message || "Unable to publish this shortlet."),
+    });
     // setUploadError(null);
     // setIsSubmitting(true);
     // setSubmitError(null);
@@ -387,6 +439,16 @@ export default function ShortletForm() {
             {currentStep === 5 && (
               <HouseRuleStep methods={methods} errors={errors} />
             )}
+
+            {currentStep === 6 && (
+              <ReviewPublishPreview
+                values={watch()}
+                amenities={selectedAmenities}
+                imagePreviews={imagePreviews}
+                videoPreviews={videoPreviews}
+                isShortlet={true}
+              />
+            )}
           </div>
 
           {/* Navigation */}
@@ -411,9 +473,11 @@ export default function ShortletForm() {
             ) : (
               <button
                 type="submit"
+                onClick={() => onSubmit}
+                disabled={isCreating}
                 className="rounded-lg bg-green-600 px-6 py-2.5 text-sm font-medium text-white transition hover:bg-green-700"
               >
-                Review & Publish
+                {isCreating ? "Publishing..." : "Publish Property"}
               </button>
             )}
           </div>

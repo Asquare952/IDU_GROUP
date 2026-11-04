@@ -202,8 +202,8 @@ const PricingAvailaibiliy = ({ methods, errors }: Props) => {
                 Checkin-Time
               </label>
               <input
-                id="date"
-                type="date"
+                id="time"
+                type="time"
                 {...methods.register("checkInTime", {
                   required: "Date is required",
                 })}
@@ -227,8 +227,8 @@ const PricingAvailaibiliy = ({ methods, errors }: Props) => {
                 Checkout-Time
               </label>
               <input
-                id="date"
-                type="date"
+                id="time"
+                type="time"
                 {...methods.register("checkOutTime", {
                   required: "Date is required",
                 })}

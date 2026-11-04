@@ -107,7 +107,7 @@ export default function ShortletReserve({
       </button>
       <p className="mt-3 text-center text-xs text-gray-500">
         {canBook
-          ? "Booking and payment will be available soon."
+          ? "Enter your transaction PIN to confirm your booking."
           : "This property is not currently available to book."}
       </p>
     </aside>

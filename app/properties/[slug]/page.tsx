@@ -34,6 +34,7 @@ import { useFetchShortletById } from "@/app/api/features/shortlet";
 import {
   useRentRental,
   useLockRental,
+  useBookRental,
 } from "@/app/api/features/progress/progress.queries";
 import { useCreateConversation } from "@/app/api/features/chat/chat.queries";
 import { sanitizeConversationId } from "@/app/api/features/chat/chat.api";
@@ -60,10 +61,12 @@ function PropertyDesktopViewContent() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showAllTips, setShowAllTips] = useState(false);
   const [isBookInspectionsOpen, setisBookInspectionOpen] = useState(false);
-  const [pinAction, setPinAction] = useState<"rent" | "lock" | null>(null);
-  // const { mutate: handleBook, isPending } = useBookProperty();
+  const [pinAction, setPinAction] = useState<
+    "rent" | "lock" | "shortlet-book" | null
+  >(null);
   const { mutate: handleLock, isPending: isLocking } = useLockRental();
   const { mutate: handleRent, isPending: isRenting } = useRentRental();
+  const { mutate: handleBook, isPending: isBooking } = useBookRental();
   const { mutate: createConversation } = useCreateConversation();
   const [thumbsSwiper, setThumbsSwiper] = useState<any>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -592,13 +595,14 @@ function PropertyDesktopViewContent() {
                     canBook={canBook}
                     cleaningFee={property.cleaningFee}
                     securityDeposit={property.securityDeposit}
-                    // This is intentionally a placeholder until the date-aware
-                    // shortlet booking endpoint is available.
-                    onReserve={() =>
-                      toast.info(
-                        "Shortlet booking will be available once the booking service is ready.",
-                      )
-                    }
+                    onReserve={() => {
+                      if (!hasAccessToken()) {
+                        router.push("/login");
+                        return;
+                      }
+
+                      setPinAction("shortlet-book");
+                    }}
                   />
                 ) : (
                 <div className="grid grid-cols-2 gap-3 md:grid-cols-1 md:flex md:flex-col md:gap-0 md:space-y-4">
@@ -717,15 +721,37 @@ function PropertyDesktopViewContent() {
         />
         <TransactionPinSheet
           isOpen={pinAction !== null}
-          title={pinAction === "rent" ? "Confirm rental" : "Confirm house lock"}
-          description="Enter your transaction PIN to continue with this payment."
-          confirmLabel={
-            pinAction === "rent" ? "Confirm rental" : "Confirm lock"
+          title={
+            pinAction === "rent"
+              ? "Confirm rental"
+              : pinAction === "lock"
+                ? "Confirm house lock"
+                : "Confirm shortlet booking"
           }
-          isPending={isRenting || isLocking}
+          description={
+            pinAction === "shortlet-book"
+              ? "Enter your transaction PIN to confirm this booking."
+              : "Enter your transaction PIN to continue with this payment."
+          }
+          confirmLabel={
+            pinAction === "rent"
+              ? "Confirm rental"
+              : pinAction === "lock"
+                ? "Confirm lock"
+                : "Confirm booking"
+          }
+          isPending={isRenting || isLocking || isBooking}
           onClose={() => setPinAction(null)}
           onConfirm={(pin) => {
             const rentalId = String(property.id);
+
+            if (pinAction === "shortlet-book") {
+              handleBook(
+                { rentalId, pin },
+                { onSuccess: () => setPinAction(null) },
+              );
+              return;
+            }
 
             if (pinAction === "rent") {
               handleRent(

@@ -28,7 +28,7 @@ interface FormData {
   smokingAllowed: string;
   petsAllowed: string;
   partiesAllowed: string;
-  houseRules: string
+  houseRules: string;
 }
 
 interface Props {
@@ -62,8 +62,9 @@ const HouseRuleStep = ({ methods, errors }: Props) => {
                 {...methods.register("smokingAllowed")}
                 className="w-full p-4 bg-[#F8FAFC] rounded-2xl border-none"
               >
-                <option value="apartment">Yes</option>
-                <option value="house">No</option>
+                <option value="">Select an option</option>
+                <option value="true">Yes</option>
+                <option value="false">No</option>
               </select>
             </div>
             <div className="space-y-2">
@@ -71,11 +72,12 @@ const HouseRuleStep = ({ methods, errors }: Props) => {
                 Pet
               </label>
               <select
-                {...methods.register("smokingAllowed")}
+                {...methods.register("petsAllowed")}
                 className="w-full p-4 bg-[#F8FAFC] rounded-2xl border-none"
               >
-                <option value="apartment">Yes</option>
-                <option value="house">No</option>
+                <option value="">Select an option</option>
+                <option value="true">Yes</option>
+                <option value="false">No</option>
               </select>
             </div>
             <div className="space-y-2">
@@ -83,11 +85,12 @@ const HouseRuleStep = ({ methods, errors }: Props) => {
                 Parties
               </label>
               <select
-                {...methods.register("smokingAllowed")}
+                {...methods.register("partiesAllowed")}
                 className="w-full p-4 bg-[#F8FAFC] rounded-2xl border-none"
               >
-                <option value="apartment">Yes</option>
-                <option value="house">No</option>
+                <option value="">Select an option</option>
+                <option value="true">Yes</option>
+                <option value="false">No</option>
               </select>
             </div>
           </div>
@@ -111,4 +114,3 @@ const HouseRuleStep = ({ methods, errors }: Props) => {
 };
 
 export default HouseRuleStep;
-
