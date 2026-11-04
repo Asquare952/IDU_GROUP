@@ -1,61 +1,103 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import { FormProvider, useForm } from "react-hook-form";
 import { useParams, useRouter } from "next/navigation";
+import { ArrowLeft, Loader2, X } from "lucide-react";
 import DashboardLayout from "@/app/components/Dashboard/DashboardLayout";
-import { useForm } from "react-hook-form";
 import {
-  Upload,
-  Info,
-  DollarSign,
-  Sparkles,
-  Image as ImageIcon,
-  X,
-  Loader2,
-  ArrowLeft,
-} from "lucide-react";
-import { useGetRentalById, useUpdateRental } from "@/app/api/features/rental";
-import type { UpdateRentalPayload } from "@/app/api/features/rental";
+  useGetRentalById,
+  useUpdateRental,
+  type UpdateRentalPayload,
+} from "@/app/api/features/rental";
+import StepIndicator from "@/features/rentals/create/components/StepIndicator";
+import PropertyInformationStep from "@/features/rentals/create/components/steps/PropertyInformationStep";
+import AmenitiesStep from "@/features/rentals/create/components/steps/AmenitiesStep";
+import MediaStep from "@/features/rentals/create/components/steps/MediaStep";
+import FinancialBreakdownStep from "@/features/rentals/create/components/steps/FinancialBreakdownStep";
+import ShortletPropertyInfoStep from "@/features/rentals/create/components/steps/shortlet/PropertyInfoStep";
+import ShortletLocationStep from "@/features/rentals/create/components/steps/shortlet/LocationStep";
+import ShortletAmenitiesStep from "@/features/rentals/create/components/steps/shortlet/AmenitieStep";
+import ShortletMediaStep from "@/features/rentals/create/components/steps/shortlet/MediaStep";
+import PricingAvailabilityStep from "@/features/rentals/create/components/steps/shortlet/PricingAvailaibiliy";
+import HouseRuleStep from "@/features/rentals/create/components/steps/shortlet/HouseRuleStep";
+import {
+  longTermSteps,
+  shortTermSteps,
+} from "@/features/rentals/create/config/rental-steps";
 
-interface FormData {
+type EditForm = Record<string, string | number> & {
   title: string;
   description: string;
   location: string;
   propertyType: string;
+  status: string;
   basicRent: number;
   legalFee: number;
   cautionFee: number;
   brokeFee: number;
   mgtServiceCharge: number;
-  status: string;
-  amenities: string[];
-}
-
-const defaultValues: FormData = {
+  pricePerNight: number;
+  cleaningFee: number;
+  securityDeposit: number;
+};
+const defaults: EditForm = {
   title: "",
   description: "",
   location: "",
   propertyType: "apartment",
+  status: "available",
   basicRent: 0,
   legalFee: 0,
   cautionFee: 0,
   brokeFee: 0,
   mgtServiceCharge: 0,
-  status: "",
-  amenities: [],
+  furnishedStatus: "",
+  rentalModel: "",
+  bedrooms: 0,
+  bathrooms: 0,
+  livivngRooms: 0,
+  guestCapacity: 0,
+  address: "",
+  city: "",
+  area: "",
+  landmark: "",
+  pricePerNight: 0,
+  cleaningFee: 0,
+  securityDeposit: 0,
+  minimumStay: "",
+  maximumStay: "",
+  availableFrom: "",
+  availableTo: "",
+  checkInTime: "",
+  checkOutTime: "",
+  smokingAllowed: "",
+  petsAllowed: "",
+  partiesAllowed: "",
+  houseRules: "",
 };
+const number = (value: unknown) =>
+  Number.isFinite(Number(value)) ? Number(value) : 0;
 
-const toMoneyNumber = (value: unknown): number => {
-  const numberValue = Number(value);
-
-  return Number.isFinite(numberValue) ? numberValue : 0;
-};
-
-const Page = () => {
+export default function Page() {
   const router = useRouter();
   const params = useParams<{ id?: string | string[] }>();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
-
+  const { data: rental, isLoading, isError, error } = useGetRentalById(id);
+  const { mutate: updateRental, isPending } = useUpdateRental(id ?? "");
+  const methods = useForm<EditForm>({
+    mode: "onTouched",
+    defaultValues: defaults,
+  });
+  const {
+    reset,
+    trigger,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = methods;
+  const [step, setStep] = useState(0);
+  const [amenities, setAmenities] = useState<string[]>([]);
   const [images, setImages] = useState<File[]>([]);
   const [videos, setVideos] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
@@ -63,53 +105,14 @@ const Page = () => {
   const [removedImages, setRemovedImages] = useState<string[]>([]);
   const [removedVideos, setRemovedVideos] = useState<string[]>([]);
   const [submitError, setSubmitError] = useState<string | null>(null);
-
-  const { data: rentalData, isLoading, isError, error } = useGetRentalById(id);
-  const { mutate: updateRental, isPending } = useUpdateRental(id ?? "");
-
-  const {
-    register,
-    watch,
-    reset,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormData>({ defaultValues });
-  const isShortlet = watch("propertyType") === "shortlets";
-
-  useEffect(() => {
-    if (!rentalData) {
-      return;
-    }
-
-    const legalFee = toMoneyNumber(rentalData.legalFee);
-    const cautionFee = toMoneyNumber(rentalData.cautionFee);
-    const brokeFee = toMoneyNumber(rentalData.brokeFee);
-    const mgtServiceCharge = toMoneyNumber(rentalData.mgtServiceCharge);
-    const totalFees = legalFee + cautionFee + brokeFee + mgtServiceCharge;
-    const basicRent = Math.max(toMoneyNumber(rentalData.price) - totalFees, 0);
-
-    reset({
-      title: rentalData.title,
-      description: rentalData.description,
-      location: rentalData.location,
-      propertyType: rentalData.propertyType || "apartment",
-      basicRent,
-      legalFee,
-      cautionFee,
-      brokeFee,
-      mgtServiceCharge,
-      status: rentalData.status,
-      amenities: rentalData.amenities || [],
-    });
-  }, [rentalData, reset]);
-
-  useEffect(() => {
-    return () => {
-      imagePreviews.forEach((preview) => URL.revokeObjectURL(preview));
-      videoPreviews.forEach((preview) => URL.revokeObjectURL(preview));
-    };
-  }, [imagePreviews, videoPreviews]);
-
+  const shortlet = Boolean(
+    rental &&
+    (rental.propertyType.toLowerCase() === "shortlets" ||
+      ["nightly", "daily", "shortlet"].includes(
+        rental.priceType.toLowerCase(),
+      )),
+  );
+  const steps = shortlet ? shortTermSteps : longTermSteps;
   const fees = watch([
     "basicRent",
     "legalFee",
@@ -117,227 +120,261 @@ const Page = () => {
     "brokeFee",
     "mgtServiceCharge",
   ]);
-  const totalPackages = useMemo(
-    () => fees.reduce((acc, curr) => acc + toMoneyNumber(curr), 0),
+  const total = useMemo(
+    () => fees.reduce((sum, fee) => sum + number(fee), 0),
     [fees],
   );
   const existingImages =
-    rentalData?.images.filter((image) => !removedImages.includes(image)) ?? [];
+    rental?.images.filter((item) => !removedImages.includes(item)) ?? [];
   const existingVideos =
-    rentalData?.videos.filter((video) => !removedVideos.includes(video)) ?? [];
+    rental?.videos.filter((item) => !removedVideos.includes(item)) ?? [];
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files) return;
+  useEffect(() => {
+    if (!rental) return;
+    const legalFee = number(rental.legalFee),
+      cautionFee = number(rental.cautionFee),
+      brokeFee = number(rental.brokeFee),
+      mgtServiceCharge = number(rental.mgtServiceCharge);
+    reset({
+      ...defaults,
+      title: rental.title,
+      description: rental.description,
+      location: rental.location,
+      propertyType: rental.propertyType || "apartment",
+      status: rental.status || "available",
+      basicRent: Math.max(
+        number(rental.price) -
+          legalFee -
+          cautionFee -
+          brokeFee -
+          mgtServiceCharge,
+        0,
+      ),
+      legalFee,
+      cautionFee,
+      brokeFee,
+      mgtServiceCharge,
+      pricePerNight: number(rental.price),
+      cleaningFee: mgtServiceCharge,
+      securityDeposit: cautionFee,
+    });
+    setAmenities(rental.amenities ?? []);
+    setStep(0);
+  }, [rental, reset]);
+  useEffect(
+    () => () => {
+      imagePreviews.forEach(URL.revokeObjectURL);
+      videoPreviews.forEach(URL.revokeObjectURL);
+    },
+    [imagePreviews, videoPreviews],
+  );
 
-    const newFiles = Array.from(files);
-    setImages((prev) => [...prev, ...newFiles]);
-    setImagePreviews((prev) => [
-      ...prev,
-      ...newFiles.map((file) => URL.createObjectURL(file)),
-    ]);
-    e.target.value = "";
-  };
-
-  const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files) return;
-
-    const newFiles = Array.from(files);
-    setVideos((prev) => [...prev, ...newFiles]);
-    setVideoPreviews((prev) => [
-      ...prev,
-      ...newFiles.map((file) => URL.createObjectURL(file)),
-    ]);
-    e.target.value = "";
-  };
-
-  const removeImage = (index: number) => {
-    URL.revokeObjectURL(imagePreviews[index]);
-    setImages((prev) => prev.filter((_, i) => i !== index));
-    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const removeVideo = (index: number) => {
-    URL.revokeObjectURL(videoPreviews[index]);
-    setVideos((prev) => prev.filter((_, i) => i !== index));
-    setVideoPreviews((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const removeExistingImage = (image: string) => {
-    setRemovedImages((previousImages) =>
-      previousImages.includes(image)
-        ? previousImages
-        : [...previousImages, image],
+  const toggleAmenity = (item: string) =>
+    setAmenities((current) =>
+      current.includes(item)
+        ? current.filter((value) => value !== item)
+        : [...current, item],
     );
-  };
-
-  const removeExistingVideo = (video: string) => {
-    setRemovedVideos((previousVideos) =>
-      previousVideos.includes(video)
-        ? previousVideos
-        : [...previousVideos, video],
+  const addMedia = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    kind: "image" | "video",
+  ) => {
+    const files = Array.from(event.target.files ?? []).filter((file) =>
+      file.type.startsWith(`${kind}/`),
     );
+    if (kind === "image") {
+      setImages((current) => [...current, ...files]);
+      setImagePreviews((current) => [
+        ...current,
+        ...files.map(URL.createObjectURL),
+      ]);
+    } else {
+      setVideos((current) => [...current, ...files]);
+      setVideoPreviews((current) => [
+        ...current,
+        ...files.map(URL.createObjectURL),
+      ]);
+    }
+    event.target.value = "";
   };
-
-  const onSubmit = (data: FormData) => {
-    if (!id) return;
-
+  const removeNew = (kind: "image" | "video", index: number) => {
+    const previews = kind === "image" ? imagePreviews : videoPreviews;
+    URL.revokeObjectURL(previews[index]);
+    if (kind === "image") {
+      setImages((current) => current.filter((_, i) => i !== index));
+      setImagePreviews((current) => current.filter((_, i) => i !== index));
+    } else {
+      setVideos((current) => current.filter((_, i) => i !== index));
+      setVideoPreviews((current) => current.filter((_, i) => i !== index));
+    }
+  };
+  const next = async () => {
+    const required = shortlet
+      ? step === 0
+        ? ["title", "description", "propertyType", "rentalModel"]
+        : []
+      : step === 0
+        ? ["title", "description", "location", "propertyType", "status"]
+        : step === 3
+          ? ["basicRent"]
+          : [];
+    if (required.length && !(await trigger(required as (keyof EditForm)[])))
+      return;
+    setStep((current) => Math.min(current + 1, steps.length - 1));
+  };
+  const submit = (data: EditForm) => {
+    if (!id || !rental) return;
     setSubmitError(null);
-
-    const payload: UpdateRentalPayload = {
+    const payload = {
+      ...data,
       title: data.title,
       description: data.description,
       propertyType: data.propertyType,
       location: data.location,
-      price: totalPackages,
-      priceType: data.propertyType === "shortlets" ? "nightly" : "yearly",
       status: data.status,
-      amenities: data.amenities,
-      legalFee: toMoneyNumber(data.legalFee),
-      cautionFee: toMoneyNumber(data.cautionFee),
-      brokeFee: toMoneyNumber(data.brokeFee),
-      mgtServiceCharge: toMoneyNumber(data.mgtServiceCharge),
-    };
-
-    if (removedImages.length > 0) {
-      payload.removedImages = removedImages;
-    }
-
-    if (removedVideos.length > 0) {
-      payload.removedVideos = removedVideos;
-    }
-
-    if (images.length > 0) {
-      payload.images = images;
-    }
-
-    if (videos.length > 0) {
-      payload.videos = videos;
-    }
-
+      price: shortlet ? number(data.pricePerNight) : total,
+      priceType: shortlet ? "nightly" : rental.priceType || "yearly",
+      legalFee: shortlet ? 0 : number(data.legalFee),
+      cautionFee: shortlet
+        ? number(data.securityDeposit)
+        : number(data.cautionFee),
+      brokeFee: shortlet ? 0 : number(data.brokeFee),
+      mgtServiceCharge: shortlet
+        ? number(data.cleaningFee)
+        : number(data.mgtServiceCharge),
+      amenities,
+      ...(images.length ? { images } : {}),
+      ...(videos.length ? { videos } : {}),
+      ...(removedImages.length ? { removedImages } : {}),
+      ...(removedVideos.length ? { removedVideos } : {}),
+    } as UpdateRentalPayload;
     updateRental(payload, {
-      onSuccess: () => {
-        router.push("/landlord/my-listings");
-      },
-      onError: (updateError) => {
+      onSuccess: () => router.push("/landlord/my-listings"),
+      onError: (err) =>
         setSubmitError(
-          updateError instanceof Error
-            ? updateError.message
-            : "Failed to update listing. Please try again.",
-        );
-      },
+          err instanceof Error ? err.message : "Unable to save changes.",
+        ),
     });
   };
-
-  if (isLoading) {
+  if (isLoading)
     return (
       <DashboardLayout>
-        <div className="min-h-screen bg-[#F8FAFC] p-8 flex items-center justify-center">
-          <Loader2 size={32} className="animate-spin text-[#43A047]" />
+        <div className="flex min-h-screen items-center justify-center">
+          <Loader2 className="animate-spin text-green-600" />
         </div>
       </DashboardLayout>
     );
-  }
-
-  if (!id || isError || !rentalData) {
+  if (!rental || isError)
     return (
       <DashboardLayout>
-        <div className="min-h-screen bg-[#F8FAFC] p-8">
-          <div className="max-w-[900px] mx-auto bg-white border border-red-100 rounded-2xl p-6">
-            <h1 className="text-xl font-bold text-slate-800">
-              Property not found
-            </h1>
-            <p className="text-sm text-slate-500 mt-2">
-              {error instanceof Error
-                ? error.message
-                : "We could not load this property listing."}
-            </p>
-            <button
-              type="button"
-              onClick={() => router.push("/landlord/my-listings")}
-              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#43A047] px-4 py-2 text-sm font-bold text-white hover:bg-green-700"
+        <div className="p-8">
+          <h1 className="text-xl font-bold">Property not found</h1>
+          <p>
+            {error instanceof Error
+              ? error.message
+              : "Unable to load this listing."}
+          </p>
+        </div>
+      </DashboardLayout>
+    );
+  const existingMedia = (
+    <section className="space-y-3 rounded-[2rem] border border-slate-100 bg-white p-6">
+      {existingImages.length > 0 && (
+        <div className="grid grid-cols-3 gap-2">
+          {existingImages.map((src, i) => (
+            <div
+              key={src}
+              className="relative aspect-square overflow-hidden rounded-xl"
             >
-              <ArrowLeft size={16} />
-              Back to listings
-            </button>
-          </div>
+              <img
+                src={src}
+                alt="Property"
+                className="h-full w-full object-cover"
+              />
+              <button
+                type="button"
+                onClick={() => setRemovedImages((current) => [...current, src])}
+                className="absolute right-1 top-1 rounded-full bg-red-600 p-1 text-white"
+              >
+                <X size={12} />
+              </button>
+            </div>
+          ))}
         </div>
-      </DashboardLayout>
-    );
-  }
-
+      )}
+      {existingVideos.length > 0 && (
+        <div className="grid grid-cols-2 gap-2">
+          {existingVideos.map((src) => (
+            <div
+              key={src}
+              className="relative aspect-video overflow-hidden rounded-xl"
+            >
+              <video
+                src={src}
+                controls
+                className="h-full w-full object-cover"
+              />
+              <button
+                type="button"
+                onClick={() => setRemovedVideos((current) => [...current, src])}
+                className="absolute right-1 top-1 rounded-full bg-red-600 p-1 text-white"
+              >
+                <X size={12} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+  const review = (
+    <section className="rounded-[2rem] border border-slate-100 bg-white p-8">
+      <h2 className="text-lg font-bold">Review changes</h2>
+      <p className="mt-2 text-sm text-slate-500">
+        Save to update this {shortlet ? "shortlet" : "long-term"} listing.
+      </p>
+    </section>
+  );
   return (
     <DashboardLayout>
-      <div className="p-4 md:p-8 bg-[#F8FAFC] min-h-screen">
-        <div className="max-w-[1400px] mx-auto">
-          <header className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <main className="min-h-screen bg-[#F8FAFC] p-4 md:p-8">
+        <div className="container-2 mx-auto space-y-8">
+          <header className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-slate-800">
-                Edit Property
-              </h1>
-              <p className="text-slate-500 text-sm">
-                Update the details below to modify your property listing.
+              <h1 className="text-2xl font-semibold">Edit Property</h1>
+              <p className="text-sm text-gray-500">
+                Update your {shortlet ? "shortlet" : "long-term"} listing.
               </p>
             </div>
             <button
               type="button"
               onClick={() => router.push("/landlord/my-listings")}
-              className="inline-flex w-fit items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50"
+              className="inline-flex items-center gap-2 rounded-lg border px-4 py-2"
             >
               <ArrowLeft size={16} />
               Back
             </button>
           </header>
-
           {submitError && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl text-red-600 text-sm">
+            <p className="rounded-xl bg-red-50 p-3 text-sm text-red-600">
               {submitError}
-            </div>
+            </p>
           )}
-
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="grid grid-cols-1 lg:grid-cols-12 gap-8"
-          >
-            <div className="lg:col-span-8 space-y-8">
-              <section className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100">
-                <div className="flex items-center gap-2 mb-6 text-[#4CAF50]">
-                  <div className="bg-[#4CAF50]/10 p-2 rounded-full">
-                    <Info size={20} />
-                  </div>
-                  <h3 className="font-bold text-slate-800">
-                    General Information
-                  </h3>
-                </div>
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
-                      Property Title *
-                    </label>
-                    <input
-                      {...register("title", { required: "Title is required" })}
-                      placeholder="e.g. Luxury 3-Bedroom apartment with Ocean View"
-                      className="w-full p-4 bg-[#F8FAFC] rounded-2xl border-none focus:ring-2 focus:ring-[#4CAF50]"
+          <FormProvider {...methods}>
+            <form onSubmit={handleSubmit(submit)} className="space-y-8">
+              <StepIndicator steps={steps} currentStep={step} />
+              {shortlet ? (
+                <>
+                  {step === 0 && (
+                    <ShortletPropertyInfoStep
+                      methods={methods as never}
+                      errors={errors as never}
                     />
-                    {errors.title && (
-                      <p className="text-red-500 text-xs ml-1">
-                        {errors.title.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
-                      Description *
-                    </label>
-                    <textarea
-                      {...register("description", {
-                        required: "Description is required",
-                      })}
-                      rows={5}
-                      placeholder="Describe the key features, neighborhood, and unique selling points..."
-                      className="w-full p-4 bg-[#F8FAFC] rounded-2xl border-none focus:ring-2 focus:ring-[#4CAF50]"
+                  )}
+                  {step === 1 && (
+                    <ShortletLocationStep
+                      methods={methods as never}
+                      errors={errors as never}
                     />
                     {errors.description && (
                       <p className="text-red-500 text-xs ml-1">
@@ -470,251 +507,110 @@ const Page = () => {
                       })}
                       className="w-full p-3 bg-[#F8FAFC] rounded-xl border-none outline-none"
                     />
-                    {errors.basicRent && (
-                      <p className="text-red-500 text-xs ml-1">
-                        {errors.basicRent.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
-                        Mgt Service Charge
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        {...register("mgtServiceCharge", {
-                          valueAsNumber: true,
-                        })}
-                        className="w-full p-3 bg-[#F8FAFC] rounded-xl"
+                  )}
+                  {step === 3 && (
+                    <>
+                      {existingMedia}
+                      <ShortletMediaStep
+                        images={images}
+                        videos={videos}
+                        imagePreviews={imagePreviews}
+                        videoPreviews={videoPreviews}
+                        handleImageChange={(e) => addMedia(e, "image")}
+                        handleVideoChange={(e) => addMedia(e, "video")}
+                        removeImage={(i) => removeNew("image", i)}
+                        removeVideo={(i) => removeNew("video", i)}
                       />
-                    </div>
-                    <div>
-                      <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
-                        Legal Fees
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        {...register("legalFee", { valueAsNumber: true })}
-                        className="w-full p-3 bg-[#F8FAFC] rounded-xl"
+                    </>
+                  )}
+                  {step === 4 && (
+                    <PricingAvailabilityStep
+                      methods={methods as never}
+                      errors={errors as never}
+                    />
+                  )}
+                  {step === 5 && (
+                    <HouseRuleStep
+                      methods={methods as never}
+                      errors={errors as never}
+                    />
+                  )}
+                  {step === 6 && review}
+                </>
+              ) : (
+                <>
+                  {step === 0 && (
+                    <PropertyInformationStep
+                      methods={methods as never}
+                      errors={errors as never}
+                    />
+                  )}
+                  {step === 1 && (
+                    <AmenitiesStep
+                      methods={methods as never}
+                      errors={errors as never}
+                      toggle={toggleAmenity}
+                      selected={(item) => amenities.includes(item)}
+                    />
+                  )}
+                  {step === 2 && (
+                    <>
+                      {existingMedia}
+                      <MediaStep
+                        images={images}
+                        videos={videos}
+                        imagePreviews={imagePreviews}
+                        videoPreviews={videoPreviews}
+                        handleImageChange={(e) => addMedia(e, "image")}
+                        handleVideoChange={(e) => addMedia(e, "video")}
+                        removeImage={(i) => removeNew("image", i)}
+                        removeVideo={(i) => removeNew("video", i)}
                       />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
-                      Caution Fee
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      {...register("cautionFee", { valueAsNumber: true })}
-                      className="w-full p-3 bg-[#F8FAFC] rounded-xl"
+                    </>
+                  )}
+                  {step === 3 && (
+                    <FinancialBreakdownStep
+                      methods={methods as never}
+                      errors={errors as never}
+                      totalPackages={total}
                     />
-                  </div>
-
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
-                      Broker Fee
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      {...register("brokeFee", { valueAsNumber: true })}
-                      className="w-full p-3 bg-[#F8FAFC] rounded-xl"
-                    />
-                  </div>
-
-                  <div className="mt-6 p-4 bg-[#4CAF50]/5 rounded-2xl border border-[#4CAF50]/10">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase">
-                      Total Package
-                    </p>
-                    <p className="text-2xl font-bold text-[#4CAF50]">
-                      N{totalPackages.toLocaleString()}
-                    </p>
-                  </div>
-                </div>
-              </section>
-
-              <section className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100">
-                <div className="flex items-center gap-2 mb-6 text-pink-500">
-                  <div className="bg-pink-50 p-2 rounded-full">
-                    <ImageIcon size={20} />
-                  </div>
-                  <h3 className="font-bold text-slate-800">Property Images</h3>
-                </div>
-
-                {existingImages.length > 0 && (
-                  <div className="mb-4 grid grid-cols-3 gap-2">
-                    {existingImages.map((image, index) => (
-                      <div
-                        key={`${image}-${index}`}
-                        className="relative aspect-square rounded-xl overflow-hidden bg-slate-100"
-                      >
-                        <img
-                          src={image}
-                          alt={`${rentalData.title} ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeExistingImage(image)}
-                          title="Remove image"
-                          aria-label={`Remove image ${index + 1}`}
-                          className="absolute top-1 right-1 rounded-full bg-red-600 p-1 text-white hover:bg-red-700"
-                        >
-                          <X size={12} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <div className="relative">
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                  />
-                  <div className="border-2 border-dashed border-slate-200 rounded-2xl p-8 flex flex-col items-center justify-center bg-slate-50 hover:bg-slate-100 transition-all">
-                    <Upload size={24} className="text-slate-400 mb-2" />
-                    <p className="text-[10px] font-bold text-slate-500 uppercase">
-                      Upload new images
-                    </p>
-                    <p className="text-xs text-slate-400 mt-1">
-                      {images.length} new image(s) selected
-                    </p>
-                  </div>
-                </div>
-
-                {imagePreviews.length > 0 && (
-                  <div className="mt-4 grid grid-cols-3 gap-2">
-                    {imagePreviews.map((preview, index) => (
-                      <div
-                        key={preview}
-                        className="relative aspect-square rounded-xl overflow-hidden"
-                      >
-                        <img
-                          src={preview}
-                          alt={`New preview ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeImage(index)}
-                          className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                        >
-                          <X size={12} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </section>
-
-              <section className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100">
-                <div className="flex items-center gap-2 mb-6 text-pink-500">
-                  <div className="bg-pink-50 p-2 rounded-full">
-                    <ImageIcon size={20} />
-                  </div>
-                  <h3 className="font-bold text-slate-800">Property Videos</h3>
-                </div>
-
-                {existingVideos.length > 0 && (
-                  <div className="mb-4 grid grid-cols-2 gap-2">
-                    {existingVideos.map((video, index) => (
-                      <div
-                        key={`${video}-${index}`}
-                        className="relative aspect-video rounded-xl overflow-hidden bg-slate-100"
-                      >
-                        <video
-                          src={video}
-                          controls
-                          className="w-full h-full object-cover"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeExistingVideo(video)}
-                          title="Remove video"
-                          aria-label={`Remove video ${index + 1}`}
-                          className="absolute top-1 right-1 rounded-full bg-red-600 p-1 text-white hover:bg-red-700"
-                        >
-                          <X size={12} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <div className="relative">
-                  <input
-                    type="file"
-                    multiple
-                    accept="video/*"
-                    onChange={handleVideoChange}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                  />
-                  <div className="border-2 border-dashed border-slate-200 rounded-2xl p-8 flex flex-col items-center justify-center bg-slate-50 hover:bg-slate-100 transition-all">
-                    <Upload size={24} className="text-slate-400 mb-2" />
-                    <p className="text-[10px] font-bold text-slate-500 uppercase">
-                      Upload new videos
-                    </p>
-                    <p className="text-xs text-slate-400 mt-1">
-                      {videos.length} new video(s) selected
-                    </p>
-                  </div>
-                </div>
-
-                {videoPreviews.length > 0 && (
-                  <div className="mt-4 grid grid-cols-2 gap-2">
-                    {videoPreviews.map((preview, index) => (
-                      <div
-                        key={preview}
-                        className="relative aspect-video rounded-xl overflow-hidden"
-                      >
-                        <video
-                          src={preview}
-                          controls
-                          className="w-full h-full object-cover"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeVideo(index)}
-                          className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                        >
-                          <X size={12} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </section>
-
-              <button
-                type="submit"
-                disabled={isPending}
-                className="w-full py-5 bg-[#00C853] text-white font-bold text-lg rounded-2xl shadow-lg shadow-green-100 hover:bg-[#00B44A] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {isPending ? (
-                  <>
-                    <Loader2 size={20} className="animate-spin" />
-                    Saving...
-                  </>
+                  )}
+                  {step === 4 && review}
+                </>
+              )}
+              <div className="flex justify-between border-t pt-6">
+                <button
+                  type="button"
+                  disabled={!step}
+                  onClick={() => setStep((current) => Math.max(0, current - 1))}
+                  className="rounded-lg border px-5 py-2.5 disabled:opacity-40"
+                >
+                  Back
+                </button>
+                {step < steps.length - 1 ? (
+                  <button
+                    type="button"
+                    onClick={next}
+                    className="rounded-lg bg-green-600 px-6 py-2.5 text-white"
+                  >
+                    Continue
+                  </button>
                 ) : (
-                  "Save Changes"
+                  <button
+                    disabled={isPending}
+                    className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-6 py-2.5 text-white disabled:opacity-50"
+                  >
+                    {isPending && (
+                      <Loader2 size={16} className="animate-spin" />
+                    )}
+                    Save changes
+                  </button>
                 )}
-              </button>
-            </div>
-          </form>
+              </div>
+            </form>
+          </FormProvider>
         </div>
-      </div>
+      </main>
     </DashboardLayout>
   );
-};
-
-export default Page;
+}

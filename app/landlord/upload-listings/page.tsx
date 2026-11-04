@@ -1,17 +1,16 @@
-"use client";
+"use client"
 
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import DashboardLayout from "@/app/components/Dashboard/DashboardLayout";
-import { useForm } from "react-hook-form";
+import HouseIn from "@/public/house-in.jpg";
+import Image from "next/image";
 import {
-  Upload,
+  House,
+  BedDouble,
+  Calendar,
+  ShieldCheck,
+  LucideNotebookText,
+  Wallet,
   Info,
-  DollarSign,
-  Sparkles,
-  Image as ImageIcon,
-  X,
-  Loader2,
 } from "lucide-react";
 import { rentalApi, type CreateRentalPayload } from "@/app/api/features/rental";
 import {
@@ -59,24 +58,10 @@ interface FormData {
 const toMoneyNumber = (value: unknown): number => {
   const numberValue = Number(value);
 
-  return Number.isFinite(numberValue) ? numberValue : 0;
-};
+type ListingTypes = "long-term" | "shortlet";
 
 const page = () => {
   const router = useRouter();
-  const [totalPackages, setTotalPackages] = useState(0);
-  const [images, setImages] = useState<File[]>([]);
-  const [videos, setVideos] = useState<File[]>([]);
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const [videoPreviews, setVideoPreviews] = useState<string[]>([]);
-  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const [uploadError, setUploadError] = useState<string | null>(null);
-
-  const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
-  const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50MB
-  const MAX_TOTAL_SIZE = 200 * 1024 * 1024; // 200MB total
 
   const {
     register,
@@ -399,647 +384,116 @@ const page = () => {
 
   return (
     <DashboardLayout>
-      <div className="p-8 bg-[#F8FAFC] min-h-screen">
-        <div className="max-w-[1400px] mx-auto">
-          <header className="mb-8">
-            <h1 className="text-3xl font-bold text-slate-800">
-              Upload New Listing
-            </h1>
-            <p className="text-slate-500 text-sm">
-              Fill in the details below to publish your property to the
-              marketplace.
-            </p>
-          </header>
+      <div className="container-2 flex flex-col gap-6">
+        {/*  */}
+        <div className=" flex flex-col gap-1 py-3">
+          <h1 className=" text-[24px] font-semibold">What are you listing?</h1>
+          <p className="w-[300px] md:w-[630px] text-[14px] md:text-[15px] text-[#6b7280]">
+            Choose the type of rental you want to create. This will determine
+            the next steps and infomation you will provide
+          </p>
+        </div>
 
-          {submitError && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl text-red-600 text-sm">
-              {submitError}
-            </div>
-          )}
-
-          {uploadError && (
-            <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-2xl text-amber-700 text-sm flex justify-between items-center">
-              <span>{uploadError}</span>
-              <button
-                type="button"
-                onClick={() => setUploadError(null)}
-                className="text-amber-700 hover:text-amber-800 font-bold"
-              >
-                ✕
-              </button>
-            </div>
-          )}
-
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="grid grid-cols-1 lg:grid-cols-12 gap-8"
+        {/*  */}
+        <div className=" grid md:grid-cols-2 gap-3">
+          {/*  */}
+          <div
+            onClick={() => selectListingType("long-term")}
+            className=" flex flex-col gap-2.5 rounded-[10px] bg-white shadow p-4 hover:border-2 hover:border-[#43a047] cursor-pointer"
           >
-            <div className="lg:col-span-8 space-y-8">
-              {/* General Information */}
-              <section className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
-                <div className="flex items-center gap-2 mb-6 text-[#4CAF50]">
-                  <div className="bg-[#4CAF50]/10 p-2 rounded-full">
-                    <Info size={20} />
-                  </div>
-                  <h3 className="font-bold text-slate-800">
-                    General Information
-                  </h3>
-                </div>
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
-                      Property Title *
-                    </label>
-                    <input
-                      {...register("title", { required: "Title is required" })}
-                      placeholder="e.g. Luxury 3-Bedroom apartment with Ocean View"
-                      className="w-full p-4 bg-[#F8FAFC] rounded-2xl border-none focus:ring-2 focus:ring-[#4CAF50]"
-                    />
-                    {errors.title && (
-                      <p className="text-red-500 text-xs ml-1">
-                        {errors.title.message}
-                      </p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
-                      Description *
-                    </label>
-                    <textarea
-                      {...register("description", {
-                        required: "Description is required",
-                      })}
-                      rows={5}
-                      placeholder="Describe the key features, neighborhood, and unique selling points..."
-                      className="w-full p-4 bg-[#F8FAFC] rounded-2xl border-none focus:ring-2 focus:ring-[#4CAF50]"
-                    />
-                    {errors.description && (
-                      <p className="text-red-500 text-xs ml-1">
-                        {errors.description.message}
-                      </p>
-                    )}
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
-                        Location / City *
-                      </label>
-                      <select
-                        {...register("location", {
-                          required: "Location is required",
-                        })}
-                        className="w-full p-4 bg-[#F8FAFC] rounded-2xl border-none"
-                      >
-                        <option value="">Select a location</option>
-                        <option value="lagos">Lagos</option>
-                        <option value="abuja">Abuja</option>
-                        <option value="port-harcourt">Jos</option>
-                        <option value="imo">Imo</option>
-                        <option value="enugu">Enugu</option>
-                        <option value="enugu">Abia</option>
-                      </select>
-                      {errors.location && (
-                        <p className="text-red-500 text-xs ml-1">
-                          {errors.location.message}
-                        </p>
-                      )}
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
-                        Property Type
-                      </label>
-                      <select
-                        {...register("type")}
-                        className="w-full p-4 bg-[#F8FAFC] rounded-2xl border-none "
-                      >
-                        <option value="apartment">Apartment</option>
-                        <option value="house">House</option>
-                        <option value="land">Land</option>
-                        <option value="lodge">Lodge</option>
-                        <option value="self-contain">Self-contain</option>
-                        <option value="shortlets">Shortlets</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
-                      House Status
-                    </label>
-                    <select
-                      {...register("status")}
-                      className="w-full p-4 bg-[#F8FAFC] rounded-2xl border-none"
-                    >
-                      <option value="available">Available</option>
-                      <option value="pending">Pending</option>
-                      <option value="locked">Locked</option>
-                      <option value="rented">Rented</option>
-                    </select>
-                  </div>
-                </div>
-                {isShortlet && (
-                  <section className="mt-6 space-y-5 border-t border-slate-100 pt-6">
-                    <h3 className="font-bold text-slate-800">
-                      Shortlet details
-                    </h3>
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                      <label className="space-y-2 text-xs font-semibold text-slate-600">
-                        Rental model
-                        <select
-                          {...register("rentalModel", { required: true })}
-                          className="w-full rounded-xl bg-[#F8FAFC] p-3"
-                        >
-                          <option value="entire_place">Entire place</option>
-                          <option value="private_room">Private room</option>
-                          <option value="shared_room">Shared room</option>
-                          <option value="hotel">Hotel</option>
-                        </select>
-                      </label>
-                      <label className="space-y-2 text-xs font-semibold text-slate-600">
-                        Accommodation type
-                        <select
-                          {...register("shortletPropertyType", {
-                            required: true,
-                          })}
-                          className="w-full rounded-xl bg-[#F8FAFC] p-3"
-                        >
-                          <option value="apartment">Apartment</option>
-                          <option value="house">House</option>
-                          <option value="villa">Villa</option>
-                          <option value="studio">Studio</option>
-                          <option value="condo">Condo</option>
-                          <option value="townhouse">Townhouse</option>
-                          <option value="bungalow">Bungalow</option>
-                          <option value="loft">Loft</option>
-                        </select>
-                      </label>
-                    </div>
-                    <label className="block space-y-2 text-xs font-semibold text-slate-600">
-                      Full address
-                      <input
-                        {...register("address", { required: isShortlet })}
-                        className="w-full rounded-xl bg-[#F8FAFC] p-3"
-                      />
-                    </label>
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                      <label className="space-y-2 text-xs font-semibold text-slate-600">
-                        Area
-                        <input
-                          {...register("area")}
-                          className="w-full rounded-xl bg-[#F8FAFC] p-3"
-                        />
-                      </label>
-                      <label className="space-y-2 text-xs font-semibold text-slate-600">
-                        Nearby landmark
-                        <input
-                          {...register("landmark")}
-                          className="w-full rounded-xl bg-[#F8FAFC] p-3"
-                        />
-                      </label>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                      {(
-                        [
-                          ["bedrooms", "Bedrooms"],
-                          ["bathrooms", "Bathrooms"],
-                          ["livingRooms", "Living rooms"],
-                          ["guestCapacity", "Guest capacity"],
-                        ] as const
-                      ).map(([name, label]) => (
-                        <label
-                          key={name}
-                          className="space-y-2 text-xs font-semibold text-slate-600"
-                        >
-                          {label}
-                          <input
-                            type="number"
-                            min={0}
-                            {...register(name, { valueAsNumber: true })}
-                            className="w-full rounded-xl bg-[#F8FAFC] p-3"
-                          />
-                        </label>
-                      ))}
-                      <label className="col-span-2 space-y-2 text-xs font-semibold text-slate-600 sm:col-span-1">
-                        Furnishing
-                        <select
-                          {...register("furnishingStatus")}
-                          className="w-full rounded-xl bg-[#F8FAFC] p-3"
-                        >
-                          <option value="unfurnished">Unfurnished</option>
-                          <option value="semi_furnished">Semi-furnished</option>
-                          <option value="fully_furnished">Fully furnished</option>
-                        </select>
-                      </label>
-                    </div>
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                      <label className="space-y-2 text-xs font-semibold text-slate-600">
-                        Available from
-                        <input
-                          type="date"
-                          {...register("availableFrom", {
-                            required: isShortlet,
-                          })}
-                          className="w-full rounded-xl bg-[#F8FAFC] p-3"
-                        />
-                      </label>
-                      <label className="space-y-2 text-xs font-semibold text-slate-600">
-                        Available to
-                        <input
-                          type="date"
-                          {...register("availableTo", {
-                            required: isShortlet,
-                          })}
-                          className="w-full rounded-xl bg-[#F8FAFC] p-3"
-                        />
-                      </label>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                      {(
-                        [
-                          ["minimumStay", "Minimum nights"],
-                          ["maximumStay", "Maximum nights"],
-                        ] as const
-                      ).map(([name, label]) => (
-                        <label
-                          key={name}
-                          className="space-y-2 text-xs font-semibold text-slate-600"
-                        >
-                          {label}
-                          <input
-                            type="number"
-                            min={1}
-                            {...register(name, { valueAsNumber: true })}
-                            className="w-full rounded-xl bg-[#F8FAFC] p-3"
-                          />
-                        </label>
-                      ))}
-                      {(
-                        [
-                          ["checkInTime", "Check-in"],
-                          ["checkOutTime", "Check-out"],
-                        ] as const
-                      ).map(([name, label]) => (
-                        <label
-                          key={name}
-                          className="space-y-2 text-xs font-semibold text-slate-600"
-                        >
-                          {label} time
-                          <input
-                            type="time"
-                            {...register(name)}
-                            className="w-full rounded-xl bg-[#F8FAFC] p-3"
-                          />
-                        </label>
-                      ))}
-                    </div>
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                      {(
-                        [
-                          ["smokingAllowed", "Smoking allowed"],
-                          ["petsAllowed", "Pets allowed"],
-                          ["partiesAllowed", "Parties allowed"],
-                        ] as const
-                      ).map(([name, label]) => (
-                        <label
-                          key={name}
-                          className="space-y-2 text-xs font-semibold text-slate-600"
-                        >
-                          {label}
-                          <select
-                            {...register(name)}
-                            className="w-full rounded-xl bg-[#F8FAFC] p-3"
-                          >
-                            <option value="false">No</option>
-                            <option value="true">Yes</option>
-                          </select>
-                        </label>
-                      ))}
-                    </div>
-                    <label className="block space-y-2 text-xs font-semibold text-slate-600">
-                      House rules (one per line)
-                      <textarea
-                        rows={3}
-                        {...register("houseRules")}
-                        className="w-full rounded-xl bg-[#F8FAFC] p-3"
-                      />
-                    </label>
-                  </section>
-                )}
-              </section>
-
-              {/* Amenities & Features */}
-              <section className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
-                <div className="flex items-center gap-2 mb-6 text-[#4CAF50]">
-                  <div className="bg-[#4CAF50]/10 p-2 rounded-full">
-                    <Sparkles size={20} />
-                  </div>
-                  <h3 className="font-bold text-slate-800">
-                    Amenities & Features
-                  </h3>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {[
-                    "24/7 Power",
-                    "Swimming Pool",
-                    "Security",
-                    "Gym",
-                    "Parking",
-                    "WiFi",
-                    "Elevator",
-                    "Garden",
-                    "kitchen",
-                  ].map((item) => (
-                    <label
-                      key={item}
-                      className="flex flex-col items-center justify-center p-4 bg-[#F8FAFC] rounded-2xl cursor-pointer hover:bg-slate-100 transition-colors"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedAmenities.includes(item)}
-                        onChange={() => toggleAmenity(item)}
-                        className="mb-2 accent-[#4CAF50]"
-                      />
-                      <span className="text-[10px] font-bold text-slate-500 text-center uppercase">
-                        {item}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </section>
+            <div className="">
+              <House size={50} />
             </div>
 
-            <div className="lg:col-span-4 space-y-8">
-              {/* Financial fields keep the existing API structure; the base
-                  price period follows the selected rental type. */}
-              <section className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
-                <div className="flex items-center gap-2 mb-6 text-[#4CAF50]">
-                  <div className="bg-[#4CAF50]/10 p-2 rounded-full">
-                    <DollarSign size={20} />
-                  </div>
-                  <h3 className="font-bold text-slate-800">
-                    {isShortlet ? "Nightly Rate & Charges" : "Financial Breakdown"}
-                  </h3>
-                </div>
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-[10px] font-bold text-[#4CAF50] uppercase ml-1">
-                      {isShortlet ? "Price per night *" : "Basic Rent (Annual) *"}
-                    </label>
-                    <input
-                      type="number"
-                      {...register("basicRent", {
-                        valueAsNumber: true,
-                        required: "Rent is required",
-                        min: { value: 1, message: "Must be greater than 0" },
-                      })}
-                      className="w-full p-3 bg-[#F8FAFC] rounded-xl"
-                    />
-                    {errors.basicRent && (
-                      <p className="text-red-500 text-xs ml-1">
-                        {errors.basicRent.message}
-                      </p>
-                    )}
-                  </div>
-                  {isShortlet ? (
-                    <div className="grid grid-cols-2 gap-3">
-                      <label className="space-y-2 text-xs font-semibold text-slate-600">
-                        Cleaning fee
-                        <input
-                          type="number"
-                          min={0}
-                          step="0.01"
-                          {...register("cleaningFee", { valueAsNumber: true })}
-                          className="w-full rounded-xl bg-[#F8FAFC] p-3"
-                        />
-                      </label>
-                      <label className="space-y-2 text-xs font-semibold text-slate-600">
-                        Security deposit
-                        <input
-                          type="number"
-                          min={0}
-                          step="0.01"
-                          {...register("securityDeposit", {
-                            valueAsNumber: true,
-                          })}
-                          className="w-full rounded-xl bg-[#F8FAFC] p-3"
-                        />
-                      </label>
-                    </div>
-                  ) : (
-                    <>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
-                        Mgt Service Charge
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        {...register("mgtServiceCharge", {
-                          valueAsNumber: true,
-                        })}
-                        className="w-full p-3 bg-[#F8FAFC] rounded-xl"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
-                        Legal Fees
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        {...register("legalFee", { valueAsNumber: true })}
-                        className="w-full p-3 bg-[#F8FAFC] rounded-xl"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
-                      Caution Fee
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      {...register("cautionFee", { valueAsNumber: true })}
-                      className="w-full p-3 bg-[#F8FAFC] rounded-xl"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
-                      Broke Fee
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      {...register("brokeFee", { valueAsNumber: true })}
-                      className="w-full p-3 bg-[#F8FAFC] rounded-xl"
-                    />
-                  </div>
-                    </>
-                  )}
-                  <div className="mt-6 p-4 bg-[#4CAF50]/5 rounded-2xl border border-[#4CAF50]/10">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase">
-                      {isShortlet ? "Nightly rate" : "Total Package"}
-                    </p>
-                    <p className="text-2xl font-bold text-[#4CAF50]">
-                      ₦
-                      {(isShortlet
-                        ? toMoneyNumber(fees[0])
-                        : totalPackages
-                      ).toLocaleString()}
-                      {isShortlet && (
-                        <span className="ml-1 text-sm font-medium">/ night</span>
-                      )}
-                    </p>
-                  </div>
-                </div>
-              </section>
-
-              {/* Property Media */}
-              <section className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
-                <div className="flex items-center gap-2 mb-6 text-[#43A047]">
-                  <div className="bg-[#E8F5E9] p-2 rounded-full">
-                    <ImageIcon size={20} />
-                  </div>
-                  <h3 className="font-bold text-slate-800">Property Images</h3>
-                </div>
-
-                {/* Image Upload Area */}
-                <div className="relative">
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/jpeg,image/png,image/webp,image/gif"
-                    onChange={handleImageChange}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                  />
-                  <div className="border-2 border-dashed border-slate-200 rounded-2xl p-8 flex flex-col items-center justify-center bg-slate-50 hover:bg-slate-100 transition-all">
-                    <Upload size={24} className="text-slate-400 mb-2" />
-                    <p className="text-[10px] font-bold text-slate-500 uppercase">
-                      Click to upload or drag images
-                    </p>
-                    <p className="text-xs text-slate-400 mt-1">
-                      {images.length} image(s) selected • Max 5MB each
-                    </p>
-                  </div>
-                </div>
-                {imagePreviews.length > 0 && (
-                  <div className="mt-4 grid grid-cols-3 gap-2">
-                    {imagePreviews.map((preview, index) => (
-                      <div
-                        key={index}
-                        className="relative aspect-square rounded-xl overflow-hidden"
-                      >
-                        <img
-                          src={preview}
-                          alt={`Preview ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeImage(index)}
-                          className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                        >
-                          <X size={12} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </section>
-
-              {/* Property Videos */}
-              <section className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
-                <div className="flex items-center gap-2 mb-6 text-[#43A047]">
-                  <div className="bg-[#E8F5E9] p-2 rounded-full">
-                    <ImageIcon size={20} />
-                  </div>
-                  <h3 className="font-bold text-slate-800">Property Videos</h3>
-                </div>
-                {/* Video Upload Area */}
-                <div className="relative">
-                  <input
-                    type="file"
-                    multiple
-                    accept="video/mp4,video/quicktime,video/x-msvideo,video/webm,video/mpeg"
-                    onChange={handleVideoChange}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                  />
-                  <div className="border-2 border-dashed border-slate-200 rounded-2xl p-8 flex flex-col items-center justify-center bg-slate-50 hover:bg-slate-100 transition-all">
-                    <Upload size={24} className="text-slate-400 mb-2" />
-                    <p className="text-[10px] font-bold text-slate-500 uppercase">
-                      Click to upload or drag videos (MP4, MOV, WebM)
-                    </p>
-                    <p className="text-xs text-slate-400 mt-1">
-                      {videos.length} video(s) selected • Max 50MB each
-                    </p>
-                  </div>
-                </div>
-                {videoPreviews.length > 0 && (
-                  <div className="mt-4 grid grid-cols-3 gap-2">
-                    {videoPreviews.map((preview, index) => {
-                      const isLargeFile = preview.includes("LARGE_FILE");
-                      const fileName =
-                        videos[index]?.name || `Video ${index + 1}`;
-                      const fileSize = videos[index]
-                        ? `${(videos[index].size / 1024 / 1024).toFixed(1)}MB`
-                        : "";
-
-                      return (
-                        <div
-                          key={index}
-                          className="relative aspect-square rounded-xl overflow-hidden bg-gray-100"
-                        >
-                          {isLargeFile ? (
-                            <div className="w-full h-full flex flex-col items-center justify-center bg-slate-200 p-2">
-                              <div className="text-center">
-                                <p className="text-xs font-bold text-gray-700 truncate">
-                                  {fileName}
-                                </p>
-                                <p className="text-xs text-gray-600 mt-1">
-                                  {fileSize}
-                                </p>
-                                <p className="text-[10px] text-gray-500 mt-2">
-                                  Large file
-                                </p>
-                              </div>
-                            </div>
-                          ) : (
-                            <video
-                              src={preview}
-                              className="w-full h-full object-cover"
-                              controls={false}
-                            />
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => removeVideo(index)}
-                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                          >
-                            <X size={12} />
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </section>
-
-              <button
-                type="submit"
-                disabled={isSubmitting || images.length === 0}
-                className="w-full py-5 bg-[#00C853] text-white font-bold text-lg rounded-2xl shadow-lg shadow-green-100 hover:bg-[#00B44A] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 size={20} className="animate-spin" />
-                    Publishing...
-                  </>
-                ) : (
-                  "Publish Property"
-                )}
-              </button>
+            <div className=" flex flex-col gap-1">
+              <h2 className=" font-semibold text-[20px]">Long-term Renal</h2>
+              <p className="w-[250px] text-[15px] text-[#6b7280]">
+                Rent for months or years (e.g apartments, houses, duplexes).
+              </p>
             </div>
-          </form>
+
+            <Image
+              src={HouseIn}
+              width={200}
+              height={50}
+              alt=""
+              className=" w-full h-64 rounded-[20px]"
+            />
+
+            {/*  */}
+            <div className=" grid grid-cols-3 gap-4 text-[#43a047]">
+              <div>
+                <Calendar />
+                <p>Monthly / Yearly payment</p>
+              </div>
+              <div>
+                <ShieldCheck />
+                <p>Inspection required</p>
+              </div>
+              <div>
+                <LucideNotebookText />
+                <p>Lease agreement</p>
+              </div>
+            </div>
+          </div>
+
+          {/*  */}
+          <div
+            onClick={() => selectListingType("shortlet")}
+            className=" flex flex-col gap-2.5 rounded-[10px] bg-white shadow p-4 hover:border-2 hover:border-[#43a047] cursor-pointer"
+          >
+            <div className="">
+              <BedDouble size={50} />
+            </div>
+
+            <div className=" flex flex-col gap-1">
+              <h2 className=" font-semibold text-[20px]">Shortlet</h2>
+              <p className="w-[250px] text-[15px] text-[#6b7280]">
+                Furnished stays for short periods (e.g vacaion, business,
+                holidays).
+              </p>
+            </div>
+
+            <Image
+              src={HouseIn}
+              width={200}
+              height={50}
+              alt=""
+              className=" w-full h-64 rounded-[20px]"
+            />
+
+            {/*  */}
+            <div className=" grid grid-cols-3 gap-4 text-[#43a047]">
+              <div>
+                <Calendar />
+                <p>Daily / Weekly payments</p>
+              </div>
+              <div>
+                <ShieldCheck />
+                <p>Instant booking (when available)</p>
+              </div>
+              <div>
+                <Wallet />
+                <p>Online payment</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/*  */}
+        <div className=" flex gap-2.5 mb-3.5 p-2.5 bg-[#e0e8ff69] rounded-xl">
+          <Info size={20}/>
+
+          <div className=" flex flex-col gap-1.5">
+            <h2 className=" font-semibold text-[15px]">
+              What's the difference?
+            </h2>
+            <p className=":w-[510px] md:w-[610px] text-[15px]">
+              Long-term renals are for exended stays (monthly/yearly), while
+              shortlets are for short stays (days, weeks). You can always edit
+              the details later
+            </p>
+          </div>
         </div>
       </div>
     </DashboardLayout>
