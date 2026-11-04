@@ -10,10 +10,17 @@ import { Properties, Property } from "./types";
 import type { RentalSearchParams } from "../rental";
 
 export const useFetchProperties = (
-  options: FetchPropertiesOptions = { recentOnly: true },
+  options: FetchPropertiesOptions = {
+    recentOnly: true,
+    includeShortlets: false,
+  },
 ) => {
   return useQuery<Properties, Error>({
-    queryKey: ["properties", options.recentOnly ?? true ? "recent" : "all"],
+    queryKey: [
+      "properties",
+      options.recentOnly ?? true ? "recent" : "all",
+      options.includeShortlets ? "with-shortlets" : "rentals-only",
+    ],
     queryFn: () => fetchProperties(options),
   });
 };

@@ -30,6 +30,7 @@ import Image from "next/image";
 import Navbar from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 import { useFetchPropertyBySlug } from "@/app/api/features/property";
+import { useFetchShortletById } from "@/app/api/features/shortlet";
 import {
   useRentRental,
   useLockRental,
@@ -42,6 +43,12 @@ import { toast } from "react-toastify";
 import { useAuth } from "@/app/components/context/AuthContext";
 import BookInspectionModal from "@/app/components/BookInspectionModal";
 import { TransactionPinSheet } from "@/app/components/TransactionPinModal";
+import ShortletBookings from "@/app/components/Dashboard/shortlet/ShortletBookings";
+import ShortletHostDetails from "@/app/components/Dashboard/shortlet/ShortletHostDetails";
+import ShortletInfo from "@/app/components/Dashboard/shortlet/ShortletInfo";
+import ShortletRatings from "@/app/components/Dashboard/shortlet/ShortletRatings";
+import ShortletReviews from "@/app/components/Dashboard/shortlet/ShortletReviews";
+import ShortletReserve from "@/app/components/Dashboard/shortlet/ShortletReserve";
 
 function PropertyDesktopViewContent() {
   const params = useParams<{ slug: string }>();
@@ -49,6 +56,7 @@ function PropertyDesktopViewContent() {
   const searchParams = useSearchParams();
   const { isLoggedIn } = useAuth();
   const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
+  const isShortletRoute = searchParams.get("model") === "shortlet";
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showAllTips, setShowAllTips] = useState(false);
   const [isBookInspectionsOpen, setisBookInspectionOpen] = useState(false);
@@ -60,6 +68,11 @@ function PropertyDesktopViewContent() {
   const [thumbsSwiper, setThumbsSwiper] = useState<any>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [open, setOpen] = useState(false);
+  // Keep the selected shortlet stay in this page so the calendar and reserve
+  // card always display the same dates and guest count.
+  const [shortletCheckIn, setShortletCheckIn] = useState<Date | null>(null);
+  const [shortletCheckOut, setShortletCheckOut] = useState<Date | null>(null);
+  const [shortletGuests, setShortletGuests] = useState(1);
 
   // const {
   //   data: property,
@@ -72,15 +85,22 @@ function PropertyDesktopViewContent() {
   //   enabled: Boolean(slug),
   // });
 
-  const {
-    data: property,
-    isLoading,
-    isError,
-    error,
-  } = useFetchPropertyBySlug(slug!);
+  const rentalQuery = useFetchPropertyBySlug(
+    isShortletRoute ? null : slug,
+  );
+  const shortletQuery = useFetchShortletById(slug, isShortletRoute);
+  const property = isShortletRoute ? shortletQuery.data : rentalQuery.data;
+  const isLoading = isShortletRoute
+    ? shortletQuery.isLoading
+    : rentalQuery.isLoading;
+  const isError = isShortletRoute ? shortletQuery.isError : rentalQuery.isError;
+  const error = isShortletRoute ? shortletQuery.error : rentalQuery.error;
 
   useEffect(() => {
     setCurrentImageIndex(0);
+    setShortletCheckIn(null);
+    setShortletCheckOut(null);
+    setShortletGuests(1);
   }, [slug]);
 
   const showFooter = !isLoggedIn;
@@ -123,7 +143,9 @@ function PropertyDesktopViewContent() {
       <div className="bg-white min-h-screen">
         <Navbar />
         <div className="max-w-[1280px] mx-auto px-6 py-20 text-center">
-          <p className="text-gray-600 text-lg">Property not found.</p>
+          <p className="text-gray-600 text-lg">
+            Property not found.
+          </p>
           <button
             type="button"
             onClick={() => router.push("/properties")}
@@ -149,6 +171,54 @@ function PropertyDesktopViewContent() {
     : "Verified Landlord";
 
   const access = hasAccessToken() as any;
+  // The backend currently identifies shortlets through the listing type or a
+  // nightly price period; either value is enough to select the shortlet UI.
+  const isShortlet =
+    Boolean(property.rentalModel) ||
+    property.propertyType.toLowerCase().includes("shortlet") ||
+    property.priceType.toLowerCase().includes("night");
+  // Do not offer renter actions on listings that are not available.
+  const canBook = property.status.toLowerCase() === "available";
+
+  // Use RentULO chat for host contact instead of exposing private contact info.
+  const handleMessageHost = () => {
+    if (!hasAccessToken()) {
+      router.push("/login");
+      return;
+    }
+
+    if (access?.verified === false) {
+      return;
+    }
+
+    if (!property.userId) {
+      toast.error("Landlord contact is not available for this listing.");
+      return;
+    }
+
+    createConversation(
+      { other_user_id: String(property.userId) },
+      {
+        onSuccess: (data) => {
+          const conversationId = sanitizeConversationId(
+            data.conversation_id ?? data._id ?? data.id,
+          );
+
+          if (!conversationId) {
+            toast.error("Unable to open this conversation.");
+            return;
+          }
+
+          router.push(`/tenant/messages/${conversationId}`);
+        },
+        onError: (conversationError) => {
+          toast.error(
+            conversationError.message || "Unable to start chat. Please try again.",
+          );
+        },
+      },
+    );
+  };
   return (
     <div className="bg-white min-h-screen">
       <Navbar />
@@ -249,7 +319,12 @@ function PropertyDesktopViewContent() {
               <Spec
                 icon={<MapPin className="text-[#4CAF50]" />}
                 label="Location"
-                value={property.location}
+                value={
+                  isShortlet
+                    ? [property.area, property.city].filter(Boolean).join(", ") ||
+                      property.location
+                    : property.location
+                }
               />
               <Spec
                 icon={<Home className="text-[#4CAF50]" />}
@@ -263,6 +338,31 @@ function PropertyDesktopViewContent() {
               />
             </div>
 
+            {isShortlet && (
+              <section className="space-y-3">
+                <h2 className="text-2xl font-bold text-gray-900">Location</h2>
+                <div className="space-y-2 text-gray-600">
+                  {[property.address, property.area, property.city]
+                    .filter(Boolean)
+                    .map((part, index) => (
+                      <p key={`${part}-${index}`}>{part}</p>
+                    ))}
+                  {property.landmark && (
+                    <p>
+                      <span className="font-semibold">Nearby landmark:</span>{" "}
+                      {property.landmark}
+                    </p>
+                  )}
+                  {!property.address &&
+                    !property.area &&
+                    !property.city &&
+                    !property.landmark && (
+                      <p>Location details are not available.</p>
+                    )}
+                </div>
+              </section>
+            )}
+
             <div className="space-y-4">
               <h2 className="text-3xl font-black text-gray-900">Description</h2>
               <p className="text-sm font-medium text-gray-400">
@@ -273,6 +373,7 @@ function PropertyDesktopViewContent() {
               </p>
             </div>
 
+            {property.amenities.length > 0 ? (
             <div className="space-y-4">
               <h2 className="text-3xl font-black text-gray-900">Amenities</h2>
               <ul className="flex flex-col gap-2 list-disc list-inside">
@@ -286,71 +387,220 @@ function PropertyDesktopViewContent() {
                 ))}
               </ul>
             </div>
-
-            <div className="space-y-4 bg-blue-50 p-6 rounded-[32px] border border-blue-100">
-              <h2 className="text-2xl font-black text-gray-900">Safety Tips</h2>
-              {(showAllTips
-                ? [
-                    "Ensure you meet the landlord or agent in an open location.",
-                    "Always verify ownership before making any payment.",
-                    "Be cautious of deals that seem too good to be true.",
-                    "Use RentULO wallet for secure payment methods and keep your receipts.",
-                  ]
-                : ["Ensure you meet the landlord or agent in an open location."]
-              ).map((tip, index) => (
-                <p
-                  key={index}
-                  className="text-gray-600 leading-relaxed text-lg"
-                >
-                  {index + 1}. {tip}
-                </p>
-              ))}
-              <button
-                type="button"
-                onClick={() => setShowAllTips(!showAllTips)}
-                className="text-[#4CAF50] font-semibold hover:underline"
-              >
-                {showAllTips ? "Show Less Tips" : "See Full Tips"}
-              </button>
-            </div>
-
-            <div className="pt-8 border-t border-gray-100">
-              <h3 className="text-xl font-bold mb-6">Listing Highlights</h3>
-              <div className="flex flex-wrap gap-8">
-                <Amenity
-                  icon={<Zap />}
-                  label={`${property.priceType} pricing`}
-                />
-                <Amenity
-                  icon={<Shield />}
-                  label={`${property.status} listing`}
-                />
-                <Amenity icon={<Droplets />} label="Image gallery included" />
-                <Amenity icon={<Leaf />} label="Direct rental posting" />
+            ) : (
+              <div className="space-y-2">
+                <h2 className="text-2xl font-bold text-gray-900">Amenities</h2>
+                <p className="text-gray-500">No amenities have been listed.</p>
               </div>
-            </div>
+            )}
+
+            {/* Render shortlet-only sections from the shared property record. */}
+            {isShortlet && (
+              <>
+                {(property.bedrooms ||
+                  property.bathrooms ||
+                  property.livingRooms ||
+                  property.guestCapacity ||
+                  property.furnishingStatus) && (
+                  <section className="space-y-4">
+                    <h2 className="text-2xl font-bold text-gray-900">
+                      Accommodation
+                    </h2>
+                    <div className="flex flex-wrap gap-3">
+                      {property.bedrooms ? (
+                        <span className="rounded-full bg-gray-100 px-4 py-2 text-sm text-gray-700">
+                          {property.bedrooms}{" "}
+                          {property.bedrooms === 1 ? "bedroom" : "bedrooms"}
+                        </span>
+                      ) : null}
+                      {property.bathrooms ? (
+                        <span className="rounded-full bg-gray-100 px-4 py-2 text-sm text-gray-700">
+                          {property.bathrooms}{" "}
+                          {property.bathrooms === 1 ? "bathroom" : "bathrooms"}
+                        </span>
+                      ) : null}
+                      {property.livingRooms ? (
+                        <span className="rounded-full bg-gray-100 px-4 py-2 text-sm text-gray-700">
+                          {property.livingRooms}{" "}
+                          {property.livingRooms === 1 ? "living room" : "living rooms"}
+                        </span>
+                      ) : null}
+                      {property.guestCapacity ? (
+                        <span className="rounded-full bg-gray-100 px-4 py-2 text-sm text-gray-700">
+                          Up to {property.guestCapacity} guests
+                        </span>
+                      ) : null}
+                      {property.furnishingStatus && (
+                        <span className="rounded-full bg-gray-100 px-4 py-2 text-sm capitalize text-gray-700">
+                          {property.furnishingStatus.replaceAll("_", " ")}
+                        </span>
+                      )}
+                    </div>
+                  </section>
+                )}
+
+                <ShortletBookings
+                  checkIn={shortletCheckIn}
+                  checkOut={shortletCheckOut}
+                  guests={shortletGuests}
+                  maxGuests={property.guestCapacity}
+                  availableFrom={property.availableFrom}
+                  availableTo={property.availableTo}
+                  minimumStay={property.minimumStay}
+                  maximumStay={property.maximumStay}
+                  onStayChange={({ checkIn, checkOut, guests }) => {
+                    setShortletCheckIn(checkIn);
+                    setShortletCheckOut(checkOut);
+                    setShortletGuests(guests);
+                  }}
+                />
+                {/* Reviews, rules, and host data remain empty unless backed by
+                    real listing/review data; the components handle empty states. */}
+                <ShortletRatings />
+                <ShortletReviews reviews={[]} />
+                <ShortletInfo
+                  checkInTime={property.checkInTime}
+                  checkOutTime={property.checkOutTime}
+                  houseRules={[
+                    ...(property.houseRules ?? []),
+                    ...(property.smokingAllowed === undefined
+                      ? []
+                      : [property.smokingAllowed ? "Smoking allowed" : "No smoking"]),
+                    ...(property.petsAllowed === undefined
+                      ? []
+                      : [property.petsAllowed ? "Pets allowed" : "No pets"]),
+                    ...(property.partiesAllowed === undefined
+                      ? []
+                      : [property.partiesAllowed ? "Parties allowed" : "No parties"]),
+                  ]}
+                />
+                <ShortletHostDetails
+                  hostName={property.User?.full_name}
+                  hostImage={property.User?.Profile?.image}
+                  verified={property.User?.Profile?.verified}
+                  onMessageHost={handleMessageHost}
+                />
+              </>
+            )}
+
+            {/* Shortlets show nightly stay pricing; long-term retains its
+                existing rental fees and payment/inspection actions. */}
+            {!isShortlet && (
+              <div className="space-y-4 rounded-[32px] border border-blue-100 bg-blue-50 p-6">
+                <h2 className="text-2xl font-black text-gray-900">
+                  Safety Tips
+                </h2>
+                {(showAllTips
+                  ? [
+                      "Ensure you meet the landlord or agent in an open location.",
+                      "Always verify ownership before making any payment.",
+                      "Be cautious of deals that seem too good to be true.",
+                      "Use RentULO wallet for secure payment methods and keep your receipts.",
+                    ]
+                  : [
+                      "Ensure you meet the landlord or agent in an open location.",
+                    ]
+                ).map((tip, index) => (
+                  <p
+                    key={index}
+                    className="text-lg leading-relaxed text-gray-600"
+                  >
+                    {index + 1}. {tip}
+                  </p>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setShowAllTips(!showAllTips)}
+                  className="font-semibold text-[#4CAF50] hover:underline"
+                >
+                  {showAllTips ? "Show Less Tips" : "See Full Tips"}
+                </button>
+              </div>
+            )}
+
+            {!isShortlet && (
+              <div className="border-t border-gray-100 pt-8">
+                <h3 className="mb-6 text-xl font-bold">Listing Highlights</h3>
+                <div className="flex flex-wrap gap-8">
+                  <Amenity
+                    icon={<Zap />}
+                    label={`${property.priceType} pricing`}
+                  />
+                  <Amenity
+                    icon={<Shield />}
+                    label={`${property.status} listing`}
+                  />
+                  <Amenity icon={<Droplets />} label="Image gallery included" />
+                  <Amenity icon={<Leaf />} label="Direct rental posting" />
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="lg:col-span-1">
             <div className="sticky top-10 space-y-6 lg:top-24 h-fit">
               <div className="bg-white border border-gray-100 p-8 rounded-[40px] shadow-xl shadow-gray-200/50">
-                <div className="flex items-center gap-3 mb-6 bg-green-50 p-3 rounded-2xl border border-green-100">
-                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-                  <span className="text-green-700 font-bold text-sm uppercase">
+                <div className="flex items-center gap-3 mb-6 rounded-2xl border border-gray-100 bg-gray-50 p-3">
+                  <div
+                    className={`h-3 w-3 rounded-full ${
+                      canBook ? "animate-pulse bg-green-500" : "bg-gray-400"
+                    }`}
+                  />
+                  <span className="text-sm font-bold uppercase text-gray-700">
                     {property.status} listing
                   </span>
                 </div>
 
-                <div className="mb-8">
-                  <p className="text-gray-400 text-sm font-medium mb-1">Rent</p>
-                  <h1 className="text-4xl font-black text-gray-900">
-                    N{Number(property.price).toLocaleString()}
-                    <span className="text-lg font-normal text-gray-500 capitalize">
-                      /{property.priceType}
-                    </span>
-                  </h1>
-                </div>
+                {!isShortlet && (
+                  <div className="mb-8">
+                    <p className="mb-1 text-sm font-medium text-gray-400">
+                      Rent
+                    </p>
+                    <h1 className="text-4xl font-black text-gray-900">
+                      ₦{Number(property.price).toLocaleString()}
+                      <span className="text-lg font-normal capitalize text-gray-500">
+                        /{property.priceType}
+                      </span>
+                    </h1>
+                    <div className="mt-4 space-y-2 text-sm text-gray-600">
+                      {[
+                        ["Service charge", property.mgtServiceCharge],
+                        ["Caution fee", property.cautionFee],
+                        ["Legal fee", property.legalFee],
+                        ["Agency fee", property.brokeFee],
+                      ]
+                        .filter(([, amount]) => Number(amount) > 0)
+                        .map(([label, amount]) => (
+                          <div
+                            key={String(label)}
+                            className="flex justify-between gap-3"
+                          >
+                            <span>{label}</span>
+                            <span>₦{Number(amount).toLocaleString()}</span>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
 
+                {isShortlet ? (
+                  <ShortletReserve
+                    pricePerNight={Number(property.price)}
+                    checkIn={shortletCheckIn}
+                    checkOut={shortletCheckOut}
+                    guests={shortletGuests}
+                    canBook={canBook}
+                    cleaningFee={property.cleaningFee}
+                    securityDeposit={property.securityDeposit}
+                    // This is intentionally a placeholder until the date-aware
+                    // shortlet booking endpoint is available.
+                    onReserve={() =>
+                      toast.info(
+                        "Shortlet booking will be available once the booking service is ready.",
+                      )
+                    }
+                  />
+                ) : (
                 <div className="grid grid-cols-2 gap-3 md:grid-cols-1 md:flex md:flex-col md:gap-0 md:space-y-4">
                   <button
                     type="button"
@@ -362,7 +612,7 @@ function PropertyDesktopViewContent() {
 
                       setPinAction("rent");
                     }}
-                    disabled={isRenting}
+                    disabled={isRenting || !canBook}
                     className="flex min-h-16 w-full flex-col items-center justify-center gap-1 rounded-[24px] border-2 border-none bg-green-600 px-2 py-3 text-center text-[11px] font-black uppercase leading-tight text-white shadow-lg shadow-orange-100 transition-all hover:bg-green-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:text-xs md:mt-4 md:min-h-0 md:flex-row md:gap-3 md:px-4 md:py-5 md:text-base md:leading-normal"
                   >
                     <Lock className="size-4 shrink-0 md:size-5" />
@@ -374,47 +624,7 @@ function PropertyDesktopViewContent() {
                   {/*  */}
                   <button
                     type="button"
-                    onClick={() => {
-                      if (!hasAccessToken()) {
-                        router.push("/login");
-                        return;
-                      }
-
-                      if (access?.verified === false) {
-                        return false;
-                      }
-
-                      if (!property.userId) {
-                        toast.error(
-                          "Landlord contact is not available for this listing.",
-                        );
-                        return;
-                      }
-
-                      createConversation(
-                        { other_user_id: String(property.userId) },
-                        {
-                          onSuccess: (data) => {
-                            const conversationId = sanitizeConversationId(
-                              data.conversation_id ?? data._id ?? data.id,
-                            );
-
-                            if (!conversationId) {
-                              toast.error("Unable to open this conversation.");
-                              return;
-                            }
-
-                            router.push(`/tenant/messages/${conversationId}`);
-                          },
-                          onError: (conversationError) => {
-                            toast.error(
-                              conversationError.message ||
-                                "Unable to start chat. Please try again.",
-                            );
-                          },
-                        },
-                      );
-                    }}
+                    onClick={handleMessageHost}
                     className="flex min-h-16 w-full flex-col items-center justify-center gap-1 rounded-[24px] border-2 border-none bg-green-600 px-2 py-3 text-center text-[11px] font-black uppercase leading-tight text-white shadow-lg shadow-orange-100 transition-all hover:bg-green-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:text-xs md:mt-4 md:min-h-0 md:flex-row md:gap-3 md:px-4 md:py-5 md:text-base md:leading-normal"
                   >
                     <MessageSquare className="size-4 shrink-0 md:size-5" />
@@ -431,6 +641,7 @@ function PropertyDesktopViewContent() {
                       }
                       setisBookInspectionOpen(true);
                     }}
+                    disabled={!canBook}
                     className="flex min-h-16 w-full flex-col items-center justify-center gap-1 rounded-[24px] border-2 border-none bg-green-600 px-2 py-3 text-center text-[11px] font-black uppercase leading-tight text-white shadow-lg shadow-orange-100 transition-all hover:bg-green-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:text-xs md:mt-4 md:min-h-0 md:flex-row md:gap-3 md:px-4 md:py-5 md:text-base md:leading-normal"
                   >
                     <CalendarDays className="size-4 shrink-0 md:size-5" />
@@ -448,7 +659,7 @@ function PropertyDesktopViewContent() {
 
                       setPinAction("lock");
                     }}
-                    disabled={isLocking}
+                    disabled={isLocking || !canBook}
                     className="flex min-h-16 w-full flex-col items-center justify-center gap-1 rounded-[24px] border-2 border-none bg-green-600 px-2 py-3 text-center text-[11px] font-black uppercase leading-tight text-white shadow-lg shadow-orange-100 transition-all hover:bg-green-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:text-xs md:mt-4 md:min-h-0 md:flex-row md:gap-3 md:px-4 md:py-5 md:text-base md:leading-normal"
                   >
                     <Lock className="size-4 shrink-0 md:size-5" />
@@ -473,24 +684,29 @@ function PropertyDesktopViewContent() {
                     Back to Listings
                   </button> */}
                 </div>
+                )}
 
-                <p className="text-center text-gray-400 text-xs mt-6">
-                  * Booking requires a completed account profile and a valid
-                  logged-in session.
-                </p>
-              </div>
-
-              <div className="bg-gray-50 p-6 rounded-[32px] flex flex-col gap-2">
-                <h2>Landloard</h2>
-                <div>
-                  <p className="font-bold text-gray-900">{landlordName}</p>
-                  <p className="text-xs text-gray-500">
-                    {property.User?.Profile?.verified === true
-                      ? "Verified landlord"
-                      : ""}
+                {!isShortlet && (
+                  <p className="mt-6 text-center text-xs text-gray-400">
+                    * Booking requires a completed account profile and a valid
+                    logged-in session.
                   </p>
-                </div>
+                )}
               </div>
+
+              {!isShortlet && (
+                <div className="flex flex-col gap-2 rounded-[32px] bg-gray-50 p-6">
+                  <h2>Landlord</h2>
+                  <div>
+                    <p className="font-bold text-gray-900">{landlordName}</p>
+                    {property.User?.Profile?.verified === true && (
+                      <p className="text-xs text-gray-500">
+                        Verified landlord
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

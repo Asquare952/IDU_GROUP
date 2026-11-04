@@ -12,18 +12,373 @@ import {
   Wallet,
   Info,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { rentalApi, type CreateRentalPayload } from "@/app/api/features/rental";
+import {
+  createShortlet,
+  type CreateShortletPayload,
+  type ShortletPropertyType,
+} from "@/app/api/features/shortlet";
+import { toast } from "react-toastify";
+
+interface FormData {
+  title: string;
+  description: string;
+  location: string;
+  type: string;
+  status: string;
+  basicRent: number;
+  legalFee: number;
+  cautionFee: number;
+  brokeFee: number;
+  mgtServiceCharge: number;
+  rentalModel: "entire_place" | "private_room" | "shared_room" | "hotel";
+  shortletPropertyType: ShortletPropertyType;
+  address: string;
+  area: string;
+  landmark: string;
+  bedrooms: number;
+  bathrooms: number;
+  livingRooms: number;
+  guestCapacity: number;
+  furnishingStatus: "unfurnished" | "semi_furnished" | "fully_furnished";
+  cleaningFee: number;
+  securityDeposit: number;
+  minimumStay: number;
+  maximumStay: number;
+  availableFrom: string;
+  availableTo: string;
+  checkInTime: string;
+  checkOutTime: string;
+  smokingAllowed: string;
+  petsAllowed: string;
+  partiesAllowed: string;
+  houseRules: string;
+}
+
+const toMoneyNumber = (value: unknown): number => {
+  const numberValue = Number(value);
 
 type ListingTypes = "long-term" | "shortlet";
 
 const page = () => {
   const router = useRouter();
 
-  const selectListingType = (isRental: ListingTypes) => {
-    if (isRental === "long-term") {
-      router.push("/landlord/upload-listings/long-term");
-    } else {
-      router.push("/landlord/upload-listings/shortlet");
+  const {
+    register,
+    watch,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({
+    defaultValues: {
+      title: "",
+      description: "",
+      location: "",
+      type: "apartment",
+      status: "available",
+      basicRent: 0,
+      legalFee: 0,
+      cautionFee: 0,
+      brokeFee: 0,
+      mgtServiceCharge: 0,
+      rentalModel: "entire_place",
+      shortletPropertyType: "apartment",
+      address: "",
+      area: "",
+      landmark: "",
+      bedrooms: 1,
+      bathrooms: 1,
+      livingRooms: 1,
+      guestCapacity: 2,
+      furnishingStatus: "fully_furnished",
+      cleaningFee: 0,
+      securityDeposit: 0,
+      minimumStay: 1,
+      maximumStay: 30,
+      availableFrom: "",
+      availableTo: "",
+      checkInTime: "",
+      checkOutTime: "",
+      smokingAllowed: "false",
+      petsAllowed: "false",
+      partiesAllowed: "false",
+      houseRules: "",
+    },
+  });
+
+  const fees = watch([
+    "basicRent",
+    "legalFee",
+    "cautionFee",
+    "brokeFee",
+    "mgtServiceCharge",
+  ]);
+  const isShortlet = watch("type") === "shortlets";
+  const toggleAmenity = (amenity: string) => {
+    setSelectedAmenities((currentAmenities) => {
+      return currentAmenities.includes(amenity)
+        ? currentAmenities.filter((item) => item !== amenity)
+        : [...currentAmenities, amenity];
+    });
+  };
+
+  useEffect(() => {
+    const sum = fees.reduce((acc, curr) => acc + toMoneyNumber(curr), 0);
+    setTotalPackages(sum);
+  }, [fees]);
+
+  // Handle image selection
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    setUploadError(null);
+    const newFiles = Array.from(files);
+    const validFiles: File[] = [];
+
+    if (isShortlet && images.length + newFiles.length > 6) {
+      setUploadError("Shortlet listings can include up to 6 images.");
+      return;
+    }
+
+    // Validate each file
+    for (const file of newFiles) {
+      if (!file.type.startsWith("image/")) {
+        setUploadError(`${file.name} is not an image file.`);
+        continue;
+      }
+      if (file.size > MAX_IMAGE_SIZE) {
+        setUploadError(`${file.name} is too large. Max 5MB per image.`);
+        continue;
+      }
+      validFiles.push(file);
+    }
+
+    if (validFiles.length === 0) return;
+
+    setImages((prev) => [...prev, ...validFiles]);
+
+    // Create preview URLs
+    validFiles.forEach((file) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreviews((prev) => [...prev, reader.result as string]);
+      };
+      reader.onerror = () => {
+        setUploadError(`Failed to read ${file.name}`);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    setUploadError(null);
+    const newFiles = Array.from(files);
+    const validFiles: File[] = [];
+
+    if (isShortlet && videos.length + newFiles.length > 2) {
+      setUploadError("Shortlet listings can include up to 2 videos.");
+      return;
+    }
+
+    // Validate each file
+    for (const file of newFiles) {
+      // Check video MIME type more strictly for mobile compatibility
+      const isValidVideoType =
+        file.type === "video/mp4" ||
+        file.type === "video/quicktime" ||
+        file.type === "video/x-msvideo" ||
+        file.type === "video/webm" ||
+        file.type === "video/mpeg" ||
+        file.type.startsWith("video/");
+
+      if (!isValidVideoType) {
+        setUploadError(
+          `${file.name} is not a supported video format. Use MP4, MOV, AVI, or WebM.`,
+        );
+        continue;
+      }
+      if (file.size > MAX_VIDEO_SIZE) {
+        setUploadError(
+          `${file.name} is too large. Max 50MB per video. Consider compressing.`,
+        );
+        continue;
+      }
+      validFiles.push(file);
+    }
+
+    if (validFiles.length === 0) return;
+
+    setVideos((prev) => [...prev, ...validFiles]);
+
+    // Create preview URLs only for small files to avoid memory issues
+    validFiles.forEach((file) => {
+      // Skip preview for very large files on mobile
+      if (file.size > 10 * 1024 * 1024) {
+        // > 10MB
+        setVideoPreviews((prev) => [
+          ...prev,
+          `data:video/mp4;base64,LARGE_FILE`,
+        ]);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setVideoPreviews((prev) => [...prev, reader.result as string]);
+      };
+      reader.onerror = () => {
+        setUploadError(`Failed to read ${file.name}`);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  // Remove an image
+  const removeImage = (index: number) => {
+    setImages((prev) => prev.filter((_, i) => i !== index));
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // Remove a video
+  const removeVideo = (index: number) => {
+    setVideos((prev) => prev.filter((_, i) => i !== index));
+    setVideoPreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // Form submission
+  const onSubmit = async (data: FormData) => {
+    setUploadError(null);
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    // Validate required fields
+    if (images.length === 0) {
+      setSubmitError("Please upload at least one image.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Calculate total file size
+    const totalSize = [...images, ...videos].reduce(
+      (sum, file) => sum + file.size,
+      0,
+    );
+
+    if (totalSize > MAX_TOTAL_SIZE) {
+      setSubmitError(
+        `Total file size exceeds 200MB limit. Please reduce file sizes or remove some files.`,
+      );
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      if (data.type === "shortlets") {
+        if (new Date(data.availableTo) < new Date(data.availableFrom)) {
+          setSubmitError("Availability end date cannot be before its start date.");
+          return;
+        }
+        if (
+          toMoneyNumber(data.maximumStay) <
+          toMoneyNumber(data.minimumStay)
+        ) {
+          setSubmitError("Maximum stay cannot be less than minimum stay.");
+          return;
+        }
+
+        const shortletPayload: CreateShortletPayload = {
+          title: data.title,
+          description: data.description,
+          rentalModel: data.rentalModel,
+          propertyType: data.shortletPropertyType,
+          bedrooms: toMoneyNumber(data.bedrooms),
+          bathrooms: toMoneyNumber(data.bathrooms),
+          livingRooms: toMoneyNumber(data.livingRooms),
+          guestCapacity: toMoneyNumber(data.guestCapacity),
+          furnishingStatus: data.furnishingStatus,
+          address: data.address,
+          city: data.location,
+          area: data.area,
+          landmark: data.landmark,
+          pricePerNight: toMoneyNumber(data.basicRent),
+          cleaningFee: toMoneyNumber(data.cleaningFee),
+          securityDeposit: toMoneyNumber(data.securityDeposit),
+          minimumStay: toMoneyNumber(data.minimumStay),
+          maximumStay: toMoneyNumber(data.maximumStay),
+          availableFrom: data.availableFrom,
+          availableTo: data.availableTo,
+          checkInTime: data.checkInTime,
+          checkOutTime: data.checkOutTime,
+          smokingAllowed: data.smokingAllowed === "true",
+          petsAllowed: data.petsAllowed === "true",
+          partiesAllowed: data.partiesAllowed === "true",
+          houseRules: data.houseRules
+            .split(/\r?\n/)
+            .map((rule) => rule.trim())
+            .filter(Boolean),
+          status: data.status,
+          images,
+          videos,
+          amenities: selectedAmenities,
+        };
+
+        await createShortlet(shortletPayload);
+        toast.success("Shortlet uploaded successfully!");
+        router.push("/landlord/my-listings");
+        return;
+      }
+
+      // Build payload matching CreateRentalPayload expected by rentalApi
+      const payload: CreateRentalPayload = {
+        title: data.title,
+        description: data.description,
+        propertyType: data.type,
+        location: data.location,
+        price: totalPackages,
+        legalFee: toMoneyNumber(data.legalFee),
+        cautionFee: toMoneyNumber(data.cautionFee),
+        brokeFee: toMoneyNumber(data.brokeFee),
+        mgtServiceCharge: toMoneyNumber(data.mgtServiceCharge),
+        priceType: isShortlet ? "nightly" : "yearly",
+        status: data.status,
+        images: images,
+        videos: videos,
+        amenities: selectedAmenities,
+      };
+
+      await rentalApi.createRental(payload);
+
+      toast.success("Property uploaded successfully!");
+      // Success — redirect to listings
+      router.push("/landlord/my-listings");
+    } catch (err: any) {
+      console.error("Upload failed:", err);
+
+      // Provide mobile-friendly error messages
+      let errorMessage =
+        err.response?.data?.message ||
+        err.message ||
+        "Failed to upload listing.";
+
+      if (
+        errorMessage.toLowerCase().includes("413") ||
+        errorMessage.toLowerCase().includes("payload")
+      ) {
+        errorMessage =
+          "Files are too large. Try compressing videos or uploading fewer files.";
+      } else if (errorMessage.toLowerCase().includes("timeout")) {
+        errorMessage =
+          "Upload timed out. Try uploading on a faster connection or with fewer/smaller files.";
+      } else if (errorMessage.toLowerCase().includes("network")) {
+        errorMessage = "Network error. Check your connection and try again.";
+      }
+
+      setSubmitError(errorMessage);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 

@@ -1,6 +1,7 @@
 import api from "../../axios";
 import type { AxiosRequestConfig } from "axios";
 import { progressApi } from "../progress";
+import { fetchShortlets, searchShortlets } from "../shortlet/shortlet.api";
 import {
   normalizeRental,
   normalizeRentalListResponse,
@@ -14,6 +15,7 @@ const ALL_RENTALS_ENDPOINT = "/rental/all";
 
 export type FetchPropertiesOptions = {
   recentOnly?: boolean;
+  includeShortlets?: boolean;
 };
 
 type ApiRequestConfig = AxiosRequestConfig & {
@@ -140,7 +142,10 @@ const normalizeProperties = (payload: unknown): Properties => {
 };
 
 export const fetchProperties = async (
-  options: FetchPropertiesOptions = { recentOnly: true },
+  options: FetchPropertiesOptions = {
+    recentOnly: true,
+    includeShortlets: false,
+  },
 ): Promise<Properties> => {
   const recentOnly = options.recentOnly ?? true;
   const endpoint = recentOnly ? RECENT_RENTALS_ENDPOINT : ALL_RENTALS_ENDPOINT;
@@ -151,7 +156,11 @@ export const fetchProperties = async (
     recentOnly ? ({ skipAuthRedirect: true } as ApiRequestConfig) : undefined,
   );
 
-  return normalizeProperties(response.data);
+  const rentalProperties = normalizeProperties(response.data);
+  const shortletProperties = options.includeShortlets
+    ? await fetchShortlets(recentOnly)
+    : [];
+  return [...rentalProperties, ...shortletProperties];
 };
 
 export const fetchRecentProperties = async (): Promise<Properties> =>
@@ -166,7 +175,10 @@ export const searchProperties = async (
     lat?: number;
     lng?: number;
   },
-  options: FetchPropertiesOptions = { recentOnly: true },
+  options: FetchPropertiesOptions = {
+    recentOnly: true,
+    includeShortlets: false,
+  },
 ): Promise<Properties> => {
   const queryParams = new URLSearchParams();
 
@@ -184,6 +196,7 @@ export const searchProperties = async (
     ? `/rental/search?${queryString}`
     : "/rental/search";
 
+  let rentalProperties: Properties;
   try {
     const response = await api.get<
       ApiResponse<RawRental[] | { rentals?: RawRental[] }>
@@ -194,7 +207,7 @@ export const searchProperties = async (
         : undefined,
     );
 
-    return normalizeProperties(response.data);
+    rentalProperties = normalizeProperties(response.data);
   } catch (error) {
     if (!params.location) {
       throw error;
@@ -202,7 +215,6 @@ export const searchProperties = async (
 
     const searchTerm = params.location.toLowerCase().trim();
     const properties = await fetchProperties(options);
-
     return properties.filter((property) =>
       [
         property.location,
@@ -217,6 +229,32 @@ export const searchProperties = async (
         .some((value) => String(value).toLowerCase().includes(searchTerm)),
     );
   }
+
+  if (!options.includeShortlets) {
+    return rentalProperties;
+  }
+
+  const shortletProperties = options.recentOnly ?? true
+    ? (await fetchShortlets(true)).filter((property) =>
+        [
+          property.location,
+          property.title,
+          property.description,
+          property.propertyType,
+          property.city,
+          property.state,
+          property.area,
+        ]
+          .filter(Boolean)
+          .some((value) =>
+            String(value)
+              .toLowerCase()
+              .includes((params.location ?? "").toLowerCase().trim()),
+          ),
+      )
+    : await searchShortlets({ location: params.location });
+
+  return [...rentalProperties, ...shortletProperties];
 };
 
 const fetchPropertyByIdentifier = async (
