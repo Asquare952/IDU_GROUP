@@ -157,7 +157,7 @@ function AllPropertiesPageContent() {
   });
 
   // Pagination: 6 properties per page
-  const itemsPerPage = 6;
+  const itemsPerPage = 8;
   const totalPages = Math.ceil(visibleProperties.length / itemsPerPage);
   const paginatedProperties = visibleProperties.slice(
     currentPage * itemsPerPage,
@@ -316,7 +316,7 @@ function AllPropertiesPageContent() {
             <div className="space-y-8">
               <motion.div
                 layout
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
               >
                 <AnimatePresence mode="popLayout">
                   {paginatedProperties.length > 0 ? (
@@ -377,15 +377,15 @@ function AllPropertiesPageContent() {
                           <div className="p-5">
                             <div className="mb-2 flex items-start justify-between gap-4">
                               <div>
+                                <h3 className="text-sm font-semibold text-gray-800">
+                                  {item.title}
+                                </h3>
                                 <p className="text-xl font-bold text-gray-900">
                                   ₦{Number(item.price).toLocaleString()}
                                   <span className="text-sm font-normal text-gray-400 capitalize">
                                     / {item.priceType}
                                   </span>
                                 </p>
-                                <h3 className="text-lg font-semibold text-gray-800">
-                                  {item.title}
-                                </h3>
                               </div>
 
                               <motion.button
@@ -396,11 +396,6 @@ function AllPropertiesPageContent() {
                                 View
                               </motion.button>
                             </div>
-
-                            <p className="mb-4 line-clamp-2 text-sm leading-relaxed text-gray-400">
-                              {item.description ||
-                                "No description provided yet."}
-                            </p>
 
                             <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.08em] text-gray-400">
                               Posted {formatRelativeTime(item.createdAt)}

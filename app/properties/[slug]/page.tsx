@@ -379,7 +379,7 @@ function PropertyDesktopViewContent() {
             {property.amenities.length > 0 ? (
             <div className="space-y-4">
               <h2 className="text-3xl font-black text-gray-900">Amenities</h2>
-              <ul className="flex flex-col gap-2 list-disc list-inside">
+              <ul className="grid grid-cols-2 gap-2 list-disc list-inside">
                 {property.amenities.map((amenity, index) => (
                   <li
                     key={index}
