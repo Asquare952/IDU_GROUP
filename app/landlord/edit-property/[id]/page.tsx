@@ -27,6 +27,7 @@ import ShortletAmenitiesStep from "@/features/rentals/create/components/steps/sh
 import ShortletMediaStep from "@/features/rentals/create/components/steps/shortlet/MediaStep";
 import PricingAvailabilityStep from "@/features/rentals/create/components/steps/shortlet/PricingAvailaibiliy";
 import HouseRuleStep from "@/features/rentals/create/components/steps/shortlet/HouseRuleStep";
+import ReviewPublishPreview from "@/features/rentals/create/components/ReviewPublishPreview";
 import {
   longTermSteps,
   shortTermSteps,
@@ -421,13 +422,14 @@ export default function Page() {
     </section>
   );
   const review = (
-    <section className="rounded-[2rem] border border-slate-100 bg-white p-8">
-      <h2 className="text-lg font-bold">Review changes</h2>
-      <p className="mt-2 text-sm text-slate-500">
-        Save to update this {shortlet ? "shortlet" : "long-term"} listing.
-      </p>
-      <h4>uidhkd</h4>
-    </section>
+    <ReviewPublishPreview
+      values={watch()}
+      amenities={amenities}
+      imagePreviews={[...existingImages, ...imagePreviews]}
+      videoPreviews={[...existingVideos, ...videoPreviews]}
+      isShortlet={shortlet}
+      totalPackage={total}
+    />
   );
   return (
     <DashboardLayout>

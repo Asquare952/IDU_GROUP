@@ -134,7 +134,7 @@ const Listing = () => {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
           >
             {properties.slice(0, 6).map((item, i) => {
               const isLiked = likedPropertyIds.has(String(item.id));
@@ -211,15 +211,16 @@ const Listing = () => {
                   <div className="p-5">
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <p className="text-gray-900 font-bold text-lg md:text-xl">
+                        
+                        <h3 className="text-gray-800 font-semibold text-sm">
+                          {item.title}
+                        </h3>
+                        <p className="text-gray-900 font-bold text-sm md:text-xl">
                           N{Number(item.price).toLocaleString()}
                           <span className="text-sm font-normal text-gray-400">
                             / {item.priceType}
                           </span>
                         </p>
-                        <h3 className="text-gray-800 font-semibold text-lg">
-                          {item.title}
-                        </h3>
                       </div>
 
                       <motion.button
@@ -234,10 +235,6 @@ const Listing = () => {
                         View
                       </motion.button>
                     </div>
-
-                    <p className="text-gray-400 text-base md:text-sm mb-4 leading-relaxed">
-                      {item.description || "No description provided yet."}
-                    </p>
 
                     <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.08em] text-gray-400">
                       Posted {formatRelativeTime(item.createdAt)}

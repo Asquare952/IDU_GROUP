@@ -129,7 +129,7 @@ const page = () => {
         <div className=" flex gap-2.5 mb-3.5 p-2.5 bg-[#e0e8ff69] rounded-xl">
           <Info size={20} />
 
-          <div className=" flex flex-col gap-1.5">
+          <div className=" flex flex-col gap-1.5"> 
             <h2 className=" font-semibold text-[15px]">
               What's the difference?
             </h2>
