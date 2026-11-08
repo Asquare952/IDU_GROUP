@@ -9,6 +9,7 @@ import { formatNotificationTime } from "@/app/components/shared/notification-hel
 
 const NotificationBell = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const { data: notificationCount, isLoading: isCountLoading } =
     useNotificationCount();
@@ -25,6 +26,8 @@ const NotificationBell = () => {
       : (notificationCount?.count ?? 0);
 
   useEffect(() => {
+    setIsMounted(true);
+
     const handleOutsideClick = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsOpen(false);
@@ -50,7 +53,7 @@ const NotificationBell = () => {
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         ) : null}
-        {isCountLoading ? (
+        {isMounted && isCountLoading ? (
           <span className="absolute -bottom-1 left-1/2 h-1.5 w-1.5 -translate-x-1/2 animate-pulse rounded-full bg-[#43A047]" />
         ) : null}
       </button>

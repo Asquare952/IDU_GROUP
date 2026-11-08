@@ -12,10 +12,13 @@ import {
   Lock,
 } from "lucide-react";
 import {
+  type AdminRental,
   useAdminRentals,
   useDeleteAdminRental,
   useLockedAdminRentals,
 } from "@/app/api/features/admin";
+import { useFetchShortlets } from "@/app/api/features/shortlet";
+import type { Property } from "@/app/api/features/property";
 import { getPropertyDetailsPath } from "@/app/lib/property-routes";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
@@ -55,38 +58,89 @@ const getStatusStyles = (status: ReturnType<typeof getPropertyStatus>) => {
   }
 };
 
+type AdminProperty =
+  | AdminRental
+  | (Property &
+      Pick<
+        AdminRental,
+        "landlordName" | "userId" | "lockedByCount" | "tenantCount"
+      >);
+
+const isShortletProperty = (
+  property: AdminProperty,
+): property is Property &
+  Pick<
+    AdminRental,
+    "landlordName" | "userId" | "lockedByCount" | "tenantCount"
+  > => "rentalModel" in property && Boolean(property.rentalModel);
+
 const Page = () => {
   const router = useRouter();
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const { data: rentals = [], isLoading, isError, error } = useAdminRentals();
+  const {
+    data: rentals = [],
+    isLoading: isLoadingRentals,
+    isError: isRentalsError,
+    error: rentalsError,
+  } = useAdminRentals();
+  const {
+    data: shortlets = [],
+    isLoading: isLoadingShortlets,
+    isError: isShortletsError,
+    error: shortletsError,
+  } = useFetchShortlets(false);
   const { data: lockedRentals = [] } = useLockedAdminRentals();
   const { mutate: deleteRental, isPending: isDeletingRental } =
     useDeleteAdminRental();
+  const properties = useMemo<AdminProperty[]>(
+    () => [
+      ...rentals,
+      ...shortlets.map((shortlet) => ({
+        ...shortlet,
+        landlordName: shortlet.User?.full_name || "Unknown Landlord",
+        userId: shortlet.userId || shortlet.UserId,
+        lockedByCount: 0,
+        tenantCount: 0,
+      })),
+    ],
+    [rentals, shortlets],
+  );
+  const isLoading = isLoadingRentals || isLoadingShortlets;
+  const hasLoadError = isRentalsError || isShortletsError;
+  const hasAnyProperties = properties.length > 0;
+  const loadErrorMessage = [
+    isRentalsError ? rentalsError?.message || "Unable to load rentals." : "",
+    isShortletsError
+      ? shortletsError?.message || "Unable to load shortlets."
+      : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   const stats = useMemo(() => {
-    const available = rentals.filter(
+    const available = properties.filter(
       (rental) => getPropertyStatus(rental.status) === "Available",
     ).length;
-    const occupied = rentals.filter(
+    const occupied = properties.filter(
       (rental) => getPropertyStatus(rental.status) === "Occupied",
     ).length;
-    const underReview = rentals.filter(
+    const underReview = properties.filter(
       (rental) => getPropertyStatus(rental.status) === "Under Review",
     ).length;
 
     return {
-      total: rentals.length,
+      total: properties.length,
       available,
       occupied,
       underReview,
     };
-  }, [rentals]);
+  }, [properties]);
 
   const filteredProperties = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
 
-    return rentals.filter((rental) => {
+    return properties.filter((rental) => {
       const computedStatus = getPropertyStatus(rental.status);
       const matchesFilter =
         activeFilter === "all" ||
@@ -99,7 +153,7 @@ const Page = () => {
 
       return matchesFilter && matchesSearch;
     });
-  }, [activeFilter, rentals, searchQuery]);
+  }, [activeFilter, properties, searchQuery]);
 
   return (
     <DashboardLayout>
@@ -200,125 +254,158 @@ const Page = () => {
           <div className="text-center py-12 bg-white rounded-xl md:rounded-2xl border border-gray-100 shadow-sm text-gray-500">
             Loading properties...
           </div>
-        ) : isError ? (
+        ) : !hasAnyProperties && hasLoadError ? (
           <div className="text-center py-12 bg-white rounded-xl md:rounded-2xl border border-gray-100 shadow-sm text-red-500">
-            {error.message || "Unable to load properties."}
+            {loadErrorMessage || "Unable to load properties."}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-            {filteredProperties.map((property) => {
-              const status = getPropertyStatus(property.status);
-              const propertyPath = getPropertyDetailsPath(property);
+          <>
+            {hasLoadError ? (
+              <p
+                className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"
+                role="status"
+              >
+                Some listings could not be loaded. {loadErrorMessage}
+              </p>
+            ) : null}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+              {filteredProperties.map((property) => {
+                const status = getPropertyStatus(property.status);
+                const propertyPath = getPropertyDetailsPath(property);
+                const isShortlet = isShortletProperty(property);
 
-              return (
-                <div
-                  key={property.id}
-                  className="bg-white rounded-xl md:rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow"
-                >
-                  <div className="relative h-40 md:h-48 w-full bg-slate-100">
-                    {property.images[0] ? (
-                      <Image
-                        src={property.images[0]}
-                        alt={property.title}
-                        fill
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-sm text-slate-400">
-                        No Image
+                return (
+                  <div
+                    key={`${isShortlet ? "shortlet" : "rental"}-${property.id}`}
+                    className="bg-white rounded-xl md:rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow"
+                  >
+                    <div className="relative h-40 md:h-48 w-full bg-slate-100">
+                      {property.images[0] ? (
+                        <Image
+                          src={property.images[0]}
+                          alt={property.title}
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-sm text-slate-400">
+                          No Image
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="p-4 md:p-5 space-y-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <h3 className="text-base md:text-lg font-semibold text-gray-900">
+                            {property.title}
+                          </h3>
+                          {isShortlet ? (
+                            <span className="mt-1 inline-block rounded-full bg-[#E8F5E9] px-2 py-0.5 text-xs font-medium text-[#2E7D32]">
+                              Shortlet
+                            </span>
+                          ) : null}
+                        </div>
+                        <span
+                          className={`px-2.5 py-1 rounded-full text-xs font-medium flex-shrink-0 ${getStatusStyles(
+                            status,
+                          )}`}
+                        >
+                          {status}
+                        </span>
                       </div>
-                    )}
-                  </div>
 
-                  <div className="p-4 md:p-5 space-y-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <h3 className="text-base md:text-lg font-semibold text-gray-900">
-                        {property.title}
-                      </h3>
-                      <span
-                        className={`px-2.5 py-1 rounded-full text-xs font-medium flex-shrink-0 ${getStatusStyles(
-                          status,
-                        )}`}
-                      >
-                        {status}
-                      </span>
-                    </div>
+                      <div className="flex items-center gap-1.5 text-gray-500 text-sm">
+                        <MapPin size={14} className="flex-shrink-0" />
+                        <span>{property.location}</span>
+                      </div>
 
-                    <div className="flex items-center gap-1.5 text-gray-500 text-sm">
-                      <MapPin size={14} className="flex-shrink-0" />
-                      <span>{property.location}</span>
-                    </div>
+                      <div className="flex items-center gap-3 text-sm text-gray-600 flex-wrap">
+                        <span className="font-semibold text-gray-900">
+                          N{Number(property.price).toLocaleString()}/
+                          {property.priceType}
+                        </span>
+                        <span className="text-gray-300">•</span>
+                        <span>{property.images.length} images</span>
+                        <span className="text-gray-300">•</span>
+                        <span>{property.lockedByCount} lock(s)</span>
+                      </div>
 
-                    <div className="flex items-center gap-3 text-sm text-gray-600 flex-wrap">
-                      <span className="font-semibold text-gray-900">
-                        N{Number(property.price).toLocaleString()}/{property.priceType}
-                      </span>
-                      <span className="text-gray-300">•</span>
-                      <span>{property.images.length} images</span>
-                      <span className="text-gray-300">•</span>
-                      <span>{property.lockedByCount} lock(s)</span>
-                    </div>
+                      <p className="text-sm text-gray-500">
+                        Landlord: {property.landlordName}
+                      </p>
 
-                    <p className="text-sm text-gray-500">
-                      Landlord: {property.landlordName}
-                    </p>
-
-                    <div className="flex items-center gap-2 pt-2">
-                      <button
-                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-sm font-medium transition-colors cursor-pointer"
-                        onClick={() => router.push(propertyPath)}
-                      >
-                        <Eye size={14} />
-                        View
-                      </button>
-                      <button className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-orange-50 hover:bg-orange-100 text-orange-600 rounded-lg text-sm font-medium transition-colors cursor-default">
-                        <Lock size={14} />
-                        {property.lockedByCount} Locked
-                      </button>
-                      <button
-                        className="p-2 bg-red-50 hover:bg-red-100 text-red-500 rounded-lg transition-colors cursor-pointer"
-                        disabled={isDeletingRental}
-                        onClick={async () => {
-                          const result = await Swal.fire({
-                            title: "Delete property?",
-                            text: `You are about to delete "${property.title}". This action cannot be undone.`,
-                            icon: "warning",
-                            showCancelButton: true,
-                            confirmButtonColor: "#dc2626",
-                            cancelButtonColor: "#6b7280",
-                            confirmButtonText: "Yes, delete it",
-                            cancelButtonText: "Cancel",
-                            reverseButtons: true,
-                          });
-
-                          if (!result.isConfirmed) {
-                            return;
+                      <div className="flex items-center gap-2 pt-2">
+                        <button
+                          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-sm font-medium transition-colors cursor-pointer"
+                          onClick={() => router.push(propertyPath)}
+                        >
+                          <Eye size={14} />
+                          View
+                        </button>
+                        <button className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-orange-50 hover:bg-orange-100 text-orange-600 rounded-lg text-sm font-medium transition-colors cursor-default">
+                          <Lock size={14} />
+                          {property.lockedByCount} Locked
+                        </button>
+                        <button
+                          className="p-2 bg-red-50 hover:bg-red-100 text-red-500 rounded-lg transition-colors cursor-pointer"
+                          disabled={isDeletingRental || isShortlet}
+                          title={
+                            isShortlet
+                              ? "Admin Shortlet deletion is not available yet."
+                              : "Delete property"
                           }
+                          onClick={async () => {
+                            if (isShortlet) {
+                              return;
+                            }
 
-                          deleteRental(property.id, {
-                            onSuccess: () => {
-                              toast.success("Property deleted successfully.");
-                            },
-                            onError: (mutationError) => {
-                              toast.error(
-                                mutationError.message ||
-                                  "Unable to delete this property.",
-                              );
-                            },
-                          });
-                        }}
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                            const result = await Swal.fire({
+                              title: "Delete property?",
+                              text: `You are about to delete "${property.title}". This action cannot be undone.`,
+                              icon: "warning",
+                              showCancelButton: true,
+                              confirmButtonColor: "#dc2626",
+                              cancelButtonColor: "#6b7280",
+                              confirmButtonText: "Yes, delete it",
+                              cancelButtonText: "Cancel",
+                              reverseButtons: true,
+                            });
+
+                            if (!result.isConfirmed) {
+                              return;
+                            }
+
+                            deleteRental(property.id, {
+                              onSuccess: () => {
+                                toast.success("Property deleted successfully.");
+                              },
+                              onError: (mutationError) => {
+                                toast.error(
+                                  mutationError.message ||
+                                    "Unable to delete this property.",
+                                );
+                              },
+                            });
+                          }}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                      {isShortlet ? (
+                        <p className="text-xs text-slate-400">
+                          Admin deletion requires a Shortlet admin endpoint.
+                        </p>
+                      ) : null}
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          </>
         )}
 
-        {!isLoading && !isError && filteredProperties.length === 0 && (
+        {!isLoading && !hasLoadError && filteredProperties.length === 0 && (
           <div className="text-center py-12 bg-white rounded-xl md:rounded-2xl border border-gray-100 shadow-sm">
             <p className="text-gray-500 text-sm md:text-base">
               No properties found matching your criteria.

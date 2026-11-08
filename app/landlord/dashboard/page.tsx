@@ -5,6 +5,11 @@ import { useRouter } from "next/navigation";
 import DashboardLayout from "../../components/Dashboard/DashboardLayout";
 import { DashboardMetrics } from "../../components/Dashboard/types";
 import { rentalApi, Rental } from "@/app/api/features/rental";
+import {
+  deleteShortlet,
+  fetchShortlets,
+} from "@/app/api/features/shortlet/shortlet.api";
+import type { Property } from "@/app/api/features/property";
 import Cookies from "js-cookie";
 import { useUserProfile } from "@/app/api/features/auth/auth.queries";
 import { AuthResponse } from "@/app/api/features/auth/types";
@@ -28,14 +33,20 @@ type DecodedToken = {
   full_name?: string;
 };
 
+const isShortletListing = (
+  listing: Rental | Property,
+): listing is Property =>
+  "rentalModel" in listing && Boolean(listing.rentalModel);
+
 export default function Page() {
   const [userId, setUserId] = useState<string>();
   const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
   const [cachedProfile, setCachedProfile] = useState<HeaderUser>();
   const [decodedProfile, setDecodedProfile] = useState<Partial<HeaderUser>>({});
   const router = useRouter();
-  const [rentals, setRentals] = useState<Rental[]>([]);
+  const [rentals, setRentals] = useState<(Rental | Property)[]>([]);
   const [loading, setLoading] = useState(true);
+  const [listingsError, setListingsError] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -74,16 +85,54 @@ export default function Page() {
 
   const fetchRentals = async () => {
     try {
-      const data = await rentalApi.getAllRentals();
       const currentUserId = getCurrentUserId();
+      if (!currentUserId) {
+        throw new Error("Unable to identify the signed-in account.");
+      }
 
-      setRentals(
-        currentUserId
-          ? data.filter((rental) => rental.UserId === currentUserId)
-          : data,
-      );
+      const [rentalResult, shortletResult] = await Promise.allSettled([
+        rentalApi.getAllRentals(),
+        fetchShortlets(false),
+      ]);
+
+      const accountRentals =
+        rentalResult.status === "fulfilled"
+          ? rentalResult.value.filter(
+              (rental) => rental.UserId === currentUserId,
+            )
+          : [];
+      const loadErrors: string[] = [];
+
+      if (rentalResult.status === "rejected") {
+        console.error("Failed to fetch landlord rentals:", rentalResult.reason);
+        loadErrors.push("Long-term listings could not be loaded.");
+      }
+
+      if (shortletResult.status === "rejected") {
+        console.error(
+          "Failed to fetch landlord shortlets:",
+          shortletResult.reason,
+        );
+        loadErrors.push("Shortlet listings could not be loaded.");
+      }
+
+      if (loadErrors.length > 0) {
+        setListingsError(loadErrors.join(" "));
+      }
+
+      const accountShortlets =
+        shortletResult.status === "fulfilled"
+          ? shortletResult.value.filter(
+              (shortlet) =>
+                shortlet.UserId === currentUserId ||
+                shortlet.userId === currentUserId,
+            )
+          : [];
+
+      setRentals([...accountRentals, ...accountShortlets]);
     } catch (error) {
       console.error("Failed to fetch rentals:", error);
+      setListingsError("Unable to load your listings.");
     } finally {
       setLoading(false);
     }
@@ -108,7 +157,12 @@ export default function Page() {
 
     setDeleteId(id);
     try {
-      await rentalApi.deleteRental(id);
+      const listing = rentals.find((rental) => rental.id === id);
+      if (listing && isShortletListing(listing)) {
+        await deleteShortlet(id);
+      } else {
+        await rentalApi.deleteRental(id);
+      }
       setRentals((prev) => prev.filter((r) => r.id !== id));
       await Swal.fire({
         title: "Deleted!",
@@ -130,7 +184,10 @@ export default function Page() {
   };
 
   const handleEdit = (id: string) => {
-    router.push(`/landlord/edit-property/${id}`);
+    const listing = rentals.find((rental) => rental.id === id);
+    router.push(
+      `/landlord/edit-property/${id}${listing && isShortletListing(listing) ? "?model=shortlet" : ""}`,
+    );
   };
 
   const getStatusStyle = (status: string) => {
@@ -147,9 +204,12 @@ export default function Page() {
   };
 
   // Calculate metrics from real data
-  const activeListings = rentals.filter((r) => r.status === "available").length;
+  const activeListings = rentals.filter(
+    (rental) => rental.status.toLowerCase() === "available",
+  ).length;
   const totalValue = rentals.reduce(
-    (sum, property) => sum + Number(property.price),
+    (sum, property) =>
+      sum + (isShortletListing(property) ? 0 : Number(property.price)),
     0,
   );
 
@@ -248,6 +308,10 @@ export default function Page() {
               <div className="flex justify-center items-center py-12">
                 <Loader2 size={24} className="animate-spin text-[#43A047]" />
               </div>
+            ) : rentals.length === 0 && listingsError ? (
+              <p className="px-6 py-12 text-center text-sm text-red-600" role="alert">
+                {listingsError}
+              </p>
             ) : rentals.length === 0 ? (
               <div className="text-center py-12 text-slate-400">
                 <p>No listings yet</p>
@@ -260,6 +324,11 @@ export default function Page() {
               </div>
             ) : (
               <div className="overflow-x-auto no-scrollbar">
+                {listingsError ? (
+                  <p className="px-6 py-3 text-sm text-amber-700" role="status">
+                    {listingsError}
+                  </p>
+                ) : null}
                 <table className="w-full text-left min-w-[600px]">
                   <thead className="bg-slate-50/50">
                     <tr className="text-slate-400 text-[10px] uppercase font-bold">
@@ -309,7 +378,8 @@ export default function Page() {
                           </span>
                         </td>
                         <td className="px-4 py-4 text-center font-bold text-slate-600 text-xs">
-                          ₦{Number(item.price).toLocaleString()}
+                          ₦{Number(item.price).toLocaleString()} /{" "}
+                          {item.priceType}
                         </td>
                         <td className="px-6 py-4 text-right">
                           <div className="flex items-center justify-end gap-2">

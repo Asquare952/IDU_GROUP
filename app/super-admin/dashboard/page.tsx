@@ -24,6 +24,7 @@ import {
   useAdminUsers,
   useLockedAdminRentals,
 } from "@/app/api/features/admin";
+import { useFetchShortlets } from "@/app/api/features/shortlet";
 
 const formatMetric = (value: number) =>
   new Intl.NumberFormat("en-US", { notation: "compact" }).format(value);
@@ -55,6 +56,12 @@ const toTimestamp = (value: string) => {
 const Page = () => {
   const { data: users = [], isLoading: isLoadingUsers } = useAdminUsers();
   const { data: rentals = [], isLoading: isLoadingRentals } = useAdminRentals();
+  const {
+    data: shortlets = [],
+    isLoading: isLoadingShortlets,
+    isError: isShortletsError,
+    error: shortletsError,
+  } = useFetchShortlets(false);
   const { data: reports = [], isLoading: isLoadingReports } = useAdminReports();
   const { data: chats = [], isLoading: isLoadingChats } = useAdminChats();
   const { data: lockedRentals = [], isLoading: isLoadingLockedRentals } =
@@ -63,6 +70,7 @@ const Page = () => {
   const isLoading =
     isLoadingUsers ||
     isLoadingRentals ||
+    isLoadingShortlets ||
     isLoadingReports ||
     isLoadingChats ||
     isLoadingLockedRentals;
@@ -75,6 +83,9 @@ const Page = () => {
     const superAdmins = users.filter((user) => user.is_superadmin).length;
     const availableRentals = rentals.filter(
       (rental) => rental.status.toLowerCase() === "available",
+    ).length;
+    const availableShortlets = shortlets.filter(
+      (shortlet) => shortlet.status.toLowerCase() === "available",
     ).length;
     const resolvedReports = reports.filter(
       (report) => report.status.toLowerCase() === "resolved",
@@ -94,8 +105,8 @@ const Page = () => {
       },
       {
         title: "Total Properties",
-        value: formatMetric(rentals.length),
-        change: `${availableRentals} available`,
+        value: formatMetric(rentals.length + shortlets.length),
+        change: `${availableRentals + availableShortlets} available`,
         icon: Building2,
         iconBg: "bg-green-50",
         iconColor: "text-green-500",
@@ -231,21 +242,25 @@ const Page = () => {
       {
         label: "Available Listings",
         value: `${rentals.length ? Math.round((availableRentals / rentals.length) * 100) : 0}%`,
-        percentage: rentals.length ? (availableRentals / rentals.length) * 100 : 0,
+        percentage: rentals.length
+          ? (availableRentals / rentals.length) * 100
+          : 0,
         barColor: "bg-blue-500",
       },
       {
         label: "Resolved Reports",
         value: `${reports.length ? Math.round((resolvedReports / reports.length) * 100) : 0}%`,
-        percentage: reports.length ? (resolvedReports / reports.length) * 100 : 0,
+        percentage: reports.length
+          ? (resolvedReports / reports.length) * 100
+          : 0,
         barColor: "bg-purple-500",
       },
       {
         label: "Platform Coverage",
-        value: `${Math.min(100, Math.round(((users.length + rentals.length + chats.length) / 10) || 0))}%`,
+        value: `${Math.min(100, Math.round((users.length + rentals.length + chats.length) / 10 || 0))}%`,
         percentage: Math.min(
           100,
-          Math.round(((users.length + rentals.length + chats.length) / 10) || 0),
+          Math.round((users.length + rentals.length + chats.length) / 10 || 0),
         ),
         barColor: "bg-emerald-500",
       },
@@ -258,7 +273,7 @@ const Page = () => {
       systemAlerts,
       quickStats,
     };
-  }, [chats, lockedRentals.length, rentals, reports, users]);
+  }, [chats, lockedRentals.length, rentals, reports, shortlets, users]);
 
   return (
     <DashboardLayout>
@@ -267,6 +282,16 @@ const Page = () => {
           <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
           <p className="text-gray-500 mt-1">Welcome back, Super Admin</p>
         </div>
+
+        {isShortletsError ? (
+          <p
+            className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"
+            role="status"
+          >
+            Shortlet totals could not be loaded.{" "}
+            {shortletsError?.message || "The Shortlet API is unavailable."}
+          </p>
+        ) : null}
 
         {isLoading ? (
           <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm text-center text-gray-500">
@@ -289,7 +314,9 @@ const Page = () => {
                       {stat.change}
                     </div>
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900">{stat.value}</h3>
+                  <h3 className="text-2xl font-bold text-gray-900">
+                    {stat.value}
+                  </h3>
                   <p className="text-sm text-gray-500 mt-1">{stat.title}</p>
                 </div>
               ))}
@@ -311,8 +338,12 @@ const Page = () => {
                           <stat.icon size={20} className={stat.color} />
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900">{stat.label}</p>
-                          <p className="text-sm text-gray-500">{stat.sublabel}</p>
+                          <p className="font-medium text-gray-900">
+                            {stat.label}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {stat.sublabel}
+                          </p>
                         </div>
                       </div>
                       <span className={`text-xl font-bold ${stat.color}`}>
@@ -329,7 +360,10 @@ const Page = () => {
                 </h2>
                 <div className="space-y-4">
                   {dashboardData.recentActivity.map((activity, index) => (
-                    <div key={`${activity.text}-${index}`} className="flex gap-3">
+                    <div
+                      key={`${activity.text}-${index}`}
+                      className="flex gap-3"
+                    >
                       <div className="flex flex-col items-center">
                         <div
                           className={`w-2.5 h-2.5 rounded-full ${activity.color}`}
@@ -345,7 +379,9 @@ const Page = () => {
                         <p className="text-sm text-gray-500 mt-0.5">
                           {activity.detail}
                         </p>
-                        <p className="text-xs text-gray-400 mt-1">{activity.time}</p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          {activity.time}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -365,9 +401,14 @@ const Page = () => {
                       className={`flex items-center justify-between p-4 rounded-xl border ${alert.borderColor} ${alert.bgColor}`}
                     >
                       <div className="flex items-start gap-3">
-                        <alert.icon size={20} className={`${alert.color} mt-0.5`} />
+                        <alert.icon
+                          size={20}
+                          className={`${alert.color} mt-0.5`}
+                        />
                         <div>
-                          <p className="font-medium text-gray-900">{alert.title}</p>
+                          <p className="font-medium text-gray-900">
+                            {alert.title}
+                          </p>
                           <p className="text-sm text-gray-500 mt-0.5">
                             {alert.description}
                           </p>
@@ -391,7 +432,9 @@ const Page = () => {
                   {dashboardData.quickStats.map((stat) => (
                     <div key={stat.label}>
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-gray-600">{stat.label}</span>
+                        <span className="text-sm text-gray-600">
+                          {stat.label}
+                        </span>
                         <span className="text-sm font-semibold text-gray-900">
                           {stat.value}
                         </span>
