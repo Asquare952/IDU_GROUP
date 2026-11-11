@@ -43,7 +43,7 @@ const page = () => {
     | undefined;
 
     toast.error(
-      errorMessage || "An error occurred while processing your request.",
+      errorMessage || "",
     );
 
   return (
