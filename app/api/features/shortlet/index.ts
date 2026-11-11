@@ -1,6 +1,8 @@
 export {
   createShortlet,
+  deleteAdminShortlet,
   deleteShortlet,
+  fetchAdminShortlets,
   fetchShortletById,
   fetchShortlets,
   normalizeShortlet,
@@ -15,7 +17,9 @@ export type {
 } from "./shortlet.api";
 export {
   useCreateShortlet,
+  useDeleteAdminShortlet,
   useDeleteShortlet,
+  useFetchAdminShortlets,
   useFetchShortletById,
   useFetchShortlets,
   useUpdateShortlet,

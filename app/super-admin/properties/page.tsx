@@ -17,7 +17,10 @@ import {
   useDeleteAdminRental,
   useLockedAdminRentals,
 } from "@/app/api/features/admin";
-import { useFetchShortlets } from "@/app/api/features/shortlet";
+import {
+  useDeleteAdminShortlet,
+  useFetchAdminShortlets,
+} from "@/app/api/features/shortlet";
 import type { Property } from "@/app/api/features/property";
 import { getPropertyDetailsPath } from "@/app/lib/property-routes";
 import { useRouter } from "next/navigation";
@@ -89,10 +92,12 @@ const Page = () => {
     isLoading: isLoadingShortlets,
     isError: isShortletsError,
     error: shortletsError,
-  } = useFetchShortlets(false);
+  } = useFetchAdminShortlets();
   const { data: lockedRentals = [] } = useLockedAdminRentals();
   const { mutate: deleteRental, isPending: isDeletingRental } =
     useDeleteAdminRental();
+  const { mutate: deleteShortlet, isPending: isDeletingShortlet } =
+    useDeleteAdminShortlet();
   const properties = useMemo<AdminProperty[]>(
     () => [
       ...rentals,
@@ -349,17 +354,9 @@ const Page = () => {
                         </button>
                         <button
                           className="p-2 bg-red-50 hover:bg-red-100 text-red-500 rounded-lg transition-colors cursor-pointer"
-                          disabled={isDeletingRental || isShortlet}
-                          title={
-                            isShortlet
-                              ? "Admin Shortlet deletion is not available yet."
-                              : "Delete property"
-                          }
+                          disabled={isDeletingRental || isDeletingShortlet}
+                          title="Delete property"
                           onClick={async () => {
-                            if (isShortlet) {
-                              return;
-                            }
-
                             const result = await Swal.fire({
                               title: "Delete property?",
                               text: `You are about to delete "${property.title}". This action cannot be undone.`,
@@ -373,6 +370,23 @@ const Page = () => {
                             });
 
                             if (!result.isConfirmed) {
+                              return;
+                            }
+
+                            if (isShortlet) {
+                              deleteShortlet(property.id, {
+                                onSuccess: () => {
+                                  toast.success(
+                                    "Shortlet deleted successfully.",
+                                  );
+                                },
+                                onError: (mutationError) => {
+                                  toast.error(
+                                    mutationError.message ||
+                                      "Unable to delete this Shortlet.",
+                                  );
+                                },
+                              });
                               return;
                             }
 
@@ -392,11 +406,6 @@ const Page = () => {
                           <Trash2 size={14} />
                         </button>
                       </div>
-                      {isShortlet ? (
-                        <p className="text-xs text-slate-400">
-                          Admin deletion requires a Shortlet admin endpoint.
-                        </p>
-                      ) : null}
                     </div>
                   </div>
                 );
