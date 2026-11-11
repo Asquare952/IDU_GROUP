@@ -11,7 +11,6 @@ import {
 import { formatNaira } from "../data/walletData";
 import Breadcrumb from "../components/Breadcrumb";
 import { TransactionPinSheet } from "@/app/components/TransactionPinModal";
-import { toast } from "react-toastify";
 
 
 const page = () => {
@@ -49,8 +48,6 @@ const page = () => {
       },
     );
   };
-
-  toast.error(errorMessage || "");
 
   return (
     <DashboardLayout>

@@ -10,7 +10,7 @@ import {
 import { formatNaira } from "@/app/landlord/wallet/data/walletData";
 import Breadcrumb from "@/app/components/Wallet/Breadcrumb";
 import { TransactionPinSheet } from "@/app/components/TransactionPinModal";
-import { toast } from "react-toastify";
+
 
 
 const page = () => {
@@ -41,10 +41,6 @@ const page = () => {
   const errorMessage = (error as any)?.response?.data?.message as
     | string
     | undefined;
-
-    toast.error(
-      errorMessage || "",
-    );
 
   return (
     <DashboardLayout>
