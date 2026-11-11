@@ -156,7 +156,7 @@ function AllPropertiesPageContent() {
     return item.propertyType.toLowerCase() === selectedCategory.toLowerCase();
   });
 
-  // Pagination: 6 properties per page
+  // Pagination: 8 properties per page
   const itemsPerPage = 8;
   const totalPages = Math.ceil(visibleProperties.length / itemsPerPage);
   const paginatedProperties = visibleProperties.slice(

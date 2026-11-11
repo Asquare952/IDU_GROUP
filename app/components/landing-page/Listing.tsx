@@ -136,7 +136,7 @@ const Listing = () => {
             viewport={{ once: true, margin: "-100px" }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
           >
-            {properties.slice(0, 6).map((item, i) => {
+            {properties.slice(0, 8).map((item, i) => {
               const isLiked = likedPropertyIds.has(String(item.id));
 
               // FIX: viewing a listing should always be public — the login

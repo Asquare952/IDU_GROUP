@@ -90,6 +90,11 @@ export type AdminAnalytics = {
   pendingReports: number;
   resolvedReports: number;
   totalTransactionRevenue: number;
+  grossPaymentsCollectedNGN: number;
+  landlordPayoutsNGN: number;
+  successfulLockPaymentsCount: number;
+  successfulRentPaymentsCount: number;
+  successfulInspectionPaymentsCount: number;
 };
 
 // ==================== AUTH TYPES ====================

@@ -1,4 +1,5 @@
 import { Bell } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import {
   useMarkAllNotificationsAsRead,
@@ -9,6 +10,7 @@ import { formatNotificationTime } from "@/app/components/shared/notification-hel
 
 const NotificationBell = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const { data: notificationCount, isLoading: isCountLoading } =
     useNotificationCount();
@@ -16,6 +18,7 @@ const NotificationBell = () => {
     data: notifications = [],
     isLoading: isNotificationsLoading,
     isError: hasNotificationsError,
+    refetch: refetchNotifications,
   } = useNotifications();
   const markAllAsRead = useMarkAllNotificationsAsRead();
 
@@ -25,6 +28,8 @@ const NotificationBell = () => {
       : (notificationCount?.count ?? 0);
 
   useEffect(() => {
+    setIsMounted(true);
+
     const handleOutsideClick = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsOpen(false);
@@ -50,7 +55,7 @@ const NotificationBell = () => {
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         ) : null}
-        {isCountLoading ? (
+        {isMounted && isCountLoading ? (
           <span className="absolute -bottom-1 left-1/2 h-1.5 w-1.5 -translate-x-1/2 animate-pulse rounded-full bg-[#43A047]" />
         ) : null}
       </button>
@@ -109,12 +114,30 @@ const NotificationBell = () => {
                   </div>
                 ))}
               </div>
+            ) : hasNotificationsError ? (
+              <div className="text-center text-sm text-red-600">
+                <p>Unable to load notification history.</p>
+                <button
+                  type="button"
+                  onClick={() => void refetchNotifications()}
+                  className="mt-2 font-semibold underline"
+                >
+                  Retry
+                </button>
+              </div>
             ) : (
               <p className="text-sm text-slate-500">
                 You have no notifications yet.
               </p>
             )}
           </div>
+          <Link
+            href="/super-admin/notifications"
+            onClick={() => setIsOpen(false)}
+            className="block border-t border-slate-100 px-4 py-3 text-center text-sm font-bold text-[#43A047] transition-colors hover:bg-slate-50"
+          >
+            View all notifications
+          </Link>
         </div>
       ) : null}
     </div>

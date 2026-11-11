@@ -11,6 +11,10 @@ const HIDDEN_PATHS = [
   "/super-admin/transactions",
   "/super-admin/dashboard",
   "/super-admin/support-info",
+  "/super-admin/analytics",
+  "/super-admin/notifications",
+  "/landlord/upload-listings/long-term",
+  "/landlord/upload-listings/shortlet",
 ];
 
 export default function SupportGate() {
