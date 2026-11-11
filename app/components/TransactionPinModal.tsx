@@ -64,14 +64,17 @@ export const TransactionPinSheet = ({
     >
       <div className="w-full rounded-t-[2rem] bg-white px-6 pb-8 pt-4 shadow-2xl md:max-w-md md:rounded-[2rem] md:p-8">
         <div className="mx-auto mb-6 h-1.5 w-12 rounded-full bg-slate-200 md:hidden" />
-        <div className="flex flex-col items-center text-center">
+        <div className="flex flex-col items-center gap-2 text-center">
           <h2
             id="transaction-pin-title"
             className="text-xl font-bold text-slate-900"
           >
             {title}
           </h2>
-          <p className="mt-2 text-sm leading-6 text-slate-500">{description}</p>
+          <p className="text-sm leading-6 text-slate-500">{description}</p>
+          <p className="text-sm text-slate-500">
+            If you haven't set a transaction PIN yet, please do so in your account settings.
+          </p>
         </div>
 
         <div className="mt-7 flex justify-center gap-3">

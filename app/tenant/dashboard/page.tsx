@@ -552,18 +552,18 @@ const Page = () => {
                     <div className="p-5">
                       <div className="flex justify-between items-start mb-2">
                         <div>
-                          <p className="text-gray-900 font-bold text-xl">
+                          <div>
+                            <h3 className="text-gray-800 font-semibold text-[15] md:text-lg hover:text-[#43A047] transition-colors cursor-pointer">
+                              {item.title}
+                            </h3>
+                          </div>
+                          <p className="text-gray-900 font-bold text-[12] md:text-xl">
                             ₦{Number(item.price).toLocaleString()}
                             <span className="text-sm font-normal text-gray-400">
                               {" "}
                               / {item.priceType}
                             </span>
                           </p>
-                          <div>
-                            <h3 className="text-gray-800 font-semibold text-lg hover:text-[#43A047] transition-colors cursor-pointer">
-                              {item.title}
-                            </h3>
-                          </div>
                         </div>
                         <motion.button
                           whileTap={{ scale: 0.95 }}
@@ -577,10 +577,6 @@ const Page = () => {
                           View
                         </motion.button>
                       </div>
-
-                      <p className="text-gray-400 text-sm mb-4 leading-relaxed line-clamp-2">
-                        {item.description}
-                      </p>
 
                       <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-gray-400">
                         Posted {formatRelativeTime(item.createdAt)}
