@@ -1,10 +1,16 @@
 import api from "../../axios";
 import type { AxiosRequestConfig } from "axios";
-import type { Property, ShortletFurnishingStatus, ShortletRentalModel } from "../property/types";
+import type {
+  Property,
+  ShortletFurnishingStatus,
+  ShortletRentalModel,
+} from "../property/types";
 import type { ApiResponse } from "../rental/types";
 import { hasAccessToken } from "@/app/lib/auth";
 
-type ShortletRequestConfig = AxiosRequestConfig & { skipAuthRedirect?: boolean };
+type ShortletRequestConfig = AxiosRequestConfig & {
+  skipAuthRedirect?: boolean;
+};
 
 export type ShortletPropertyType =
   | "apartment"
@@ -123,7 +129,10 @@ const findShortlet = (value: unknown): RawShortlet | null => {
   }
   const record = asRecord(value);
   if (!record) return null;
-  if ("title" in record && ("pricePerNight" in record || "rentalModel" in record)) {
+  if (
+    "title" in record &&
+    ("pricePerNight" in record || "rentalModel" in record)
+  ) {
     return record;
   }
   for (const key of ["data", "shortlet", "property", "listing", "result"]) {
@@ -135,7 +144,9 @@ const findShortlet = (value: unknown): RawShortlet | null => {
 
 const unwrapShortletList = (value: unknown): RawShortlet[] => {
   if (Array.isArray(value)) {
-    return value.map(findShortlet).filter((item): item is RawShortlet => !!item);
+    return value
+      .map(findShortlet)
+      .filter((item): item is RawShortlet => !!item);
   }
   const record = asRecord(value);
   if (!record) return [];
@@ -254,7 +265,9 @@ export const createShortlet = async (payload: CreateShortletPayload) => {
   return response.data;
 };
 
-export const fetchShortlets = async (recentOnly = true): Promise<Property[]> => {
+export const fetchShortlets = async (
+  recentOnly = true,
+): Promise<Property[]> => {
   const endpoint = recentOnly ? "/shortlet/recent" : "/shortlet/all";
   const response = await api.get<ApiResponse<unknown>>(endpoint, {
     skipAuthRedirect: recentOnly,
@@ -262,9 +275,14 @@ export const fetchShortlets = async (recentOnly = true): Promise<Property[]> => 
   return unwrapShortletList(response.data).map(normalizeShortlet);
 };
 
-export const searchShortlets = async (
-  params: { location?: string },
-): Promise<Property[]> => {
+export const fetchAdminShortlets = async (): Promise<Property[]> => {
+  const response = await api.get<ApiResponse<unknown>>("/admin/shortlets");
+  return unwrapShortletList(response.data).map(normalizeShortlet);
+};
+
+export const searchShortlets = async (params: {
+  location?: string;
+}): Promise<Property[]> => {
   const query = new URLSearchParams();
   if (params.location) query.set("location", params.location);
   const suffix = query.toString();
@@ -274,7 +292,9 @@ export const searchShortlets = async (
   return unwrapShortletList(response.data).map(normalizeShortlet);
 };
 
-export const fetchShortletById = async (identifier: string): Promise<Property> => {
+export const fetchShortletById = async (
+  identifier: string,
+): Promise<Property> => {
   if (!hasAccessToken()) {
     const recent = await fetchShortlets(true);
     const match = recent.find(
@@ -312,11 +332,20 @@ export const deleteShortlet = async (identifier: string) => {
   return response.data;
 };
 
+export const deleteAdminShortlet = async (identifier: string) => {
+  const response = await api.delete<ApiResponse<unknown>>(
+    `/admin/shortlets/${encodeURIComponent(identifier)}`,
+  );
+  return response.data;
+};
+
 export const shortletApi = {
   createShortlet,
+  fetchAdminShortlets,
   fetchShortlets,
   searchShortlets,
   fetchShortletById,
   updateShortlet,
   deleteShortlet,
+  deleteAdminShortlet,
 };

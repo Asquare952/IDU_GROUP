@@ -24,7 +24,7 @@ import {
   useAdminUsers,
   useLockedAdminRentals,
 } from "@/app/api/features/admin";
-import { useFetchShortlets } from "@/app/api/features/shortlet";
+import { useFetchAdminShortlets } from "@/app/api/features/shortlet";
 
 const formatMetric = (value: number) =>
   new Intl.NumberFormat("en-US", { notation: "compact" }).format(value);
@@ -61,7 +61,7 @@ const Page = () => {
     isLoading: isLoadingShortlets,
     isError: isShortletsError,
     error: shortletsError,
-  } = useFetchShortlets(false);
+  } = useFetchAdminShortlets();
   const { data: reports = [], isLoading: isLoadingReports } = useAdminReports();
   const { data: chats = [], isLoading: isLoadingChats } = useAdminChats();
   const { data: lockedRentals = [], isLoading: isLoadingLockedRentals } =

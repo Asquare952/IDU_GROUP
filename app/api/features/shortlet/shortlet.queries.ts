@@ -1,7 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createShortlet,
+  deleteAdminShortlet,
   deleteShortlet,
+  fetchAdminShortlets,
   fetchShortletById,
   fetchShortlets,
   updateShortlet,
@@ -26,6 +28,12 @@ export const useFetchShortlets = (recentOnly = true) =>
   useQuery({
     queryKey: ["shortlets", recentOnly ? "recent" : "all"],
     queryFn: () => fetchShortlets(recentOnly),
+  });
+
+export const useFetchAdminShortlets = () =>
+  useQuery({
+    queryKey: ["admin", "shortlets"],
+    queryFn: fetchAdminShortlets,
   });
 
 export const useFetchShortletById = (
@@ -58,6 +66,19 @@ export const useDeleteShortlet = () => {
     mutationFn: (identifier: string) => deleteShortlet(identifier),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["shortlets"] });
+    },
+  });
+};
+
+export const useDeleteAdminShortlet = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (identifier: string) => deleteAdminShortlet(identifier),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["admin", "shortlets"] }),
+        queryClient.invalidateQueries({ queryKey: ["shortlets"] }),
+      ]);
     },
   });
 };
