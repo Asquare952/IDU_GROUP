@@ -34,6 +34,10 @@ const getErrorMessage = (error: unknown, fallback: string) => {
     }
   }
 
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
   return fallback;
 };
 
@@ -107,9 +111,7 @@ export const useDeleteNotification = () => {
       ]);
     },
     onError: (error: unknown) => {
-      toast.error(
-        getErrorMessage(error, "Failed to delete notification"),
-      );
+      toast.error(getErrorMessage(error, "Failed to delete notification"));
     },
   });
 };
@@ -124,13 +126,30 @@ export const useMarkAllNotificationsAsRead = () => {
         (notification) => !notification.isRead,
       );
 
-      await Promise.all(
-        unreadNotifications.map((notification) =>
-          notificationApi.markAsRead(notification.id),
-        ),
-      );
+      const failedIds: string[] = [];
+
+      for (let index = 0; index < unreadNotifications.length; index += 5) {
+        const batch = unreadNotifications.slice(index, index + 5);
+        const results = await Promise.allSettled(
+          batch.map((notification) =>
+            notificationApi.markAsRead(notification.id),
+          ),
+        );
+
+        results.forEach((result, batchIndex) => {
+          if (result.status === "rejected") {
+            failedIds.push(batch[batchIndex].id);
+          }
+        });
+      }
+
+      if (failedIds.length > 0) {
+        throw new Error(
+          `${failedIds.length} notification${failedIds.length === 1 ? "" : "s"} could not be marked as read.`,
+        );
+      }
     },
-    onSuccess: async () => {
+    onSettled: async () => {
       await Promise.all([
         queryClient.invalidateQueries({
           queryKey: notificationQueryKeys.all(scope),

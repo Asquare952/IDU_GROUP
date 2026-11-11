@@ -593,6 +593,23 @@ export const adminApi = {
           data.total_transaction_revenue,
         0,
       ),
+      grossPaymentsCollectedNGN: toNumberValue(
+        data.financials?.grossPaymentsCollectedNGN,
+        0,
+      ),
+      landlordPayoutsNGN: toNumberValue(data.financials?.landlordPayoutsNGN, 0),
+      successfulLockPaymentsCount: toNumberValue(
+        data.financials?.successfulLockPaymentsCount,
+        0,
+      ),
+      successfulRentPaymentsCount: toNumberValue(
+        data.financials?.successfulRentPaymentsCount,
+        0,
+      ),
+      successfulInspectionPaymentsCount: toNumberValue(
+        data.financials?.successfulInspectionPaymentsCount,
+        0,
+      ),
     };
   },
 };

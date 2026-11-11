@@ -1,4 +1,5 @@
 import { Bell } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import {
   useMarkAllNotificationsAsRead,
@@ -17,6 +18,7 @@ const NotificationBell = () => {
     data: notifications = [],
     isLoading: isNotificationsLoading,
     isError: hasNotificationsError,
+    refetch: refetchNotifications,
   } = useNotifications();
   const markAllAsRead = useMarkAllNotificationsAsRead();
 
@@ -112,12 +114,30 @@ const NotificationBell = () => {
                   </div>
                 ))}
               </div>
+            ) : hasNotificationsError ? (
+              <div className="text-center text-sm text-red-600">
+                <p>Unable to load notification history.</p>
+                <button
+                  type="button"
+                  onClick={() => void refetchNotifications()}
+                  className="mt-2 font-semibold underline"
+                >
+                  Retry
+                </button>
+              </div>
             ) : (
               <p className="text-sm text-slate-500">
                 You have no notifications yet.
               </p>
             )}
           </div>
+          <Link
+            href="/super-admin/notifications"
+            onClick={() => setIsOpen(false)}
+            className="block border-t border-slate-100 px-4 py-3 text-center text-sm font-bold text-[#43A047] transition-colors hover:bg-slate-50"
+          >
+            View all notifications
+          </Link>
         </div>
       ) : null}
     </div>
