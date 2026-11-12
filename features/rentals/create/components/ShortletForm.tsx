@@ -269,6 +269,7 @@ export default function ShortletForm() {
 
   // Form submission
   const onSubmit = async (data: FormData) => {
+    if (currentStep !== shortTermSteps.length - 1) return;
     setSubmitError(null);
     if (images.length === 0) {
       setSubmitError("Please upload at least one image before publishing.");
@@ -384,7 +385,7 @@ export default function ShortletForm() {
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(onSubmit)} className="w-full">
+      <form onSubmit={(event) => event.preventDefault()} className="w-full">
         <div className=" w-full space-y-8 container-2">
           {/* Step indicator */}
           <StepIndicator steps={shortTermSteps} currentStep={currentStep} />
@@ -472,8 +473,8 @@ export default function ShortletForm() {
               </button>
             ) : (
               <button
-                type="submit"
-                onClick={() => onSubmit}
+                type="button"
+                onClick={handleSubmit(onSubmit)}
                 disabled={isCreating}
                 className="rounded-lg bg-green-600 px-6 py-2.5 text-sm font-medium text-white transition hover:bg-green-700"
               >
