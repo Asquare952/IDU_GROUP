@@ -487,7 +487,20 @@ const Page = () => {
 
         {/* Recommended Houses Section */}
         <div className="flex flex-col gap-3.5">
-          <h2 className="text-2xl font-bold">Recommended Houses</h2>
+          <div className="flex justify-between items-center">
+            <h2 className=" text-sm md:text-2xl font-bold">
+              Recommended Houses
+            </h2>
+            <Link href="/properties">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-[#34A853] w-full hover:bg-green-700 text-white font-semibold text-[14px] md:text-base py-2 px-8 rounded-full transition duration-300 mt-8 cursor-pointer shadow-lg"
+              >
+                Browse Listings
+              </motion.button>
+            </Link>
+          </div>
           {properties?.length === 0 ? (
             <div className="text-center py-12 text-gray-400">
               <p>No listings available at the moment</p>
