@@ -1,6 +1,7 @@
 "use client";
 
 import type { ShortletQuote } from "@/app/api/features/shortlet";
+import { useState } from "react";
 
 interface ShortletReserveProps {
   pricePerNight: number;
@@ -31,6 +32,7 @@ export default function ShortletReserve({
   insufficientBalance = false,
   onReserve,
 }: ShortletReserveProps) {
+  const [showCancellationDetails, setShowCancellationDetails] = useState(false);
   const nights = quote?.nights ?? 0;
   const formatDate = (date: Date | null) =>
     date
@@ -91,9 +93,7 @@ export default function ShortletReserve({
           {Number(quote.securityDeposit) > 0 && (
             <div className="flex justify-between gap-3 text-gray-600">
               <span>Security deposit</span>
-              <span>
-                ₦{Number(quote.securityDeposit).toLocaleString()}
-              </span>
+              <span>₦{Number(quote.securityDeposit).toLocaleString()}</span>
             </div>
           )}
           <div className="flex justify-between gap-3 border-t border-gray-200 pt-3 font-bold text-gray-900">
@@ -118,50 +118,60 @@ export default function ShortletReserve({
           <h3 className="font-semibold text-gray-900">
             {quote.cancellationPolicy.label}
           </h3>
-          {quote.cancellationPolicy.freeCancellationUntil && (
-            <p className="mt-1 font-medium">
-              Free cancellation until{" "}
-              {new Date(
-                quote.cancellationPolicy.freeCancellationUntil,
-              ).toLocaleString("en-NG", {
-                dateStyle: "medium",
-                timeStyle: "short",
-                timeZone: "Africa/Lagos",
-              })}
+          {showCancellationDetails &&
+            quote.cancellationPolicy.freeCancellationUntil && (
+              <p className="mt-1 font-medium">
+                Free cancellation until{" "}
+                {new Date(
+                  quote.cancellationPolicy.freeCancellationUntil,
+                ).toLocaleString("en-NG", {
+                  dateStyle: "medium",
+                  timeStyle: "short",
+                  timeZone: "Africa/Lagos",
+                })}
+              </p>
+            )}
+          <p className="mt-2 leading-6">{quote.cancellationPolicy.summary}</p>
+          {showCancellationDetails &&
+            quote.cancellationPolicy.windows.length > 0 && (
+              <ul className="mt-3 space-y-1">
+                {quote.cancellationPolicy.windows.map((window, index) => {
+                  const refundDescription =
+                    window.nightsRefundPercent === 100
+                      ? "Full refund of nights"
+                      : window.nightsRefundPercent === 0
+                        ? "No refund of nights"
+                        : `${window.nightsRefundPercent}% refund of nights`;
+                  const cutoff = window.until
+                    ? new Date(window.until).toLocaleString("en-NG", {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                        timeZone: "Africa/Lagos",
+                      })
+                    : null;
+
+                  return (
+                    <li key={`${window.from ?? "start"}-${index}`}>
+                      {refundDescription}
+                      {cutoff ? ` until ${cutoff}` : ""}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          {showCancellationDetails && (
+            <p className="mt-2 text-xs text-gray-500">
+              Early check-out: {quote.cancellationPolicy.earlyCheckout.summary}
             </p>
           )}
-          <p className="mt-2 leading-6">
-            {quote.cancellationPolicy.summary}
-          </p>
-          {quote.cancellationPolicy.windows.length > 0 && (
-            <ul className="mt-3 space-y-1">
-              {quote.cancellationPolicy.windows.map((window, index) => {
-                const refundDescription =
-                  window.nightsRefundPercent === 100
-                    ? "Full refund of nights"
-                    : window.nightsRefundPercent === 0
-                      ? "No refund of nights"
-                      : `${window.nightsRefundPercent}% refund of nights`;
-                const cutoff = window.until
-                  ? new Date(window.until).toLocaleString("en-NG", {
-                      dateStyle: "medium",
-                      timeStyle: "short",
-                      timeZone: "Africa/Lagos",
-                    })
-                  : null;
-
-                return (
-                  <li key={`${window.from ?? "start"}-${index}`}>
-                    {refundDescription}
-                    {cutoff ? ` until ${cutoff}` : ""}
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-          <p className="mt-2 text-xs text-gray-500">
-            Early check-out: {quote.cancellationPolicy.earlyCheckout.summary}
-          </p>
+          <button
+            type="button"
+            onClick={() => setShowCancellationDetails((visible) => !visible)}
+            aria-expanded={showCancellationDetails}
+            className="mt-3 font-semibold text-[#43A047] underline underline-offset-2 hover:text-[#388E3C]"
+          >
+            Show {showCancellationDetails ? "less" : "more"}
+          </button>
         </section>
       )}
       {bookingError && (
