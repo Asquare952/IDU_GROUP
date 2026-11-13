@@ -10,10 +10,12 @@ import {
   Filter,
   ShieldCheck,
   Trash2,
+  Percent,
 } from "lucide-react";
 import {
   useAdminUsers,
   useDeleteAdminUser,
+  useSetShortletCommission,
   useToggleAdminUserStatus,
   useSuspendUser,
   useUnsuspendUser,
@@ -66,6 +68,16 @@ const Page = () => {
   const [activeFilter, setActiveFilter] =
     useState<(typeof filterTabs)[number]>("All Users");
   const [searchQuery, setSearchQuery] = useState("");
+  const [commissionTarget, setCommissionTarget] = useState<{
+    id: string;
+    name: string;
+    email: string;
+    commissionPercent?: number | null;
+  } | null>(null);
+  const [commissionValue, setCommissionValue] = useState("");
+  const [commissionOverrides, setCommissionOverrides] = useState<
+    Record<string, number>
+  >({});
   const { data: users = [], isLoading, isError, error } = useAdminUsers();
   const { mutate: toggleStatus, isPending: isTogglingStatus } =
     useToggleAdminUserStatus();
@@ -74,6 +86,62 @@ const Page = () => {
   const { mutate: suspendUser, isPending: isSuspendingUser } = useSuspendUser();
   const { mutate: unsuspendUser, isPending: isUnsuspendingUser } =
     useUnsuspendUser();
+  const {
+    mutate: setShortletCommission,
+    isPending: isSavingShortletCommission,
+  } = useSetShortletCommission();
+
+  const openShortletCommission = (user: (typeof users)[number]) => {
+    const currentCommission =
+      commissionOverrides[user.id] ?? user.shortlet_commission_percent;
+    setCommissionTarget({
+      id: user.id,
+      name: `${user.first_name} ${user.last_name}`.trim() || "Landlord",
+      email: user.email,
+      commissionPercent: currentCommission,
+    });
+    setCommissionValue(
+      currentCommission == null ? "" : String(currentCommission),
+    );
+  };
+
+  const saveShortletCommission = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const commissionPercent = Number(commissionValue);
+    if (
+      !commissionValue.trim() ||
+      !Number.isFinite(commissionPercent) ||
+      commissionPercent < 0 ||
+      commissionPercent > 100
+    ) {
+      toast.error("Enter a commission percentage between 0 and 100.");
+      return;
+    }
+
+    if (!commissionTarget) return;
+
+    setShortletCommission(
+      { id: commissionTarget.id, commissionPercent },
+      {
+        onSuccess: (response) => {
+          setCommissionOverrides((current) => ({
+            ...current,
+            [commissionTarget.id]:
+              response.data?.commission_percent ?? commissionPercent,
+          }));
+          toast.success(
+            response.message || "Shortlet commission updated successfully.",
+          );
+          setCommissionTarget(null);
+        },
+        onError: (mutationError) => {
+          toast.error(
+            mutationError.message || "Unable to update Shortlet commission.",
+          );
+        },
+      },
+    );
+  };
 
   const filteredUsers = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -179,7 +247,7 @@ const Page = () => {
           ) : (
             <>
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[640px]">
+                <table className="w-full min-w-[760px]">
                   <thead className="bg-gray-50/50 border-b border-gray-100">
                     <tr>
                       <th className="text-left px-3 md:px-6 py-3 md:py-4 text-xs font-medium text-gray-500">
@@ -196,6 +264,9 @@ const Page = () => {
                       </th>
                       <th className="text-left px-3 md:px-6 py-3 md:py-4 text-xs font-medium text-gray-500">
                         Listings
+                      </th>
+                      <th className="text-left px-3 md:px-6 py-3 md:py-4 text-xs font-medium text-gray-500">
+                        Shortlet commission
                       </th>
                       <th className="text-left px-3 md:px-6 py-3 md:py-4 text-xs font-medium text-gray-500">
                         Actions
@@ -254,6 +325,14 @@ const Page = () => {
                           </td>
                           <td className="px-3 md:px-6 py-3 md:py-4 text-xs md:text-sm text-gray-600">
                             {user.rentalsCount}
+                          </td>
+                          <td className="px-3 md:px-6 py-3 md:py-4 text-xs md:text-sm text-gray-600">
+                            {user.role.toLowerCase() === "landlord"
+                              ? (commissionOverrides[user.id] ??
+                                  user.shortlet_commission_percent) == null
+                                ? "Not set"
+                                : `${commissionOverrides[user.id] ?? user.shortlet_commission_percent}%`
+                              : "—"}
                           </td>
                           <td className="px-3 md:px-6 py-3 md:py-4">
                             <div className="flex items-center gap-1 md:gap-2">
@@ -340,6 +419,17 @@ const Page = () => {
                                   <Ban size={14} />
                                 </button>
                               ) : null}
+                              {user.role.toLowerCase() === "landlord" ? (
+                                <button
+                                  className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-[#2E7D32] hover:bg-green-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                  title={`Set Shortlet commission for ${user.email}`}
+                                  disabled={isSavingShortletCommission}
+                                  onClick={() => openShortletCommission(user)}
+                                >
+                                  <Percent size={14} />
+                                  <span>Set</span>
+                                </button>
+                              ) : null}
                               <button
                                 className="p-1 text-red-500 hover:bg-red-50 rounded transition-colors"
                                 title="Delete user"
@@ -402,6 +492,93 @@ const Page = () => {
           )}
         </div>
       </div>
+      {commissionTarget ? (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              setCommissionTarget(null);
+            }
+          }}
+        >
+          <form
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="shortlet-commission-title"
+            onSubmit={saveShortletCommission}
+            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
+          >
+            <h2
+              id="shortlet-commission-title"
+              className="text-lg font-semibold text-gray-900"
+            >
+              Shortlet commission %
+            </h2>
+            <p className="mt-1 text-sm text-gray-500">
+              Set the platform commission for {commissionTarget.name} (
+              {commissionTarget.email}).
+            </p>
+            {commissionTarget.commissionPercent == null ? (
+              <p className="mt-3 rounded-lg bg-amber-50 p-3 text-xs text-amber-800">
+                No commission is currently set. The platform keeps 100% of
+                Shortlet booking amounts until you assign a percentage.
+              </p>
+            ) : null}
+            <label
+              htmlFor="shortlet-commission-percent"
+              className="mt-5 block text-sm font-medium text-gray-700"
+            >
+              Commission percentage
+            </label>
+            <div className="relative mt-1">
+              <input
+                id="shortlet-commission-percent"
+                type="number"
+                min="0"
+                max="100"
+                step="0.01"
+                required
+                autoFocus
+                value={commissionValue}
+                onChange={(event) => setCommissionValue(event.target.value)}
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 pr-9 text-sm outline-none focus:border-[#43A047] focus:ring-2 focus:ring-[#43A047]/20"
+                placeholder="e.g. 5"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">
+                %
+              </span>
+            </div>
+            <p className="mt-2 text-xs text-gray-500">
+              This applies to new Shortlet bookings only. Existing bookings keep
+              the commission recorded when they were made.
+            </p>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                disabled={isSavingShortletCommission}
+                onClick={() => setCommissionTarget(null)}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={
+                  isSavingShortletCommission ||
+                  !commissionValue.trim() ||
+                  !Number.isFinite(Number(commissionValue)) ||
+                  Number(commissionValue) < 0 ||
+                  Number(commissionValue) > 100
+                }
+                className="rounded-lg bg-[#43A047] px-4 py-2 text-sm font-medium text-white hover:bg-[#388E3C] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isSavingShortletCommission ? "Saving..." : "Save commission"}
+              </button>
+            </div>
+          </form>
+        </div>
+      ) : null}
     </DashboardLayout>
   );
 };

@@ -9,8 +9,8 @@ import {
   ShieldAlert,
   MapPin,
   Search,
-  Banknote,
   BadgeCheck,
+  ShieldCheck,
 } from "lucide-react";
 
 export const ActiveProperty = {
@@ -67,9 +67,9 @@ export const Safetytips: SafetyTips[] = [
   },
   {
     id: 2,
-    name: "Never pay inspection fees",
-    desc: "Legitimate landlords never charge for house inspections. Report anyone asking for fees.",
-    icon: Banknote,
+    name: "Keep Payments on RentULO",
+    desc: "Always make your rental payments through RentULO's secure payment channels. Avoid sending money directly to agents or landlords outside the platform to protect yourself from scams.",
+    icon: ShieldCheck,
   },
   {
     id: 3,

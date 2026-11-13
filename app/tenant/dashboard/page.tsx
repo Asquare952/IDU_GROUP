@@ -74,11 +74,15 @@ const Page = () => {
   const [rentedApartmentSlide, setRentedApartmentSlide] = useState(0);
   const [rentedImageSlide, setRentedImageSlide] = useState(0);
   const [currentTime, setCurrentTime] = useState(() => Date.now());
+  const [dashboardSearchQuery, setDashboardSearchQuery] = useState("");
   const [likedPropertyIds, setLikedPropertyIds] = useState<Set<string>>(
     () => new Set(),
   );
   const hasInitializedRef = useRef(false);
-  const { data: properties } = useFetchProperties({ recentOnly: false });
+  const { data: properties } = useFetchProperties({
+    recentOnly: false,
+    includeShortlets: true,
+  });
   const {
     data: lockedRentals = [],
     isLoading: isLoadingLockedRentals,
@@ -97,6 +101,32 @@ const Page = () => {
   );
   const activeRentedApartment = rentedApartments[rentedApartmentSlide];
   const rentedImages = activeRentedApartment?.images ?? [];
+  const recommendedProperties = useMemo(() => {
+    const query = dashboardSearchQuery.trim().toLocaleLowerCase();
+    const listings = properties ?? [];
+
+    if (!query) {
+      return listings;
+    }
+
+    return listings.filter((property) =>
+      [
+        property.title,
+        property.description,
+        property.propertyType,
+        property.rentalModel ? "shortlet" : "",
+        property.location,
+        property.address,
+        property.area,
+        property.city,
+        property.state,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLocaleLowerCase()
+        .includes(query),
+    );
+  }, [dashboardSearchQuery, properties]);
 
   const dashMetrics = useMemo<DashboardMetricsType[]>(
     () => [
@@ -227,7 +257,10 @@ const Page = () => {
       );
 
   return (
-    <DashboardLayout>
+    <DashboardLayout
+      searchValue={dashboardSearchQuery}
+      onSearchChange={setDashboardSearchQuery}
+    >
       <section className="flex flex-col gap-8 px-7 py-2.5">
         {activeLockedRental ? (
           <div className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm">
@@ -488,9 +521,13 @@ const Page = () => {
         {/* Recommended Houses Section */}
         <div className="flex flex-col gap-3.5">
           <h2 className="text-2xl font-bold">Recommended Houses</h2>
-          {properties?.length === 0 ? (
+          {recommendedProperties.length === 0 ? (
             <div className="text-center py-12 text-gray-400">
-              <p>No listings available at the moment</p>
+              <p>
+                {dashboardSearchQuery.trim()
+                  ? `No listings match "${dashboardSearchQuery.trim()}".`
+                  : "No listings available at the moment"}
+              </p>
             </div>
           ) : (
             <motion.div
@@ -499,7 +536,7 @@ const Page = () => {
               viewport={{ once: true, margin: "-100px" }}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
             >
-              {properties?.slice(0, 3).map((item, i) => {
+              {recommendedProperties.slice(0, 3).map((item, i) => {
                 const handleCardClick = () => {
                   router.push(getPropertyDetailsPath(item));
                 };
@@ -602,6 +639,14 @@ const Page = () => {
               })}
             </motion.div>
           )}
+          <div className="flex w-full justify-center">
+            <Link
+              href="/properties"
+              className="mt-4 rounded-full bg-[#34A853] px-8 py-3 text-center text-base font-semibold text-white shadow-lg transition duration-300 hover:bg-green-700"
+            >
+              Browse Listings <span aria-hidden="true">&rarr;</span>
+            </Link>
+          </div>
         </div>
         <div className="flex flex-col gap-3.5 mt-4">
           <h2 className="text-2xl font-bold px-1">RentULO Safety Tips</h2>

@@ -11,6 +11,9 @@ import {
   Settings,
   MessageCircleMore,
   Gift,
+  HandCoins,
+  CalendarDays,
+  ShieldAlert,
 } from "lucide-react";
 
 export const sidebarItems: SidebarItems[] = [
@@ -70,20 +73,38 @@ export const sidebarItems: SidebarItems[] = [
   },
   {
     id: 10,
+    name: "Coupons",
+    path: "/super-admin/coupons",
+    icon: Gift,
+  },
+  {
+    id: 11,
+    name: "Host Debts",
+    path: "/super-admin/host-debts",
+    icon: HandCoins,
+  },
+  {
+    id: 12,
+    name: "Shortlet Bookings",
+    path: "/super-admin/shortlet-bookings",
+    icon: CalendarDays,
+  },
+  {
+    id: 13,
+    name: "Deposit Claims",
+    path: "/super-admin/deposit-claims",
+    icon: ShieldAlert,
+  },
+  {
+    id: 14,
     name: "Settings",
     path: "/super-admin/settings",
     icon: Settings,
   },
   {
-    id: 11,
+    id: 15,
     name: "Waitlist",
     path: "/super-admin/waitlist",
     icon: User2,
-  },
-  {
-    id: 12,
-    name: "Coupons",
-    path: "/super-admin/coupons",
-    icon: Gift,
   },
 ];

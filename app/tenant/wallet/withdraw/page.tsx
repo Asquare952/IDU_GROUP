@@ -10,6 +10,10 @@ import {
 import { formatNaira } from "@/app/landlord/wallet/data/walletData";
 import Breadcrumb from "@/app/components/Wallet/Breadcrumb";
 import { TransactionPinSheet } from "@/app/components/TransactionPinModal";
+import {
+  getTransactionPinErrorMessage,
+  getTransactionPinErrorCode,
+} from "@/app/api/features/wallet/wallet.api";
 
 
 
@@ -38,9 +42,12 @@ const page = () => {
     );
   };
 
-  const errorMessage = (error as any)?.response?.data?.message as
-    | string
-    | undefined;
+  const errorMessage = error
+    ? getTransactionPinErrorMessage(
+        error,
+        "Unable to complete the withdrawal.",
+      )
+    : undefined;
 
   return (
     <DashboardLayout>
@@ -148,6 +155,19 @@ const page = () => {
         description={`Enter your transaction PIN to withdraw ₦${Number(amount || 0).toLocaleString()}.`}
         confirmLabel="Confirm withdrawal"
         isPending={isPending}
+        errorMessage={
+          error
+            ? getTransactionPinErrorMessage(
+                error,
+                "Unable to complete the withdrawal.",
+              )
+            : undefined
+        }
+        createPinHref={
+          getTransactionPinErrorCode(error) === "PIN_NOT_SET"
+            ? "/tenant/settings/transaction-pin/create-pin"
+            : undefined
+        }
         onClose={() => setIsPinModalOpen(false)}
         onConfirm={confirmWithdrawal}
       />

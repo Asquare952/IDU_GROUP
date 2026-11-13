@@ -1,10 +1,14 @@
 export {
+  bookShortlet,
   createShortlet,
   deleteAdminShortlet,
   deleteShortlet,
   fetchAdminShortlets,
   fetchShortletById,
+  fetchShortletAvailability,
+  fetchShortletQuote,
   fetchShortlets,
+  getShortletApiError,
   normalizeShortlet,
   searchShortlets,
   shortletApi,
@@ -12,15 +16,22 @@ export {
 } from "./shortlet.api";
 export type {
   CreateShortletPayload,
+  ShortletAvailability,
+  ShortletBookingPayload,
+  ShortletBookingResponse,
+  ShortletQuote,
   ShortletPropertyType,
   UpdateShortletPayload,
 } from "./shortlet.api";
 export {
+  useBookShortlet,
   useCreateShortlet,
   useDeleteAdminShortlet,
   useDeleteShortlet,
   useFetchAdminShortlets,
   useFetchShortletById,
+  useShortletAvailability,
+  useShortletQuote,
   useFetchShortlets,
   useUpdateShortlet,
 } from "./shortlet.queries";

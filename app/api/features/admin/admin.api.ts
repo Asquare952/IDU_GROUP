@@ -9,12 +9,23 @@ import type {
   AdminReport,
   AdminReportStatus,
   AdminUser,
+  HostDebtStatus,
+  HostDebtsResponse,
   AdminVerifyOTPPayload,
   AuthMeResponse,
   AdminLoginPayload,
   AdminAnalytics,
   ReportPayload,
 } from "./types";
+import type {
+  AdminDepositClaimsResponse,
+  AdminShortletBooking,
+  AdminShortletBookingDetailResponse,
+  AdminShortletBookingFilters,
+  AdminShortletBookingsResponse,
+  ResolveAdminDepositClaimPayload,
+  ResolveAdminDepositClaimResponse,
+} from "./shortlet-booking.types";
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -62,6 +73,18 @@ const toBooleanValue = (value: unknown, fallback = false): boolean => {
 const toNumberValue = (value: unknown, fallback = 0): number => {
   const numberValue = Number(value);
   return Number.isFinite(numberValue) ? numberValue : fallback;
+};
+
+const toOptionalNumberValue = (value: unknown): number | undefined => {
+  if (
+    (typeof value !== "number" && typeof value !== "string") ||
+    (typeof value === "string" && !value.trim())
+  ) {
+    return undefined;
+  }
+
+  const numberValue = Number(value);
+  return Number.isFinite(numberValue) ? numberValue : undefined;
 };
 
 const findStringByKeys = (
@@ -195,6 +218,11 @@ const normalizeAdminUser = (payload: unknown): AdminUser => {
     address: findStringByKeys(record, ["address"]),
     country: findStringByKeys(record, ["country"]),
     rentalsCount,
+    shortlet_commission_percent: toOptionalNumberValue(
+      record.shortlet_commission_percent ??
+        record.shortletCommissionPercent ??
+        record.commission_percent,
+    ),
     profile: profileValue
       ? {
           verified: toBooleanValue(
@@ -463,6 +491,65 @@ export const adminApi = {
     return extractListPayload(response.data).map(normalizeAdminUser);
   },
 
+  getHostDebts: async (status: HostDebtStatus): Promise<HostDebtsResponse> => {
+    const response = await api.get<HostDebtsResponse>("/admin/host-debts", {
+      params: { status },
+    });
+    return response.data;
+  },
+
+  getShortletBookings: async (
+    filters: AdminShortletBookingFilters,
+  ): Promise<AdminShortletBookingsResponse> => {
+    const response = await api.get<AdminShortletBookingsResponse>(
+      "/admin/shortlet-bookings",
+      { params: filters },
+    );
+    return response.data;
+  },
+
+  getShortletBooking: async (
+    bookingId: string,
+  ): Promise<AdminShortletBooking> => {
+    const response = await api.get<AdminShortletBookingDetailResponse>(
+      `/admin/shortlet-bookings/${encodeURIComponent(bookingId)}`,
+    );
+    const payload = response.data;
+    const booking = payload?.data ?? (payload as AdminShortletBooking);
+    if (!booking || typeof booking !== "object") {
+      throw new Error("The booking response did not contain booking details.");
+    }
+    return booking;
+  },
+
+  getDepositClaims: async (
+    status: "open" | "resolved" | "all",
+  ): Promise<AdminDepositClaimsResponse> => {
+    const response = await api.get<AdminDepositClaimsResponse>(
+      "/admin/shortlet-bookings/deposit-claims",
+      { params: { status } },
+    );
+    return response.data;
+  },
+
+  resolveDepositClaim: async ({
+    bookingId,
+    ...payload
+  }: {
+    bookingId: string;
+  } & ResolveAdminDepositClaimPayload): Promise<ResolveAdminDepositClaimResponse> => {
+    const response = await api.put<ResolveAdminDepositClaimResponse>(
+      `/admin/shortlet-bookings/${encodeURIComponent(bookingId)}/deposit-claim`,
+      payload,
+    );
+    if (response.data?.success === false) {
+      throw new Error(
+        response.data.message || "Unable to resolve the deposit claim.",
+      );
+    }
+    return response.data;
+  },
+
   toggleUserStatus: async (id: string): Promise<unknown> => {
     const response = await api.put(`/admin/users/${id}/status`, {});
     return response.data;
@@ -480,6 +567,24 @@ export const adminApi = {
 
   deleteUser: async (id: string): Promise<void> => {
     await api.delete(`/admin/users/${id}`);
+  },
+
+  setShortletCommission: async ({
+    id,
+    commissionPercent,
+  }: {
+    id: string;
+    commissionPercent: number;
+  }): Promise<{
+    success: boolean;
+    message: string;
+    data: { full_name: string; commission_percent: number };
+  }> => {
+    const response = await api.put(
+      `/admin/users/${encodeURIComponent(id)}/commission`,
+      { commission_percent: commissionPercent },
+    );
+    return response.data;
   },
 
   getRentals: async (): Promise<AdminRental[]> => {

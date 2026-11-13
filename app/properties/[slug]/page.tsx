@@ -30,7 +30,13 @@ import Image from "next/image";
 import Navbar from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 import { useFetchPropertyBySlug } from "@/app/api/features/property";
-import { useFetchShortletById } from "@/app/api/features/shortlet";
+import {
+  getShortletApiError,
+  useBookShortlet,
+  useFetchShortletById,
+  useShortletAvailability,
+  useShortletQuote,
+} from "@/app/api/features/shortlet";
 import {
   useRentRental,
   useLockRental,
@@ -50,6 +56,36 @@ import ShortletInfo from "@/app/components/Dashboard/shortlet/ShortletInfo";
 import ShortletRatings from "@/app/components/Dashboard/shortlet/ShortletRatings";
 import ShortletReviews from "@/app/components/Dashboard/shortlet/ShortletReviews";
 import ShortletReserve from "@/app/components/Dashboard/shortlet/ShortletReserve";
+import { getTransactionPinErrorMessage } from "@/app/api/features/wallet/wallet.api";
+
+const shortletDateKey = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const shortletDateFromKey = (value: string) => {
+  const [year, month, day] = value.split("-").map(Number);
+  return new Date(year, month - 1, day);
+};
+
+const expandBookedRanges = (
+  ranges: Array<{ checkIn: string; checkOut: string }> = [],
+) => {
+  const blocked = new Set<string>();
+
+  ranges.forEach(({ checkIn, checkOut }) => {
+    const date = shortletDateFromKey(checkIn);
+    const checkout = shortletDateFromKey(checkOut);
+    while (date < checkout) {
+      blocked.add(shortletDateKey(date));
+      date.setDate(date.getDate() + 1);
+    }
+  });
+
+  return [...blocked];
+};
 
 function PropertyDesktopViewContent() {
   const params = useParams<{ slug: string }>();
@@ -67,6 +103,12 @@ function PropertyDesktopViewContent() {
   const { mutate: handleLock, isPending: isLocking } = useLockRental();
   const { mutate: handleRent, isPending: isRenting } = useRentRental();
   const { mutate: handleBook, isPending: isBooking } = useBookRental();
+  const {
+    mutate: handleShortletBook,
+    isPending: isShortletBooking,
+    error: shortletBookingError,
+    reset: resetShortletBooking,
+  } = useBookShortlet();
   const { mutate: createConversation } = useCreateConversation();
   const [thumbsSwiper, setThumbsSwiper] = useState<any>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -92,6 +134,23 @@ function PropertyDesktopViewContent() {
     isShortletRoute ? null : slug,
   );
   const shortletQuery = useFetchShortletById(slug, isShortletRoute);
+  const availabilityQuery = useShortletAvailability(
+    isShortletRoute ? slug : undefined,
+    isShortletRoute && isLoggedIn,
+  );
+  const quoteParams =
+    shortletCheckIn && shortletCheckOut
+      ? {
+          checkIn: shortletDateKey(shortletCheckIn),
+          checkOut: shortletDateKey(shortletCheckOut),
+          guests: shortletGuests,
+        }
+      : null;
+  const quoteQuery = useShortletQuote(
+    isShortletRoute ? slug : undefined,
+    quoteParams,
+    isShortletRoute && isLoggedIn,
+  );
   const property = isShortletRoute ? shortletQuery.data : rentalQuery.data;
   const isLoading = isShortletRoute
     ? shortletQuery.isLoading
@@ -181,7 +240,32 @@ function PropertyDesktopViewContent() {
     property.propertyType.toLowerCase().includes("shortlet") ||
     property.priceType.toLowerCase().includes("night");
   // Do not offer renter actions on listings that are not available.
-  const canBook = property.status.toLowerCase() === "available";
+  const listingCanBook = property.status.toLowerCase() === "available";
+  const availability = availabilityQuery.data;
+  const canBook =
+    listingCanBook &&
+    (!isShortletRoute ||
+      !isLoggedIn ||
+      (availability?.bookable === true &&
+        availability.status.toLowerCase() === "available"));
+  const shortletBookedDates = expandBookedRanges(
+    availability?.bookedRanges ?? [],
+  );
+  const bookingError = shortletBookingError
+    ? getShortletApiError(shortletBookingError)
+    : undefined;
+  const bookingErrorMessage =
+    shortletBookingError &&
+    (bookingError?.code === "PIN_NOT_SET" ||
+      bookingError?.code === "PIN_REQUIRED" ||
+      bookingError?.code === "PIN_INCORRECT")
+      ? getTransactionPinErrorMessage(
+          shortletBookingError,
+          bookingError.message,
+        )
+      : bookingError?.message;
+  const insufficientBalance =
+    bookingError?.code === "INSUFFICIENT_BALANCE";
 
   // Use RentULO chat for host contact instead of exposing private contact info.
   const handleMessageHost = () => {
@@ -447,11 +531,39 @@ function PropertyDesktopViewContent() {
                   checkOut={shortletCheckOut}
                   guests={shortletGuests}
                   maxGuests={property.guestCapacity}
-                  availableFrom={property.availableFrom}
-                  availableTo={property.availableTo}
-                  minimumStay={property.minimumStay}
-                  maximumStay={property.maximumStay}
+                  blockedDates={shortletBookedDates}
+                  availableFrom={
+                    availability?.availableFrom ?? property.availableFrom
+                  }
+                  availableTo={
+                    availability?.availableTo ?? property.availableTo
+                  }
+                  minimumStay={
+                    availability?.minimumStay ?? property.minimumStay
+                  }
+                  maximumStay={
+                    availability?.maximumStay ?? property.maximumStay
+                  }
+                  availabilityLoading={
+                    isLoggedIn && availabilityQuery.isLoading
+                  }
+                  availabilityError={
+                    !isLoggedIn
+                      ? "Sign in to check booked dates and availability."
+                      : availabilityQuery.isError
+                        ? "Availability couldn't be checked. Please refresh and try again."
+                        : availability && !availability.bookable
+                          ? "The host has paused bookings for this listing."
+                          : undefined
+                  }
                   onStayChange={({ checkIn, checkOut, guests }) => {
+                    if (
+                      shortletCheckIn?.getTime() !== checkIn?.getTime() ||
+                      shortletCheckOut?.getTime() !== checkOut?.getTime() ||
+                      shortletGuests !== guests
+                    ) {
+                      resetShortletBooking();
+                    }
                     setShortletCheckIn(checkIn);
                     setShortletCheckOut(checkOut);
                     setShortletGuests(guests);
@@ -593,14 +705,33 @@ function PropertyDesktopViewContent() {
                     checkOut={shortletCheckOut}
                     guests={shortletGuests}
                     canBook={canBook}
-                    cleaningFee={property.cleaningFee}
-                    securityDeposit={property.securityDeposit}
+                    quote={quoteQuery.data}
+                    quoteLoading={isLoggedIn && quoteQuery.isLoading}
+                    quoteError={
+                      quoteQuery.isError
+                        ? getShortletApiError(quoteQuery.error).message
+                        : undefined
+                    }
+                    requireQuote={isLoggedIn}
+                    bookingError={bookingErrorMessage}
+                    insufficientBalance={insufficientBalance}
                     onReserve={() => {
                       if (!hasAccessToken()) {
                         router.push("/login");
                         return;
                       }
 
+                      if (
+                        !quoteQuery.data ||
+                        !shortletCheckIn ||
+                        !shortletCheckOut ||
+                        !availability?.bookable
+                      ) {
+                        toast.error(
+                          "Check availability and select valid dates before booking.",
+                        );
+                        return;
+                      }
                       setPinAction("shortlet-book");
                     }}
                   />
@@ -740,15 +871,61 @@ function PropertyDesktopViewContent() {
                 ? "Confirm lock"
                 : "Confirm booking"
           }
-          isPending={isRenting || isLocking || isBooking}
+          isPending={
+            isRenting || isLocking || isBooking || isShortletBooking
+          }
+          errorMessage={
+            pinAction === "shortlet-book"
+              ? bookingErrorMessage
+              : undefined
+          }
+          createPinHref={
+            pinAction === "shortlet-book" &&
+            bookingError?.code === "PIN_NOT_SET"
+              ? "/tenant/settings/transaction-pin/create-pin"
+              : undefined
+          }
+          actionHref={
+            pinAction === "shortlet-book" && insufficientBalance
+              ? "/tenant/wallet/top-up"
+              : undefined
+          }
+          actionLabel={
+            pinAction === "shortlet-book" && insufficientBalance
+              ? "Top up your wallet"
+              : undefined
+          }
           onClose={() => setPinAction(null)}
           onConfirm={(pin) => {
             const rentalId = String(property.id);
 
             if (pinAction === "shortlet-book") {
-              handleBook(
-                { rentalId, pin },
-                { onSuccess: () => setPinAction(null) },
+              if (!shortletCheckIn || !shortletCheckOut) return;
+              handleShortletBook(
+                {
+                  shortlet_id: rentalId,
+                  checkIn: shortletDateKey(shortletCheckIn),
+                  checkOut: shortletDateKey(shortletCheckOut),
+                  guests: shortletGuests,
+                  pin,
+                },
+                {
+                  onSuccess: (response) => {
+                    toast.success(
+                      `${response.message}. New wallet balance: ₦${Number(
+                        response.walletBalance,
+                      ).toLocaleString("en-NG")}`,
+                    );
+                    setPinAction(null);
+                  },
+                  onError: (error) => {
+                    if (
+                      getShortletApiError(error).code === "DATES_UNAVAILABLE"
+                    ) {
+                      setPinAction(null);
+                    }
+                  },
+                },
               );
               return;
             }

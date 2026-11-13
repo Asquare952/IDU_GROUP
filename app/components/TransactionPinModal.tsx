@@ -2,6 +2,7 @@
 import React, { Suspense, useState, useRef } from "react";
 import { toast } from "react-toastify";
 import { Lock as LockIcon } from "lucide-react";
+import Link from "next/link";
 
 
 
@@ -11,6 +12,10 @@ type TransactionPinSheetProps = {
   description: string;
   confirmLabel: string;
   isPending?: boolean;
+  errorMessage?: string;
+  createPinHref?: string;
+  actionHref?: string;
+  actionLabel?: string;
   onClose: () => void;
   onConfirm: (pin: string) => void;
 };
@@ -21,6 +26,10 @@ export const TransactionPinSheet = ({
   description,
   confirmLabel,
   isPending = false,
+  errorMessage,
+  createPinHref,
+  actionHref,
+  actionLabel,
   onClose,
   onConfirm,
 }: TransactionPinSheetProps) => {
@@ -50,6 +59,7 @@ export const TransactionPinSheet = ({
     }
 
     onConfirm(value);
+    setPin(["", "", "", ""]);
   };
 
   return (
@@ -75,6 +85,29 @@ export const TransactionPinSheet = ({
           <p className="text-sm text-slate-500">
             If you haven't set a transaction PIN yet, please do so in your account settings.
           </p>
+          {errorMessage && (
+            <p role="alert" className="text-sm font-medium text-red-600">
+              {errorMessage}
+            </p>
+          )}
+          {createPinHref && (
+            <Link
+              href={createPinHref}
+              onClick={onClose}
+              className="text-sm font-semibold text-[#43A047] underline"
+            >
+              Create a transaction PIN
+            </Link>
+          )}
+          {actionHref && actionLabel && (
+            <Link
+              href={actionHref}
+              onClick={onClose}
+              className="text-sm font-semibold text-[#43A047] underline"
+            >
+              {actionLabel}
+            </Link>
+          )}
         </div>
 
         <div className="mt-7 flex justify-center gap-3">

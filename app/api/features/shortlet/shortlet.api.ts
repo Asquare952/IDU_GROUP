@@ -1,5 +1,5 @@
 import api from "../../axios";
-import type { AxiosRequestConfig } from "axios";
+import { isAxiosError, type AxiosRequestConfig } from "axios";
 import type {
   Property,
   ShortletFurnishingStatus,
@@ -65,6 +65,100 @@ export type UpdateShortletPayload = Partial<
 };
 
 type RawShortlet = Record<string, unknown>;
+
+export interface ShortletAvailability {
+  id: string;
+  availableFrom: string;
+  availableTo: string;
+  minimumStay: number;
+  maximumStay: number;
+  checkInTime: string;
+  checkOutTime: string;
+  guestCapacity: number;
+  earlyCheckoutRefundable: boolean;
+  status: string;
+  bookable: boolean;
+  bookedRanges: Array<{ checkIn: string; checkOut: string }>;
+}
+
+export interface ShortletQuote {
+  shortlet_id: string;
+  checkIn: string;
+  checkOut: string;
+  guests: number;
+  checkInTime: string;
+  checkOutTime: string;
+  pricePerNight: string;
+  nights: number;
+  subtotal: string;
+  cleaningFee: string;
+  securityDeposit: string;
+  securityDepositRefundable: boolean;
+  total: string;
+  cancellationPolicy: {
+    policy: string;
+    label: string;
+    windows: Array<{
+      nightsRefundPercent: number;
+      minHoursBeforeCheckIn: number;
+      from: string | null;
+      until: string | null;
+    }>;
+    gracePeriod: {
+      withinHoursOfBooking: number;
+      minHoursBeforeCheckIn: number;
+      until: string | null;
+    };
+    earlyCheckout: {
+      unusedNightsRefundable: boolean;
+      noticeHours: number;
+      summary: string;
+    };
+    freeCancellationUntil: string | null;
+    summary: string;
+  };
+}
+
+export interface ShortletBookingPayload {
+  shortlet_id: string;
+  checkIn: string;
+  checkOut: string;
+  guests: number;
+  pin: string;
+}
+
+export interface ShortletBookingResponse {
+  success: boolean;
+  message: string;
+  data: Record<string, unknown>;
+  walletBalance: string;
+}
+
+interface ShortletApiResponse<T> {
+  success: boolean;
+  message?: string;
+  data: T;
+}
+
+export const getShortletApiError = (
+  error: unknown,
+): { code?: string; message: string; status?: number } => {
+  if (isAxiosError<{ code?: unknown; message?: unknown }>(error)) {
+    const code =
+      typeof error.response?.data?.code === "string"
+        ? error.response.data.code
+        : undefined;
+    const message =
+      typeof error.response?.data?.message === "string"
+        ? error.response.data.message
+        : error.message;
+    return { code, message, status: error.response?.status };
+  }
+
+  return {
+    message: error instanceof Error ? error.message : "The request failed.",
+  };
+};
 
 const asRecord = (value: unknown): RawShortlet | null =>
   value && typeof value === "object" && !Array.isArray(value)
@@ -273,6 +367,36 @@ export const fetchShortlets = async (
     skipAuthRedirect: recentOnly,
   } as ShortletRequestConfig);
   return unwrapShortletList(response.data).map(normalizeShortlet);
+};
+
+export const fetchShortletAvailability = async (
+  identifier: string,
+): Promise<ShortletAvailability> => {
+  const response = await api.get<ShortletApiResponse<ShortletAvailability>>(
+    `/shortlet/availability/${encodeURIComponent(identifier)}`,
+  );
+  return response.data.data;
+};
+
+export const fetchShortletQuote = async (
+  identifier: string,
+  params: { checkIn: string; checkOut: string; guests: number },
+): Promise<ShortletQuote> => {
+  const response = await api.get<ShortletApiResponse<ShortletQuote>>(
+    `/shortlet/quote/${encodeURIComponent(identifier)}`,
+    { params },
+  );
+  return response.data.data;
+};
+
+export const bookShortlet = async (
+  payload: ShortletBookingPayload,
+): Promise<ShortletBookingResponse> => {
+  const response = await api.post<ShortletBookingResponse>(
+    "/shortlet/book",
+    payload,
+  );
+  return response.data;
 };
 
 export const fetchAdminShortlets = async (): Promise<Property[]> => {

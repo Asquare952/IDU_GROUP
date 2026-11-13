@@ -3,6 +3,7 @@ import { progressApi } from "./progress.api";
 import type { Rental } from "../rental";
 import { toast } from "react-toastify";
 import { success } from "zod";
+import { getTransactionPinErrorMessage } from "../wallet/wallet.api";
 
 const progressQueryKeys = {
   liked: ["progress", "liked"] as const,
@@ -43,9 +44,10 @@ export const useLockRental = () => {
       toast.success(successMessage);
     },
     onError: (error: any) => {
-      const errorMessage =
-        error?.response?.data?.message ||
-        "An error occurred while locking the apartment.";
+      const errorMessage = getTransactionPinErrorMessage(
+        error,
+        "An error occurred while locking the apartment.",
+      );
       toast.error(errorMessage);
     },
   });
@@ -64,9 +66,10 @@ export const useRentRental = () => {
       toast.success(successMessage);
     },
     onError: (error: any) => {
-      const errorMessage =
-        error?.response?.data?.message ||
-        "An error occurred while renting the apartment.";
+      const errorMessage = getTransactionPinErrorMessage(
+        error,
+        "An error occurred while renting the apartment.",
+      );
       toast.error(errorMessage);
     },
   });
@@ -83,9 +86,10 @@ export const useBookRental = () => {
       toast.success("Apartment booked successfully!");
     },
     onError: (error: any) => {
-      const errorMessage =
-        error?.response?.data?.message ||
-        "An error occurred while booking the apartment.";
+      const errorMessage = getTransactionPinErrorMessage(
+        error,
+        "An error occurred while booking the apartment.",
+      );
       toast.error(errorMessage);
     },
   });

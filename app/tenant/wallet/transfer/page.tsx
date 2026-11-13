@@ -9,29 +9,41 @@ import {
 } from "@/app/api/features/wallet/wallet.queries";
 import { formatNaira } from "@/app/landlord/wallet/data/walletData";
 import Breadcrumb from "@/app/components/Wallet/Breadcrumb";
+import { TransactionPinSheet } from "@/app/components/TransactionPinModal";
+import {
+  getTransactionPinErrorMessage,
+  getTransactionPinErrorCode,
+} from "@/app/api/features/wallet/wallet.api";
 
 const page = () => {
   const [amount, setAmount] = useState("");
   const [recipient, setRecipient] = useState("");
+  const [isPinModalOpen, setIsPinModalOpen] = useState(false);
   const { data: walletRes, isLoading: walletLoading } = useWallet();
   const { mutate: transfer, isPending, error } = useTransferFromWallet();
 
   const wallet = walletRes?.data;
 
   const handleContinue = () => {
+    if (!recipient.trim() || !amount || Number(amount) <= 0 || isPending) return;
+    setIsPinModalOpen(true);
+  };
+
+  const confirmTransfer = (pin: string) => {
     transfer(
-      { amount: Number(amount), accountNumber: recipient },
+      { amount: Number(amount), accountNumber: recipient.trim(), pin },
       {
         onSuccess: () => {
+          setIsPinModalOpen(false);
           window.location.href = "/tenant/wallet";
         },
       },
     );
   };
 
-  const errorMessage = (error as any)?.response?.data?.message as
-    | string
-    | undefined;
+  const errorMessage = error
+    ? getTransactionPinErrorMessage(error, "Unable to complete the transfer.")
+    : undefined;
 
   return (
     <DashboardLayout>
@@ -96,13 +108,13 @@ const page = () => {
             </p>
 
             <label className="text-sm font-medium text-slate-700 block mb-2">
-              Recipient
+              Recipient account number
             </label>
             <input
               type="text"
               value={recipient}
               onChange={(e) => setRecipient(e.target.value)}
-              placeholder="Recipient email or ID"
+              placeholder="RentULO-XXXXX"
               className="w-full border border-slate-200 rounded-lg px-4 py-3 mb-4 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#43A047]/30 focus:border-[#43A047]"
             />
 
@@ -146,6 +158,28 @@ const page = () => {
           </div>
         </div>
       </div>
+      <TransactionPinSheet
+        isOpen={isPinModalOpen}
+        title="Confirm transfer"
+        description={`Enter your transaction PIN to transfer ₦${Number(amount || 0).toLocaleString()}.`}
+        confirmLabel="Confirm transfer"
+        isPending={isPending}
+        errorMessage={
+          error
+            ? getTransactionPinErrorMessage(
+                error,
+                "Unable to complete the transfer.",
+              )
+            : undefined
+        }
+        createPinHref={
+          getTransactionPinErrorCode(error) === "PIN_NOT_SET"
+            ? "/tenant/settings/transaction-pin/create-pin"
+            : undefined
+        }
+        onClose={() => setIsPinModalOpen(false)}
+        onConfirm={confirmTransfer}
+      />
     </DashboardLayout>
   );
 };

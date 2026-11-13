@@ -3,6 +3,7 @@ export type Wallet = {
   accountNumber: string;
   balance: string;
   status: "ACTIVE" | "INACTIVE";
+  outstandingDebt?: string;
 };
 
 export type WalletResponse = {
@@ -23,6 +24,7 @@ export type WalletTransaction = {
   from_account_name: string | null;
   to_account_number: string | null;
   to_account_name: string | null;
+  meta?: Record<string, unknown> | null;
   createdAt: string;
 };
 
@@ -90,6 +92,7 @@ export interface WithdrawResponse {
 export type TransferPayload = {
   accountNumber: string;
   amount: number;
+  pin: string;
 };
 
 // FIX: /wallet/transfer returns { success, message, balance } — not a full Wallet object.

@@ -32,6 +32,7 @@ const TYPE_LABELS: Record<string, string> = {
   "lock house": "Lock Fee",
   "house rent": "Rent Payment",
   "inspection fee": "Inspection Fee",
+  "shortlet booking": "Shortlet Booking",
   refund_payment: "Refund",
   bonus: "Coupon Bonus",
 };

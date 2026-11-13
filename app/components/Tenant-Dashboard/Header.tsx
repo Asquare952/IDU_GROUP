@@ -18,6 +18,8 @@ import Link from "next/link";
 
 interface HeaderProps {
   onMenuClick: () => void;
+  searchValue?: string;
+  onSearchChange?: (value: string) => void;
 }
 
 type HeaderUser = NonNullable<AuthResponse["user"]>;
@@ -36,13 +38,27 @@ type DecodedToken = {
   name?: string;
 };
 
-const Header: FC<HeaderProps> = ({ onMenuClick }) => {
+const Header: FC<HeaderProps> = ({
+  onMenuClick,
+  searchValue,
+  onSearchChange,
+}) => {
   const [userId, setUserId] = useState<string>();
   const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
   const [cachedProfile, setCachedProfile] = useState<HeaderUser>();
   const [decodedProfile, setDecodedProfile] = useState<Partial<HeaderUser>>({});
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [mobileSearchValue, setMobileSearchValue] = useState("");
+  const activeSearchValue = onSearchChange
+    ? searchValue ?? ""
+    : mobileSearchValue;
+  const updateSearchValue = (value: string) => {
+    if (onSearchChange) {
+      onSearchChange(value);
+    } else {
+      setMobileSearchValue(value);
+    }
+  };
 
   useEffect(() => {
     const token = Cookies.get("ACCESS_TOKEN");
@@ -136,14 +152,29 @@ const Header: FC<HeaderProps> = ({ onMenuClick }) => {
             >
               <X />
             </button>
-            <div className="relative flex-1 rounded-full bg-[#F8F8F8A8]">
+            <div
+              className={`relative flex-1 rounded-full ${
+                onSearchChange
+                  ? "border border-gray-200 bg-white shadow-sm focus-within:border-[#43A047] focus-within:shadow-md"
+                  : "bg-[#F8F8F8A8]"
+              }`}
+            >
               <input
-                type="text"
-                value={mobileSearchValue}
-                onChange={(e) => setMobileSearchValue(e.target.value)}
-                placeholder="Search houses, areas, landlords"
+                type={onSearchChange ? "search" : "text"}
+                value={activeSearchValue}
+                onChange={(e) => updateSearchValue(e.target.value)}
+                placeholder={
+                  onSearchChange
+                    ? "Search houses, shortlets, areas..."
+                    : "Search houses, areas, landlords"
+                }
+                aria-label={
+                  onSearchChange
+                    ? "Search recommended houses and shortlets"
+                    : undefined
+                }
                 autoFocus
-                className="w-full rounded-full border-none bg-transparent py-3 pl-11 pr-4 text-sm outline-none focus:ring-2 focus:ring-[#43A047]"
+                className="w-full rounded-full border-none bg-transparent py-3 pl-11 pr-4 text-sm text-gray-800 outline-none placeholder:text-gray-400"
               />
               <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#999EA5]" />
             </div>
@@ -197,7 +228,10 @@ const Header: FC<HeaderProps> = ({ onMenuClick }) => {
       </div>
 
       <div className="hidden items-center justify-between gap-7 lg:flex">
-        <DesktopSearch />
+        <DesktopSearch
+          searchValue={searchValue}
+          onSearchChange={onSearchChange}
+        />
 
         <div className="flex items-center gap-2">
           <NotificationBell />

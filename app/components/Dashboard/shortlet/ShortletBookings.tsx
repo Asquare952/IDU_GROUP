@@ -13,6 +13,8 @@ interface ShortletBookingsProps {
   availableTo?: string;
   minimumStay?: number;
   maximumStay?: number;
+  availabilityLoading?: boolean;
+  availabilityError?: string;
   onStayChange: (stay: {
     checkIn: Date | null;
     checkOut: Date | null;
@@ -37,6 +39,8 @@ export default function ShortletBookings({
   availableTo,
   minimumStay,
   maximumStay,
+  availabilityLoading = false,
+  availabilityError,
   onStayChange,
 }: ShortletBookingsProps) {
   const [monthOffset, setMonthOffset] = useState(0);
@@ -67,23 +71,49 @@ export default function ShortletBookings({
         })
       : "Select date";
 
-  const selectDate = (date: Date) => {
-    if (isDateUnavailable(date)) {
-      return;
+  const isSelectingCheckOut = (date: Date) =>
+    Boolean(checkIn && !checkOut && date > checkIn);
+
+  const isDateUnavailable = (date: Date) => {
+    if (
+      date < today ||
+      (firstAvailableDate !== null && date < firstAvailableDate) ||
+      (lastAvailableDate !== null && date > lastAvailableDate)
+    ) {
+      return true;
     }
 
-    if (!checkIn || checkOut || date <= checkIn) {
+    if (!isSelectingCheckOut(date)) {
+      return blockedDates.includes(dateKey(date));
+    }
+
+    const nights = Math.round(
+      (date.getTime() - checkIn!.getTime()) / (1000 * 60 * 60 * 24),
+    );
+    if (
+      (minimumStay !== undefined && nights < minimumStay) ||
+      (maximumStay !== undefined && nights > maximumStay)
+    ) {
+      return true;
+    }
+
+    const occupiedNight = new Date(checkIn!);
+    while (occupiedNight < date) {
+      if (blockedDates.includes(dateKey(occupiedNight))) return true;
+      occupiedNight.setDate(occupiedNight.getDate() + 1);
+    }
+    return false;
+  };
+
+  const selectDate = (date: Date) => {
+    if (isDateUnavailable(date)) return;
+
+    if (!isSelectingCheckOut(date)) {
       onStayChange({ checkIn: date, checkOut: null, guests });
     } else {
       onStayChange({ checkIn, checkOut: date, guests });
     }
   };
-
-  const isDateUnavailable = (date: Date) =>
-    date < today ||
-    (firstAvailableDate !== null && date < firstAvailableDate) ||
-    (lastAvailableDate !== null && date > lastAvailableDate) ||
-    blockedDates.includes(dateKey(date));
 
   const isSelected = (date: Date) =>
     checkIn?.getTime() === date.getTime() ||
@@ -163,6 +193,16 @@ export default function ShortletBookings({
             ? `${formatDate(checkIn)} – ${formatDate(checkOut)}`
             : "Select your check-in and check-out dates"}
         </p>
+        {availabilityLoading && (
+          <p className="mt-2 text-sm text-gray-500" role="status">
+            Checking booked dates…
+          </p>
+        )}
+        {availabilityError && (
+          <p className="mt-2 text-sm text-amber-700" role="status">
+            {availabilityError}
+          </p>
+        )}
       </div>
 
       <div className="mb-5 flex items-center justify-between">
