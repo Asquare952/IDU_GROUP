@@ -241,6 +241,7 @@ export default function CreateRentalForm() {
 
   // Form submission
   const onSubmit = async (data: FormData) => {
+    if (currentStep !== longTermSteps.length - 1) return;
     setSubmitError(null);
     if (images.length === 0) {
       setSubmitError("Please upload at least one image before publishing.");
@@ -340,7 +341,7 @@ export default function CreateRentalForm() {
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(onSubmit)} className="w-full">
+      <form onSubmit={(event) => event.preventDefault()} className="w-full">
         <div className=" w-full space-y-8 container-2">
           {/* Step indicator */}
           <StepIndicator steps={longTermSteps} currentStep={currentStep} />
@@ -425,7 +426,8 @@ export default function CreateRentalForm() {
               </button>
             ) : (
               <button
-                type="submit"
+                type="button"
+                onClick={handleSubmit(onSubmit)}
                 disabled={isCreating}
                 className="rounded-lg bg-green-600 px-6 py-2.5 text-sm font-medium text-white transition hover:bg-green-700"
               >
