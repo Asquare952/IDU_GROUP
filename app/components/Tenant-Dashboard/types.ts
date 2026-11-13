@@ -2,6 +2,8 @@ import { ReactNode } from "react";
 import { LucideIcon } from "lucide-react";
 export type DashboardLayoutProps = {
   children: ReactNode;
+  searchValue?: string;
+  onSearchChange?: (value: string) => void;
 };
 
 export type SidebarItems = {

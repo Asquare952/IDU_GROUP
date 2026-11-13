@@ -20,7 +20,36 @@ export type AdminUser = {
   address?: string;
   country?: string;
   rentalsCount: number;
+  shortlet_commission_percent?: number | null;
   profile: AdminUserProfile | null;
+};
+
+export type HostDebtStatus = "open" | "settled" | "all";
+
+export type HostDebt = {
+  id: string;
+  host_id: string;
+  booking_id: string;
+  amount: string | number;
+  recovered_amount: string | number;
+  outstanding: string | number;
+  status: "open" | "settled" | string;
+  reason: string;
+  settled_at: string | null;
+  createdAt: string;
+  host: {
+    id: string;
+    full_name: string;
+    email: string;
+    phone_no: string;
+  } | null;
+};
+
+export type HostDebtsResponse = {
+  success: boolean;
+  count: number;
+  data: HostDebt[];
+  message?: string;
 };
 
 export type AdminRental = Rental & {

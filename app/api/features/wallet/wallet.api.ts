@@ -1,4 +1,5 @@
 import api from "../../axios";
+import { isAxiosError } from "axios";
 import {
   WalletTransactionsResponse,
   TopUpPayload,
@@ -15,6 +16,74 @@ import {
   RedeemCouponPayload,
   CouponRedemptionResponse,
 } from "./type";
+
+export type TransactionPinErrorCode =
+  | "PIN_NOT_SET"
+  | "PIN_REQUIRED"
+  | "PIN_INCORRECT";
+
+type PinErrorResponse = {
+  code?: unknown;
+  message?: unknown;
+};
+
+export const getTransactionPinErrorCode = (
+  error: unknown,
+): TransactionPinErrorCode | undefined => {
+  if (!isAxiosError<PinErrorResponse>(error)) {
+    return undefined;
+  }
+
+  const code = error.response?.data?.code;
+  return code === "PIN_NOT_SET" ||
+    code === "PIN_REQUIRED" ||
+    code === "PIN_INCORRECT"
+    ? code
+    : undefined;
+};
+
+export const isMissingTransactionPinError = (
+  error: unknown,
+  operation: "transaction" | "update" = "transaction",
+): boolean =>
+  getTransactionPinErrorCode(error) === "PIN_NOT_SET" ||
+  (operation === "update" &&
+    isAxiosError(error) &&
+    error.response?.status === 404);
+
+export const getTransactionPinErrorMessage = (
+  error: unknown,
+  fallback: string,
+  operation: "transaction" | "update" = "transaction",
+): string => {
+  switch (getTransactionPinErrorCode(error)) {
+    case "PIN_NOT_SET":
+      return "You haven't set a transaction PIN yet. Create one in Transaction PIN settings before continuing.";
+    case "PIN_REQUIRED":
+      return "A valid 4-digit transaction PIN is required.";
+    case "PIN_INCORRECT":
+      return operation === "update"
+        ? "Your current transaction PIN is incorrect."
+        : "Your transaction PIN is incorrect. Please try again.";
+  }
+
+  if (
+    operation === "update" &&
+    isAxiosError<PinErrorResponse>(error) &&
+    error.response?.status === 404
+  ) {
+    return "No transaction PIN exists for this account. Create one in Transaction PIN settings.";
+  }
+
+  if (
+    isAxiosError<PinErrorResponse>(error) &&
+    typeof error.response?.data?.message === "string"
+  ) {
+    return error.response.data.message;
+  }
+
+  return error instanceof Error && error.message ? error.message : fallback;
+};
 
 export const getWallet = async (): Promise<WalletResponse> => {
   const { data } = await api.get("/wallet");

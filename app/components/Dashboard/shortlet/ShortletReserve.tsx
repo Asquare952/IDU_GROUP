@@ -1,13 +1,19 @@
 "use client";
 
+import type { ShortletQuote } from "@/app/api/features/shortlet";
+
 interface ShortletReserveProps {
   pricePerNight: number;
   checkIn: Date | null;
   checkOut: Date | null;
   guests: number;
   canBook: boolean;
-  cleaningFee?: number;
-  securityDeposit?: number;
+  quote?: ShortletQuote;
+  quoteLoading?: boolean;
+  quoteError?: string;
+  requireQuote?: boolean;
+  bookingError?: string;
+  insufficientBalance?: boolean;
   onReserve?: () => void;
 }
 
@@ -17,17 +23,15 @@ export default function ShortletReserve({
   checkOut,
   guests,
   canBook,
-  cleaningFee,
-  securityDeposit,
+  quote,
+  quoteLoading = false,
+  quoteError,
+  requireQuote = false,
+  bookingError,
+  insufficientBalance = false,
   onReserve,
 }: ShortletReserveProps) {
-  const nights =
-    checkIn && checkOut
-      ? Math.ceil(
-          (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24),
-        )
-      : 0;
-  const subtotal = nights * pricePerNight;
+  const nights = quote?.nights ?? 0;
   const formatDate = (date: Date | null) =>
     date
       ? date.toLocaleDateString("en-GB", {
@@ -69,46 +73,136 @@ export default function ShortletReserve({
         </div>
       </div>
 
-      {nights > 0 && (
+      {nights > 0 && quote && (
         <div className="mt-5 space-y-3 border-t border-gray-200 pt-4 text-sm">
           <div className="flex justify-between gap-3 text-gray-600">
             <span>
-              ₦{pricePerNight.toLocaleString()} × {nights}{" "}
-              {nights === 1 ? "night" : "nights"}
+              ₦{Number(quote.pricePerNight).toLocaleString()} × {quote.nights}{" "}
+              {quote.nights === 1 ? "night" : "nights"}
             </span>
-            <span>₦{subtotal.toLocaleString()}</span>
+            <span>₦{Number(quote.subtotal).toLocaleString()}</span>
           </div>
-          <div className="flex justify-between gap-3 font-bold text-gray-900">
-            <span>Subtotal</span>
-            <span>₦{subtotal.toLocaleString()}</span>
-          </div>
-          {cleaningFee !== undefined && cleaningFee > 0 && (
+          {Number(quote.cleaningFee) > 0 && (
             <div className="flex justify-between gap-3 text-gray-600">
               <span>Cleaning fee</span>
-              <span>₦{cleaningFee.toLocaleString()}</span>
+              <span>₦{Number(quote.cleaningFee).toLocaleString()}</span>
             </div>
           )}
-          {securityDeposit !== undefined && securityDeposit > 0 && (
+          {Number(quote.securityDeposit) > 0 && (
             <div className="flex justify-between gap-3 text-gray-600">
               <span>Security deposit</span>
-              <span>₦{securityDeposit.toLocaleString()}</span>
+              <span>
+                ₦{Number(quote.securityDeposit).toLocaleString()}
+              </span>
             </div>
           )}
+          <div className="flex justify-between gap-3 border-t border-gray-200 pt-3 font-bold text-gray-900">
+            <span>Total due now</span>
+            <span>₦{Number(quote.total).toLocaleString()}</span>
+          </div>
         </div>
       )}
 
-      <button
-        type="button"
-        onClick={onReserve}
-        disabled={!canBook || !checkIn || !checkOut || nights <= 0}
-        className="mt-5 min-h-12 w-full rounded-full bg-[#43A047] py-3 font-semibold text-white transition hover:bg-[#388E3C] disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        Book now
-      </button>
+      {quoteLoading && (
+        <p className="mt-4 text-sm text-gray-500" role="status">
+          Checking price and cancellation terms…
+        </p>
+      )}
+      {quoteError && (
+        <p className="mt-4 text-sm text-red-600" role="alert">
+          {quoteError}
+        </p>
+      )}
+      {quote?.cancellationPolicy.summary && (
+        <section className="mt-5 rounded-xl bg-gray-50 p-4 text-sm text-gray-700">
+          <h3 className="font-semibold text-gray-900">
+            {quote.cancellationPolicy.label}
+          </h3>
+          {quote.cancellationPolicy.freeCancellationUntil && (
+            <p className="mt-1 font-medium">
+              Free cancellation until{" "}
+              {new Date(
+                quote.cancellationPolicy.freeCancellationUntil,
+              ).toLocaleString("en-NG", {
+                dateStyle: "medium",
+                timeStyle: "short",
+                timeZone: "Africa/Lagos",
+              })}
+            </p>
+          )}
+          <p className="mt-2 leading-6">
+            {quote.cancellationPolicy.summary}
+          </p>
+          {quote.cancellationPolicy.windows.length > 0 && (
+            <ul className="mt-3 space-y-1">
+              {quote.cancellationPolicy.windows.map((window, index) => {
+                const refundDescription =
+                  window.nightsRefundPercent === 100
+                    ? "Full refund of nights"
+                    : window.nightsRefundPercent === 0
+                      ? "No refund of nights"
+                      : `${window.nightsRefundPercent}% refund of nights`;
+                const cutoff = window.until
+                  ? new Date(window.until).toLocaleString("en-NG", {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                      timeZone: "Africa/Lagos",
+                    })
+                  : null;
+
+                return (
+                  <li key={`${window.from ?? "start"}-${index}`}>
+                    {refundDescription}
+                    {cutoff ? ` until ${cutoff}` : ""}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+          <p className="mt-2 text-xs text-gray-500">
+            Early check-out: {quote.cancellationPolicy.earlyCheckout.summary}
+          </p>
+        </section>
+      )}
+      {bookingError && (
+        <p className="mt-4 text-sm text-red-600" role="alert">
+          {bookingError}
+        </p>
+      )}
+      {insufficientBalance && (
+        <a
+          href="/tenant/wallet/top-up"
+          className="mt-3 inline-block text-sm font-semibold text-[#43A047] underline"
+        >
+          Top up your wallet
+        </a>
+      )}
+
+      {canBook && (
+        <button
+          type="button"
+          onClick={onReserve}
+          disabled={
+            !checkIn ||
+            !checkOut ||
+            checkOut <= checkIn ||
+            quoteLoading ||
+            Boolean(quoteError) ||
+            (requireQuote && !quote)
+          }
+          className="mt-5 min-h-12 w-full rounded-full bg-[#43A047] py-3 font-semibold text-white transition hover:bg-[#388E3C] disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Book now
+        </button>
+      )}
       <p className="mt-3 text-center text-xs text-gray-500">
-        {canBook
-          ? "Enter your transaction PIN to confirm your booking."
-          : "This property is not currently available to book."}
+        {!canBook
+          ? "This property is not currently available to book."
+          : requireQuote && !quote
+            ? "Select available dates to see your full price and cancellation policy."
+            : requireQuote
+              ? "Enter your transaction PIN to confirm your booking."
+              : "Sign in to confirm your booking."}
       </p>
     </aside>
   );

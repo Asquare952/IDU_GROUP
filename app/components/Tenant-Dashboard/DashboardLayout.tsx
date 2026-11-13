@@ -7,7 +7,11 @@ import Header from "./Header"
 import MobileSidebar from "./MobileSidebar"
 import { useState } from "react"
 
-const DashboardLayout = ({ children }: DashboardLayoutProps) => {
+const DashboardLayout = ({
+  children,
+  searchValue,
+  onSearchChange,
+}: DashboardLayoutProps) => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
   return (
     <main className="relative min-h-screen w-full overflow-x-hidden bg-[#EBECED]">
@@ -16,7 +20,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       <section className="min-h-screen w-full lg:ml-[280px] lg:w-[calc(100%-280px)]">
         <main className="min-h-screen w-full bg-[#EBECED]">
           <div className="sticky top-0 z-50">
-            <Header onMenuClick={() => setIsMobileSidebarOpen(true)} />
+            <Header
+              onMenuClick={() => setIsMobileSidebarOpen(true)}
+              searchValue={searchValue}
+              onSearchChange={onSearchChange}
+            />
           </div>
           {children}
         </main>

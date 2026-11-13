@@ -20,7 +20,7 @@ const page = () => {
   const router = useRouter();
 
   const handleChange = (index: number, value: string) => {
-    if (isNaN(Number(value))) return;
+    if (!/^\d*$/.test(value)) return;
     const newPin = [...tranPin];
     newPin[index] = value.substring(value.length - 1);
     setTransPin(newPin);
@@ -90,7 +90,7 @@ const page = () => {
               {tranPin.map((digit, index) => (
                 <input
                   key={index}
-                  type="text"
+                  type="password"
                   inputMode="numeric"
                   maxLength={1}
                   value={digit}

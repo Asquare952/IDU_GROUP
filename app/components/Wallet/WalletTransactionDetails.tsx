@@ -148,6 +148,10 @@ const WalletTransactionDetails = ({
   const kind = getKind(transaction);
   const isCredit = kind === "credit";
   const { dateOnly, time } = formatDate(transaction.createdAt);
+  const bookingId =
+    typeof transaction.meta?.booking_id === "string"
+      ? transaction.meta.booking_id
+      : undefined;
 
   const rows: [string, string][] = [
     ["Transaction Type", getTypeLabel(transaction)],
@@ -160,6 +164,7 @@ const WalletTransactionDetails = ({
     ["Narration", transaction.narration ?? "—"],
     ["Counterparty", getCounterparty(transaction) ?? "—"],
     ["Payment Method", getPaymentMethod(transaction)],
+    ...(bookingId ? [["Shortlet Booking ID", bookingId] as [string, string]] : []),
   ];
 
   const receiptText = [
@@ -175,6 +180,7 @@ const WalletTransactionDetails = ({
     `Narration: ${transaction.narration ?? "N/A"}`,
     `Counterparty: ${getCounterparty(transaction) ?? "N/A"}`,
     `Payment Method: ${getPaymentMethod(transaction)}`,
+    ...(bookingId ? [`Shortlet Booking ID: ${bookingId}`] : []),
   ].join("\n");
 
   const handleDownloadReceipt = () => {

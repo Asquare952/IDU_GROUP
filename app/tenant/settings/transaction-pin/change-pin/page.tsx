@@ -6,6 +6,10 @@ import { useRouter } from "next/navigation";
 import { useState, useRef } from "react";
 import { toast } from "react-toastify";
 import { useUpdateTransactionPin } from "@/app/api/features/wallet/wallet.queries";
+import {
+  getTransactionPinErrorMessage,
+  isMissingTransactionPinError,
+} from "@/app/api/features/wallet/wallet.api";
 import padLockImg from "@/public/assets/padlock-img.png";
 import Image from "next/image";
 
@@ -75,9 +79,16 @@ const page = () => {
         },
         onError: (error: any) => {
           toast.error(
-            error?.response?.data?.message || "Unable to change your PIN.",
+            getTransactionPinErrorMessage(
+              error,
+              "Unable to change your PIN.",
+              "update",
+            ),
           );
           clearInputs();
+          if (isMissingTransactionPinError(error, "update")) {
+            router.push("/tenant/settings/transaction-pin/create-pin");
+          }
         },
       },
     );
@@ -110,7 +121,7 @@ const page = () => {
               {oldPin.map((digit, index) => (
                 <input
                   key={index}
-                  type="text"
+                  type="password"
                   inputMode="numeric"
                   maxLength={1}
                   value={digit}
@@ -140,7 +151,7 @@ const page = () => {
               {newPin.map((digit, index) => (
                 <input
                   key={index}
-                  type="text"
+                  type="password"
                   inputMode="numeric"
                   maxLength={1}
                   value={digit}

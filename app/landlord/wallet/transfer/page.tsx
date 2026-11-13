@@ -9,10 +9,16 @@ import {
 } from "@/app/api/features/wallet/wallet.queries";
 import { formatNaira } from "../data/walletData";
 import Breadcrumb from "../components/Breadcrumb";
+import { TransactionPinSheet } from "@/app/components/TransactionPinModal";
+import {
+  getTransactionPinErrorMessage,
+  getTransactionPinErrorCode,
+} from "@/app/api/features/wallet/wallet.api";
 
 const page = () => {
   const [accountNumber, setAccountNumber] = useState("");
   const [amount, setAmount] = useState("");
+  const [isPinModalOpen, setIsPinModalOpen] = useState(false);
 
   const { data: walletRes, isLoading: walletLoading } = useWallet();
   const {
@@ -26,12 +32,20 @@ const page = () => {
   const wallet = walletRes?.data;
 
   const handleSend = () => {
-    transfer({ accountNumber: accountNumber.trim(), amount: Number(amount) });
+    if (!accountNumber.trim() || !amount || Number(amount) <= 0 || isPending) return;
+    setIsPinModalOpen(true);
   };
 
-  const errorMessage = (error as any)?.response?.data?.message as
-    | string
-    | undefined;
+  const confirmTransfer = (pin: string) => {
+    transfer(
+      { accountNumber: accountNumber.trim(), amount: Number(amount), pin },
+      { onSuccess: () => setIsPinModalOpen(false) },
+    );
+  };
+
+  const errorMessage = error
+    ? getTransactionPinErrorMessage(error, "Unable to complete the transfer.")
+    : undefined;
 
   return (
     <DashboardLayout>
@@ -139,6 +153,28 @@ const page = () => {
           </div>
         </div>
       </div>
+      <TransactionPinSheet
+        isOpen={isPinModalOpen}
+        title="Confirm transfer"
+        description={`Enter your transaction PIN to transfer ₦${Number(amount || 0).toLocaleString()}.`}
+        confirmLabel="Confirm transfer"
+        isPending={isPending}
+        errorMessage={
+          error
+            ? getTransactionPinErrorMessage(
+                error,
+                "Unable to complete the transfer.",
+              )
+            : undefined
+        }
+        createPinHref={
+          getTransactionPinErrorCode(error) === "PIN_NOT_SET"
+            ? "/landlord/settings/transaction-pin/create-pin"
+            : undefined
+        }
+        onClose={() => setIsPinModalOpen(false)}
+        onConfirm={confirmTransfer}
+      />
     </DashboardLayout>
   );
 };

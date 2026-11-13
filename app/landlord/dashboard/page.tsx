@@ -208,8 +208,7 @@ export default function Page() {
     (rental) => rental.status.toLowerCase() === "available",
   ).length;
   const totalValue = rentals.reduce(
-    (sum, property) =>
-      sum + (isShortletListing(property) ? 0 : Number(property.price)),
+    (sum, property) => sum + Number(property.price),
     0,
   );
 

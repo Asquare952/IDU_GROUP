@@ -11,7 +11,11 @@ import WalletActions from "@/app/components/Wallet/WalletActions";
 import WalletSummary from "@/app/components/Wallet/WalletSummary";
 import WalletTransactions from "@/app/components/Wallet/WalletTransactions";
 import CouponRedeemForm from "@/app/components/Wallet/CouponRedeemForm";
-import { formatNaira, Tab } from "@/app/landlord/wallet/data/walletData";
+import {
+  formatNaira,
+  getKind,
+  Tab,
+} from "@/app/landlord/wallet/data/walletData";
 
 /**
  * Shared wallet page shell, reused by both the landlord and tenant routes.
@@ -64,22 +68,12 @@ const WalletPage = ({
   }, [txError, txErrorObj]);
 
   // Filter the ledger by the active tab (All / Credits / Debits / Pending).
-  // "Credit" vs "debit" isn't a field the API gives us directly — we derive
-  // it from the transaction type (topup/transfer_in/refund_payment = money
-  // coming in, everything else = money going out).
+  // Transaction direction depends on role for shared marketplace types.
   const filtered = useMemo(() => {
     if (!transactions) return [];
     if (tab === "All") return transactions;
     return transactions.filter((t) => {
-      const kind =
-        t.status === "pending"
-          ? "pending"
-          : t.type === "topup" ||
-              t.type === "transfer_in" ||
-              t.type === "refund_payment" ||
-              t.type === "bonus"
-            ? "credit"
-            : "debit";
+      const kind = getKind(t);
       return tab === "Credits"
         ? kind === "credit"
         : tab === "Debits"
@@ -96,14 +90,8 @@ const WalletPage = ({
     return transactions.reduce(
       (acc, t) => {
         if (t.status !== "success") return acc;
-        const amount = parseFloat(t.amount);
-        const kind =
-          t.type === "topup" ||
-          t.type === "transfer_in" ||
-          t.type === "refund_payment" ||
-          t.type === "bonus"
-            ? "credit"
-            : "debit";
+        const amount = Number(t.amount);
+        const kind = getKind(t);
         if (kind === "credit") acc.totalCredits += amount;
         if (kind === "debit") acc.totalDebits += amount;
         return acc;
@@ -214,6 +202,20 @@ const WalletPage = ({
                 )}
               </div>
             </div>
+
+            {wallet && Number(wallet.outstandingDebt) > 0 && (
+              <div
+                role="status"
+                className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"
+              >
+                Outstanding host debt:{" "}
+                <strong>
+                  {formatNaira(wallet.outstandingDebt ?? "0")}
+                </strong>
+                . Available wallet funds are automatically applied to this debt
+                before withdrawals, transfers, and payments.
+              </div>
+            )}
 
             <CouponRedeemForm />
 
