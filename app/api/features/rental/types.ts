@@ -41,6 +41,71 @@ export interface Rental {
   User?: RentalUser | null;
 }
 
+export interface RentedProperty {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  propertyType: string;
+  location: string;
+  price: string | number;
+  priceType: string;
+  legalFee: string | number;
+  cautionFee: string | number;
+  brokeFee: string | number;
+  mgtServiceCharge: string | number;
+  images: string[];
+  amenities: string[];
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RentedPropertyTenant {
+  id: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  address: string;
+  state: string;
+  country: string;
+  image: string;
+  verified: boolean;
+}
+
+export interface RentedPropertyTenancy {
+  status: "active" | "expired" | "unknown" | string;
+  startDate: string | null;
+  endDate: string | null;
+  priceType: string;
+  datesDerived: boolean;
+}
+
+export interface RentedPropertyTransaction {
+  id: string;
+  reference: string;
+  amountPaid: number;
+  landlordShare: number;
+  platformShare: number;
+  paymentStatus: string;
+  paymentMethod: string;
+  paidAt: string;
+}
+
+export interface RentedPropertyDetails {
+  property: RentedProperty;
+  tenant: RentedPropertyTenant | null;
+  tenancy: RentedPropertyTenancy;
+  transaction: RentedPropertyTransaction | null;
+}
+
+export interface RentedPropertiesResponse {
+  success: boolean;
+  message: string;
+  count: number;
+  data: RentedPropertyDetails[];
+}
+
 export interface RentalListResponse {
   rentals: Rental[];
   total: number;

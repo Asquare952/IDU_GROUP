@@ -11,6 +11,7 @@ import {
   CircleQuestionMark,
   CreditCardIcon,
   Wallet,
+  House,
 } from "lucide-react";
 
 export const sidebarItems: SidebarItems[] = [
@@ -25,6 +26,12 @@ export const sidebarItems: SidebarItems[] = [
     name: "My listings",
     path: "/landlord/my-listings",
     icon: List,
+  },
+  {
+    id: 6,
+    name: "Rented properties",
+    path: "/landlord/rented-properties",
+    icon: House,
   },
   {
     id: 3,
