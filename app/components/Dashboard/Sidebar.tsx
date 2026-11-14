@@ -117,7 +117,8 @@ const Sidebar = () => {
         <nav className="flex flex-col gap-2">
           {sidebarItems.map((item) => {
             const { id, name, path, icon: Icon } = item;
-            const isActive = !!path && pathname === path;
+            const isActive =
+              !!path && (pathname === path || pathname.startsWith(`${path}/`));
 
             return (
               <Link
@@ -145,7 +146,8 @@ const Sidebar = () => {
         <nav className="flex flex-col gap-2">
           {sidebarItems2.map((item) => {
             const { id, name, path, action, icon: Icon } = item;
-            const isActive = !!path && pathname === path;
+            const isActive =
+              !!path && (pathname === path || pathname.startsWith(`${path}/`));
 
             if (action === "logout") {
               return (

@@ -53,6 +53,8 @@ export {
   useSearchRentals,
   useGetRentalById,
   useFetchLandlordListedProperties,
+  useGetRentedProperties,
+  useGetRentedPropertyById,
   useCreateRental,
   useUpdateRental,
   useDeleteRental,
@@ -65,6 +67,12 @@ export type {
   CreateRentalPayload,
   UpdateRentalPayload,
   RentalSearchParams,
+  RentedPropertiesResponse,
+  RentedPropertyDetails,
+  RentedProperty,
+  RentedPropertyTenant,
+  RentedPropertyTenancy,
+  RentedPropertyTransaction,
 } from "./features/rental/rental.api";
 
 // ============================================

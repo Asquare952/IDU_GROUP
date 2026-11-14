@@ -9,6 +9,8 @@ import { fetchLandlordListedProperties, rentalApi } from "./rental.api";
 import type {
   LandlordListedProperties,
   Rental,
+  RentedPropertiesResponse,
+  RentedPropertyDetails,
   CreateRentalPayload,
   UpdateRentalPayload,
   RentalSearchParams,
@@ -78,6 +80,19 @@ export const useFetchLandlordListedProperties = (
     ...options,
   });
 };
+
+export const useGetRentedProperties = () =>
+  useQuery<RentedPropertiesResponse, Error>({
+    queryKey: ["rentals", "rented"],
+    queryFn: rentalApi.getRentedProperties,
+  });
+
+export const useGetRentedPropertyById = (id: string | null | undefined) =>
+  useQuery<RentedPropertyDetails, Error>({
+    queryKey: ["rentals", "rented", id],
+    queryFn: () => rentalApi.getRentedPropertyById(id!),
+    enabled: Boolean(id),
+  });
 
 // ========================
 // MUTATIONS (WRITE OPERATIONS)

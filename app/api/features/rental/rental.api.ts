@@ -10,6 +10,8 @@ import type {
   Rental,
   RentalRequestOptions,
   RentalSearchParams,
+  RentedPropertiesResponse,
+  RentedPropertyDetails,
   UpdateRentalPayload,
 } from "./types";
 
@@ -24,6 +26,12 @@ export type {
   RentalListResponse,
   RentalRequestOptions,
   RentalSearchParams,
+  RentedPropertiesResponse,
+  RentedPropertyDetails,
+  RentedProperty,
+  RentedPropertyTenant,
+  RentedPropertyTenancy,
+  RentedPropertyTransaction,
   RentalStatus,
   RentalUser,
   UpdateRentalPayload,
@@ -388,6 +396,19 @@ const buildRentalFormData = (
 
 export const rentalApi = {
   fetchLandlordListedProperties,
+
+  getRentedProperties: async (): Promise<RentedPropertiesResponse> => {
+    const response = await api.get<RentedPropertiesResponse>("/rental/rented");
+    return response.data;
+  },
+
+  getRentedPropertyById: async (id: string): Promise<RentedPropertyDetails> => {
+    const response = await api.get<{
+      success: boolean;
+      data: RentedPropertyDetails;
+    }>(`/rental/rented/${encodeURIComponent(id)}`);
+    return response.data.data;
+  },
 
   createRental: async (payload: CreateRentalPayload): Promise<Rental> => {
     const formData = buildRentalFormData(payload);
