@@ -10,9 +10,13 @@ import AmenitiesStep from "./steps/AmenitiesStep";
 import FinancialBreakdownStep from "./steps/FinancialBreakdownStep";
 import MediaStep from "./steps/MediaStep";
 import ReviewPublishPreview from "./ReviewPublishPreview";
+import { useRentalFormDraft } from "../hooks/useRentalFormDraft";
 
 import { longTermSteps } from "../config/rental-steps";
-import { type CreateRentalPayload, useCreateRental } from "@/app/api/features/rental";
+import {
+  type CreateRentalPayload,
+  useCreateRental,
+} from "@/app/api/features/rental";
 import { toast } from "react-toastify";
 
 interface FormData {
@@ -27,6 +31,19 @@ interface FormData {
   brokeFee: number;
   mgtServiceCharge: number;
 }
+
+const defaultValues: FormData = {
+  title: "",
+  description: "",
+  location: "",
+  propertyType: "apartment",
+  status: "available",
+  basicRent: 0,
+  legalFee: 0,
+  cautionFee: 0,
+  brokeFee: 0,
+  mgtServiceCharge: 0,
+};
 
 const toMoneyNumber = (value: unknown): number => {
   const numberValue = Number(value);
@@ -55,18 +72,7 @@ export default function CreateRentalForm() {
 
   const methods = useForm<FormData>({
     mode: "onTouched",
-    defaultValues: {
-      title: "",
-      description: "",
-      location: "",
-      propertyType: "apartment",
-      status: "available",
-      basicRent: 0,
-      legalFee: 0,
-      cautionFee: 0,
-      brokeFee: 0,
-      mgtServiceCharge: 0,
-    },
+    defaultValues,
   });
 
   const {
@@ -75,6 +81,16 @@ export default function CreateRentalForm() {
     watch,
     formState: { errors },
   } = methods;
+  const { draftError, clearDraft } = useRentalFormDraft(
+    "rentulo-long-term-rental-draft",
+    methods,
+    defaultValues,
+    selectedAmenities,
+    setSelectedAmenities,
+    currentStep,
+    setCurrentStep,
+    longTermSteps.length,
+  );
 
   const fees = watch([
     "basicRent",
@@ -265,6 +281,7 @@ export default function CreateRentalForm() {
     };
     createRental(payload, {
       onSuccess: () => {
+        clearDraft();
         toast.success("Property published successfully!");
         router.push("/landlord/my-listings");
       },
@@ -355,6 +372,18 @@ export default function CreateRentalForm() {
             <p className="mt-1 text-sm text-gray-500">
               Add your property details to create a new listing.
             </p>
+          </div>
+
+          <div
+            className={`rounded-xl p-3 text-sm ${
+              draftError
+                ? "bg-amber-50 text-amber-800"
+                : "bg-green-50 text-green-800"
+            }`}
+            role={draftError ? "alert" : "status"}
+          >
+            {draftError ||
+              "Your form details are saved as a draft in this browser. Re-select photos and videos after refreshing."}
           </div>
 
           {/* Form content */}

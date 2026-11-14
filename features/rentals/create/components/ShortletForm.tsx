@@ -12,6 +12,7 @@ import PricingAvailaibiliy from "./steps/shortlet/PricingAvailaibiliy";
 import MediaStep from "./steps/shortlet/MediaStep";
 import HouseRuleStep from "./steps/shortlet/HouseRuleStep";
 import ReviewPublishPreview from "./ReviewPublishPreview";
+import { useRentalFormDraft } from "../hooks/useRentalFormDraft";
 
 import { shortTermSteps } from "../config/rental-steps";
 import {
@@ -51,6 +52,37 @@ interface FormData {
   houseRules: string;
 }
 
+const defaultValues: FormData = {
+  title: "",
+  description: "",
+  location: "",
+  furnishedStatus: "",
+  propertyType: "",
+  status: "",
+  rentalModel: "",
+  bedrooms: 0,
+  bathrooms: 0,
+  livivngRooms: 0,
+  guestCapacity: 0,
+  address: "",
+  city: "",
+  area: "",
+  landmark: "",
+  pricePerNight: 0,
+  cleaningFee: 0,
+  securityDeposit: 0,
+  minimumStay: "",
+  maximumStay: "",
+  availableFrom: "",
+  availableTo: "",
+  checkInTime: "",
+  checkOutTime: "",
+  smokingAllowed: "",
+  petsAllowed: "",
+  partiesAllowed: "",
+  houseRules: "",
+};
+
 const toMoneyNumber = (value: unknown): number => {
   const numberValue = Number(value);
 
@@ -78,32 +110,7 @@ export default function ShortletForm() {
 
   const methods = useForm<FormData>({
     mode: "onTouched",
-    defaultValues: {
-      title: "",
-      description: "",
-      location: "",
-      furnishedStatus: "",
-      propertyType: "",
-      status: "",
-      rentalModel: "",
-      bedrooms: 0,
-      bathrooms: 0,
-      livivngRooms: 0,
-      guestCapacity: 0,
-      address: "",
-      city: "",
-      area: "",
-      landmark: "",
-      pricePerNight: 0,
-      cleaningFee: 0,
-      securityDeposit: 0,
-      minimumStay: "",
-      maximumStay: "",
-      smokingAllowed: "",
-      petsAllowed: "",
-      partiesAllowed: "",
-      houseRules: "",
-    },
+    defaultValues,
   });
 
   const {
@@ -112,6 +119,16 @@ export default function ShortletForm() {
     watch,
     formState: { errors },
   } = methods;
+  const { draftError, clearDraft } = useRentalFormDraft(
+    "rentulo-shortlet-draft",
+    methods,
+    defaultValues,
+    selectedAmenities,
+    setSelectedAmenities,
+    currentStep,
+    setCurrentStep,
+    shortTermSteps.length,
+  );
 
   const toggleAmenity = (amenity: string) => {
     setSelectedAmenities((currentAmenities) => {
@@ -309,6 +326,7 @@ export default function ShortletForm() {
     } as CreateShortletPayload;
     createShortlet(payload, {
       onSuccess: () => {
+        clearDraft();
         toast.success("Shortlet published successfully!");
         router.push("/landlord/my-listings");
       },
@@ -399,6 +417,18 @@ export default function ShortletForm() {
             <p className="mt-1 text-sm text-gray-500">
               Add your property details to create a new listing.
             </p>
+          </div>
+
+          <div
+            className={`rounded-xl p-3 text-sm ${
+              draftError
+                ? "bg-amber-50 text-amber-800"
+                : "bg-green-50 text-green-800"
+            }`}
+            role={draftError ? "alert" : "status"}
+          >
+            {draftError ||
+              "Your form details are saved as a draft in this browser. Re-select photos and videos after refreshing."}
           </div>
 
           {/* Form content */}
