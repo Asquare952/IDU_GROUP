@@ -134,6 +134,100 @@ export interface ShortletBookingResponse {
   walletBalance: string;
 }
 
+export interface ShortletGuestBooking {
+  id: string;
+  booking_id?: string;
+  shortlet_id?: string;
+  status: string;
+  checkIn: string;
+  checkOut: string;
+  guests: number;
+  total?: string | number;
+  refundedAmount?: string | number;
+  cancelledAt?: string;
+  cancelledBy?: string;
+  cancellationReason?: string;
+  guest?: {
+    id?: string;
+    fullName?: string;
+    phone?: string;
+  } | null;
+  shortlet?: {
+    id?: string;
+    slug?: string;
+    title?: string;
+    address?: string;
+    city?: string;
+    area?: string;
+    images?: string[];
+    pricePerNight?: string | number;
+  } | null;
+}
+
+export interface ShortletCancellationPreview {
+  booking_id: string;
+  status: string;
+  cancelledBy: string;
+  policy?: {
+    policy?: string;
+    label?: string;
+    summary?: string;
+  };
+  cancellation:
+    | {
+        canCancel: true;
+        policy?: string;
+        policyVersion?: number;
+        stage?: string;
+        rule?: string;
+        refundPercent?: number;
+        refundAmount: string;
+        nonRefundableAmount: string;
+        breakdown?: Record<string, string>;
+        nights?: {
+          total?: number;
+          used?: number | null;
+          charged?: number | null;
+          refunded?: number | null;
+        };
+        actualCheckOut?: string | null;
+        checkOutDateOptions?: {
+          earliest: string;
+          latest: string;
+        } | null;
+        noticeHours?: number | null;
+        earlyCheckoutRefundable?: boolean | null;
+        freeCancellationUntil?: string | null;
+      }
+    | {
+        canCancel: false;
+        code: string;
+        reason: string;
+      };
+  expectedRefundAmount?: string;
+}
+
+export interface ShortletCancellationPreviewResponse {
+  success: boolean;
+  message: string;
+  data: ShortletCancellationPreview;
+}
+
+export interface CancelShortletBookingPayload {
+  bookingId: string;
+  reason?: string;
+  expectedRefundAmount?: string;
+  checkOutDate?: string;
+}
+
+export interface CancelShortletBookingResponse {
+  success: boolean;
+  message: string;
+  data: Record<string, unknown>;
+  refundAmount: string;
+  hostDebtCreated?: string;
+}
+
 interface ShortletApiResponse<T> {
   success: boolean;
   message?: string;
@@ -394,6 +488,132 @@ export const bookShortlet = async (
 ): Promise<ShortletBookingResponse> => {
   const response = await api.post<ShortletBookingResponse>(
     "/shortlet/book",
+    payload,
+  );
+  return response.data;
+};
+
+export const fetchShortletBookings = async (): Promise<
+  ShortletGuestBooking[]
+> => {
+  const response = await api.get<unknown>("/shortlet/bookings");
+  const payload = asRecord(response.data);
+  const bookings = findBookingList(payload)
+    .map(normalizeGuestBooking)
+    .filter((booking) => booking.id);
+
+  if (bookings.length > 0) {
+    return bookings;
+  }
+
+  const progressResponse = await api.get<unknown>("/progress/book");
+  const progressPayload = asRecord(progressResponse.data);
+  return findBookingList(progressPayload?.shortletBookings)
+    .map(normalizeGuestBooking)
+    .filter((booking) => booking.id);
+};
+
+const findBookingList = (value: unknown, depth = 0): unknown[] => {
+  if (Array.isArray(value)) {
+    return value;
+  }
+  if (!value || typeof value !== "object" || depth > 3) {
+    return [];
+  }
+
+  const record = value as Record<string, unknown>;
+  for (const key of ["data", "shortletBookings", "bookings", "results"]) {
+    if (key in record) {
+      const result = findBookingList(record[key], depth + 1);
+      if (result.length > 0) return result;
+    }
+  }
+
+  return [];
+};
+
+const normalizeGuestBooking = (value: unknown): ShortletGuestBooking => {
+  const booking = asRecord(value) ?? {};
+  const shortlet = asRecord(booking.shortlet);
+  const guest = asRecord(booking.guest);
+  const rawImages = asStringList(shortlet?.images);
+  const coverImage = asOptionalString(shortlet?.coverImage);
+  const pricePerNight = shortlet?.pricePerNight ?? booking.price_per_night;
+
+  return {
+    id: asString(booking.id ?? booking.booking_id),
+    booking_id: asOptionalString(booking.booking_id),
+    shortlet_id: asOptionalString(booking.shortlet_id),
+    status: asString(booking.status) || "confirmed",
+    checkIn: asString(booking.checkIn ?? booking.check_in),
+    checkOut: asString(booking.checkOut ?? booking.check_out),
+    guests: Number(booking.guests) || 1,
+    total: (booking.total ?? booking.total_amount) as
+      | string
+      | number
+      | undefined,
+    refundedAmount: (booking.refundedAmount ?? booking.refunded_amount) as
+      | string
+      | number
+      | undefined,
+    cancelledAt: asOptionalString(booking.cancelledAt ?? booking.cancelled_at),
+    cancelledBy: asOptionalString(booking.cancelledBy ?? booking.cancelled_by),
+    cancellationReason: asOptionalString(
+      booking.cancellationReason ?? booking.cancellation_reason,
+    ),
+    guest: guest
+      ? {
+          id: asOptionalString(guest.id),
+          fullName: asOptionalString(guest.full_name ?? guest.fullName),
+          phone: asOptionalString(guest.phone_no ?? guest.phone),
+        }
+      : null,
+    shortlet: shortlet
+      ? {
+          id: asOptionalString(shortlet.id),
+          slug: asOptionalString(shortlet.slug),
+          title: asOptionalString(shortlet.title),
+          address: asOptionalString(shortlet.address),
+          city: asOptionalString(shortlet.city),
+          area: asOptionalString(shortlet.area),
+          images:
+            rawImages.length > 0 ? rawImages : coverImage ? [coverImage] : [],
+          pricePerNight: pricePerNight as string | number | undefined,
+        }
+      : null,
+  };
+};
+
+export const fetchHostShortletBookings = async (
+  status?: "confirmed" | "cancelled" | "completed",
+): Promise<ShortletGuestBooking[]> => {
+  const response = await api.get<unknown>("/shortlet/host/bookings", {
+    params: status ? { status } : undefined,
+  });
+  const bookings = findBookingList(response.data)
+    .map(normalizeGuestBooking)
+    .filter((booking) => booking.id);
+
+  return bookings;
+};
+
+export const fetchShortletCancellationPreview = async (
+  bookingId: string,
+  checkOutDate?: string,
+): Promise<ShortletCancellationPreview> => {
+  const response = await api.get<ShortletCancellationPreviewResponse>(
+    `/shortlet/bookings/${encodeURIComponent(bookingId)}/cancellation`,
+    checkOutDate ? { params: { checkOutDate } } : undefined,
+  );
+  return response.data.data;
+};
+
+export const cancelShortletBooking = async ({
+  bookingId,
+  ...payload
+}: CancelShortletBookingPayload): Promise<CancelShortletBookingResponse> => {
+  const response = await api.post<CancelShortletBookingResponse>(
+    `/shortlet/bookings/${encodeURIComponent(bookingId)}/cancel`,
     payload,
   );
   return response.data;
