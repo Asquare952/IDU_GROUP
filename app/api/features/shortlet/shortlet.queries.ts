@@ -1,18 +1,26 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   bookShortlet,
+  cancelShortletBooking,
   createShortlet,
   deleteAdminShortlet,
   deleteShortlet,
   fetchAdminShortlets,
+  fetchHostShortletBookings,
   fetchShortletById,
   fetchShortletAvailability,
+  fetchShortletBookings,
+  fetchShortletCancellationPreview,
   fetchShortletQuote,
   fetchShortlets,
   updateShortlet,
 } from "./shortlet.api";
 import type {
   CreateShortletPayload,
+  CancelShortletBookingPayload,
+  CancelShortletBookingResponse,
+  ShortletCancellationPreview,
+  ShortletGuestBooking,
   ShortletBookingPayload,
   ShortletBookingResponse,
   ShortletAvailability,
@@ -80,11 +88,7 @@ export const useShortletQuote = (
 export const useBookShortlet = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<
-    ShortletBookingResponse,
-    Error,
-    ShortletBookingPayload
-  >({
+  return useMutation<ShortletBookingResponse, Error, ShortletBookingPayload>({
     mutationFn: bookShortlet,
     onSuccess: async (response, payload) => {
       queryClient.setQueryData<WalletResponse>(["wallet"], (current) =>
@@ -123,6 +127,54 @@ export const useBookShortlet = () => {
           queryKey: ["shortlet-quote", payload.shortlet_id],
         });
       }
+    },
+  });
+};
+
+export const useShortletBookings = () =>
+  useQuery<ShortletGuestBooking[]>({
+    queryKey: ["shortlet-bookings"],
+    queryFn: fetchShortletBookings,
+  });
+
+export const useHostShortletBookings = (
+  status?: "confirmed" | "cancelled" | "completed",
+) =>
+  useQuery<ShortletGuestBooking[]>({
+    queryKey: ["host-shortlet-bookings", status ?? "all"],
+    queryFn: () => fetchHostShortletBookings(status),
+  });
+
+export const useShortletCancellationPreview = (
+  bookingId: string | null,
+  checkOutDate?: string,
+) =>
+  useQuery<ShortletCancellationPreview>({
+    queryKey: ["shortlet-booking-cancellation", bookingId, checkOutDate],
+    queryFn: () => fetchShortletCancellationPreview(bookingId!, checkOutDate),
+    enabled: Boolean(bookingId),
+    retry: false,
+  });
+
+export const useCancelShortletBooking = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    CancelShortletBookingResponse,
+    Error,
+    CancelShortletBookingPayload
+  >({
+    mutationFn: cancelShortletBooking,
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["shortlet-bookings"] }),
+        queryClient.invalidateQueries({
+          queryKey: ["host-shortlet-bookings"],
+        }),
+        queryClient.invalidateQueries({ queryKey: ["progress", "booked"] }),
+        queryClient.invalidateQueries({ queryKey: ["wallet"] }),
+        queryClient.invalidateQueries({ queryKey: ["wallet-transactions"] }),
+      ]);
     },
   });
 };

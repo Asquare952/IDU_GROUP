@@ -12,6 +12,7 @@ import {
   CreditCardIcon,
   Wallet,
   House,
+  CalendarDays,
 } from "lucide-react";
 
 export const sidebarItems: SidebarItems[] = [
@@ -32,6 +33,12 @@ export const sidebarItems: SidebarItems[] = [
     name: "Rented properties",
     path: "/landlord/rented-properties",
     icon: House,
+  },
+  {
+    id: 7,
+    name: "Shortlet cancellations",
+    path: "/landlord/shortlet-cancellations",
+    icon: CalendarDays,
   },
   {
     id: 3,
