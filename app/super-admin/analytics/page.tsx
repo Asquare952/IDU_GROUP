@@ -4,6 +4,7 @@ import React from "react";
 import DashboardLayout from "@/app/components/super-admin/DashboardLayout";
 import { Download } from "lucide-react";
 import { useAdminAnalytics, useAdminRentals } from "@/app/api/features/admin";
+import { useFetchAdminShortlets } from "@/app/api/features/shortlet";
 import { toast } from "react-toastify";
 import {
   Bar,
@@ -38,6 +39,23 @@ const page = () => {
     isLoading: isLoadingRentals,
     isError: isRentalsError,
   } = useAdminRentals();
+  const {
+    data: shortlets = [],
+    isLoading: isLoadingShortlets,
+    isError: isShortletsError,
+  } = useFetchAdminShortlets();
+  const isLoadingPropertyBreakdowns = isLoadingRentals || isLoadingShortlets;
+  const hasPropertyBreakdownError = isRentalsError || isShortletsError;
+  const propertyBreakdownRecords = [
+    ...rentals.map(({ location, propertyType }) => ({
+      location,
+      propertyType,
+    })),
+    ...shortlets.map(({ location, propertyType }) => ({
+      location,
+      propertyType,
+    })),
+  ];
   const stats = analytics
     ? [
         {
@@ -101,8 +119,8 @@ const page = () => {
       ]
     : [];
   const topLocations = Array.from(
-    rentals.reduce((counts, rental) => {
-      const location = rental.location.trim() || "Unspecified";
+    propertyBreakdownRecords.reduce((counts, property) => {
+      const location = property.location.trim() || "Unspecified";
       const normalized = location.toLowerCase();
       const current = counts.get(normalized);
       counts.set(normalized, {
@@ -117,8 +135,8 @@ const page = () => {
     .slice(0, 5);
   const maxLocationCount = topLocations[0]?.value ?? 1;
   const propertyTypes = Array.from(
-    rentals.reduce((counts, rental) => {
-      const propertyType = rental.propertyType.trim() || "Unspecified";
+    propertyBreakdownRecords.reduce((counts, property) => {
+      const propertyType = property.propertyType.trim() || "Unspecified";
       const normalized = propertyType.toLowerCase();
       const current = counts.get(normalized);
       counts.set(normalized, {
@@ -357,9 +375,9 @@ const page = () => {
               Top Locations
             </h2>
             <div className="space-y-3 md:space-y-4">
-              {isLoadingRentals ? (
+              {isLoadingPropertyBreakdowns ? (
                 <p className="text-sm text-gray-500">Loading locations...</p>
-              ) : isRentalsError ? (
+              ) : hasPropertyBreakdownError ? (
                 <p className="text-sm text-red-500">
                   Unable to load locations.
                 </p>
@@ -397,11 +415,11 @@ const page = () => {
               Property Types
             </h2>
             <div className="space-y-3 md:space-y-4">
-              {isLoadingRentals ? (
+              {isLoadingPropertyBreakdowns ? (
                 <p className="text-sm text-gray-500">
                   Loading property types...
                 </p>
-              ) : isRentalsError ? (
+              ) : hasPropertyBreakdownError ? (
                 <p className="text-sm text-red-500">
                   Unable to load property types.
                 </p>

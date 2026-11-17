@@ -13,6 +13,7 @@ interface FormData {
   cautionFee: number;
   brokeFee: number;
   mgtServiceCharge: number;
+  inspectionFee: number;
 }
 
 interface AmenitiesProp {
@@ -21,7 +22,6 @@ interface AmenitiesProp {
   methods: UseFormReturn<FormData>;
   errors: FieldErrors<FormData>;
 }
-
 
 interface AmenitiesProp {
   toggle: (item: string) => void;
@@ -114,67 +114,67 @@ const AmenitiesStep = ({
 }: AmenitiesProp) => {
   return (
     <section className="space-y-8 rounded-[2rem] border border-slate-100 bg-white p-6 shadow-sm md:p-8">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="rounded-full bg-[#4CAF50]/10 p-2 text-[#4CAF50]">
-                <Sparkles size={20} />
-              </div>
-              <div>
-                <h3 className="font-bold text-slate-800">Amenities</h3>
-                <p className="mt-1 text-sm text-slate-500">
-                  Choose the amenities available at your property.
-                </p>
-              </div>
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="rounded-full bg-[#4CAF50]/10 p-2 text-[#4CAF50]">
+            <Sparkles size={20} />
+          </div>
+          <div>
+            <h3 className="font-bold text-slate-800">Amenities</h3>
+            <p className="mt-1 text-sm text-slate-500">
+              Choose the amenities available at your property.
+            </p>
+          </div>
+        </div>
+        <span className="shrink-0 rounded-full bg-green-50 px-3 py-1 text-sm font-semibold text-green-700">
+          {
+            amenityCategories
+              .flatMap((category) => category.items)
+              .filter((item) => selected(item.value)).length
+          }{" "}
+          selected
+        </span>
+      </div>
+
+      <div className="divide-y divide-slate-100">
+        {amenityCategories.map((category) => (
+          <section key={category.title} className="py-6 first:pt-0 last:pb-0">
+            <div className="mb-4">
+              <h4 className="font-semibold text-slate-900">{category.title}</h4>
+              <p className="mt-1 text-sm text-slate-500">
+                {category.description}
+              </p>
             </div>
-            <span className="shrink-0 rounded-full bg-green-50 px-3 py-1 text-sm font-semibold text-green-700">
-              {
-                amenityCategories
-                  .flatMap((category) => category.items)
-                  .filter((item) => selected(item.value)).length
-              }{" "}
-              selected
-            </span>
-          </div>
-    
-          <div className="divide-y divide-slate-100">
-            {amenityCategories.map((category) => (
-              <section key={category.title} className="py-6 first:pt-0 last:pb-0">
-                <div className="mb-4">
-                  <h4 className="font-semibold text-slate-900">{category.title}</h4>
-                  <p className="mt-1 text-sm text-slate-500">
-                    {category.description}
-                  </p>
-                </div>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {category.items.map((item) => {
-                    const isSelected = selected(item.value);
-    
-                    return (
-                      <label
-                        key={item.value}
-                        className={`flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 transition-colors hover:border-slate-400 ${
-                          isSelected
-                            ? "border-[#4CAF50] bg-green-50"
-                            : "border-slate-200 bg-white"
-                        }`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => toggle(item.value)}
-                          className="size-4 shrink-0 accent-[#4CAF50]"
-                        />
-                        <span className="text-sm font-medium text-slate-700">
-                          {item.label}
-                        </span>
-                      </label>
-                    );
-                  })}
-                </div>
-              </section>
-            ))}
-          </div>
-        </section>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {category.items.map((item) => {
+                const isSelected = selected(item.value);
+
+                return (
+                  <label
+                    key={item.value}
+                    className={`flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 transition-colors hover:border-slate-400 ${
+                      isSelected
+                        ? "border-[#4CAF50] bg-green-50"
+                        : "border-slate-200 bg-white"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => toggle(item.value)}
+                      className="size-4 shrink-0 accent-[#4CAF50]"
+                    />
+                    <span className="text-sm font-medium text-slate-700">
+                      {item.label}
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+          </section>
+        ))}
+      </div>
+    </section>
   );
 };
 

@@ -96,8 +96,8 @@ const Page = () => {
   const activeLockedRental = lockedRentals[0];
   const activeLockImages = activeLockedRental?.images ?? [];
   const activeLockProgress = getActiveLockProgress(activeLockedRental);
-  const rentedApartments = bookedRentals.filter(
-    (rental) => rental.status.toLowerCase() === "rented",
+  const rentedApartments = bookedRentals.filter((rental) =>
+    ["booked", "rented"].includes(rental.status.toLowerCase()),
   );
   const activeRentedApartment = rentedApartments[rentedApartmentSlide];
   const rentedImages = activeRentedApartment?.images ?? [];
@@ -397,7 +397,9 @@ const Page = () => {
               <div className="flex flex-col justify-center p-7 md:p-10">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                   <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-bold uppercase text-[#43A047]">
-                    Rented Apartment
+                    {activeRentedApartment.status.toLowerCase() === "rented"
+                      ? "Rented Apartment"
+                      : "Booked Apartment"}
                   </span>
                   {rentedApartments.length > 1 ? (
                     <span className="text-xs font-medium text-slate-400">
@@ -449,8 +451,14 @@ const Page = () => {
                       {formatAmount(activeRentedApartment.mgtServiceCharge)}
                     </span>
                   </div>
+                  <div className="flex justify-between gap-3 text-slate-500">
+                    <span>Inspection fee (separate)</span>
+                    <span className="font-semibold text-slate-800">
+                      {formatAmount(activeRentedApartment.inspectionFee ?? 0)}
+                    </span>
+                  </div>
                   <div className="flex justify-between gap-3 border-t border-slate-100 pt-2 font-bold text-[#162B4C]">
-                    <span>Total package</span>
+                    <span>Total first payment</span>
                     <span>
                       {formatAmount(
                         Number(activeRentedApartment.price || 0) +

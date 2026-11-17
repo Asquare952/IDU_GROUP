@@ -26,6 +26,7 @@ export interface Rental {
   cautionFee: number;
   brokeFee: number;
   mgtServiceCharge: number;
+  inspectionFee?: number;
   priceType: string;
   status: RentalStatus;
   liked?: boolean;
@@ -127,11 +128,17 @@ export interface CreateRentalPayload {
   cautionFee: number;
   brokeFee: number;
   mgtServiceCharge: number;
+  inspectionFee?: number;
   priceType: string;
   status: string;
   images: File[];
   videos?: File[];
   amenities?: string[];
+}
+
+export interface CreateRentalResponse {
+  success: boolean;
+  message: string;
 }
 
 export interface UpdateRentalPayload {
@@ -144,6 +151,7 @@ export interface UpdateRentalPayload {
   cautionFee?: number;
   brokeFee?: number;
   mgtServiceCharge?: number;
+  inspectionFee?: number;
   priceType?: string;
   status?: string;
   images?: File[];

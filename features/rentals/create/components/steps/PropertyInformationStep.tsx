@@ -8,10 +8,7 @@ import {
   Loader2,
 } from "lucide-react";
 
-import type {
-  UseFormReturn,
-  FieldErrors,
-} from "react-hook-form";
+import type { UseFormReturn, FieldErrors } from "react-hook-form";
 
 interface FormData {
   title: string;
@@ -24,14 +21,15 @@ interface FormData {
   cautionFee: number;
   brokeFee: number;
   mgtServiceCharge: number;
+  inspectionFee: number;
 }
 
-interface Props{
+interface Props {
   methods: UseFormReturn<FormData>;
-  errors: FieldErrors<FormData>
+  errors: FieldErrors<FormData>;
 }
 
-const PropertyInformationStep = ({methods, errors}: Props) => {
+const PropertyInformationStep = ({ methods, errors }: Props) => {
   return (
     <div>
       <div className="lg:col-span-8 space-y-8">
