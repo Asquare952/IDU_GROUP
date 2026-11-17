@@ -30,6 +30,7 @@ interface FormData {
   cautionFee: number;
   brokeFee: number;
   mgtServiceCharge: number;
+  inspectionFee: number;
 }
 
 const defaultValues: FormData = {
@@ -43,6 +44,7 @@ const defaultValues: FormData = {
   cautionFee: 0,
   brokeFee: 0,
   mgtServiceCharge: 0,
+  inspectionFee: 0,
 };
 
 const toMoneyNumber = (value: unknown): number => {
@@ -62,13 +64,24 @@ export default function CreateRentalForm() {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [videoPreviews, setVideoPreviews] = useState<string[]>([]);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
   const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
   const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50MB
-  const MAX_TOTAL_SIZE = 200 * 1024 * 1024; // 200MB total
+
+  const getMediaCountError = (imageCount: number, videoCount: number) => {
+    if (imageCount > 0 && videoCount > 0) {
+      if (imageCount > 4 || videoCount > 2) {
+        return "When uploading both, use no more than 4 images and 2 videos.";
+      }
+      return null;
+    }
+
+    if (imageCount > 10) return "You can upload up to 10 images.";
+    if (videoCount > 4) return "You can upload up to 4 videos.";
+    return null;
+  };
 
   const methods = useForm<FormData>({
     mode: "onTouched",
@@ -136,6 +149,14 @@ export default function CreateRentalForm() {
     }
 
     if (validFiles.length === 0) return;
+    const countError = getMediaCountError(
+      images.length + validFiles.length,
+      videos.length,
+    );
+    if (countError) {
+      setUploadError(countError);
+      return;
+    }
 
     setImages((prev) => [...prev, ...validFiles]);
 
@@ -187,6 +208,14 @@ export default function CreateRentalForm() {
     }
 
     if (validFiles.length === 0) return;
+    const countError = getMediaCountError(
+      images.length,
+      videos.length + validFiles.length,
+    );
+    if (countError) {
+      setUploadError(countError);
+      return;
+    }
 
     setVideos((prev) => [...prev, ...validFiles]);
 
@@ -259,8 +288,13 @@ export default function CreateRentalForm() {
   const onSubmit = async (data: FormData) => {
     if (currentStep !== longTermSteps.length - 1) return;
     setSubmitError(null);
-    if (images.length === 0) {
-      setSubmitError("Please upload at least one image before publishing.");
+    if (images.length === 0 && videos.length === 0) {
+      setSubmitError("Please upload at least one image or video.");
+      return;
+    }
+    const mediaCountError = getMediaCountError(images.length, videos.length);
+    if (mediaCountError) {
+      setSubmitError(mediaCountError);
       return;
     }
     const payload: CreateRentalPayload = {
@@ -268,11 +302,12 @@ export default function CreateRentalForm() {
       description: data.description,
       propertyType: data.propertyType,
       location: data.location,
-      price: totalPackages,
+      price: toMoneyNumber(data.basicRent),
       legalFee: toMoneyNumber(data.legalFee),
       cautionFee: toMoneyNumber(data.cautionFee),
       brokeFee: toMoneyNumber(data.brokeFee),
       mgtServiceCharge: toMoneyNumber(data.mgtServiceCharge),
+      inspectionFee: toMoneyNumber(data.inspectionFee),
       priceType: "yearly",
       status: data.status,
       images,
@@ -288,72 +323,6 @@ export default function CreateRentalForm() {
       onError: (error) =>
         setSubmitError(error.message || "Unable to publish this property."),
     });
-    // setUploadError(null);
-    // setIsSubmitting(true);
-    // setSubmitError(null);
-    // // Validate required fields
-    // if (images.length === 0) {
-    //   setSubmitError("Please upload at least one image.");
-    //   setIsSubmitting(false);
-    //   return;
-    // }
-    // // Calculate total file size
-    // const totalSize = [...images, ...videos].reduce(
-    //   (sum, file) => sum + file.size,
-    //   0,
-    // );
-    // if (totalSize > MAX_TOTAL_SIZE) {
-    //   setSubmitError(
-    //     `Total file size exceeds 200MB limit. Please reduce file sizes or remove some files.`,
-    //   );
-    //   setIsSubmitting(false);
-    //   return;
-    // }
-    // try {
-    //   // Build payload matching CreateRentalPayload expected by rentalApi
-    //   const payload: CreateRentalPayload = {
-    //     title: data.title,
-    //     description: data.description,
-    //     propertyType: data.propertyType,
-    //     location: data.location,
-    //     price: totalPackages,
-    //     legalFee: toMoneyNumber(data.legalFee),
-    //     cautionFee: toMoneyNumber(data.cautionFee),
-    //     brokeFee: toMoneyNumber(data.brokeFee),
-    //     mgtServiceCharge: toMoneyNumber(data.mgtServiceCharge),
-    //     priceType: "yearly",
-    //     status: data.status,
-    //     images: images,
-    //     videos: videos,
-    //     amenities: selectedAmenities,
-    //   };
-    //   await rentalApi.createRental(payload);
-    //   toast.success("Property uploaded successfully!");
-    //   // Success — redirect to listings
-    //   router.push("/landlord/my-listings");
-    // } catch (err: any) {
-    //   console.error("Upload failed:", err);
-    //   // Provide mobile-friendly error messages
-    //   let errorMessage =
-    //     err.response?.data?.message ||
-    //     err.message ||
-    //     "Failed to upload listing.";
-    //   if (
-    //     errorMessage.toLowerCase().includes("413") ||
-    //     errorMessage.toLowerCase().includes("payload")
-    //   ) {
-    //     errorMessage =
-    //       "Files are too large. Try compressing videos or uploading fewer files.";
-    //   } else if (errorMessage.toLowerCase().includes("timeout")) {
-    //     errorMessage =
-    //       "Upload timed out. Try uploading on a faster connection or with fewer/smaller files.";
-    //   } else if (errorMessage.toLowerCase().includes("network")) {
-    //     errorMessage = "Network error. Check your connection and try again.";
-    //   }
-    //   setSubmitError(errorMessage);
-    // } finally {
-    //   setIsSubmitting(false);
-    // }
   };
 
   return (
@@ -407,6 +376,7 @@ export default function CreateRentalForm() {
                 imagePreviews={imagePreviews}
                 videos={videos}
                 videoPreviews={videoPreviews}
+                uploadError={uploadError}
                 handleImageChange={handleImageChange}
                 handleVideoChange={handleVideoChange}
                 removeImage={removeImage}
@@ -428,11 +398,19 @@ export default function CreateRentalForm() {
                 amenities={selectedAmenities}
                 imagePreviews={imagePreviews}
                 videoPreviews={videoPreviews}
-                totalPackage={totalPackages}
                 isShortlet={false}
               />
             )}
           </div>
+
+          {(submitError || uploadError) && (
+            <p
+              className="rounded-xl border border-red-100 bg-red-50 p-3 text-sm text-red-700"
+              role="alert"
+            >
+              {submitError || uploadError}
+            </p>
+          )}
 
           {/* Navigation */}
           <div className="flex items-center justify-between border-t border-gray-200 pt-6">

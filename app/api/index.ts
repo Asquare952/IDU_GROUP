@@ -65,6 +65,7 @@ export type {
   LandlordListedProperties,
   LandlordProfile,
   CreateRentalPayload,
+  CreateRentalResponse,
   UpdateRentalPayload,
   RentalSearchParams,
   RentedPropertiesResponse,

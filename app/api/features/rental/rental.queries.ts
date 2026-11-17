@@ -12,6 +12,7 @@ import type {
   RentedPropertiesResponse,
   RentedPropertyDetails,
   CreateRentalPayload,
+  CreateRentalResponse,
   UpdateRentalPayload,
   RentalSearchParams,
 } from "./rental.api";
@@ -100,15 +101,15 @@ export const useGetRentedPropertyById = (id: string | null | undefined) =>
 
 export const useCreateRental = (
   options?: Omit<
-    UseMutationOptions<Rental, Error, CreateRentalPayload>,
+    UseMutationOptions<CreateRentalResponse, Error, CreateRentalPayload>,
     "mutationFn"
   >,
 ) => {
   const queryClient = useQueryClient();
 
-  return useMutation<Rental, Error, CreateRentalPayload>({
+  return useMutation<CreateRentalResponse, Error, CreateRentalPayload>({
     mutationFn: rentalApi.createRental,
-    onSuccess: (newRental) => {
+    onSuccess: () => {
       // Invalidate all rental queries to refetch
       queryClient.invalidateQueries({
         queryKey: ["rentals"],

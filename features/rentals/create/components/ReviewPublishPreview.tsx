@@ -29,6 +29,7 @@ type ReviewValues = {
   cautionFee?: unknown;
   brokeFee?: unknown;
   mgtServiceCharge?: unknown;
+  inspectionFee?: unknown;
   minimumStay?: unknown;
   maximumStay?: unknown;
   availableFrom?: unknown;
@@ -47,7 +48,6 @@ type ReviewPublishPreviewProps = {
   imagePreviews: string[];
   videoPreviews: string[];
   isShortlet: boolean;
-  totalPackage?: number;
 };
 
 const asText = (value: unknown) => String(value ?? "").trim();
@@ -131,7 +131,6 @@ export default function ReviewPublishPreview({
   imagePreviews,
   videoPreviews,
   isShortlet,
-  totalPackage = 0,
 }: ReviewPublishPreviewProps) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const title = asText(values.title) || "Untitled property";
@@ -171,7 +170,9 @@ export default function ReviewPublishPreview({
   ]
     .filter(Boolean)
     .join(" – ");
-  const rent = isShortlet ? asNumber(values.pricePerNight) : totalPackage;
+  const rent = isShortlet
+    ? asNumber(values.pricePerNight)
+    : asNumber(values.basicRent);
 
   return (
     <section className="overflow-hidden rounded-[2rem] border border-gray-100 bg-white shadow-sm">
@@ -441,6 +442,10 @@ export default function ReviewPublishPreview({
                       <FeeRow label="Caution fee" value={values.cautionFee} />
                       <FeeRow label="Legal fee" value={values.legalFee} />
                       <FeeRow label="Agency fee" value={values.brokeFee} />
+                      <FeeRow
+                        label="Inspection fee"
+                        value={values.inspectionFee}
+                      />
                     </>
                   )}
                 </div>

@@ -24,6 +24,7 @@ export type {
   RawRental,
   RentalSearchParams,
   CreateRentalPayload,
+  CreateRentalResponse,
   UpdateRentalPayload,
   RentalRequestOptions,
   RentedPropertiesResponse,

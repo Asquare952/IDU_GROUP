@@ -44,6 +44,7 @@ type EditForm = Record<string, string | number> & {
   cautionFee: number;
   brokeFee: number;
   mgtServiceCharge: number;
+  inspectionFee: number;
   pricePerNight: number;
   cleaningFee: number;
   securityDeposit: number;
@@ -59,6 +60,7 @@ const defaults: EditForm = {
   cautionFee: 0,
   brokeFee: 0,
   mgtServiceCharge: 0,
+  inspectionFee: 0,
   furnishedStatus: "",
   rentalModel: "",
   bedrooms: 0,
@@ -104,7 +106,9 @@ export default function Page() {
   const isLoading = isShortletRequest
     ? shortletQuery.isLoading
     : rentalQuery.isLoading;
-  const isError = isShortletRequest ? shortletQuery.isError : rentalQuery.isError;
+  const isError = isShortletRequest
+    ? shortletQuery.isError
+    : rentalQuery.isError;
   const error = isShortletRequest ? shortletQuery.error : rentalQuery.error;
   const { mutate: updateRental, isPending: isUpdatingRental } = useUpdateRental(
     id ?? "",
@@ -134,11 +138,13 @@ export default function Page() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const shortlet =
     isShortletRequest ||
-    Boolean(rental &&
-    (rental.propertyType.toLowerCase() === "shortlets" ||
-      ["nightly", "daily", "shortlet"].includes(
-        rental.priceType.toLowerCase(),
-      )));
+    Boolean(
+      rental &&
+      (rental.propertyType.toLowerCase() === "shortlets" ||
+        ["nightly", "daily", "shortlet"].includes(
+          rental.priceType.toLowerCase(),
+        )),
+    );
   const steps = shortlet ? shortTermSteps : longTermSteps;
   const fees = watch([
     "basicRent",
@@ -172,18 +178,12 @@ export default function Page() {
       location: rental.location,
       propertyType: rental.propertyType || "apartment",
       status: rental.status || "available",
-      basicRent: Math.max(
-        number(rental.price) -
-          legalFee -
-          cautionFee -
-          brokeFee -
-          mgtServiceCharge,
-        0,
-      ),
+      basicRent: number(rental.price),
       legalFee,
       cautionFee,
       brokeFee,
       mgtServiceCharge,
+      inspectionFee: number(rental.inspectionFee),
       furnishedStatus: shortletDetails?.furnishingStatus ?? "",
       rentalModel: shortletDetails?.rentalModel ?? "",
       bedrooms: number(shortletDetails?.bedrooms),
@@ -332,7 +332,7 @@ export default function Page() {
       propertyType: data.propertyType,
       location: data.location,
       status: data.status,
-      price: shortlet ? number(data.pricePerNight) : total,
+      price: shortlet ? number(data.pricePerNight) : number(data.basicRent),
       priceType: shortlet ? "nightly" : rental.priceType || "yearly",
       legalFee: shortlet ? 0 : number(data.legalFee),
       cautionFee: shortlet
@@ -342,6 +342,7 @@ export default function Page() {
       mgtServiceCharge: shortlet
         ? number(data.cleaningFee)
         : number(data.mgtServiceCharge),
+      inspectionFee: shortlet ? 0 : number(data.inspectionFee),
       amenities,
       ...(images.length ? { images } : {}),
       ...(videos.length ? { videos } : {}),
@@ -428,7 +429,6 @@ export default function Page() {
       imagePreviews={[...existingImages, ...imagePreviews]}
       videoPreviews={[...existingVideos, ...videoPreviews]}
       isShortlet={shortlet}
-      totalPackage={total}
     />
   );
   return (

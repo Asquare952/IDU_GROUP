@@ -130,9 +130,7 @@ function PropertyDesktopViewContent() {
   //   enabled: Boolean(slug),
   // });
 
-  const rentalQuery = useFetchPropertyBySlug(
-    isShortletRoute ? null : slug,
-  );
+  const rentalQuery = useFetchPropertyBySlug(isShortletRoute ? null : slug);
   const shortletQuery = useFetchShortletById(slug, isShortletRoute);
   const availabilityQuery = useShortletAvailability(
     isShortletRoute ? slug : undefined,
@@ -205,9 +203,7 @@ function PropertyDesktopViewContent() {
       <div className="bg-white min-h-screen">
         <Navbar />
         <div className="max-w-[1280px] mx-auto px-6 py-20 text-center">
-          <p className="text-gray-600 text-lg">
-            Property not found.
-          </p>
+          <p className="text-gray-600 text-lg">Property not found.</p>
           <button
             type="button"
             onClick={() => router.push("/properties")}
@@ -264,8 +260,7 @@ function PropertyDesktopViewContent() {
           bookingError.message,
         )
       : bookingError?.message;
-  const insufficientBalance =
-    bookingError?.code === "INSUFFICIENT_BALANCE";
+  const insufficientBalance = bookingError?.code === "INSUFFICIENT_BALANCE";
 
   // Use RentULO chat for host contact instead of exposing private contact info.
   const handleMessageHost = () => {
@@ -300,7 +295,8 @@ function PropertyDesktopViewContent() {
         },
         onError: (conversationError) => {
           toast.error(
-            conversationError.message || "Unable to start chat. Please try again.",
+            conversationError.message ||
+              "Unable to start chat. Please try again.",
           );
         },
       },
@@ -408,8 +404,9 @@ function PropertyDesktopViewContent() {
                 label="Location"
                 value={
                   isShortlet
-                    ? [property.area, property.city].filter(Boolean).join(", ") ||
-                      property.location
+                    ? [property.area, property.city]
+                        .filter(Boolean)
+                        .join(", ") || property.location
                     : property.location
                 }
               />
@@ -461,19 +458,19 @@ function PropertyDesktopViewContent() {
             </div>
 
             {property.amenities.length > 0 ? (
-            <div className="space-y-4">
-              <h2 className="text-3xl font-black text-gray-900">Amenities</h2>
-              <ul className="grid grid-cols-2 gap-2 list-disc list-inside">
-                {property.amenities.map((amenity, index) => (
-                  <li
-                    key={index}
-                    className="text-gray-600 leading-relaxed text-lg"
-                  >
-                    {amenity}
-                  </li>
-                ))}
-              </ul>
-            </div>
+              <div className="space-y-4">
+                <h2 className="text-3xl font-black text-gray-900">Amenities</h2>
+                <ul className="grid grid-cols-2 gap-2 list-disc list-inside">
+                  {property.amenities.map((amenity, index) => (
+                    <li
+                      key={index}
+                      className="text-gray-600 leading-relaxed text-lg"
+                    >
+                      {amenity}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ) : (
               <div className="space-y-2">
                 <h2 className="text-2xl font-bold text-gray-900">Amenities</h2>
@@ -509,7 +506,9 @@ function PropertyDesktopViewContent() {
                       {property.livingRooms ? (
                         <span className="rounded-full bg-gray-100 px-4 py-2 text-sm text-gray-700">
                           {property.livingRooms}{" "}
-                          {property.livingRooms === 1 ? "living room" : "living rooms"}
+                          {property.livingRooms === 1
+                            ? "living room"
+                            : "living rooms"}
                         </span>
                       ) : null}
                       {property.guestCapacity ? (
@@ -580,13 +579,21 @@ function PropertyDesktopViewContent() {
                     ...(property.houseRules ?? []),
                     ...(property.smokingAllowed === undefined
                       ? []
-                      : [property.smokingAllowed ? "Smoking allowed" : "No smoking"]),
+                      : [
+                          property.smokingAllowed
+                            ? "Smoking allowed"
+                            : "No smoking",
+                        ]),
                     ...(property.petsAllowed === undefined
                       ? []
                       : [property.petsAllowed ? "Pets allowed" : "No pets"]),
                     ...(property.partiesAllowed === undefined
                       ? []
-                      : [property.partiesAllowed ? "Parties allowed" : "No parties"]),
+                      : [
+                          property.partiesAllowed
+                            ? "Parties allowed"
+                            : "No parties",
+                        ]),
                   ]}
                 />
                 <ShortletHostDetails
@@ -683,6 +690,7 @@ function PropertyDesktopViewContent() {
                         ["Caution fee", property.cautionFee],
                         ["Legal fee", property.legalFee],
                         ["Agency fee", property.brokeFee],
+                        ["Inspection fee", property.inspectionFee],
                       ]
                         .filter(([, amount]) => Number(amount) > 0)
                         .map(([label, amount]) => (
@@ -694,6 +702,19 @@ function PropertyDesktopViewContent() {
                             <span>₦{Number(amount).toLocaleString()}</span>
                           </div>
                         ))}
+                      <div className="flex justify-between gap-3 border-t border-gray-200 pt-3 font-bold text-gray-900">
+                        <span>Total first payment</span>
+                        <span>
+                          ₦
+                          {(
+                            Number(property.price || 0) +
+                            Number(property.mgtServiceCharge || 0) +
+                            Number(property.cautionFee || 0) +
+                            Number(property.legalFee || 0) +
+                            Number(property.brokeFee || 0)
+                          ).toLocaleString()}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -736,89 +757,89 @@ function PropertyDesktopViewContent() {
                     }}
                   />
                 ) : (
-                <div className="grid grid-cols-2 gap-3 md:grid-cols-1 md:flex md:flex-col md:gap-0 md:space-y-4">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (!hasAccessToken()) {
-                        router.push("/login");
-                        return;
-                      }
+                  <div className="grid grid-cols-2 gap-3 md:grid-cols-1 md:flex md:flex-col md:gap-0 md:space-y-4">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!hasAccessToken()) {
+                          router.push("/login");
+                          return;
+                        }
 
-                      setPinAction("rent");
-                    }}
-                    disabled={isRenting || !canBook}
-                    className="flex min-h-16 w-full flex-col items-center justify-center gap-1 rounded-[24px] border-2 border-none bg-green-600 px-2 py-3 text-center text-[11px] font-black uppercase leading-tight text-white shadow-lg shadow-orange-100 transition-all hover:bg-green-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:text-xs md:mt-4 md:min-h-0 md:flex-row md:gap-3 md:px-4 md:py-5 md:text-base md:leading-normal"
-                  >
-                    <Lock className="size-4 shrink-0 md:size-5" />
-                    <span>
-                      {isRenting ? "Processing..." : "Rent This House"}
-                    </span>
-                  </button>
+                        setPinAction("rent");
+                      }}
+                      disabled={isRenting || !canBook}
+                      className="flex min-h-16 w-full flex-col items-center justify-center gap-1 rounded-[24px] border-2 border-none bg-green-600 px-2 py-3 text-center text-[11px] font-black uppercase leading-tight text-white shadow-lg shadow-orange-100 transition-all hover:bg-green-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:text-xs md:mt-4 md:min-h-0 md:flex-row md:gap-3 md:px-4 md:py-5 md:text-base md:leading-normal"
+                    >
+                      <Lock className="size-4 shrink-0 md:size-5" />
+                      <span>
+                        {isRenting ? "Processing..." : "Rent This House"}
+                      </span>
+                    </button>
 
-                  {/*  */}
-                  <button
-                    type="button"
-                    onClick={handleMessageHost}
-                    className="flex min-h-16 w-full flex-col items-center justify-center gap-1 rounded-[24px] border-2 border-none bg-green-600 px-2 py-3 text-center text-[11px] font-black uppercase leading-tight text-white shadow-lg shadow-orange-100 transition-all hover:bg-green-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:text-xs md:mt-4 md:min-h-0 md:flex-row md:gap-3 md:px-4 md:py-5 md:text-base md:leading-normal"
-                  >
-                    <MessageSquare className="size-4 shrink-0 md:size-5" />
-                    <span>Chat Landlord</span>
-                  </button>
+                    {/*  */}
+                    <button
+                      type="button"
+                      onClick={handleMessageHost}
+                      className="flex min-h-16 w-full flex-col items-center justify-center gap-1 rounded-[24px] border-2 border-none bg-green-600 px-2 py-3 text-center text-[11px] font-black uppercase leading-tight text-white shadow-lg shadow-orange-100 transition-all hover:bg-green-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:text-xs md:mt-4 md:min-h-0 md:flex-row md:gap-3 md:px-4 md:py-5 md:text-base md:leading-normal"
+                    >
+                      <MessageSquare className="size-4 shrink-0 md:size-5" />
+                      <span>Chat Landlord</span>
+                    </button>
 
-                  {/*  */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (!hasAccessToken()) {
-                        router.push("/login");
-                        return;
-                      }
-                      setisBookInspectionOpen(true);
-                    }}
-                    disabled={!canBook}
-                    className="flex min-h-16 w-full flex-col items-center justify-center gap-1 rounded-[24px] border-2 border-none bg-green-600 px-2 py-3 text-center text-[11px] font-black uppercase leading-tight text-white shadow-lg shadow-orange-100 transition-all hover:bg-green-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:text-xs md:mt-4 md:min-h-0 md:flex-row md:gap-3 md:px-4 md:py-5 md:text-base md:leading-normal"
-                  >
-                    <CalendarDays className="size-4 shrink-0 md:size-5" />
-                    Book Inspection
-                  </button>
+                    {/*  */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!hasAccessToken()) {
+                          router.push("/login");
+                          return;
+                        }
+                        setisBookInspectionOpen(true);
+                      }}
+                      disabled={!canBook}
+                      className="flex min-h-16 w-full flex-col items-center justify-center gap-1 rounded-[24px] border-2 border-none bg-green-600 px-2 py-3 text-center text-[11px] font-black uppercase leading-tight text-white shadow-lg shadow-orange-100 transition-all hover:bg-green-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:text-xs md:mt-4 md:min-h-0 md:flex-row md:gap-3 md:px-4 md:py-5 md:text-base md:leading-normal"
+                    >
+                      <CalendarDays className="size-4 shrink-0 md:size-5" />
+                      Book Inspection
+                    </button>
 
-                  {/*  */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (!hasAccessToken()) {
-                        router.push("/login");
-                        return;
-                      }
+                    {/*  */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!hasAccessToken()) {
+                          router.push("/login");
+                          return;
+                        }
 
-                      setPinAction("lock");
-                    }}
-                    disabled={isLocking || !canBook}
-                    className="flex min-h-16 w-full flex-col items-center justify-center gap-1 rounded-[24px] border-2 border-none bg-green-600 px-2 py-3 text-center text-[11px] font-black uppercase leading-tight text-white shadow-lg shadow-orange-100 transition-all hover:bg-green-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:text-xs md:mt-4 md:min-h-0 md:flex-row md:gap-3 md:px-4 md:py-5 md:text-base md:leading-normal"
-                  >
-                    <Lock className="size-4 shrink-0 md:size-5" />
-                    <span>
-                      {isLocking ? "Processing..." : "Lock This House"}
-                    </span>
-                  </button>
+                        setPinAction("lock");
+                      }}
+                      disabled={isLocking || !canBook}
+                      className="flex min-h-16 w-full flex-col items-center justify-center gap-1 rounded-[24px] border-2 border-none bg-green-600 px-2 py-3 text-center text-[11px] font-black uppercase leading-tight text-white shadow-lg shadow-orange-100 transition-all hover:bg-green-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:text-xs md:mt-4 md:min-h-0 md:flex-row md:gap-3 md:px-4 md:py-5 md:text-base md:leading-normal"
+                    >
+                      <Lock className="size-4 shrink-0 md:size-5" />
+                      <span>
+                        {isLocking ? "Processing..." : "Lock This House"}
+                      </span>
+                    </button>
 
-                  {/*  */}
-                  <button
-                    type="button"
-                    onClick={() => router.push("/properties")}
-                    className="col-span-2 w-full rounded-[24px] bg-[#FF9800] px-3 py-4 text-center text-xs font-black uppercase text-white shadow-lg shadow-orange-100 transition-all hover:bg-[#F57C00] active:scale-95 md:col-span-1 md:mt-2 md:py-5 md:text-base"
-                  >
-                    Back to Listings
-                  </button>
-                  {/* <button
+                    {/*  */}
+                    <button
+                      type="button"
+                      onClick={() => router.push("/properties")}
+                      className="col-span-2 w-full rounded-[24px] bg-[#FF9800] px-3 py-4 text-center text-xs font-black uppercase text-white shadow-lg shadow-orange-100 transition-all hover:bg-[#F57C00] active:scale-95 md:col-span-1 md:mt-2 md:py-5 md:text-base"
+                    >
+                      Back to Listings
+                    </button>
+                    {/* <button
                     type="button"
                     onClick={() => setisCompleteAccDetailsOpen(true)}
                     className="w-full bg-[#FF9800] text-white font-black py-5 rounded-[24px] hover:bg-[#F57C00] transition-all active:scale-95 shadow-lg shadow-orange-100 uppercase mt-2 cursor-pointer"
                   >
                     Back to Listings
                   </button> */}
-                </div>
+                  </div>
                 )}
 
                 {!isShortlet && (
@@ -835,9 +856,7 @@ function PropertyDesktopViewContent() {
                   <div>
                     <p className="font-bold text-gray-900">{landlordName}</p>
                     {property.User?.Profile?.verified === true && (
-                      <p className="text-xs text-gray-500">
-                        Verified landlord
-                      </p>
+                      <p className="text-xs text-gray-500">Verified landlord</p>
                     )}
                   </div>
                 </div>
@@ -871,13 +890,9 @@ function PropertyDesktopViewContent() {
                 ? "Confirm lock"
                 : "Confirm booking"
           }
-          isPending={
-            isRenting || isLocking || isBooking || isShortletBooking
-          }
+          isPending={isRenting || isLocking || isBooking || isShortletBooking}
           errorMessage={
-            pinAction === "shortlet-book"
-              ? bookingErrorMessage
-              : undefined
+            pinAction === "shortlet-book" ? bookingErrorMessage : undefined
           }
           createPinHref={
             pinAction === "shortlet-book" &&

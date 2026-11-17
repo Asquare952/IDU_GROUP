@@ -1,7 +1,4 @@
-import type {
-  UseFormReturn,
-  FieldErrors,
-} from "react-hook-form";
+import type { UseFormReturn, FieldErrors } from "react-hook-form";
 
 interface FormData {
   title: string;
@@ -14,6 +11,7 @@ interface FormData {
   cautionFee: number;
   brokeFee: number;
   mgtServiceCharge: number;
+  inspectionFee: number;
 }
 
 interface Props {
@@ -24,7 +22,7 @@ interface Props {
 
 import { DollarSign } from "lucide-react";
 
-const FinancialBreakdownStep = ({methods, errors, totalPackages}: Props) => {
+const FinancialBreakdownStep = ({ methods, errors, totalPackages }: Props) => {
   return (
     <section className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
       <div className="flex items-center gap-2 mb-6 text-[#4CAF50]">
@@ -101,6 +99,29 @@ const FinancialBreakdownStep = ({methods, errors, totalPackages}: Props) => {
             className="w-full p-3 bg-[#F8FAFC] rounded-xl"
           />
         </div>
+        <div>
+          <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
+            Inspection Fee (0 = Free)
+          </label>
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            {...methods.register("inspectionFee", {
+              valueAsNumber: true,
+              validate: (value) =>
+                Number.isNaN(value) ||
+                (value >= 0 && Number.isInteger(value * 100)) ||
+                "Enter a non-negative amount with no more than 2 decimal places",
+            })}
+            className="w-full p-3 bg-[#F8FAFC] rounded-xl"
+          />
+          {errors.inspectionFee && (
+            <p className="text-red-500 text-xs ml-1">
+              {errors.inspectionFee.message}
+            </p>
+          )}
+        </div>
         <div className="mt-6 p-4 bg-[#4CAF50]/5 rounded-2xl border border-[#4CAF50]/10">
           <p className="text-[10px] font-bold text-slate-400 uppercase">
             Total Package
@@ -115,6 +136,3 @@ const FinancialBreakdownStep = ({methods, errors, totalPackages}: Props) => {
 };
 
 export default FinancialBreakdownStep;
-
-
-

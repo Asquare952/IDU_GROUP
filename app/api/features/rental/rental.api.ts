@@ -5,6 +5,7 @@ import { getCurrentUserId } from "@/app/lib/auth";
 import type {
   ApiResponse,
   CreateRentalPayload,
+  CreateRentalResponse,
   LandlordListedProperties,
   RawRental,
   Rental,
@@ -18,6 +19,7 @@ import type {
 export type {
   ApiResponse,
   CreateRentalPayload,
+  CreateRentalResponse,
   LandlordListedProperties,
   LandlordProfile,
   ProfileCompletionError,
@@ -142,6 +144,7 @@ const buildFallbackRental = (
   cautionFee: payload.cautionFee ?? 0,
   brokeFee: payload.brokeFee ?? 0,
   mgtServiceCharge: payload.mgtServiceCharge ?? 0,
+  inspectionFee: payload.inspectionFee ?? 0,
   priceType: payload.priceType ?? "yearly",
   status: payload.status ?? "available",
   images: [],
@@ -256,6 +259,7 @@ export const normalizeRental = (rental: RawRental): Rental => ({
   cautionFee: normalizeMoneyValue(rental.cautionFee),
   brokeFee: normalizeMoneyValue(rental.brokeFee),
   mgtServiceCharge: normalizeMoneyValue(rental.mgtServiceCharge),
+  inspectionFee: normalizeMoneyValue(rental.inspectionFee),
   priceType: rental.priceType ?? "yearly",
   status: rental.status ?? "available",
   lockedAt:
@@ -410,17 +414,23 @@ export const rentalApi = {
     return response.data.data;
   },
 
-  createRental: async (payload: CreateRentalPayload): Promise<Rental> => {
+  createRental: async (
+    payload: CreateRentalPayload,
+  ): Promise<CreateRentalResponse> => {
     const formData = buildRentalFormData(payload);
-    const response = await api.post<ApiResponse<RawRental>>(
+    const response = await api.post<CreateRentalResponse>(
       "/rental/post",
       formData,
       { withCredentials: true },
     );
 
-    const rental =
-      extractRentalRecord(response.data) ?? buildFallbackRental(payload);
-    return normalizeRental(rental);
+    if (!response.data.success) {
+      throw new Error(
+        response.data.message || "Unable to publish this property.",
+      );
+    }
+
+    return response.data;
   },
 
   getAllRentals: async (options?: RentalRequestOptions): Promise<Rental[]> => {

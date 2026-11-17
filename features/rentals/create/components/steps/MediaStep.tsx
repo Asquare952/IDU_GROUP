@@ -1,21 +1,28 @@
-import {
-  Upload,
-  Image as ImageIcon,
-  X,
-} from "lucide-react";
+import { Upload, Image as ImageIcon, X } from "lucide-react";
 
 interface MediaProps {
   images: File[];
   imagePreviews: string[];
   videos: File[];
   videoPreviews: string[];
+  uploadError?: string | null;
   handleImageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   handleVideoChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   removeImage: (index: number) => void;
   removeVideo: (index: number) => void;
 }
 
-const MediaStep = ({images, imagePreviews, videos, videoPreviews, handleImageChange, handleVideoChange, removeImage, removeVideo}: MediaProps) => {
+const MediaStep = ({
+  images,
+  imagePreviews,
+  videos,
+  videoPreviews,
+  uploadError,
+  handleImageChange,
+  handleVideoChange,
+  removeImage,
+  removeVideo,
+}: MediaProps) => {
   return (
     <section className=" flex flex-col gap-3">
       <section className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
@@ -41,7 +48,8 @@ const MediaStep = ({images, imagePreviews, videos, videoPreviews, handleImageCha
               Click to upload or drag images
             </p>
             <p className="text-xs text-slate-400 mt-1">
-              {images.length} image(s) selected • Max 5MB each
+              {images.length} selected • 5MB each • Up to 10 images alone; max 4
+              images with videos
             </p>
           </div>
         </div>
@@ -93,7 +101,8 @@ const MediaStep = ({images, imagePreviews, videos, videoPreviews, handleImageCha
               Click to upload or drag videos (MP4, MOV, WebM)
             </p>
             <p className="text-xs text-slate-400 mt-1">
-              {videos.length} video(s) selected • Max 50MB each
+              {videos.length} selected • 50MB each • Up to 4 videos alone; max 2
+              videos with images
             </p>
           </div>
         </div>
@@ -143,6 +152,14 @@ const MediaStep = ({images, imagePreviews, videos, videoPreviews, handleImageCha
           </div>
         )}
       </section>
+      {uploadError && (
+        <p
+          className="rounded-xl border border-red-100 bg-red-50 p-3 text-sm text-red-700"
+          role="alert"
+        >
+          {uploadError}
+        </p>
+      )}
     </section>
   );
 };
