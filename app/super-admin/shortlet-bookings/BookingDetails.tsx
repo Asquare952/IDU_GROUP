@@ -4,7 +4,7 @@ import { useState } from "react";
 import {
   useAdminShortletBooking,
   useResolveAdminDepositClaim,
-} from "@/app/api/features/admin";
+} from "@/app/api/features/admin"; 
 import type {
   AdminDepositClaim,
   AdminShortletBooking,

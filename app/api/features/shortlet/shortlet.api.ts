@@ -457,10 +457,20 @@ export const fetchShortlets = async (
   recentOnly = true,
 ): Promise<Property[]> => {
   const endpoint = recentOnly ? "/shortlet/recent" : "/shortlet/all";
-  const response = await api.get<ApiResponse<unknown>>(endpoint, {
-    skipAuthRedirect: recentOnly,
-  } as ShortletRequestConfig);
-  return unwrapShortletList(response.data).map(normalizeShortlet);
+
+  try {
+    const response = await api.get<ApiResponse<unknown>>(endpoint, {
+      skipAuthRedirect: recentOnly,
+    } as ShortletRequestConfig);
+    return unwrapShortletList(response.data).map(normalizeShortlet);
+  } catch (error) {
+    // Empty shortlet collections are commonly returned as 404 by the API.
+    // Treat that as an empty list so it does not hide long-term properties.
+    if (isAxiosError(error) && error.response?.status === 404) {
+      return [];
+    }
+    throw error;
+  }
 };
 
 export const fetchShortletAvailability = async (
@@ -630,10 +640,18 @@ export const searchShortlets = async (params: {
   const query = new URLSearchParams();
   if (params.location) query.set("location", params.location);
   const suffix = query.toString();
-  const response = await api.get<ApiResponse<unknown>>(
-    `/shortlet/search${suffix ? `?${suffix}` : ""}`,
-  );
-  return unwrapShortletList(response.data).map(normalizeShortlet);
+
+  try {
+    const response = await api.get<ApiResponse<unknown>>(
+      `/shortlet/search${suffix ? `?${suffix}` : ""}`,
+    );
+    return unwrapShortletList(response.data).map(normalizeShortlet);
+  } catch (error) {
+    if (isAxiosError(error) && error.response?.status === 404) {
+      return [];
+    }
+    throw error;
+  }
 };
 
 export const fetchShortletById = async (
