@@ -226,6 +226,13 @@ const Page = () => {
                           `${offset}-${index}`
                         }
                         booking={booking}
+                        onDeleted={() => {
+                          if (bookings.length === 1 && offset > 0) {
+                            setOffset((current) =>
+                              Math.max(0, current - PAGE_SIZE),
+                            );
+                          }
+                        }}
                       />
                     ))}
                   </tbody>
@@ -271,7 +278,13 @@ const Page = () => {
   );
 };
 
-function BookingRow({ booking }: { booking: AdminShortletBooking }) {
+function BookingRow({
+  booking,
+  onDeleted,
+}: {
+  booking: AdminShortletBooking;
+  onDeleted: () => void;
+}) {
   const [expanded, setExpanded] = useState(false);
   const bookingId = booking.id || booking.booking_id;
   const bookingStatus = booking.status || "—";
@@ -311,7 +324,13 @@ function BookingRow({ booking }: { booking: AdminShortletBooking }) {
       {expanded && bookingId ? (
         <tr className="bg-gray-50">
           <td colSpan={8} className="p-0">
-            <BookingDetails bookingId={bookingId} />
+            <BookingDetails
+              bookingId={bookingId}
+              onDeleted={() => {
+                setExpanded(false);
+                onDeleted();
+              }}
+            />
           </td>
         </tr>
       ) : null}
