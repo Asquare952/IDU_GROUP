@@ -72,6 +72,28 @@ export const useAdminShortletBooking = (
     enabled: Boolean(bookingId) && enabled,
   });
 
+export const useDeleteAdminShortletBooking = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: adminApi.deleteShortletBooking,
+    onSuccess: async (_response, bookingId) => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["admin", "shortlet-bookings"],
+        }),
+        queryClient.removeQueries({
+          queryKey: ["admin", "shortlet-booking", bookingId],
+          exact: true,
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["admin", "shortlet-deposit-claims"],
+        }),
+      ]);
+    },
+  });
+};
+
 export const useAdminDepositClaims = (status: "open" | "resolved" | "all") =>
   useQuery({
     queryKey: adminQueryKeys.depositClaims(status),

@@ -522,6 +522,12 @@ export const adminApi = {
     return booking;
   },
 
+  deleteShortletBooking: async (bookingId: string): Promise<void> => {
+    await api.delete(
+      `/admin/shortlet-bookings/${encodeURIComponent(bookingId)}`,
+    );
+  },
+
   getDepositClaims: async (
     status: "open" | "resolved" | "all",
   ): Promise<AdminDepositClaimsResponse> => {

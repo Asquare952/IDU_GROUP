@@ -15,6 +15,7 @@ export {
   useAdminHostDebts,
   useAdminShortletBookings,
   useAdminShortletBooking,
+  useDeleteAdminShortletBooking,
   useAdminDepositClaims,
   useResolveAdminDepositClaim,
   useToggleAdminUserStatus,
