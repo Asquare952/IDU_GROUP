@@ -52,9 +52,13 @@ const amenityCategories: AmenityCategory[] = [
     description: "The essentials guests often look for first.",
     items: [
       { value: "WiFi", label: "Wi-Fi" },
-      { value: "24/7 Power", label: "24/7 power" },
+      { value: "24/7 Power Supply", label: "24/7 Power Supply" },
+      { value: "Very fast internet", label: "Very fast internet" },
+      { value: "Gated and Secured Estate", label: "Gated and Secured Estate" },
+      { value: "Housekeeping", label: "Housekeeping" },
       { value: "Security", label: "Security" },
       { value: "Parking", label: "Free parking" },
+      { value: "Car park space", label: "Parking spaces" },
     ],
   },
   {
@@ -62,6 +66,8 @@ const amenityCategories: AmenityCategory[] = [
     description: "Things guests can use to prepare and enjoy meals.",
     items: [
       { value: "kitchen", label: "Kitchen" },
+      { value: "Equipped kitchen", label: "Equipped kitchen" },
+      { value: "Fully equipped kitchen", label: "Fully equipped kitchen" },
       { value: "Refrigerator", label: "Refrigerator" },
       { value: "Microwave", label: "Microwave" },
       { value: "Cooking basics", label: "Cooking basics" },
@@ -73,7 +79,9 @@ const amenityCategories: AmenityCategory[] = [
     description: "Bathroom essentials and everyday comforts.",
     items: [
       { value: "Hot water", label: "Hot water" },
+      { value: "Treated water supply", label: "Treated water supply" },
       { value: "Towels", label: "Towels" },
+      { value: "Clean towels", label: "Clean towels" },
       { value: "Hair dryer", label: "Hair dryer" },
     ],
   },
@@ -83,6 +91,9 @@ const amenityCategories: AmenityCategory[] = [
     items: [
       { value: "Bed linens", label: "Bed linens" },
       { value: "Wardrobe", label: "Wardrobe" },
+      { value: "En-suite room", label: "En-suite room" },
+      { value: "Modern day furnitures", label: "Modern day furnitures" },
+      { value: "Tastefully furnished", label: "Tastefully furnished" },
       { value: "Iron", label: "Iron" },
       { value: "Washing machine", label: "Washing machine" },
     ],
@@ -92,7 +103,10 @@ const amenityCategories: AmenityCategory[] = [
     description: "Ways for guests to relax and stay entertained.",
     items: [
       { value: "TV", label: "TV" },
+      { value: "Smart TV", label: "Smart TV" },
       { value: "Streaming services", label: "Streaming services" },
+      { value: "Netflix / YouTube", label: "Netflix / YouTube" },
+      { value: "Snooker", label: "Snooker" },
       { value: "Gym", label: "Gym" },
     ],
   },
@@ -105,13 +119,22 @@ const amenityCategories: AmenityCategory[] = [
     ],
   },
   {
-    title: "Outdoor & facilities",
-    description: "Shared or private spaces available to guests.",
+    title: "Outdoor, location & facilities",
+    description: "Shared spaces and nearby destinations available to guests.",
     items: [
-      { value: "Swimming Pool", label: "Swimming pool" },
+      { value: "Swimming pool", label: "Swimming pool" },
+      { value: "Serene environment", label: "Serene environment" },
       { value: "Garden", label: "Garden" },
       { value: "Balcony", label: "Balcony" },
       { value: "Elevator", label: "Elevator" },
+      {
+        value: "10 mins proximity to the airport",
+        label: "10 mins proximity to the airport",
+      },
+      {
+        value: "Proximity to fun spots in Lagos",
+        label: "Proximity to fun spots in Lagos",
+      },
     ],
   },
 ];
