@@ -13,6 +13,7 @@ import {
   Wallet,
   House,
   CalendarDays,
+  Star,
 } from "lucide-react";
 
 export const sidebarItems: SidebarItems[] = [
@@ -39,6 +40,18 @@ export const sidebarItems: SidebarItems[] = [
     name: "Shortlet cancellations",
     path: "/landlord/shortlet-cancellations",
     icon: CalendarDays,
+  },
+  {
+    id: 8,
+    name: "Shortlet inspections",
+    path: "/landlord/shortlet-inspections",
+    icon: ClipboardCheck,
+  },
+  {
+    id: 9,
+    name: "Shortlet reviews",
+    path: "/landlord/shortlet-reviews",
+    icon: Star,
   },
   {
     id: 3,

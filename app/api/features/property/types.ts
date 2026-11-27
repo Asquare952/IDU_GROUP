@@ -19,6 +19,8 @@ export type Property = Omit<Rental, "price"> & {
   landmark?: string;
   cleaningFee?: number;
   securityDeposit?: number;
+  ratingAverage?: number | null;
+  reviewCount?: number;
   minimumStay?: number;
   maximumStay?: number;
   availableFrom?: string;

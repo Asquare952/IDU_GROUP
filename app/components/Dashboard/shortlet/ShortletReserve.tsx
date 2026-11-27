@@ -34,6 +34,7 @@ export default function ShortletReserve({
 }: ShortletReserveProps) {
   const [showCancellationDetails, setShowCancellationDetails] = useState(false);
   const nights = quote?.nights ?? 0;
+  const cautionFee = quote?.cautionFee ?? quote?.securityDeposit;
   const formatDate = (date: Date | null) =>
     date
       ? date.toLocaleDateString("en-GB", {
@@ -90,10 +91,10 @@ export default function ShortletReserve({
               <span>₦{Number(quote.cleaningFee).toLocaleString()}</span>
             </div>
           )}
-          {Number(quote.securityDeposit) > 0 && (
+          {Number(cautionFee ?? 0) > 0 && (
             <div className="flex justify-between gap-3 text-gray-600">
-              <span>Security deposit</span>
-              <span>₦{Number(quote.securityDeposit).toLocaleString()}</span>
+              <span>Refundable caution fee</span>
+              <span>₦{Number(cautionFee).toLocaleString()}</span>
             </div>
           )}
           <div className="flex justify-between gap-3 border-t border-gray-200 pt-3 font-bold text-gray-900">

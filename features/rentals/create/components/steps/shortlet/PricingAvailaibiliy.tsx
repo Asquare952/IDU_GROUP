@@ -87,16 +87,25 @@ const PricingAvailaibiliy = ({ methods, errors }: Props) => {
             </div>
             <div>
               <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
-                Security Deposit
+                Refundable Caution Fee
               </label>
               <input
                 type="number"
                 step="0.01"
                 {...methods.register("securityDeposit", {
                   valueAsNumber: true,
+                  min: {
+                    value: 0,
+                    message: "Caution fee cannot be negative",
+                  },
                 })}
                 className="w-full p-3 bg-[#F8FAFC] rounded-xl"
               />
+              {errors.securityDeposit && (
+                <p className="ml-1 text-xs text-red-500">
+                  {errors.securityDeposit.message}
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -114,7 +123,8 @@ const PricingAvailaibiliy = ({ methods, errors }: Props) => {
               </label>
               <input
                 type="number"
-                step="0.01"
+                min={1}
+                step={1}
                 {...methods.register("minimumStay", {
                   valueAsNumber: true,
                 })}
@@ -127,7 +137,8 @@ const PricingAvailaibiliy = ({ methods, errors }: Props) => {
               </label>
               <input
                 type="number"
-                step="0.01"
+                min={1}
+                step={1}
                 {...methods.register("maximumStay", {
                   valueAsNumber: true,
                 })}

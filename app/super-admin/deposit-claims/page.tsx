@@ -74,7 +74,7 @@ const Page = () => {
             Deposit Claims
           </h1>
           <p className="mt-1 text-sm text-gray-500 md:text-base">
-            Review Shortlet security deposit claims. The backend processes
+            Review Shortlet refundable caution fee claims. The backend processes
             approved payments and guest refunds.
           </p>
         </header>
@@ -137,7 +137,7 @@ const Page = () => {
                     {[
                       "Booking",
                       "Claim amount",
-                      "Security deposit",
+                      "Refundable caution fee",
                       "Reason",
                       "Claimed at",
                       "Decision",
@@ -172,7 +172,9 @@ const Page = () => {
                             {formatMoney(claim.deposit_claim_amount)}
                           </td>
                           <td className="whitespace-nowrap px-4 py-4 text-sm text-gray-700">
-                            {formatMoney(claim.security_deposit)}
+                            {formatMoney(
+                              claim.security_deposit ?? claim.cautionFee,
+                            )}
                           </td>
                           <td className="max-w-xs px-4 py-4 text-sm text-gray-600">
                             <span className="line-clamp-2">
