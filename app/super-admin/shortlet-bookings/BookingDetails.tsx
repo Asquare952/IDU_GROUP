@@ -360,9 +360,9 @@ const propertyFields: {
 
   {
 
-    label: "Security deposit",
+    label: "Refundable caution fee",
 
-    keys: ["securityDeposit", "security_deposit"],
+    keys: ["cautionFee", "caution_fee", "securityDeposit", "security_deposit"],
 
     format: "money",
 
@@ -430,9 +430,9 @@ const bookingFields: {
 
   {
 
-    label: "Security deposit",
+    label: "Refundable caution fee",
 
-    keys: ["securityDeposit", "security_deposit"],
+    keys: ["cautionFee", "caution_fee", "securityDeposit", "security_deposit"],
 
     format: "money",
 
@@ -1274,7 +1274,17 @@ function DepositClaimDetails({
 
     security_deposit:
 
-      resolvedClaim.security_deposit ?? claimRecord?.security_deposit,
+      resolvedClaim.security_deposit ??
+
+      resolvedClaim.cautionFee ??
+
+      resolvedClaim.caution_fee ??
+
+      claimRecord?.security_deposit ??
+
+      claimRecord?.cautionFee ??
+
+      claimRecord?.caution_fee,
 
     deposit_claimed_at:
 
@@ -1302,6 +1312,16 @@ function DepositClaimDetails({
 
       resolvedClaim.deposit_claim_photos ?? claimRecord?.deposit_claim_photos,
 
+    deposit_claim_videos:
+
+      resolvedClaim.deposit_claim_videos ??
+
+      claimRecord?.deposit_claim_videos ??
+
+      resolvedClaim.claim?.videos ??
+
+      claimRecord?.claim?.videos,
+
   };
 
   return (
@@ -1322,7 +1342,7 @@ function DepositClaimDetails({
 
         <TextDetail
 
-          label="Security deposit"
+          label="Refundable caution fee"
 
           value={formatMoney(data.security_deposit)}
 
@@ -1380,6 +1400,8 @@ function DepositClaimDetails({
 
       <ClaimPhotos photos={data.deposit_claim_photos} />
 
+      <ClaimVideos videos={data.deposit_claim_videos} />
+
     </section>
 
   );
@@ -1387,113 +1409,111 @@ function DepositClaimDetails({
 }
 
 function ClaimPhotos({ photos }: { photos: unknown }) {
-
   let photoValues = photos;
-
   if (typeof photos === "string" && photos.trim().startsWith("[")) {
-
     try {
-
       photoValues = JSON.parse(photos) as unknown;
-
     } catch {
-
       photoValues = photos;
-
     }
-
   }
 
   const urls =
-
     typeof photoValues === "string"
-
       ? /^(https?:\/\/|\/(?!\/))/i.test(photoValues.trim())
-
         ? [photoValues]
-
         : []
-
       : Array.isArray(photoValues)
-
         ? photoValues.filter(
-
             (photo): photo is string =>
-
               typeof photo === "string" &&
-
               /^(https?:\/\/|\/(?!\/))/i.test(photo.trim()),
-
           )
-
         : [];
 
   if (urls.length === 0) {
-
     return photos == null ? null : (
-
       <div className="mt-4">
-
         <h4 className="text-xs font-semibold text-gray-500">Evidence photos</h4>
-
         <p className="mt-2 rounded-lg bg-gray-50 p-3 text-sm text-gray-500">
-
           Evidence details are available, but no viewable photo was returned.
-
         </p>
-
       </div>
-
     );
-
   }
 
   return (
-
     <div className="mt-4">
-
       <h4 className="text-xs font-semibold text-gray-500">Evidence photos</h4>
-
       <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-4">
-
         {urls.map((url, index) => (
-
           <a
-
             key={`${url}-${index}`}
-
             href={url}
-
             target="_blank"
-
             rel="noreferrer"
-
             className="overflow-hidden rounded-lg border border-gray-200 bg-gray-100"
-
           >
-
             {/* eslint-disable-next-line @next/next/no-img-element */}
-
             <img
-
               src={url}
-
               alt={`Deposit claim evidence ${index + 1}`}
-
               className="h-32 w-full object-cover"
-
             />
-
           </a>
-
         ))}
-
       </div>
-
     </div>
-
   );
+}
 
+const getEvidenceUrls = (evidence: unknown): string[] => {
+  let values = evidence;
+  if (typeof values === "string" && values.trim().startsWith("[")) {
+    try {
+      values = JSON.parse(values) as unknown;
+    } catch {
+      return [];
+    }
+  }
+
+  const urls = typeof values === "string" ? [values] : Array.isArray(values) ? values : [];
+  return urls.filter(
+    (url): url is string =>
+      typeof url === "string" &&
+      /^(https?:\/\/|\/(?!\/))/i.test(url.trim()),
+  );
+};
+
+function ClaimVideos({ videos }: { videos: unknown }) {
+  if (videos == null) return null;
+  const urls = getEvidenceUrls(videos);
+
+  return (
+    <div className="mt-4">
+      <h4 className="text-xs font-semibold text-gray-500">Evidence videos</h4>
+      {urls.length > 0 ? (
+        <ul className="mt-2 space-y-1 text-sm">
+          {urls.map((url, index) => (
+            <li key={`${url}-${index}`}>
+              <a
+                href={url}
+                target="_blank"
+                rel="noreferrer"
+                className="font-medium text-blue-700 underline"
+              >
+                View evidence video {index + 1}
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-2 rounded-lg bg-gray-50 p-3 text-sm text-gray-500">
+          Evidence details are available, but no viewable video was returned.
+        </p>
+      )}
+    </div>
+  );
 }
 
 function ClaimResolution({
@@ -1543,28 +1563,32 @@ function ClaimResolution({
     ) || ["settled", "refunded"].includes(depositStatus?.toLowerCase() ?? "");
 
   const claimedCents = parseCents(
-
-    claim?.deposit_claim_amount ?? claimRecord?.deposit_claim_amount,
-
+    claim?.deposit_claim_amount ??
+      claim?.claim?.amount ??
+      claimRecord?.deposit_claim_amount ??
+      claimRecord?.claim?.amount,
   );
-
+  const cautionFeeCents = parseCents(
+    claim?.security_deposit ??
+      claim?.cautionFee ??
+      claim?.caution_fee ??
+      claimRecord?.security_deposit ??
+      claimRecord?.cautionFee ??
+      claimRecord?.caution_fee,
+  );
   const enteredCents = amount.trim() ? parseCents(amount) : null;
+  const approvalLimitCents = claimedCents ?? cautionFeeCents;
+  const approvalAmountRequired =
+    decision === "approve" && claimedCents === null;
 
   const amountInvalid = Boolean(
-
     decision === "approve" &&
-
-    ((amount.trim() && enteredCents === null) ||
-
-      (amount.trim() &&
-
-        claimedCents !== null &&
-
-        enteredCents !== null &&
-
-        enteredCents > claimedCents) ||
-
-      (amount.trim() && claimedCents === null)),
+      ((approvalAmountRequired && !amount.trim()) ||
+        (amount.trim() && enteredCents === null) ||
+        (amount.trim() &&
+          approvalLimitCents !== null &&
+          enteredCents !== null &&
+          enteredCents > approvalLimitCents)),
 
   );
 
@@ -1578,7 +1602,7 @@ function ClaimResolution({
 
         ? "Approve this deposit claim? The backend will immediately process the host payment and guest refund."
 
-        : "Reject this deposit claim? The backend will immediately refund the security deposit to the guest.";
+        : "Reject this deposit claim? The backend will immediately refund the caution fee to the guest.";
 
     if (!window.confirm(confirmation)) return;
 
@@ -1688,7 +1712,7 @@ function ClaimResolution({
 
           <label className="text-sm font-medium text-gray-700">
 
-            Approval amount (optional, ₦)
+            Approval amount ({approvalAmountRequired ? "required" : "optional"}, ₦)
 
             <input
 
@@ -1698,33 +1722,27 @@ function ClaimResolution({
 
               max={
 
-                claimedCents === null
-
+                approvalLimitCents === null
                   ? undefined
-
-                  : (claimedCents / 100).toFixed(2)
+                  : (approvalLimitCents / 100).toFixed(2)
 
               }
 
               step="0.01"
 
               value={amount}
-
               onChange={(event) => setAmount(event.target.value)}
-
               disabled={isPending}
-
+              required={approvalAmountRequired}
               aria-invalid={amountInvalid}
 
               className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
 
               placeholder={
 
-                claimedCents === null
-
-                  ? "Enter amount"
-
-                  : `Up to ${(claimedCents / 100).toFixed(2)}`
+                approvalLimitCents === null
+                  ? "Enter verified damage cost"
+                  : `Up to ${(approvalLimitCents / 100).toFixed(2)}`
 
               }
 
@@ -1740,7 +1758,7 @@ function ClaimResolution({
 
         <p className="mt-2 text-sm text-red-700" role="alert">
 
-          Enter a valid amount that does not exceed the claimed amount.
+          Enter a valid approval amount that does not exceed the claim or caution fee.
 
         </p>
 

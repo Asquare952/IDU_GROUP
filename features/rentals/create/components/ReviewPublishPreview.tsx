@@ -429,7 +429,7 @@ export default function ReviewPublishPreview({
                     <>
                       <FeeRow label="Cleaning fee" value={values.cleaningFee} />
                       <FeeRow
-                        label="Security deposit"
+                        label="Refundable caution fee"
                         value={values.securityDeposit}
                       />
                     </>

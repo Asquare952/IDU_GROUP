@@ -7,13 +7,20 @@ import {
   deleteShortlet,
   fetchAdminShortlets,
   fetchHostShortletBookings,
+  fetchHostShortletInspections,
+  fetchHostShortletReviews,
   fetchShortletById,
   fetchShortletAvailability,
   fetchShortletBookings,
   fetchShortletCancellationPreview,
+  fetchShortletReviews,
+  fetchPendingShortletReviews,
   fetchShortletQuote,
   fetchShortlets,
+  respondToShortletReview,
+  submitShortletReview,
   updateShortlet,
+  submitShortletInspection,
 } from "./shortlet.api";
 import type {
   CreateShortletPayload,
@@ -21,6 +28,9 @@ import type {
   CancelShortletBookingResponse,
   ShortletCancellationPreview,
   ShortletGuestBooking,
+  ShortletHostReviewFilters,
+  ShortletInspectionPayload,
+  ShortletInspectionResponse,
   ShortletBookingPayload,
   ShortletBookingResponse,
   ShortletAvailability,
@@ -137,6 +147,64 @@ export const useShortletBookings = () =>
     queryFn: fetchShortletBookings,
   });
 
+export const useShortletReviews = (
+  identifier: string | null | undefined,
+  params: { limit?: number; offset?: number } = { limit: 50, offset: 0 },
+  enabled = true,
+) =>
+  useQuery({
+    queryKey: ["shortlet-reviews", identifier, params],
+    queryFn: () => fetchShortletReviews(identifier!, params),
+    enabled: Boolean(identifier) && enabled,
+  });
+
+export const usePendingShortletReviews = () =>
+  useQuery({
+    queryKey: ["shortlet-pending-reviews"],
+    queryFn: fetchPendingShortletReviews,
+  });
+
+export const useSubmitShortletReview = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: submitShortletReview,
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["shortlet-pending-reviews"] }),
+        queryClient.invalidateQueries({ queryKey: ["shortlet-bookings"] }),
+        queryClient.invalidateQueries({ queryKey: ["shortlet-reviews"] }),
+        queryClient.invalidateQueries({ queryKey: ["shortlet"] }),
+        queryClient.invalidateQueries({ queryKey: ["shortlets"] }),
+      ]);
+    },
+  });
+};
+
+export const useHostShortletReviews = (
+  filters: ShortletHostReviewFilters = {},
+) =>
+  useQuery({
+    queryKey: ["host-shortlet-reviews", filters],
+    queryFn: () => fetchHostShortletReviews(filters),
+  });
+
+export const useRespondToShortletReview = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: respondToShortletReview,
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["host-shortlet-reviews"] }),
+        queryClient.invalidateQueries({ queryKey: ["shortlet-reviews"] }),
+        queryClient.invalidateQueries({ queryKey: ["shortlet"] }),
+        queryClient.invalidateQueries({ queryKey: ["shortlets"] }),
+      ]);
+    },
+  });
+};
+
 export const useHostShortletBookings = (
   status?: "confirmed" | "cancelled" | "completed",
 ) =>
@@ -144,6 +212,36 @@ export const useHostShortletBookings = (
     queryKey: ["host-shortlet-bookings", status ?? "all"],
     queryFn: () => fetchHostShortletBookings(status),
   });
+
+export const useHostShortletInspections = () =>
+  useQuery<ShortletGuestBooking[]>({
+    queryKey: ["host-shortlet-inspections"],
+    queryFn: fetchHostShortletInspections,
+  });
+
+export const useSubmitShortletInspection = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    ShortletInspectionResponse,
+    Error,
+    ShortletInspectionPayload
+  >({
+    mutationFn: submitShortletInspection,
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["host-shortlet-inspections"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["host-shortlet-bookings"],
+        }),
+        queryClient.invalidateQueries({ queryKey: ["wallet"] }),
+        queryClient.invalidateQueries({ queryKey: ["wallet-transactions"] }),
+      ]);
+    },
+  });
+};
 
 export const useShortletCancellationPreview = (
   bookingId: string | null,

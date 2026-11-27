@@ -58,10 +58,8 @@ export interface CreateShortletPayload {
 export type UpdateShortletPayload = Partial<
   Omit<CreateShortletPayload, "images" | "videos">
 > & {
-  images?: File[];
-  videos?: File[];
-  removedImages?: string[];
-  removedVideos?: string[];
+  images?: string[];
+  videos?: string[];
 };
 
 type RawShortlet = Record<string, unknown>;
@@ -94,6 +92,8 @@ export interface ShortletQuote {
   cleaningFee: string;
   securityDeposit: string;
   securityDepositRefundable: boolean;
+  cautionFee?: string;
+  cautionFeeRefundable?: boolean;
   total: string;
   cancellationPolicy: {
     policy: string;
@@ -134,6 +134,16 @@ export interface ShortletBookingResponse {
   walletBalance: string;
 }
 
+export interface ShortletDepositInspection {
+  canInspect?: boolean;
+  cautionFee?: string | number | null;
+  inspection?: {
+    outcome?: "no_damage" | "damage" | null;
+    inspectedAt?: string | null;
+    pending?: boolean;
+  } | null;
+}
+
 export interface ShortletGuestBooking {
   id: string;
   booking_id?: string;
@@ -147,6 +157,8 @@ export interface ShortletGuestBooking {
   cancelledAt?: string;
   cancelledBy?: string;
   cancellationReason?: string;
+  review?: ShortletBookingReviewStatus | null;
+  depositClaim?: ShortletDepositInspection | null;
   guest?: {
     id?: string;
     fullName?: string;
@@ -162,6 +174,121 @@ export interface ShortletGuestBooking {
     images?: string[];
     pricePerNight?: string | number;
   } | null;
+}
+
+export type ShortletInspectionPayload =
+  | {
+      bookingId: string;
+      outcome: "no_damage";
+    }
+  | {
+      bookingId: string;
+      outcome: "damage";
+      description: string;
+      photos: File[];
+      videos: File[];
+    };
+
+export interface ShortletInspectionResponse {
+  success: boolean;
+  message: string;
+  refunded?: boolean;
+  data?: unknown;
+}
+
+export interface ShortletHostResponse {
+  text: string;
+  respondedAt?: string;
+  updatedAt?: string;
+}
+
+export interface ShortletPublicReview {
+  id: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+  stay?: {
+    checkIn?: string;
+    checkOut?: string;
+    month?: string;
+  };
+  verifiedBooking?: boolean;
+  guest?: {
+    displayName?: string;
+    profileImage?: string | null;
+  } | null;
+  hostResponse?: ShortletHostResponse | null;
+}
+
+export interface ShortletReviewsResult {
+  shortlet_id: string;
+  ratingAverage: string | null;
+  reviewCount: number;
+  reviews: ShortletPublicReview[];
+  pagination?: {
+    total: number;
+    limit: number;
+    offset: number;
+  };
+}
+
+export interface ShortletPendingReview {
+  booking_id: string;
+  shortlet: {
+    id: string;
+    slug?: string;
+    title?: string;
+    coverImage?: string;
+    city?: string;
+    area?: string;
+  };
+  check_in: string;
+  check_out: string;
+  reviewDeadline: string;
+}
+
+export interface ShortletHostReview extends ShortletPublicReview {
+  booking_id: string;
+  shortlet: {
+    id: string;
+    slug?: string;
+    title?: string;
+    ratingAverage?: string | null;
+    reviewCount?: number;
+  };
+  canRespond: boolean;
+}
+
+export interface ShortletHostReviewFilters {
+  shortlet_id?: string;
+  responded?: boolean;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ShortletBookingReviewStatus {
+  submitted?: boolean;
+  canReview?: boolean;
+  deadline?: string | null;
+  review?: ShortletPublicReview | null;
+  canRespond?: boolean;
+}
+
+export interface ShortletReviewSubmissionResponse {
+  success: boolean;
+  message: string;
+  data: ShortletPublicReview;
+  shortlet: {
+    id: string;
+    ratingAverage: string | null;
+    reviewCount: number;
+  };
+}
+
+export interface ShortletHostReviewResponse {
+  success: boolean;
+  message: string;
+  data: ShortletPublicReview;
 }
 
 export interface ShortletCancellationPreview {
@@ -234,10 +361,31 @@ interface ShortletApiResponse<T> {
   data: T;
 }
 
+interface ShortletListApiResponse<T> {
+  success: boolean;
+  message?: string;
+  count?: number;
+  data: T;
+}
+
+interface ShortletReviewsApiResponse {
+  success: boolean;
+  message?: string;
+  data: Omit<ShortletReviewsResult, "pagination">;
+  pagination?: ShortletReviewsResult["pagination"];
+}
+
 export const getShortletApiError = (
   error: unknown,
 ): { code?: string; message: string; status?: number } => {
-  if (isAxiosError<{ code?: unknown; message?: unknown }>(error)) {
+  if (
+    isAxiosError<{
+      code?: unknown;
+      message?: unknown;
+      error?: unknown;
+      details?: unknown;
+    }>(error)
+  ) {
     const code =
       typeof error.response?.data?.code === "string"
         ? error.response.data.code
@@ -245,6 +393,10 @@ export const getShortletApiError = (
     const message =
       typeof error.response?.data?.message === "string"
         ? error.response.data.message
+        : typeof error.response?.data?.error === "string"
+          ? error.response.data.error
+          : typeof error.response?.data?.details === "string"
+            ? error.response.data.details
         : error.message;
     return { code, message, status: error.response?.status };
   }
@@ -365,11 +517,19 @@ export const normalizeShortlet = (raw: RawShortlet): Property => {
     location: asString(raw.area ?? raw.city ?? raw.address),
     price,
     legalFee: 0,
-    cautionFee: asOptionalNumber(raw.securityDeposit) ?? 0,
+    cautionFee:
+      asOptionalNumber(raw.cautionFee) ??
+      asOptionalNumber(raw.securityDeposit) ??
+      0,
     brokeFee: 0,
     mgtServiceCharge: asOptionalNumber(raw.cleaningFee) ?? 0,
     priceType: "nightly",
     status,
+    ratingAverage:
+      raw.ratingAverage === null
+        ? null
+        : (asOptionalNumber(raw.ratingAverage) ?? null),
+    reviewCount: asOptionalNumber(raw.reviewCount),
     liked: typeof raw.liked === "boolean" ? raw.liked : undefined,
     images,
     videos: asMediaList(raw.videos),
@@ -405,7 +565,9 @@ export const normalizeShortlet = (raw: RawShortlet): Property => {
     area: asOptionalString(raw.area),
     landmark: asOptionalString(raw.landmark),
     cleaningFee: asOptionalNumber(raw.cleaningFee),
-    securityDeposit: asOptionalNumber(raw.securityDeposit),
+    securityDeposit:
+      asOptionalNumber(raw.cautionFee) ??
+      asOptionalNumber(raw.securityDeposit),
     minimumStay: asOptionalNumber(raw.minimumStay),
     maximumStay: asOptionalNumber(raw.maximumStay),
     availableFrom: asOptionalString(raw.availableFrom),
@@ -422,7 +584,7 @@ export const normalizeShortlet = (raw: RawShortlet): Property => {
   };
 };
 
-const toFormData = (payload: UpdateShortletPayload) => {
+const toFormData = (payload: CreateShortletPayload) => {
   const formData = new FormData();
   const { images, videos, amenities, houseRules, ...fields } = payload;
 
@@ -433,12 +595,6 @@ const toFormData = (payload: UpdateShortletPayload) => {
   });
   if (amenities) formData.append("amenities", JSON.stringify(amenities));
   if (houseRules) formData.append("houseRules", JSON.stringify(houseRules));
-  payload.removedImages?.forEach((image) =>
-    formData.append("removedImages", image),
-  );
-  payload.removedVideos?.forEach((video) =>
-    formData.append("removedVideos", video),
-  );
   images?.forEach((image) => formData.append("images", image));
   videos?.forEach((video) => formData.append("videos", video));
 
@@ -546,6 +702,13 @@ const normalizeGuestBooking = (value: unknown): ShortletGuestBooking => {
   const booking = asRecord(value) ?? {};
   const shortlet = asRecord(booking.shortlet);
   const guest = asRecord(booking.guest);
+  const depositClaim = asRecord(booking.depositClaim ?? booking.deposit_claim);
+  const inspection = asRecord(depositClaim?.inspection);
+  const bookingReview = asRecord(booking.review);
+  const review = asRecord(bookingReview?.review);
+  const reviewGuest = asRecord(review?.guest);
+  const reviewStay = asRecord(review?.stay);
+  const hostResponse = asRecord(review?.hostResponse);
   const rawImages = asStringList(shortlet?.images);
   const coverImage = asOptionalString(shortlet?.coverImage);
   const pricePerNight = shortlet?.pricePerNight ?? booking.price_per_night;
@@ -571,6 +734,72 @@ const normalizeGuestBooking = (value: unknown): ShortletGuestBooking => {
     cancellationReason: asOptionalString(
       booking.cancellationReason ?? booking.cancellation_reason,
     ),
+    review: bookingReview
+      ? {
+          submitted: bookingReview.submitted === true,
+          canReview: bookingReview.canReview === true,
+          deadline: asOptionalString(bookingReview.deadline) ?? null,
+          canRespond: bookingReview.canRespond === true,
+          review: review
+            ? {
+                id: asString(review.id),
+                rating: Number(review.rating),
+                comment: asString(review.comment),
+                createdAt: asString(review.createdAt),
+                stay: reviewStay
+                  ? {
+                      checkIn: asOptionalString(reviewStay.checkIn),
+                      checkOut: asOptionalString(reviewStay.checkOut),
+                      month: asOptionalString(reviewStay.month),
+                    }
+                  : undefined,
+                verifiedBooking: review.verifiedBooking === true,
+                guest: reviewGuest
+                  ? {
+                      displayName: asOptionalString(
+                        reviewGuest.displayName,
+                      ),
+                      profileImage:
+                        asOptionalString(reviewGuest.profileImage) ?? null,
+                    }
+                  : null,
+                hostResponse: hostResponse
+                  ? {
+                      text: asString(hostResponse.text),
+                      respondedAt: asOptionalString(
+                        hostResponse.respondedAt,
+                      ),
+                      updatedAt: asOptionalString(hostResponse.updatedAt),
+                    }
+                  : null,
+              }
+            : null,
+        }
+      : null,
+    depositClaim: depositClaim
+      ? {
+          canInspect: depositClaim.canInspect === true,
+          cautionFee:
+            typeof depositClaim.cautionFee === "string" ||
+            typeof depositClaim.cautionFee === "number"
+              ? depositClaim.cautionFee
+              : null,
+          inspection: inspection
+            ? {
+                outcome:
+                  inspection.outcome === "no_damage" ||
+                  inspection.outcome === "damage"
+                    ? inspection.outcome
+                    : null,
+                inspectedAt: asOptionalString(inspection.inspectedAt) ?? null,
+                pending:
+                  typeof inspection.pending === "boolean"
+                    ? inspection.pending
+                    : undefined,
+              }
+            : null,
+        }
+      : null,
     guest: guest
       ? {
           id: asOptionalString(guest.id),
@@ -605,6 +834,117 @@ export const fetchHostShortletBookings = async (
     .filter((booking) => booking.id);
 
   return bookings;
+};
+
+export const fetchHostShortletInspections = async (): Promise<
+  ShortletGuestBooking[]
+> => {
+  const response = await api.get<unknown>("/shortlet/host/inspections");
+  return findBookingList(response.data)
+    .map(normalizeGuestBooking)
+    .filter((booking) => booking.id);
+};
+
+export const submitShortletInspection = async (
+  payload: ShortletInspectionPayload,
+): Promise<ShortletInspectionResponse> => {
+  const endpoint = `/shortlet/bookings/${encodeURIComponent(payload.bookingId)}/inspection`;
+  let body: { outcome: "no_damage" } | FormData;
+
+  if (payload.outcome === "no_damage") {
+    body = { outcome: payload.outcome };
+  } else {
+    const formData = new FormData();
+    formData.append("outcome", payload.outcome);
+    formData.append("description", payload.description);
+    payload.photos.forEach((photo) => formData.append("photos", photo));
+    payload.videos.forEach((video) => formData.append("videos", video));
+    body = formData;
+  }
+
+  const response = await api.post<ShortletInspectionResponse>(endpoint, body);
+  if (!response.data.success) {
+    throw new Error(response.data.message || "Unable to submit the inspection.");
+  }
+  return response.data;
+};
+
+export const fetchShortletReviews = async (
+  identifier: string,
+  params: { limit?: number; offset?: number } = { limit: 50, offset: 0 },
+): Promise<ShortletReviewsResult> => {
+  const response = await api.get<ShortletReviewsApiResponse>(
+    `/shortlet/get1/${encodeURIComponent(identifier)}/reviews`,
+    {
+      params,
+      skipAuthRedirect: true,
+    } as ShortletRequestConfig,
+  );
+  const result = response.data.data;
+  if (!result || !Array.isArray(result.reviews)) {
+    throw new Error("The reviews response did not contain a review list.");
+  }
+  return { ...result, pagination: response.data.pagination };
+};
+
+export const fetchPendingShortletReviews = async (): Promise<
+  ShortletPendingReview[]
+> => {
+  const response = await api.get<
+    ShortletListApiResponse<ShortletPendingReview[]>
+  >("/shortlet/reviews/pending");
+  if (!Array.isArray(response.data.data)) {
+    throw new Error("The pending reviews response did not contain a list.");
+  }
+  return response.data.data;
+};
+
+export const submitShortletReview = async ({
+  bookingId,
+  rating,
+  comment,
+}: {
+  bookingId: string;
+  rating: number;
+  comment: string;
+}): Promise<ShortletReviewSubmissionResponse> => {
+  const response = await api.post<ShortletReviewSubmissionResponse>(
+    `/shortlet/bookings/${encodeURIComponent(bookingId)}/review`,
+    { rating, comment },
+  );
+  if (!response.data.success) {
+    throw new Error(response.data.message || "Unable to submit the review.");
+  }
+  return response.data;
+};
+
+export const fetchHostShortletReviews = async (
+  filters: ShortletHostReviewFilters = {},
+): Promise<ShortletHostReview[]> => {
+  const response = await api.get<
+    ShortletListApiResponse<ShortletHostReview[]>
+  >("/shortlet/host/reviews", { params: filters });
+  if (!Array.isArray(response.data.data)) {
+    throw new Error("The host reviews response did not contain a review list.");
+  }
+  return response.data.data;
+};
+
+export const respondToShortletReview = async ({
+  reviewId,
+  response: message,
+}: {
+  reviewId: string;
+  response: string;
+}): Promise<ShortletHostReviewResponse> => {
+  const response = await api.put<ShortletHostReviewResponse>(
+    `/shortlet/reviews/${encodeURIComponent(reviewId)}/response`,
+    { response: message },
+  );
+  if (!response.data.success) {
+    throw new Error(response.data.message || "Unable to publish the response.");
+  }
+  return response.data;
 };
 
 export const fetchShortletCancellationPreview = async (
@@ -682,7 +1022,7 @@ export const updateShortlet = async (
 ) => {
   const response = await api.put<ApiResponse<unknown>>(
     `/shortlet/update/${encodeURIComponent(identifier)}`,
-    toFormData(payload),
+    payload,
   );
   return response.data;
 };

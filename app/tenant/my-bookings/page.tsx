@@ -4,16 +4,26 @@ import DashboardLayout from "@/app/components/Tenant-Dashboard/DashboardLayout";
 import { useBookedRentals } from "@/app/api/features/progress/progress.queries";
 import type { Rental } from "@/app/api/features/rental";
 import {
+  getShortletApiError,
   useCancelShortletBooking,
+  usePendingShortletReviews,
   useShortletBookings,
   useShortletCancellationPreview,
+  useSubmitShortletReview,
 } from "@/app/api/features/shortlet";
 import type { ShortletGuestBooking } from "@/app/api/features/shortlet";
 import { getPropertyDetailsPath } from "@/app/lib/property-routes";
-import { AlertCircle, CalendarDays, Loader2, MapPin, X } from "lucide-react";
+import {
+  AlertCircle,
+  CalendarDays,
+  Loader2,
+  MapPin,
+  Star,
+  X,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { toast } from "react-toastify";
 
 type BookingFilter = "all" | "long-term" | "shortlet";
@@ -115,13 +125,172 @@ const LongTermBookingCard = ({ rental }: { rental: Rental }) => {
   );
 };
 
+const ShortletReviewDialog = ({
+  booking,
+  onClose,
+}: {
+  booking: ShortletGuestBooking;
+  onClose: () => void;
+}) => {
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
+  const [formError, setFormError] = useState<string | null>(null);
+  const submitReview = useSubmitShortletReview();
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const trimmedComment = comment.trim();
+    if (rating < 1 || rating > 5) {
+      setFormError("Select a rating from 1 to 5 stars.");
+      return;
+    }
+    if (trimmedComment.length < 10 || trimmedComment.length > 2000) {
+      setFormError("Your review must be 10 to 2000 characters.");
+      return;
+    }
+
+    setFormError(null);
+    submitReview.mutate(
+      {
+        bookingId: booking.booking_id ?? booking.id,
+        rating,
+        comment: trimmedComment,
+      },
+      {
+        onSuccess: (response) => {
+          toast.success(response.message);
+          onClose();
+        },
+        onError: (error) => setFormError(getShortletApiError(error).message),
+      },
+    );
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-end justify-center bg-black/50 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="shortlet-review-title"
+      onMouseDown={(event) => {
+        if (
+          event.target === event.currentTarget &&
+          !submitReview.isPending
+        ) {
+          onClose();
+        }
+      }}
+    >
+      <div className="max-h-[90vh] w-full overflow-y-auto rounded-t-3xl bg-white p-6 shadow-2xl sm:max-w-lg sm:rounded-3xl">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2
+              id="shortlet-review-title"
+              className="text-xl font-bold text-[#162B4C]"
+            >
+              Review your stay
+            </h2>
+            <p className="mt-1 text-sm text-gray-500">
+              {booking.shortlet?.title || "Shortlet booking"}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={submitReview.isPending}
+            aria-label="Close review form"
+            className="rounded-full p-2 text-gray-500 hover:bg-gray-100 disabled:opacity-50"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+          <fieldset>
+            <legend className="text-sm font-semibold text-gray-700">
+              Your rating
+            </legend>
+            <div className="mt-2 flex gap-2">
+              {Array.from({ length: 5 }, (_, index) => {
+                const value = index + 1;
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setRating(value)}
+                    aria-label={`${value} ${value === 1 ? "star" : "stars"}`}
+                    aria-pressed={rating === value}
+                    className="rounded p-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#43A047]"
+                  >
+                    <Star
+                      size={28}
+                      className={
+                        value <= rating
+                          ? "fill-amber-400 text-amber-400"
+                          : "text-gray-300"
+                      }
+                    />
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
+
+          <label className="block text-sm font-medium text-gray-700">
+            Your review
+            <textarea
+              value={comment}
+              onChange={(event) => setComment(event.target.value)}
+              minLength={10}
+              maxLength={2000}
+              rows={5}
+              required
+              className="mt-1 w-full rounded-lg border border-gray-300 p-3"
+            />
+            <span className="mt-1 block text-xs text-gray-500">
+              {comment.trim().length}/2000 characters (minimum 10)
+            </span>
+          </label>
+
+          {formError && (
+            <p className="text-sm text-red-700" role="alert">
+              {formError}
+            </p>
+          )}
+
+          <div className="flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={submitReview.isPending}
+              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={submitReview.isPending}
+              className="rounded-lg bg-[#43A047] px-4 py-2 text-sm font-semibold text-white hover:bg-[#388E3C] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {submitReview.isPending ? "Submitting…" : "Submit review"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
 const ShortletBookingCard = ({
   booking,
   onCancel,
+  canReview,
 }: {
   booking: ShortletGuestBooking;
   onCancel: (booking: ShortletGuestBooking) => void;
+  canReview: boolean;
 }) => {
+  const [showReviewDialog, setShowReviewDialog] = useState(false);
   const shortlet = booking.shortlet;
   const propertyPath = getPropertyDetailsPath({
     id: shortlet?.id ?? booking.shortlet_id,
@@ -208,8 +377,23 @@ const ShortletBookingCard = ({
               Cancel booking
             </button>
           )}
+          {canReview && booking.review?.submitted !== true && (
+            <button
+              type="button"
+              onClick={() => setShowReviewDialog(true)}
+              className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#43A047] px-5 text-sm font-semibold text-white transition hover:bg-[#388E3C]"
+            >
+              Leave a review
+            </button>
+          )}
         </div>
       </div>
+      {showReviewDialog && (
+        <ShortletReviewDialog
+          booking={booking}
+          onClose={() => setShowReviewDialog(false)}
+        />
+      )}
     </article>
   );
 };
@@ -460,8 +644,20 @@ const MyBookingsPage = () => {
     refetch: refetchShortlets,
     isFetching: isFetchingShortlets,
   } = useShortletBookings();
+  const {
+    data: pendingReviews = [],
+    isError: isPendingReviewsError,
+    error: pendingReviewsError,
+    refetch: refetchPendingReviews,
+    isFetching: isFetchingPendingReviews,
+  } = usePendingShortletReviews();
   const isLoading = isLoadingRentals || isLoadingShortlets;
-  const isFetching = isFetchingRentals || isFetchingShortlets;
+  const isFetching =
+    isFetchingRentals || isFetchingShortlets || isFetchingPendingReviews;
+  const pendingReviewIds = useMemo(
+    () => new Set(pendingReviews.map((review) => review.booking_id)),
+    [pendingReviews],
+  );
 
   const longTermBookings = useMemo(
     () => bookings.filter(isLongTermRental),
@@ -475,11 +671,17 @@ const MyBookingsPage = () => {
   const visibleBookingCount =
     filteredLongTermBookings.length + filteredShortletBookings.length;
 
-  const hasBookingError = isRentalsError || isShortletsError;
+  const hasBookingError =
+    isRentalsError ||
+    isShortletsError ||
+    (filter !== "long-term" && isPendingReviewsError);
   const hasAnyBookings = totalBookings > 0;
   const retryBookings = () => {
     if (isRentalsError) void refetchRentals();
     if (isShortletsError) void refetchShortlets();
+    if (filter !== "long-term" && isPendingReviewsError) {
+      void refetchPendingReviews();
+    }
   };
 
   return (
@@ -547,6 +749,13 @@ const MyBookingsPage = () => {
                             : "Unable to load."
                         }`
                       : null,
+                    filter !== "long-term" && isPendingReviewsError
+                      ? `Review eligibility: ${
+                          pendingReviewsError instanceof Error
+                            ? pendingReviewsError.message
+                            : "Unable to load."
+                        }`
+                      : null,
                   ]
                     .filter(Boolean)
                     .join(" ")}
@@ -599,6 +808,10 @@ const MyBookingsPage = () => {
                   <ShortletBookingCard
                     key={booking.id}
                     booking={booking}
+                    canReview={
+                      booking.review?.canReview === true ||
+                      pendingReviewIds.has(booking.booking_id ?? booking.id)
+                    }
                     onCancel={(selected) => setSelectedBooking(selected)}
                   />
                 ))}

@@ -22,13 +22,24 @@ export type AdminShortletBookingFilters = {
 
 export type AdminMoneyValue = string | number;
 
+export type AdminDepositClaimEvidence = {
+  amount?: AdminMoneyValue | null;
+  photos?: unknown;
+  videos?: unknown;
+  reason?: string | null;
+};
+
 export type AdminShortletDepositClaim = {
   canResolve?: boolean;
+  claim?: AdminDepositClaimEvidence | null;
   deposit_claim_amount?: AdminMoneyValue | null;
   deposit_claim_reason?: string | null;
   deposit_claim_photos?: unknown;
+  deposit_claim_videos?: unknown;
   deposit_claimed_at?: string | null;
   security_deposit?: AdminMoneyValue | null;
+  cautionFee?: AdminMoneyValue | null;
+  caution_fee?: AdminMoneyValue | null;
   deposit_claim_decision?: string | null;
   deposit_claim_note?: string | null;
   deposit_paid_to_host?: AdminMoneyValue | null;

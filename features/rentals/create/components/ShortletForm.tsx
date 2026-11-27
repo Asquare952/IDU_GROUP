@@ -71,8 +71,8 @@ const defaultValues: FormData = {
   pricePerNight: 0,
   cleaningFee: 0,
   securityDeposit: 0,
-  minimumStay: "",
-  maximumStay: "",
+  minimumStay: "1",
+  maximumStay: "30",
   availableFrom: "",
   availableTo: "",
   checkInTime: "",
@@ -87,6 +87,11 @@ const toMoneyNumber = (value: unknown): number => {
   const numberValue = Number(value);
 
   return Number.isFinite(numberValue) ? numberValue : 0;
+};
+
+const stayNightsOrDefault = (value: unknown, fallback: number) => {
+  const nights = Number(value);
+  return Number.isInteger(nights) && nights >= 1 ? nights : fallback;
 };
 
 export default function ShortletForm() {
@@ -309,8 +314,8 @@ export default function ShortletForm() {
       pricePerNight: Number(data.pricePerNight),
       cleaningFee: Number(data.cleaningFee),
       securityDeposit: Number(data.securityDeposit),
-      minimumStay: Number(data.minimumStay),
-      maximumStay: Number(data.maximumStay),
+      minimumStay: stayNightsOrDefault(data.minimumStay, 1),
+      maximumStay: stayNightsOrDefault(data.maximumStay, 30),
       availableFrom: data.availableFrom,
       availableTo: data.availableTo,
       checkInTime: data.checkInTime,

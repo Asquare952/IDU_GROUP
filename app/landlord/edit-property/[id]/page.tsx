@@ -11,6 +11,7 @@ import {
   type UpdateRentalPayload,
 } from "@/app/api/features/rental";
 import {
+  getShortletApiError,
   useFetchShortletById,
   useUpdateShortlet,
   type UpdateShortletPayload,
@@ -24,7 +25,6 @@ import FinancialBreakdownStep from "@/features/rentals/create/components/steps/F
 import ShortletPropertyInfoStep from "@/features/rentals/create/components/steps/shortlet/PropertyInfoStep";
 import ShortletLocationStep from "@/features/rentals/create/components/steps/shortlet/LocationStep";
 import ShortletAmenitiesStep from "@/features/rentals/create/components/steps/shortlet/AmenitieStep";
-import ShortletMediaStep from "@/features/rentals/create/components/steps/shortlet/MediaStep";
 import PricingAvailabilityStep from "@/features/rentals/create/components/steps/shortlet/PricingAvailaibiliy";
 import HouseRuleStep from "@/features/rentals/create/components/steps/shortlet/HouseRuleStep";
 import ReviewPublishPreview from "@/features/rentals/create/components/ReviewPublishPreview";
@@ -74,8 +74,8 @@ const defaults: EditForm = {
   pricePerNight: 0,
   cleaningFee: 0,
   securityDeposit: 0,
-  minimumStay: "",
-  maximumStay: "",
+  minimumStay: "1",
+  maximumStay: "30",
   availableFrom: "",
   availableTo: "",
   checkInTime: "",
@@ -87,6 +87,10 @@ const defaults: EditForm = {
 };
 const number = (value: unknown) =>
   Number.isFinite(Number(value)) ? Number(value) : 0;
+const stayNightsOrDefault = (value: unknown, fallback: number) => {
+  const nights = Number(value);
+  return Number.isInteger(nights) && nights >= 1 ? nights : fallback;
+};
 const dateInputValue = (value?: string) => value?.slice(0, 10) ?? "";
 const timeInputValue = (value?: string) => value?.slice(0, 5) ?? "";
 const booleanInputValue = (value?: boolean) =>
@@ -197,8 +201,8 @@ export default function Page() {
       pricePerNight: number(shortletDetails?.price ?? rental.price),
       cleaningFee: number(shortletDetails?.cleaningFee),
       securityDeposit: number(shortletDetails?.securityDeposit),
-      minimumStay: shortletDetails?.minimumStay ?? "",
-      maximumStay: shortletDetails?.maximumStay ?? "",
+      minimumStay: String(shortletDetails?.minimumStay ?? 1),
+      maximumStay: String(shortletDetails?.maximumStay ?? 30),
       availableFrom: dateInputValue(shortletDetails?.availableFrom),
       availableTo: dateInputValue(shortletDetails?.availableTo),
       checkInTime: timeInputValue(shortletDetails?.checkInTime),
@@ -277,10 +281,20 @@ export default function Page() {
     setSubmitError(null);
     const callbacks = {
       onSuccess: () => router.push("/landlord/my-listings"),
-      onError: (err: unknown) =>
+      onError: (err: unknown) => {
+        if (isShortletRequest) {
+          const apiError = getShortletApiError(err);
+          setSubmitError(
+            apiError.status
+              ? `${apiError.message} (HTTP ${apiError.status})`
+              : apiError.message,
+          );
+          return;
+        }
         setSubmitError(
           err instanceof Error ? err.message : "Unable to save changes.",
-        ),
+        );
+      },
     };
 
     if (isShortletRequest) {
@@ -300,8 +314,8 @@ export default function Page() {
         pricePerNight: number(data.pricePerNight),
         cleaningFee: number(data.cleaningFee),
         securityDeposit: number(data.securityDeposit),
-        minimumStay: number(data.minimumStay),
-        maximumStay: number(data.maximumStay),
+        minimumStay: stayNightsOrDefault(data.minimumStay, 1),
+        maximumStay: stayNightsOrDefault(data.maximumStay, 30),
         availableFrom: data.availableFrom,
         availableTo: data.availableTo,
         checkInTime: data.checkInTime,
@@ -316,10 +330,8 @@ export default function Page() {
         status: data.status,
         furnishingStatus: data.furnishedStatus,
         amenities,
-        ...(images.length ? { images } : {}),
-        ...(videos.length ? { videos } : {}),
-        ...(removedImages.length ? { removedImages } : {}),
-        ...(removedVideos.length ? { removedVideos } : {}),
+        ...(removedImages.length ? { images: existingImages } : {}),
+        ...(removedVideos.length ? { videos: existingVideos } : {}),
       } as UpdateShortletPayload;
       updateShortlet(shortletPayload, callbacks);
       return;
@@ -389,7 +401,13 @@ export default function Page() {
               <button
                 type="button"
                 onClick={() => setRemovedImages((current) => [...current, src])}
-                className="absolute right-1 top-1 rounded-full bg-red-600 p-1 text-white"
+                disabled={shortlet && existingImages.length <= 1}
+                title={
+                  shortlet && existingImages.length <= 1
+                    ? "A shortlet must keep at least one image."
+                    : undefined
+                }
+                className="absolute right-1 top-1 rounded-full bg-red-600 p-1 text-white disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <X size={12} />
               </button>
@@ -484,16 +502,12 @@ export default function Page() {
                   {step === 3 && (
                     <>
                       {existingMedia}
-                      <ShortletMediaStep
-                        images={images}
-                        videos={videos}
-                        imagePreviews={imagePreviews}
-                        videoPreviews={videoPreviews}
-                        handleImageChange={(e) => addMedia(e, "image")}
-                        handleVideoChange={(e) => addMedia(e, "video")}
-                        removeImage={(i) => removeNew("image", i)}
-                        removeVideo={(i) => removeNew("video", i)}
-                      />
+                      <p className="rounded-xl bg-blue-50 p-4 text-sm text-blue-800">
+                        The shortlet update API currently accepts existing
+                        image/video URLs only, not file uploads. You can remove
+                        existing media above; adding new media requires backend
+                        upload support.
+                      </p>
                     </>
                   )}
                   {step === 4 && (

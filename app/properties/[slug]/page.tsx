@@ -34,6 +34,7 @@ import {
   getShortletApiError,
   useBookShortlet,
   useFetchShortletById,
+  useShortletReviews,
   useShortletAvailability,
   useShortletQuote,
 } from "@/app/api/features/shortlet";
@@ -132,6 +133,11 @@ function PropertyDesktopViewContent() {
 
   const rentalQuery = useFetchPropertyBySlug(isShortletRoute ? null : slug);
   const shortletQuery = useFetchShortletById(slug, isShortletRoute);
+  const shortletReviewsQuery = useShortletReviews(
+    isShortletRoute ? slug : null,
+    { limit: 50, offset: 0 },
+    isShortletRoute,
+  );
   const availabilityQuery = useShortletAvailability(
     isShortletRoute ? slug : undefined,
     isShortletRoute && isLoggedIn,
@@ -150,6 +156,14 @@ function PropertyDesktopViewContent() {
     isShortletRoute && isLoggedIn,
   );
   const property = isShortletRoute ? shortletQuery.data : rentalQuery.data;
+  const rawShortletRating =
+    shortletReviewsQuery.data?.ratingAverage ?? property?.ratingAverage;
+  const shortletRating =
+    rawShortletRating == null || !Number.isFinite(Number(rawShortletRating))
+      ? undefined
+      : Number(rawShortletRating);
+  const shortletReviewCount =
+    shortletReviewsQuery.data?.reviewCount ?? property?.reviewCount;
   const isLoading = isShortletRoute
     ? shortletQuery.isLoading
     : rentalQuery.isLoading;
@@ -568,10 +582,25 @@ function PropertyDesktopViewContent() {
                     setShortletGuests(guests);
                   }}
                 />
-                {/* Reviews, rules, and host data remain empty unless backed by
-                    real listing/review data; the components handle empty states. */}
-                <ShortletRatings />
-                <ShortletReviews reviews={[]} />
+                <ShortletRatings
+                  rating={shortletRating}
+                  reviewCount={
+                    shortletReviewCount && shortletReviewCount > 0
+                      ? shortletReviewCount
+                      : undefined
+                  }
+                />
+                <ShortletReviews
+                  reviews={shortletReviewsQuery.data?.reviews ?? []}
+                  averageRating={shortletRating}
+                  totalReviews={shortletReviewCount}
+                  isLoading={shortletReviewsQuery.isLoading}
+                  error={
+                    shortletReviewsQuery.isError
+                      ? getShortletApiError(shortletReviewsQuery.error).message
+                      : undefined
+                  }
+                />
                 <ShortletInfo
                   checkInTime={property.checkInTime}
                   checkOutTime={property.checkOutTime}

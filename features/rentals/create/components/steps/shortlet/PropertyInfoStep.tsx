@@ -194,7 +194,7 @@ const PropertyInfoStep = ({ methods, errors }: Props) => {
                 <div className=" flex flex-col gap-1.5 border border-amber-50 p-1.5">
                   <div className=" flex flex-col justify-center items-center">
                     <Sofa />
-                    <h4>Livivng Room</h4>
+                    <h4>Living Room</h4>
                   </div>
                   <select
                     {...methods.register("livivngRooms")}
