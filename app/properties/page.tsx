@@ -32,13 +32,13 @@ import { House, MapPin } from "lucide-react";
 const CATEGORIES = [
   "All",
   "Apartment",
+  "Shortlet",
   "House",
   "Office",
   "Commercial",
   "Land",
   "Lodge",
   "Self-contain",
-  "Shortlet",
 ];
 
 function AllPropertiesPageContent() {
@@ -84,6 +84,31 @@ function AllPropertiesPageContent() {
   const recentOnly = !isLoggedIn;
   const { mutate: likeRental } = useLikeRental();
   const { mutate: unlikeRental } = useUnlikeRental();
+  const fetchShortletResults = async (searchTerm: string) => {
+    if (searchTerm && !recentOnly) {
+      return searchShortlets({ location: searchTerm });
+    }
+
+    const shortlets = await fetchShortlets(recentOnly);
+    if (!searchTerm) {
+      return shortlets;
+    }
+
+    const normalizedSearch = searchTerm.toLowerCase();
+    return shortlets.filter((property) =>
+      [
+        property.location,
+        property.title,
+        property.description,
+        property.propertyType,
+        property.city,
+        property.state,
+        property.area,
+      ]
+        .filter(Boolean)
+        .some((value) => String(value).toLowerCase().includes(normalizedSearch)),
+    );
+  };
 
   const {
     data: properties = [],
@@ -100,32 +125,21 @@ function AllPropertiesPageContent() {
     queryFn: async () => {
       const trimmedSearch = finalSearch.trim();
 
+      if (selectedCategory === "All") {
+        const [rentals, shortlets] = await Promise.all([
+          trimmedSearch
+            ? searchProperties(
+                { location: trimmedSearch },
+                { recentOnly, includeShortlets: false },
+              )
+            : fetchProperties({ recentOnly, includeShortlets: false }),
+          fetchShortletResults(trimmedSearch),
+        ]);
+        return [...rentals, ...shortlets];
+      }
+
       if (selectedCategory === "Shortlet") {
-        if (trimmedSearch && !recentOnly) {
-          return searchShortlets({ location: trimmedSearch });
-        }
-
-        const shortlets = await fetchShortlets(recentOnly);
-        if (!trimmedSearch) {
-          return shortlets;
-        }
-
-        const searchTerm = trimmedSearch.toLowerCase();
-        return shortlets.filter((property) =>
-          [
-            property.location,
-            property.title,
-            property.description,
-            property.propertyType,
-            property.city,
-            property.state,
-            property.area,
-          ]
-            .filter(Boolean)
-            .some((value) =>
-              String(value).toLowerCase().includes(searchTerm),
-            ),
-        );
+        return fetchShortletResults(trimmedSearch);
       }
 
       return trimmedSearch
